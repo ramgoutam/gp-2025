@@ -8,6 +8,7 @@ import { TreatmentSection } from "./lab-script/TreatmentSection";
 import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
+import { useNavigate } from "react-router-dom";
 
 type FileUpload = {
   id: string;
@@ -15,6 +16,7 @@ type FileUpload = {
 };
 
 export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = React.useState({
     doctorName: "",
     clinicName: "",
@@ -35,25 +37,23 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Lab script form submitted:", {
+    const submissionData = {
       ...formData,
+      id: Date.now().toString(),
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.files.length > 0) {
           acc[key] = upload.files;
         }
         return acc;
       }, {} as Record<string, File[]>)
-    });
+    };
     
-    onSubmit?.({
-      ...formData,
-      fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
-        if (upload.files.length > 0) {
-          acc[key] = upload.files;
-        }
-        return acc;
-      }, {} as Record<string, File[]>)
-    });
+    console.log("Lab script form submitted:", submissionData);
+    
+    onSubmit?.(submissionData);
+
+    // Navigate to scripts page with the submitted form data
+    navigate('/scripts', { state: { openScript: submissionData } });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
