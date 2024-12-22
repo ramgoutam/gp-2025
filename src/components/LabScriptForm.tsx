@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DigitalDataSection } from "./lab-script/DigitalDataSection";
+
+type FileUpload = {
+  id: string;
+  file: File | null;
+};
 
 export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) => {
   const [formData, setFormData] = React.useState({
@@ -25,15 +24,37 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     specificInstructions: "",
   });
 
+  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>({});
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Lab script form submitted:", formData);
-    onSubmit?.(formData);
+    console.log("File uploads:", fileUploads);
+    
+    // Combine form data with file uploads
+    const submitData = {
+      ...formData,
+      fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
+        if (upload.file) {
+          acc[key] = upload.file;
+        }
+        return acc;
+      }, {} as Record<string, File>)
+    };
+    
+    onSubmit?.(submitData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (itemId: string, file: File | null) => {
+    setFileUploads(prev => ({
+      ...prev,
+      [itemId]: { id: itemId, file }
+    }));
   };
 
   return (
@@ -161,42 +182,10 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg">Digital Data</h3>
-        <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-2">
-            <h4 className="font-medium">Surgical Day Appliance</h4>
-            <div className="space-y-2">
-              {[
-                "Pictures",
-                "Initial Jaw records (STL)*",
-                "Pre-Surgical Markers (STL)*",
-                "Post-Surgery Tissue with Refs*"
-              ].map((item) => (
-                <div key={item} className="flex items-center space-x-2">
-                  <Checkbox id={`surgical${item}`} />
-                  <label htmlFor={`surgical${item}`}>{item}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-medium">Printed Tryin / Nightguard / Final PMMA or Zr</h4>
-            <div className="space-y-2">
-              {[
-                "Pictures",
-                "Follow-up Jaw Records (STL)*",
-                "Follow-up Tissue with Ref*"
-              ].map((item) => (
-                <div key={item} className="flex items-center space-x-2">
-                  <Checkbox id={`printed${item}`} />
-                  <label htmlFor={`printed${item}`}>{item}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DigitalDataSection
+        uploads={fileUploads}
+        onFileChange={handleFileChange}
+      />
 
       <div className="space-y-2">
         <Label htmlFor="specificInstructions">Specific Instructions</Label>
