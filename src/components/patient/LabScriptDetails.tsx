@@ -6,7 +6,8 @@ import { LabScript } from "./LabScriptsTab";
 import { LabScriptForm } from "../LabScriptForm";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Maximize } from "lucide-react";
+import { Maximize, Printer } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -40,23 +41,108 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
     onEdit(updatedData);
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Lab Script Details</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .section { margin-bottom: 15px; }
+            .section-title { font-weight: bold; margin-bottom: 5px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            @media print {
+              @page { size: A4; margin: 20mm; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Lab Script Details</h1>
+            <p>Generated on ${format(new Date(), "MMM dd, yyyy")}</p>
+          </div>
+          <div class="section">
+            <div class="grid">
+              <div>
+                <div class="section-title">Doctor Name:</div>
+                <div>${script.doctorName}</div>
+              </div>
+              <div>
+                <div class="section-title">Clinic Name:</div>
+                <div>${script.clinicName}</div>
+              </div>
+              <div>
+                <div class="section-title">Request Date:</div>
+                <div>${format(new Date(script.requestDate), "MMM dd, yyyy")}</div>
+              </div>
+              <div>
+                <div class="section-title">Due Date:</div>
+                <div>${format(new Date(script.dueDate), "MMM dd, yyyy")}</div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-title">Appliance Type:</div>
+            <div>${script.applianceType || "N/A"}</div>
+          </div>
+          <div class="section">
+            <div class="section-title">Treatments:</div>
+            <div>Upper: ${script.treatments.upper.join(", ") || "None"}</div>
+            <div>Lower: ${script.treatments.lower.join(", ") || "None"}</div>
+          </div>
+          ${script.specificInstructions ? `
+            <div class="section">
+              <div class="section-title">Specific Instructions:</div>
+              <div>${script.specificInstructions}</div>
+            </div>
+          ` : ''}
+          <div class="section">
+            <div class="section-title">Status:</div>
+            <div>${script.status.replace("_", " ")}</div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   const dialogContentClass = isMaximized 
     ? "max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh]" 
-    : "max-w-4xl"; // Matching create lab script popup size
+    : "max-w-4xl";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${dialogContentClass} overflow-hidden`}>
         <DialogHeader className="flex flex-row justify-between items-center">
           <DialogTitle>{isEditing ? 'Edit Lab Script' : 'Lab Script Details'}</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMaximized(!isMaximized)}
-            className="h-8 w-8"
-          >
-            <Maximize className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            {!isEditing && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handlePrint}
+                className="h-8 w-8"
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMaximized(!isMaximized)}
+              className="h-8 w-8"
+            >
+              <Maximize className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogHeader>
         
         <ScrollArea className="flex-1 h-full max-h-[calc(90vh-120px)]">
@@ -67,53 +153,63 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
               isEditing={true}
             />
           ) : (
-            <div className="space-y-4 p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
-                  <p>{script.applianceType || "N/A"}</p>
+            <div className="space-y-6 p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-500">Doctor Name</h4>
+                  <p className="text-lg">{script.doctorName}</p>
                 </div>
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Doctor</h4>
-                  <p>{script.doctorName}</p>
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-500">Clinic Name</h4>
+                  <p className="text-lg">{script.clinicName}</p>
                 </div>
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Clinic</h4>
-                  <p>{script.clinicName}</p>
-                </div>
-                <div>
+                <div className="space-y-2">
                   <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
-                  <p>{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
+                  <p className="text-lg">{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
-                  <p>{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
+                  <p className="text-lg">{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-medium text-sm text-gray-500 mb-2">Treatments</h4>
-                {script.treatments.upper.length > 0 && (
-                  <div className="mb-2">
-                    <span className="font-medium">Upper:</span> {script.treatments.upper.join(", ")}
+              <Separator />
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
+                <p className="text-lg">{script.applianceType || "N/A"}</p>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="font-medium text-sm text-gray-500">Treatments</h4>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <h5 className="font-medium">Upper</h5>
+                    <p>{script.treatments.upper.join(", ") || "None"}</p>
                   </div>
-                )}
-                {script.treatments.lower.length > 0 && (
-                  <div>
-                    <span className="font-medium">Lower:</span> {script.treatments.lower.join(", ")}
+                  <div className="space-y-2">
+                    <h5 className="font-medium">Lower</h5>
+                    <p>{script.treatments.lower.join(", ") || "None"}</p>
                   </div>
-                )}
+                </div>
               </div>
 
               {script.specificInstructions && (
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500 mb-2">Specific Instructions</h4>
-                  <p className="text-sm">{script.specificInstructions}</p>
-                </div>
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-500">Specific Instructions</h4>
+                    <p className="whitespace-pre-wrap">{script.specificInstructions}</p>
+                  </div>
+                </>
               )}
 
-              <div>
-                <h4 className="font-medium text-sm text-gray-500 mb-2">Status</h4>
+              <Separator />
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-gray-500">Status</h4>
                 {getStatusBadge(script.status || "pending")}
               </div>
 
