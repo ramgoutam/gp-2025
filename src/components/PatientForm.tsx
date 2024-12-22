@@ -37,7 +37,6 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
     dob: "",
     address: "",
   });
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -48,19 +47,22 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
   useEffect(() => {
     // Initialize Google Places Autocomplete
     const addressInput = document.getElementById("address") as HTMLInputElement;
-    if (addressInput && window.google) {
-      const autocompleteInstance = new google.maps.places.Autocomplete(addressInput, {
+    if (addressInput && window.google && window.google.maps && window.google.maps.places) {
+      console.log("Initializing Google Places Autocomplete");
+      const autocomplete = new window.google.maps.places.Autocomplete(addressInput, {
         types: ['address'],
+        fields: ['formatted_address'],
       });
 
-      autocompleteInstance.addListener('place_changed', () => {
-        const place = autocompleteInstance.getPlace();
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        console.log("Selected place:", place);
         if (place.formatted_address) {
           setFormData(prev => ({ ...prev, address: place.formatted_address }));
         }
       });
-
-      setAutocomplete(autocompleteInstance);
+    } else {
+      console.error("Google Maps Places API not loaded");
     }
   }, []);
 
@@ -150,6 +152,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
           onChange={handleChange}
           placeholder="Start typing to search address..."
           required
+          autoComplete="off"
         />
       </div>
 
