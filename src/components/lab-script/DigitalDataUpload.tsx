@@ -9,7 +9,6 @@ type FileUpload = {
 };
 
 type DigitalDataSection = {
-  title: string;
   items: string[];
 };
 
@@ -36,7 +35,6 @@ export const DigitalDataUpload = ({
 
   return (
     <div className="space-y-2">
-      <h4 className="font-medium">{section.title}</h4>
       <div className="space-y-2">
         {section.items.map((item) => {
           const itemId = `${sectionKey}-${item}`;

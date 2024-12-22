@@ -3,7 +3,6 @@ import { DigitalDataUpload } from "./DigitalDataUpload";
 
 const DIGITAL_DATA_SECTIONS = {
   surgical: {
-    title: "Surgical Day Appliance",
     items: [
       "Pictures",
       "Initial Jaw records (STL)*",
@@ -12,7 +11,6 @@ const DIGITAL_DATA_SECTIONS = {
     ]
   },
   printed: {
-    title: "Printed Tryin / Nightguard / Final PMMA or Zr",
     items: [
       "Pictures",
       "Follow-up Jaw Records (STL)*",
