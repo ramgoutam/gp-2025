@@ -4,11 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { LabScript } from "./LabScriptsTab";
 import { LabScriptForm } from "../LabScriptForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Maximize, Printer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { STLViewer } from "../lab-script/STLViewer";
+import { FileList } from "../lab-script/FileList";
+import { FilePreviewDialog } from "../lab-script/FilePreviewDialog";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -34,20 +35,46 @@ const getStatusBadge = (status: LabScript["status"]) => {
 
 export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing = false }: LabScriptDetailsProps) => {
   const [isMaximized, setIsMaximized] = useState(false);
-  const [selectedSTLFile, setSelectedSTLFile] = useState<File | null>(null);
-  const [showSTLPreview, setShowSTLPreview] = useState(false);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
-  if (!script) return null;
+  useEffect(() => {
+    return () => {
+      // Cleanup any object URLs when component unmounts
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, []);
 
   const handleEdit = (updatedData: LabScript) => {
     console.log("Handling edit with updated data:", updatedData);
     onEdit(updatedData);
   };
 
-  const handleSTLPreview = (file: File) => {
-    console.log("Opening STL preview for file:", file.name);
-    setSelectedSTLFile(file);
-    setShowSTLPreview(true);
+  const handlePreview = (file: File) => {
+    console.log("Opening preview for file:", file.name);
+    
+    if (file.name.toLowerCase().endsWith('.stl')) {
+      setPreviewFile(file);
+      setImagePreviewUrl(null);
+    } else if (file.type.startsWith('image/')) {
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreviewUrl(imageUrl);
+      setPreviewFile(null);
+    }
+    setShowPreview(true);
+  };
+
+  const closePreview = () => {
+    console.log("Closing preview");
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(null);
+    }
+    setPreviewFile(null);
+    setShowPreview(false);
   };
 
   const handlePrint = () => {
@@ -123,37 +150,11 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
     printWindow.print();
   };
 
+  if (!script) return null;
+
   const dialogContentClass = isMaximized 
     ? "max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh]" 
     : "max-w-4xl";
-
-  const renderFilePreview = (fileUploads: Record<string, File[]>) => {
-    return Object.entries(fileUploads).map(([key, files]) => {
-      if (!files || files.length === 0) return null;
-
-      return (
-        <div key={key} className="space-y-2">
-          <h4 className="font-medium text-sm text-gray-500">{key}</h4>
-          <div className="flex flex-wrap gap-2">
-            {files.map((file, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="text-sm">{file.name}</span>
-                {file.name.toLowerCase().endsWith('.stl') && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSTLPreview(file)}
-                  >
-                    Preview
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    });
-  };
 
   return (
     <>
@@ -239,7 +240,10 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
                     <Separator />
                     <div className="space-y-4">
                       <h4 className="font-medium text-sm text-gray-500">Uploaded Files</h4>
-                      {renderFilePreview(script.fileUploads)}
+                      <FileList 
+                        fileUploads={script.fileUploads}
+                        onPreview={handlePreview}
+                      />
                     </div>
                   </>
                 )}
@@ -275,14 +279,12 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showSTLPreview} onOpenChange={setShowSTLPreview}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>STL Preview</DialogTitle>
-          </DialogHeader>
-          {selectedSTLFile && <STLViewer file={selectedSTLFile} />}
-        </DialogContent>
-      </Dialog>
+      <FilePreviewDialog
+        file={previewFile}
+        imageUrl={imagePreviewUrl}
+        isOpen={showPreview}
+        onClose={closePreview}
+      />
     </>
   );
 };
