@@ -30,8 +30,6 @@ const PatientProfile = () => {
       ...formData,
       id: Date.now().toString(),
       status: "pending",
-      upperTreatment: formData.upperTreatment || "None",
-      lowerTreatment: formData.lowerTreatment || "None",
       treatments: {
         upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
         lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : [],

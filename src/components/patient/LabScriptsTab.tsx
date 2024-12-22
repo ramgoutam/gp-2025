@@ -12,7 +12,7 @@ export type LabScript = {
   status: "pending" | "in_progress" | "completed";
   upperTreatment: string;
   lowerTreatment: string;
-  treatments?: {
+  treatments: {
     upper: string[];
     lower: string[];
   };
