@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -22,34 +22,23 @@ const PatientProfile = () => {
   });
   const { toast } = useToast();
 
-  const loadScripts = () => {
+  const loadScripts = useCallback(() => {
     console.log("Loading scripts in PatientProfile");
     const savedScripts = localStorage.getItem('labScripts');
     if (savedScripts) {
       try {
         const scripts = JSON.parse(savedScripts);
-        console.log("Loaded scripts in PatientProfile:", scripts);
+        console.log("Loaded scripts:", scripts);
         setLabScripts(scripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadScripts();
-    
-    const handleLabScriptsUpdate = () => {
-      console.log("Lab scripts update event received in PatientProfile");
-      loadScripts();
-    };
-
-    window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-    
-    return () => {
-      window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-    };
-  }, []);
+  }, []); // Only load scripts once on mount
 
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script in PatientProfile:", formData);
@@ -70,8 +59,6 @@ const PatientProfile = () => {
     setLabScripts(updatedScripts);
     setShowLabScriptDialog(false);
     
-    window.dispatchEvent(new Event('labScriptsUpdated'));
-    
     toast({
       title: "Lab Script Created",
       description: "The lab script has been successfully created and added to the patient profile.",
@@ -88,8 +75,6 @@ const PatientProfile = () => {
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
-    
-    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     toast({
       title: "Lab Script Updated",
