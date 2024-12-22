@@ -20,7 +20,7 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   
-  const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6); // 6am to 6pm
+  const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
 
   const categoryLabels = {
@@ -34,29 +34,28 @@ export default function Calendar() {
   const categoryColors = {
     lab: {
       button: "bg-[#0EA5E9] hover:bg-[#0EA5E9]/90",
-      event: "bg-blue-50 border-blue-100"
+      event: "bg-blue-50/80 border-blue-200"
     },
     followup: {
-      button: "bg-[#F97316] hover:bg-[#F97316]/90",
-      event: "bg-purple-50 border-purple-100"
+      button: "bg-[#8B5CF6] hover:bg-[#8B5CF6]/90",
+      event: "bg-purple-50/80 border-purple-200"
     },
     emergency: {
-      button: "bg-[#ea384c] hover:bg-[#ea384c]/90",
-      event: "bg-red-50 border-red-100"
+      button: "bg-[#D946EF] hover:bg-[#D946EF]/90",
+      event: "bg-pink-50/80 border-pink-200"
     },
     surgery: {
-      button: "bg-[#8B5CF6] hover:bg-[#8B5CF6]/90",
-      event: "bg-green-50 border-green-100"
+      button: "bg-[#F97316] hover:bg-[#F97316]/90",
+      event: "bg-orange-50/80 border-orange-200"
     },
     dentist: {
-      button: "bg-[#D946EF] hover:bg-[#D946EF]/90",
-      event: "bg-amber-50 border-amber-100"
+      button: "bg-[#06B6D4] hover:bg-[#06B6D4]/90",
+      event: "bg-cyan-50/80 border-cyan-200"
     }
   };
 
   const handleAddEvent = (category: Event['category']) => {
     console.log(`Adding event for category: ${category}`);
-    // TODO: Implement event addition logic
   };
 
   const navigateDay = (days: number) => {
@@ -67,7 +66,7 @@ export default function Calendar() {
 
   const calculatePosition = (time: string) => {
     const [hours, minutes] = time.split(':').map(Number);
-    const baseHour = 6; // Starting hour (6 AM)
+    const baseHour = 6;
     return ((hours - baseHour) * 64) + ((minutes / 60) * 64);
   };
 
@@ -82,15 +81,15 @@ export default function Calendar() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navigation />
       
-      <main className="container mx-auto py-4">
-        <Card className="bg-white border shadow-sm relative z-10">
+      <main className="container mx-auto py-6">
+        <Card className="bg-white border-0 shadow-lg rounded-xl relative z-10">
           {/* Calendar Header */}
-          <div className="px-4 py-3 border-b flex items-center justify-between bg-white sticky top-0 z-20">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20 rounded-t-xl">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-medium text-gray-900">Calendar</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Calendar</h1>
               <DateSelector 
                 currentDate={currentDate}
                 onDateChange={setCurrentDate}
@@ -100,18 +99,18 @@ export default function Calendar() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="relative bg-white">
+          <div className="relative bg-white rounded-b-xl">
             <TimeGrid timeSlots={timeSlots} />
 
             {/* Category columns */}
-            <div className="ml-14 grid grid-cols-5">
+            <div className="ml-14 grid grid-cols-5 gap-px bg-gray-100">
               {categories.map((category) => (
-                <div key={category} className="border-r border-gray-100">
-                  <div className="px-2 py-2 text-sm font-medium text-gray-700 border-b bg-gray-50 sticky top-[57px] z-10">
+                <div key={category} className="bg-white">
+                  <div className="px-3 py-3 text-sm font-medium text-gray-700 border-b bg-gray-50/50 sticky top-[57px] z-10">
                     <div className="flex items-center justify-between">
                       <span>{categoryLabels[category]}</span>
                       <Button 
-                        className={`${categoryColors[category].button} text-white h-7 w-7 p-0`}
+                        className={`${categoryColors[category].button} text-white h-7 w-7 p-0 shadow-sm hover:shadow-md transition-all`}
                         size="icon"
                         onClick={() => handleAddEvent(category)}
                         title={`Add ${categoryLabels[category]}`}

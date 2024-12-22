@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 
 interface DateSelectorProps {
   currentDate: Date;
@@ -21,14 +22,17 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
     <div className="flex items-center gap-2">
       <Button 
         variant="outline" 
-        size="sm" 
+        size="sm"
+        className="text-gray-600 hover:text-gray-900"
         onClick={() => onNavigateDay(-1)}
       >
+        <ChevronLeft className="h-4 w-4 mr-1" />
         Yesterday
       </Button>
       <Button 
         variant="outline" 
         size="sm"
+        className="text-gray-600 hover:text-gray-900"
         onClick={navigateToToday}
       >
         Today
@@ -36,9 +40,11 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
       <Button 
         variant="outline" 
         size="sm"
+        className="text-gray-600 hover:text-gray-900"
         onClick={() => onNavigateDay(1)}
       >
         Tomorrow
+        <ChevronRight className="h-4 w-4 ml-1" />
       </Button>
       
       <Popover open={open} onOpenChange={setOpen}>
@@ -47,11 +53,12 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
             variant="outline"
             className="ml-2 text-left font-normal"
           >
+            <CalendarIcon className="mr-2 h-4 w-4" />
             <span>{format(currentDate, 'PPP')}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 bg-white border shadow-md z-50" 
+          className="w-auto p-0 bg-white border shadow-lg rounded-lg z-50" 
           align="start"
         >
           <Calendar
