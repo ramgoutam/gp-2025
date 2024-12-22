@@ -95,6 +95,7 @@ const PatientProfile = () => {
             labScripts={labScripts}
             onCreateLabScript={() => handleDialogChange(true)}
             onEditLabScript={handleEditLabScript}
+            patientData={patientData}  // Added this line to resolve the TypeScript error
           />
         </div>
       </main>
