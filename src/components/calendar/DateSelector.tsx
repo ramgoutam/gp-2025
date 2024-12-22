@@ -23,7 +23,7 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
       <Button 
         variant="outline" 
         size="sm"
-        className="text-gray-600 hover:text-gray-900"
+        className="text-gray-600 hover:text-gray-900 border-gray-200 hover:bg-gray-50"
         onClick={() => onNavigateDay(-1)}
       >
         <ChevronLeft className="h-4 w-4 mr-1" />
@@ -32,7 +32,7 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
       <Button 
         variant="outline" 
         size="sm"
-        className="text-gray-600 hover:text-gray-900"
+        className="text-gray-600 hover:text-gray-900 border-gray-200 hover:bg-gray-50"
         onClick={navigateToToday}
       >
         Today
@@ -40,7 +40,7 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
       <Button 
         variant="outline" 
         size="sm"
-        className="text-gray-600 hover:text-gray-900"
+        className="text-gray-600 hover:text-gray-900 border-gray-200 hover:bg-gray-50"
         onClick={() => onNavigateDay(1)}
       >
         Tomorrow
@@ -51,7 +51,7 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
         <PopoverTrigger asChild>
           <Button 
             variant="outline"
-            className="ml-2 text-left font-normal"
+            className="ml-2 text-left font-normal border-gray-200 hover:bg-gray-50"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             <span>{format(currentDate, 'PPP')}</span>

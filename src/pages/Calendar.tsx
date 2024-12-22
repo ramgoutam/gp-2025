@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { DateSelector } from "@/components/calendar/DateSelector";
 import { TimeGrid } from "@/components/calendar/TimeGrid";
 import { EventCard } from "@/components/calendar/EventCard";
+import { toast } from "sonner";
 
 interface Event {
   id: string;
@@ -19,6 +18,8 @@ interface Event {
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ time: string; category: string } | null>(null);
   
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
@@ -31,31 +32,37 @@ export default function Calendar() {
     dentist: "Dentist Calendar"
   };
 
-  const categoryColors = {
-    lab: {
-      button: "bg-[#0EA5E9] hover:bg-[#0EA5E9]/90",
-      event: "bg-blue-50/80 border-blue-200"
-    },
-    followup: {
-      button: "bg-[#8B5CF6] hover:bg-[#8B5CF6]/90",
-      event: "bg-purple-50/80 border-purple-200"
-    },
-    emergency: {
-      button: "bg-[#D946EF] hover:bg-[#D946EF]/90",
-      event: "bg-pink-50/80 border-pink-200"
-    },
-    surgery: {
-      button: "bg-[#F97316] hover:bg-[#F97316]/90",
-      event: "bg-orange-50/80 border-orange-200"
-    },
-    dentist: {
-      button: "bg-[#06B6D4] hover:bg-[#06B6D4]/90",
-      event: "bg-cyan-50/80 border-cyan-200"
-    }
+  const handleDragStart = (e: React.MouseEvent, hour: number, category: string) => {
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const minutes = Math.floor((y / 64) * 60);
+    const time = `${hour}:${minutes.toString().padStart(2, '0')}`;
+    
+    setIsDragging(true);
+    setDragStart({ time, category });
   };
 
-  const handleAddEvent = (category: Event['category']) => {
-    console.log(`Adding event for category: ${category}`);
+  const handleDragEnd = (e: React.MouseEvent, hour: number) => {
+    if (!dragStart) return;
+
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const minutes = Math.floor((y / 64) * 60);
+    const endTime = `${hour}:${minutes.toString().padStart(2, '0')}`;
+
+    const newEvent: Event = {
+      id: crypto.randomUUID(),
+      title: "New Appointment",
+      startTime: dragStart.time,
+      endTime,
+      attendees: [],
+      category: dragStart.category as Event['category']
+    };
+
+    setEvents(prev => [...prev, newEvent]);
+    setIsDragging(false);
+    setDragStart(null);
+    toast.success("New appointment slot created");
   };
 
   const navigateDay = (days: number) => {
@@ -86,7 +93,6 @@ export default function Calendar() {
       
       <main className="container mx-auto py-6">
         <Card className="bg-white border-0 shadow-lg rounded-xl relative z-10">
-          {/* Calendar Header */}
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20 rounded-t-xl">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-gray-900">Calendar</h1>
@@ -98,32 +104,24 @@ export default function Calendar() {
             </div>
           </div>
 
-          {/* Calendar Grid */}
           <div className="relative bg-white rounded-b-xl">
             <TimeGrid timeSlots={timeSlots} />
 
-            {/* Category columns */}
             <div className="ml-14 grid grid-cols-5 gap-px bg-gray-100">
               {categories.map((category) => (
                 <div key={category} className="bg-white">
                   <div className="px-3 py-3 text-sm font-medium text-gray-700 border-b bg-gray-50/50 sticky top-[57px] z-10">
                     <div className="flex items-center justify-between">
                       <span>{categoryLabels[category]}</span>
-                      <Button 
-                        className={`${categoryColors[category].button} text-white h-7 w-7 p-0 shadow-sm hover:shadow-md transition-all`}
-                        size="icon"
-                        onClick={() => handleAddEvent(category)}
-                        title={`Add ${categoryLabels[category]}`}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </Button>
                     </div>
                   </div>
                   <div className="relative bg-white">
                     {timeSlots.map((hour) => (
                       <div
                         key={hour}
-                        className="border-t border-gray-100 h-16"
+                        className="border-t border-gray-100 h-16 relative"
+                        onMouseDown={(e) => handleDragStart(e, hour, category)}
+                        onMouseUp={(e) => handleDragEnd(e, hour)}
                       />
                     ))}
 

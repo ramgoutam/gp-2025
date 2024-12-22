@@ -14,34 +14,36 @@ interface EventCardProps {
 }
 
 export const EventCard = ({ title, startTime, endTime, attendees, category }: EventCardProps) => {
-  const categoryColors = {
-    lab: "bg-blue-50/80 border-blue-200 hover:bg-blue-100/80",
-    followup: "bg-purple-50/80 border-purple-200 hover:bg-purple-100/80",
-    emergency: "bg-pink-50/80 border-pink-200 hover:bg-pink-100/80",
-    surgery: "bg-orange-50/80 border-orange-200 hover:bg-orange-100/80",
-    dentist: "bg-cyan-50/80 border-cyan-200 hover:bg-cyan-100/80"
+  const categoryStyles = {
+    lab: "bg-blue-50 border-blue-200 hover:bg-blue-100/90 text-blue-800",
+    followup: "bg-purple-50 border-purple-200 hover:bg-purple-100/90 text-purple-800",
+    emergency: "bg-pink-50 border-pink-200 hover:bg-pink-100/90 text-pink-800",
+    surgery: "bg-orange-50 border-orange-200 hover:bg-orange-100/90 text-orange-800",
+    dentist: "bg-cyan-50 border-cyan-200 hover:bg-cyan-100/90 text-cyan-800"
   };
 
   return (
     <div
-      className={`p-2 rounded-lg border shadow-sm ${categoryColors[category]} transition-all cursor-pointer`}
+      className={`p-2 rounded-lg border shadow-sm ${categoryStyles[category]} transition-all cursor-pointer hover:shadow-md`}
     >
       <div className="flex flex-col h-full">
-        <h3 className="text-sm font-medium text-gray-900 truncate">
+        <h3 className="text-sm font-medium truncate">
           {title}
         </h3>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs opacity-75">
           {startTime} - {endTime}
         </p>
-        <div className="flex -space-x-2 mt-1">
-          {attendees.map((attendee, index) => (
-            <Avatar key={index} className="h-6 w-6 border-2 border-white">
-              <AvatarFallback className="text-xs bg-gray-200">
-                {attendee.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-          ))}
-        </div>
+        {attendees.length > 0 && (
+          <div className="flex -space-x-2 mt-1">
+            {attendees.map((attendee, index) => (
+              <Avatar key={index} className="h-6 w-6 border-2 border-white">
+                <AvatarFallback className="text-xs">
+                  {attendee.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
