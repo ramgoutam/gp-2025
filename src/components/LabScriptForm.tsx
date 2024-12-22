@@ -48,19 +48,15 @@ export const LabScriptForm = ({
     vdoOption: initialData?.vdoOption || "",
   });
 
-  // Initialize fileUploads with existing files from initialData
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
     if (initialData?.fileUploads) {
       const formattedUploads: Record<string, FileUpload> = {};
       Object.entries(initialData.fileUploads).forEach(([key, files]: [string, any]) => {
-        // Ensure files is always an array and contains valid File objects
         const fileArray = Array.isArray(files) ? files : [files];
-        // Convert file-like objects to actual File objects if needed
         const validFiles = fileArray.map(file => {
           if (file instanceof File) {
             return file;
           }
-          // Create a new File object if we have a file-like object
           if (file.name && file.type && file.size) {
             return new File([file], file.name, {
               type: file.type,
@@ -97,6 +93,18 @@ export const LabScriptForm = ({
     };
     
     console.log(`Lab script ${isEditing ? 'updated' : 'submitted'}:`, submissionData);
+    
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    if (isEditing) {
+      const updatedScripts = existingScripts.map((script: LabScript) => 
+        script.id === submissionData.id ? submissionData : script
+      );
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    } else {
+      localStorage.setItem('labScripts', JSON.stringify([...existingScripts, submissionData]));
+    }
+    
+    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     onSubmit?.(submissionData);
 

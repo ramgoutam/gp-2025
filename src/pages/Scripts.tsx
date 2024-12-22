@@ -18,22 +18,32 @@ const Scripts = () => {
   const { toast } = useToast();
 
   // Load scripts from localStorage when component mounts
+  const loadScripts = () => {
+    console.log("Loading scripts from localStorage");
+    const savedScripts = localStorage.getItem('labScripts');
+    if (savedScripts) {
+      const scripts = JSON.parse(savedScripts);
+      console.log("Loaded scripts:", scripts);
+      setLabScripts(scripts);
+    }
+  };
+
   useEffect(() => {
-    const loadScripts = () => {
-      console.log("Loading scripts from localStorage");
-      const savedScripts = localStorage.getItem('labScripts');
-      if (savedScripts) {
-        const scripts = JSON.parse(savedScripts);
-        console.log("Loaded scripts:", scripts);
-        setLabScripts(scripts);
-      }
+    loadScripts();
+    
+    // Add event listener for storage changes
+    const handleStorageChange = () => {
+      loadScripts();
     };
 
-    loadScripts();
+    // Listen for both storage events and custom events
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('labScriptsUpdated', handleStorageChange);
 
-    // Add event listener for storage changes
-    window.addEventListener('storage', loadScripts);
-    return () => window.removeEventListener('storage', loadScripts);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('labScriptsUpdated', handleStorageChange);
+    };
   }, []);
 
   const handleNewScriptSubmit = (formData: any) => {

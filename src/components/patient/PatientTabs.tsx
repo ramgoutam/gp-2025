@@ -30,6 +30,8 @@ export const PatientTabs = ({
   };
 
   const handleEditLabScript = (updatedScript: LabScript) => {
+    console.log("Handling lab script edit in PatientTabs:", updatedScript);
+    
     // Get existing scripts from localStorage
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     
@@ -40,6 +42,9 @@ export const PatientTabs = ({
     
     // Save back to localStorage
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
+    // Dispatch a custom event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     onEditLabScript(updatedScript);
   };
