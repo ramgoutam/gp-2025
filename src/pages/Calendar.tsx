@@ -20,6 +20,11 @@ export default function Calendar() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ time: string; category: string } | null>(null);
+  const [previewEvent, setPreviewEvent] = useState<{
+    startTime: string;
+    endTime: string;
+    category: string;
+  } | null>(null);
   
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
@@ -33,6 +38,7 @@ export default function Calendar() {
   };
 
   const handleDragStart = (e: React.MouseEvent, hour: number, category: string) => {
+    e.preventDefault();
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
     const minutes = Math.floor((y / 64) * 60);
@@ -40,10 +46,31 @@ export default function Calendar() {
     
     setIsDragging(true);
     setDragStart({ time, category });
+    setPreviewEvent({
+      startTime: time,
+      endTime: time,
+      category
+    });
+
+    console.log('Drag started:', { time, category });
+  };
+
+  const handleDragMove = (e: React.MouseEvent, hour: number) => {
+    if (!isDragging || !dragStart || !previewEvent) return;
+
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const minutes = Math.floor((y / 64) * 60);
+    const currentTime = `${hour}:${minutes.toString().padStart(2, '0')}`;
+
+    setPreviewEvent({
+      ...previewEvent,
+      endTime: currentTime
+    });
   };
 
   const handleDragEnd = (e: React.MouseEvent, hour: number) => {
-    if (!dragStart) return;
+    if (!isDragging || !dragStart) return;
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
@@ -62,7 +89,10 @@ export default function Calendar() {
     setEvents(prev => [...prev, newEvent]);
     setIsDragging(false);
     setDragStart(null);
+    setPreviewEvent(null);
     toast.success("New appointment slot created");
+
+    console.log('Event created:', newEvent);
   };
 
   const navigateDay = (days: number) => {
@@ -121,9 +151,22 @@ export default function Calendar() {
                         key={hour}
                         className="border-t border-gray-100 h-16 relative"
                         onMouseDown={(e) => handleDragStart(e, hour, category)}
+                        onMouseMove={(e) => handleDragMove(e, hour)}
                         onMouseUp={(e) => handleDragEnd(e, hour)}
                       />
                     ))}
+
+                    {/* Preview event while dragging */}
+                    {isDragging && previewEvent && previewEvent.category === category && (
+                      <div
+                        className="absolute left-1 right-1 bg-gray-200/50 border border-gray-300 rounded-lg pointer-events-none"
+                        style={{
+                          top: `${calculatePosition(previewEvent.startTime)}px`,
+                          height: `${calculateHeight(previewEvent.startTime, previewEvent.endTime)}px`,
+                          minHeight: '32px'
+                        }}
+                      />
+                    )}
 
                     {events
                       .filter(event => event.category === category)
