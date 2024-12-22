@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+// Import CSS in index.css instead
 
 interface PatientFormData {
   firstName: string;
@@ -39,6 +39,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
     dob: "",
     address: "",
   });
+
   const [suggestions, setSuggestions] = useState<Array<{ place_name: string }>>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
