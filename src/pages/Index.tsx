@@ -4,14 +4,14 @@ import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Search, Plus, Mail, Phone } from "lucide-react";
 
 interface Patient {
   id: number;
@@ -24,7 +24,6 @@ interface Patient {
 }
 
 const Index = () => {
-  // Temporary mock data - this would typically come from an API
   const [patients, setPatients] = useState<Patient[]>([
     {
       id: 1,
@@ -46,6 +45,8 @@ const Index = () => {
     },
   ]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const handleAddPatient = (patientData: Omit<Patient, "id">) => {
     const newPatient = {
       ...patientData,
@@ -54,57 +55,78 @@ const Index = () => {
     setPatients([...patients, newPatient]);
   };
 
+  const filteredPatients = patients.filter((patient) =>
+    `${patient.firstName} ${patient.lastName}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <main className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Add New Patient</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>New Patient Registration</DialogTitle>
-              </DialogHeader>
-              <PatientForm onSubmitSuccess={(data) => {
-                handleAddPatient(data);
-              }} />
-            </DialogContent>
-          </Dialog>
-        </div>
+      <main className="container mx-auto py-8 px-4">
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add New Patient
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>New Patient Registration</DialogTitle>
+                </DialogHeader>
+                <PatientForm onSubmitSuccess={handleAddPatient} />
+              </DialogContent>
+            </Dialog>
+          </div>
 
-        <div className="bg-white rounded-lg shadow">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Sex</TableHead>
-                <TableHead>Date of Birth</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {patients.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell>
-                    <Link 
-                      to={`/patient/${patient.id}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      {`${patient.firstName} ${patient.lastName}`}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{patient.email}</TableCell>
-                  <TableCell>{patient.phone}</TableCell>
-                  <TableCell className="capitalize">{patient.sex}</TableCell>
-                  <TableCell>{new Date(patient.dob).toLocaleDateString()}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search patients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredPatients.map((patient) => (
+              <Link
+                key={patient.id}
+                to={`/patient/${patient.id}`}
+                className="block group"
+              >
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg">
+                      {patient.firstName[0]}
+                      {patient.lastName[0]}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary">
+                        {patient.firstName} {patient.lastName}
+                      </h3>
+                      <div className="mt-2 space-y-1">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Mail className="h-4 w-4 mr-2" />
+                          {patient.email}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Phone className="h-4 w-4 mr-2" />
+                          {patient.phone}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </main>
     </div>
