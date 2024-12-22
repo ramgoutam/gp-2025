@@ -37,6 +37,13 @@ export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) 
     onEditScript?.(scriptId);
   };
 
+  const handleScriptEdit = (updatedScript: LabScript) => {
+    if (onEditScript) {
+      onEditScript(updatedScript.id);
+    }
+    setSelectedScript(null);
+  };
+
   return (
     <>
       <ScrollArea className="h-[500px]">
@@ -51,10 +58,7 @@ export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) 
         script={selectedScript}
         open={!!selectedScript}
         onOpenChange={(open) => !open && setSelectedScript(null)}
-        onEdit={(scriptId) => {
-          onEditScript?.(scriptId);
-          setSelectedScript(null);
-        }}
+        onEdit={handleScriptEdit}
       />
     </>
   );
