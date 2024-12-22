@@ -80,9 +80,15 @@ export const LabScriptForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Generate a truly unique ID using timestamp and random string
+    const uniqueId = isEditing 
+      ? initialData?.id 
+      : `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     const submissionData = {
       ...formData,
-      id: initialData?.id || Date.now().toString(),
+      id: uniqueId,
       patientFirstName: patientData?.firstName || formData.firstName,
       patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -93,19 +99,27 @@ export const LabScriptForm = ({
       }, {} as Record<string, File[]>)
     };
     
-    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'}:`, submissionData);
+    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'} with ID:`, uniqueId, submissionData);
     
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    
+    // When editing, replace the existing script
+    // When creating new, ensure no duplicate IDs exist before adding
     if (isEditing) {
       const updatedScripts = existingScripts.map((script: LabScript) => 
         script.id === submissionData.id ? submissionData : script
       );
       localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     } else {
-      localStorage.setItem('labScripts', JSON.stringify([...existingScripts, submissionData]));
+      // Check for duplicates before adding
+      const isDuplicate = existingScripts.some((script: LabScript) => script.id === submissionData.id);
+      if (!isDuplicate) {
+        localStorage.setItem('labScripts', JSON.stringify([...existingScripts, submissionData]));
+      } else {
+        console.error("Duplicate script ID detected:", submissionData.id);
+        return;
+      }
     }
-    
-    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     onSubmit?.(submissionData);
 
