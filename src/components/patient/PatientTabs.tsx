@@ -25,6 +25,25 @@ export const PatientTabs = ({
   onEditLabScript,
   patientData,
 }: PatientTabsProps) => {
+  const handleCreateLabScript = () => {
+    onCreateLabScript();
+  };
+
+  const handleEditLabScript = (updatedScript: LabScript) => {
+    // Get existing scripts from localStorage
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    
+    // Update the script in the array
+    const updatedScripts = existingScripts.map((script: LabScript) => 
+      script.id === updatedScript.id ? updatedScript : script
+    );
+    
+    // Save back to localStorage
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
+    onEditLabScript(updatedScript);
+  };
+
   return (
     <Tabs defaultValue="patient-information" className="w-full">
       <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
@@ -71,8 +90,8 @@ export const PatientTabs = ({
       <TabsContent value="lab-scripts">
         <LabScriptsContent
           labScripts={labScripts}
-          onCreateLabScript={onCreateLabScript}
-          onEditLabScript={onEditLabScript}
+          onCreateLabScript={handleCreateLabScript}
+          onEditLabScript={handleEditLabScript}
         />
       </TabsContent>
 

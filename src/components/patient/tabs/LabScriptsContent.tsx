@@ -3,6 +3,7 @@ import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { LabScript } from "@/components/patient/LabScriptsTab";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LabScriptsContentProps {
   labScripts: LabScript[];
@@ -15,18 +16,40 @@ export const LabScriptsContent = ({
   onCreateLabScript,
   onEditLabScript,
 }: LabScriptsContentProps) => {
+  const { toast } = useToast();
+
+  const handleCreateLabScript = () => {
+    onCreateLabScript();
+  };
+
+  const handleEditLabScript = (updatedScript: LabScript) => {
+    // Update localStorage
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const updatedScripts = existingScripts.map((script: LabScript) => 
+      script.id === updatedScript.id ? updatedScript : script
+    );
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
+    onEditLabScript(updatedScript);
+    
+    toast({
+      title: "Lab Script Updated",
+      description: "The lab script has been successfully updated.",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={onCreateLabScript} className="flex items-center gap-2">
+        <Button onClick={handleCreateLabScript} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Create Lab Script
         </Button>
       </div>
       <LabScriptsTab 
         labScripts={labScripts} 
-        onCreateLabScript={onCreateLabScript}
-        onEditLabScript={onEditLabScript}
+        onCreateLabScript={handleCreateLabScript}
+        onEditLabScript={handleEditLabScript}
       />
     </div>
   );
