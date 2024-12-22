@@ -18,6 +18,7 @@ interface PatientFormData {
   phone: string;
   sex: string;
   dob: string;
+  address: string;
 }
 
 interface PatientFormProps {
@@ -34,13 +35,34 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
     phone: "",
     sex: "",
     dob: "",
+    address: "",
   });
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
     }
   }, [initialData]);
+
+  useEffect(() => {
+    // Initialize Google Places Autocomplete
+    const addressInput = document.getElementById("address") as HTMLInputElement;
+    if (addressInput && window.google) {
+      const autocompleteInstance = new google.maps.places.Autocomplete(addressInput, {
+        types: ['address'],
+      });
+
+      autocompleteInstance.addListener('place_changed', () => {
+        const place = autocompleteInstance.getPlace();
+        if (place.formatted_address) {
+          setFormData(prev => ({ ...prev, address: place.formatted_address }));
+        }
+      });
+
+      setAutocomplete(autocompleteInstance);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +83,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
         phone: "",
         sex: "",
         dob: "",
+        address: "",
       });
     }
   };
@@ -114,6 +137,18 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
           type="tel"
           value={formData.phone}
           onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="address">Address</Label>
+        <Input
+          id="address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Start typing to search address..."
           required
         />
       </div>

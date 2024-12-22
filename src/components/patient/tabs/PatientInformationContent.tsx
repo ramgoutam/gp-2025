@@ -7,6 +7,7 @@ type PatientInformationProps = {
   phone: string;
   sex: string;
   dob: string;
+  address?: string;
 };
 
 export const PatientInformationContent = ({
@@ -16,6 +17,7 @@ export const PatientInformationContent = ({
   phone,
   sex,
   dob,
+  address,
 }: PatientInformationProps) => {
   const InfoCard = ({ label, value }: { label: string; value: string }) => (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -45,6 +47,12 @@ export const PatientInformationContent = ({
               day: 'numeric'
             })} 
           />
+          {address && (
+            <InfoCard 
+              label="Address" 
+              value={address}
+            />
+          )}
         </div>
       </div>
     </div>
