@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "./LabScriptsTab";
+import { useNavigate } from "react-router-dom";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -38,6 +39,8 @@ const getTreatments = (script: LabScript) => {
 };
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
+  const navigate = useNavigate();
+
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
     onEditClick(script);
@@ -48,6 +51,11 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     if (onDeleteClick) {
       onDeleteClick(script);
     }
+  };
+
+  const handlePatientClick = (e: React.MouseEvent, patientId: string) => {
+    e.stopPropagation();
+    navigate(`/patient/${patientId}`);
   };
 
   return (
@@ -75,7 +83,12 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
               key={script.id}
               className="hover:bg-gray-50"
             >
-              <TableCell>{patientName}</TableCell>
+              <TableCell 
+                onClick={(e) => handlePatientClick(e, script.id)}
+                className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+              >
+                {patientName}
+              </TableCell>
               <TableCell 
                 className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                 onClick={() => onRowClick(script)}
