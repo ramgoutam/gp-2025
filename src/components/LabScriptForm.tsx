@@ -8,8 +8,7 @@ import { TreatmentSection } from "./lab-script/TreatmentSection";
 import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
-import { useToast } from "./ui/use-toast";
-import { LabScript } from "./patient/LabScriptsTab";
+import { useLabScriptSubmit } from "@/hooks/useLabScriptSubmit";
 
 type FileUpload = {
   id: string;
@@ -32,7 +31,7 @@ export const LabScriptForm = ({
   isEditing = false,
   patientData 
 }: LabScriptFormProps) => {
-  const { toast } = useToast();
+  const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
   const [formData, setFormData] = React.useState({
     doctorName: initialData?.doctorName || "",
     clinicName: initialData?.clinicName || "",
@@ -54,39 +53,35 @@ export const LabScriptForm = ({
       const formattedUploads: Record<string, FileUpload> = {};
       Object.entries(initialData.fileUploads).forEach(([key, files]: [string, any]) => {
         const fileArray = Array.isArray(files) ? files : [files];
-        const validFiles = fileArray.map(file => {
-          if (file instanceof File) {
-            return file;
-          }
-          if (file.name && file.type && file.size) {
-            return new File([file], file.name, {
-              type: file.type,
-              lastModified: file.lastModified || Date.now()
-            });
-          }
-          return null;
-        }).filter(Boolean);
+        const validFiles = fileArray
+          .map(file => {
+            if (file instanceof File) return file;
+            if (file.name && file.type && file.size) {
+              return new File([file], file.name, {
+                type: file.type,
+                lastModified: file.lastModified || Date.now()
+              });
+            }
+            return null;
+          })
+          .filter(Boolean);
 
         formattedUploads[key] = {
           id: key,
           files: validFiles
         };
       });
-      console.log("Initialized file uploads with converted files:", formattedUploads);
       return formattedUploads;
     }
     return {};
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Use existing ID when editing, or generate a new one for new scripts
-    const scriptId = isEditing ? initialData?.id : `${Date.now()}`;
+    if (isSubmitting) return;
 
     const submissionData = {
       ...formData,
-      id: scriptId,
       patientFirstName: patientData?.firstName || formData.firstName,
       patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -96,40 +91,8 @@ export const LabScriptForm = ({
         return acc;
       }, {} as Record<string, File[]>)
     };
-    
-    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'} with ID:`, scriptId, submissionData);
-    
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    
-    // When editing, replace the existing script
-    // When creating new, ensure no duplicate IDs exist
-    if (isEditing) {
-      const updatedScripts = existingScripts.map((script: LabScript) => 
-        script.id === submissionData.id ? submissionData : script
-      );
-      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    } else {
-      // Check for duplicates before adding
-      const isDuplicate = existingScripts.some((script: LabScript) => script.id === submissionData.id);
-      if (!isDuplicate) {
-        const newScripts = [...existingScripts, submissionData];
-        localStorage.setItem('labScripts', JSON.stringify(newScripts));
-        onSubmit?.(submissionData);
-      } else {
-        console.error("Duplicate script ID detected:", submissionData.id);
-        toast({
-          title: "Error",
-          description: "A lab script with this ID already exists. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-    }
 
-    toast({
-      title: isEditing ? "Lab Script Updated" : "Lab Script Created",
-      description: isEditing ? "The lab script has been successfully updated." : "The lab script has been successfully created.",
-    });
+    await handleSubmit(submissionData, initialData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -146,7 +109,7 @@ export const LabScriptForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={onFormSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="doctorName">Doctor Name</Label>
@@ -246,7 +209,9 @@ export const LabScriptForm = ({
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="submit">{isEditing ? 'Update' : 'Submit'} Lab Script</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Processing...' : isEditing ? 'Update' : 'Submit'} Lab Script
+        </Button>
       </div>
     </form>
   );
