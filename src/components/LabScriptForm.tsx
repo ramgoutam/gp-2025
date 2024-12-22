@@ -81,14 +81,12 @@ export const LabScriptForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Generate a truly unique ID using timestamp and random string
-    const uniqueId = isEditing 
-      ? initialData?.id 
-      : `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use existing ID when editing, or generate a new one for new scripts
+    const scriptId = isEditing ? initialData?.id : `${Date.now()}`;
 
     const submissionData = {
       ...formData,
-      id: uniqueId,
+      id: scriptId,
       patientFirstName: patientData?.firstName || formData.firstName,
       patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -99,12 +97,12 @@ export const LabScriptForm = ({
       }, {} as Record<string, File[]>)
     };
     
-    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'} with ID:`, uniqueId, submissionData);
+    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'} with ID:`, scriptId, submissionData);
     
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     
     // When editing, replace the existing script
-    // When creating new, ensure no duplicate IDs exist before adding
+    // When creating new, ensure no duplicate IDs exist
     if (isEditing) {
       const updatedScripts = existingScripts.map((script: LabScript) => 
         script.id === submissionData.id ? submissionData : script
@@ -114,14 +112,19 @@ export const LabScriptForm = ({
       // Check for duplicates before adding
       const isDuplicate = existingScripts.some((script: LabScript) => script.id === submissionData.id);
       if (!isDuplicate) {
-        localStorage.setItem('labScripts', JSON.stringify([...existingScripts, submissionData]));
+        const newScripts = [...existingScripts, submissionData];
+        localStorage.setItem('labScripts', JSON.stringify(newScripts));
+        onSubmit?.(submissionData);
       } else {
         console.error("Duplicate script ID detected:", submissionData.id);
+        toast({
+          title: "Error",
+          description: "A lab script with this ID already exists. Please try again.",
+          variant: "destructive"
+        });
         return;
       }
     }
-    
-    onSubmit?.(submissionData);
 
     toast({
       title: isEditing ? "Lab Script Updated" : "Lab Script Created",
