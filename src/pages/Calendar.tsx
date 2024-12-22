@@ -18,43 +18,8 @@ interface Event {
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState<Event[]>([]);
   
-  // Demo events data
-  const events: Event[] = [
-    {
-      id: "1",
-      title: "Dental Checkup",
-      startTime: "6:00",
-      endTime: "6:30",
-      attendees: [
-        { name: "John Doe" },
-        { name: "Jane Smith" }
-      ],
-      category: "dentist"
-    },
-    {
-      id: "2",
-      title: "Emergency Consultation",
-      startTime: "9:40",
-      endTime: "11:30",
-      attendees: [
-        { name: "Alice Johnson" }
-      ],
-      category: "emergency"
-    },
-    {
-      id: "3",
-      title: "Lab Work Review",
-      startTime: "18:00",
-      endTime: "19:30",
-      attendees: [
-        { name: "Bob Wilson" },
-        { name: "Carol Brown" }
-      ],
-      category: "lab"
-    }
-  ];
-
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6); // 6am to 6pm
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
 
@@ -143,15 +108,15 @@ export default function Calendar() {
               {categories.map((category) => (
                 <div key={category} className="border-r border-gray-100">
                   <div className="px-2 py-2 text-sm font-medium text-gray-700 border-b bg-gray-50 sticky top-[57px] z-10">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
                       <span>{categoryLabels[category]}</span>
                       <Button 
-                        className={`w-full ${categoryColors[category].button} text-white`}
-                        size="sm"
+                        className={`${categoryColors[category].button} text-white h-7 w-7 p-0`}
+                        size="icon"
                         onClick={() => handleAddEvent(category)}
+                        title={`Add ${categoryLabels[category]}`}
                       >
-                        <Plus className="h-4 w-4" />
-                        Add Event
+                        <Plus className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
