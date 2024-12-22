@@ -225,6 +225,7 @@ export default function Calendar() {
                             {...event} 
                             category={event.category}
                             onDragStart={handleDragStart}
+                            isDragging={dragState?.eventId === event.id}
                           />
                         </div>
                     ))}

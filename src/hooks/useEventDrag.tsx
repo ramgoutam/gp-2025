@@ -5,6 +5,8 @@ interface DragState {
   eventId: string;
   initialY: number;
   currentY: number;
+  initialX: number;
+  currentX: number;
 }
 
 export const useEventDrag = (updateEvent: (id: string, startTime: string, endTime: string) => void) => {
@@ -14,14 +16,17 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
     const element = e.currentTarget as HTMLElement;
     const rect = element.getBoundingClientRect();
     const initialY = e.clientY - rect.top;
+    const initialX = e.clientX - rect.left;
 
     setDragState({
       eventId,
       initialY,
-      currentY: e.clientY
+      currentY: e.clientY,
+      initialX,
+      currentX: e.clientX
     });
 
-    console.log('Event drag started:', { eventId, initialY });
+    console.log('Event drag started:', { eventId, initialY, initialX });
   };
 
   const handleDragMove = (e: MouseEvent) => {
@@ -29,12 +34,14 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
 
     setDragState({
       ...dragState,
-      currentY: e.clientY
+      currentY: e.clientY,
+      currentX: e.clientX
     });
 
     console.log('Event being dragged:', { 
       eventId: dragState.eventId,
-      currentY: e.clientY 
+      currentY: e.clientY,
+      currentX: e.clientX 
     });
   };
 
