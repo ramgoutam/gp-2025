@@ -30,36 +30,38 @@ export const PatientInformationContent = ({
     label: string; 
     value: string;
   }) => (
-    <div className="flex items-start gap-4 p-4 rounded-lg bg-accent/50 hover:bg-accent transition-colors duration-200">
-      <Icon className="w-5 h-5 text-primary mt-0.5" />
-      <div>
+    <div className="flex items-start space-x-4 p-4 rounded-lg bg-white border border-gray-100 hover:border-primary/20 transition-all duration-200 hover:shadow-sm">
+      <div className="p-2 rounded-lg bg-primary/5">
+        <Icon className="w-4 h-4 text-primary" />
+      </div>
+      <div className="space-y-1">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
+        <p className="text-sm font-medium">{value}</p>
       </div>
     </div>
   );
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-6 pb-0">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-lg font-medium text-primary">
+      <div className="p-6 border-b">
+        <div className="flex items-center space-x-4">
+          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
+            <span className="text-base font-medium text-white">
               {firstName.charAt(0)}{lastName.charAt(0)}
             </span>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-lg font-semibold">
               {firstName} {lastName}
             </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Personal Information
+            <p className="text-sm text-muted-foreground">
+              Patient Details
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <InfoItem 
           icon={User2}
           label="First Name" 
