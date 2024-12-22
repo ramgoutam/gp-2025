@@ -41,23 +41,36 @@ interface OdontogramProps {
 }
 
 export const Odontogram = ({ selectedTeeth, onToothClick, isUpper = true }: OdontogramProps) => {
-  // Basic tooth shape - molar-like
-  const toothPath = "M -6,-8 C -6,-8 -6,-2 -6,-2 C -6,-2 -2,2 0,2 C 2,2 6,-2 6,-2 C 6,-2 6,-8 6,-8 C 6,-8 0,-10 0,-10 C 0,-10 -6,-8 -6,-8 Z";
+  // Define different tooth shapes based on position
+  const molarPath = "M -7,-8 C -7,-8 -7,-2 -7,-2 C -7,-2 -3,3 0,3 C 3,3 7,-2 7,-2 C 7,-2 7,-8 7,-8 C 7,-8 4,-10 0,-10 C -4,-10 -7,-8 -7,-8 Z";
+  const premolarPath = "M -6,-8 C -6,-8 -6,-2 -6,-2 C -6,-2 -2,2 0,2 C 2,2 6,-2 6,-2 C 6,-2 6,-8 6,-8 C 6,-8 3,-9 0,-9 C -3,-9 -6,-8 -6,-8 Z";
+  const anteriorPath = "M -5,-8 C -5,-8 -4,-2 -4,-2 C -4,-2 -2,2 0,2 C 2,2 4,-2 4,-2 C 4,-2 5,-8 5,-8 C 5,-8 2.5,-10 0,-10 C -2.5,-10 -5,-8 -5,-8 Z";
   
   // Define teeth numbers and positions along the arch
   const teethNumbers = isUpper 
     ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
     : [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
 
+  const getToothPath = (index: number) => {
+    // Molars: positions 0-2 and 13-15 (wisdom teeth and molars)
+    if (index <= 2 || index >= 13) return molarPath;
+    // Premolars: positions 3-4 and 11-12
+    if (index <= 4 || index >= 11) return premolarPath;
+    // Anterior teeth (canines and incisors): positions 5-10
+    return anteriorPath;
+  };
+
   // Calculate positions along an arc
   const getToothPosition = (index: number, total: number) => {
-    const archWidth = 160; // Width of the arch
-    const archHeight = isUpper ? 60 : -60; // Height/curve of the arch
+    const archWidth = 180; // Increased width for better spacing
+    const archHeight = isUpper ? 70 : -70; // Increased height for more pronounced curve
     const angleStep = Math.PI / (total - 1);
     const angle = index * angleStep;
     
+    // Adjust x position to create more natural spacing
     const x = (archWidth / 2) * Math.cos(angle) - (archWidth / 2);
-    const y = archHeight * Math.sin(angle) + (isUpper ? 20 : -20);
+    // Adjust y position to create more natural arch
+    const y = archHeight * Math.sin(angle) + (isUpper ? 25 : -25);
     
     // Calculate rotation angle to make teeth follow the arch curve
     const rotation = isUpper 
@@ -81,7 +94,7 @@ export const Odontogram = ({ selectedTeeth, onToothClick, isUpper = true }: Odon
             number={number}
             selected={selectedTeeth.includes(number)}
             onClick={() => onToothClick(number)}
-            pathD={toothPath}
+            pathD={getToothPath(index)}
             transform={`translate(${pos.x}, ${pos.y}) rotate(${pos.rotation})`}
           />
         );
