@@ -63,13 +63,13 @@ export default function Calendar() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
       
       <main className="container mx-auto py-4">
-        <Card className="bg-white border-0 shadow-none">
+        <Card className="bg-white border shadow-sm relative z-10">
           {/* Calendar Header */}
-          <div className="px-4 py-3 border-b flex items-center justify-between">
+          <div className="px-4 py-3 border-b flex items-center justify-between bg-white sticky top-0 z-20">
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-medium text-gray-900">Calendar</h1>
               <DateSelector 
@@ -81,17 +81,17 @@ export default function Calendar() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="relative">
+          <div className="relative bg-white">
             <TimeGrid timeSlots={timeSlots} />
 
             {/* Category columns */}
             <div className="ml-14 grid grid-cols-4">
               {categories.map((category) => (
                 <div key={category} className="border-r border-gray-100">
-                  <div className="px-2 py-1 text-sm font-medium text-gray-700 capitalize border-b bg-gray-50">
+                  <div className="px-2 py-1 text-sm font-medium text-gray-700 capitalize border-b bg-gray-50 sticky top-[57px] z-10">
                     {category}
                   </div>
-                  <div className="relative">
+                  <div className="relative bg-white">
                     {timeSlots.map((hour) => (
                       <div
                         key={hour}
