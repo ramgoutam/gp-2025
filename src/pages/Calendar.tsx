@@ -62,6 +62,22 @@ export default function Calendar() {
     setCurrentDate(newDate);
   };
 
+  const calculatePosition = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const baseHour = 6; // Starting hour (6 AM)
+    return ((hours - baseHour) + minutes / 60) * 64;
+  };
+
+  const calculateHeight = (startTime: string, endTime: string) => {
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const startInMinutes = startHours * 60 + startMinutes;
+    const endInMinutes = endHours * 60 + endMinutes;
+    
+    return ((endInMinutes - startInMinutes) / 60) * 64;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -106,12 +122,8 @@ export default function Calendar() {
                           key={event.id}
                           className="absolute left-1 right-1"
                           style={{
-                            top: `${(parseInt(event.startTime.split(':')[0]) - 6) * 64 + 
-                              (parseInt(event.startTime.split(':')[1]) / 60) * 64}px`,
-                            height: `${((parseInt(event.endTime.split(':')[0]) * 60 + 
-                              parseInt(event.endTime.split(':')[1])) - 
-                              (parseInt(event.startTime.split(':')[0]) * 60 + 
-                              parseInt(event.startTime.split(':')[1]))) / 60 * 64}px`
+                            top: `${calculatePosition(event.startTime)}px`,
+                            height: `${calculateHeight(event.startTime, event.endTime)}px`
                           }}
                         >
                           <EventCard {...event} />
