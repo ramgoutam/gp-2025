@@ -39,9 +39,22 @@ export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabS
     vdoOption: initialData?.vdoOption || "",
   });
 
-  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(
-    initialData?.fileUploads || {}
-  );
+  // Initialize fileUploads with existing files from initialData
+  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
+    if (initialData?.fileUploads) {
+      // Convert the fileUploads object to the correct format
+      const formattedUploads: Record<string, FileUpload> = {};
+      Object.entries(initialData.fileUploads).forEach(([key, files]: [string, any]) => {
+        formattedUploads[key] = {
+          id: key,
+          files: Array.isArray(files) ? files : []
+        };
+      });
+      console.log("Initialized file uploads:", formattedUploads);
+      return formattedUploads;
+    }
+    return {};
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +85,7 @@ export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabS
   };
 
   const handleFileChange = (itemId: string, files: File[]) => {
+    console.log("Handling file change for", itemId, "with files:", files);
     setFileUploads(prev => ({
       ...prev,
       [itemId]: { id: itemId, files }
