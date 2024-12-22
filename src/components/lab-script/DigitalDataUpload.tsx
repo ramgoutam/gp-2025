@@ -26,12 +26,21 @@ export const DigitalDataUpload = ({
   uploads,
   onFileChange,
 }: DigitalDataUploadProps) => {
+  const [checkedItems, setCheckedItems] = React.useState<Record<string, boolean>>({});
+
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     itemId: string
   ) => {
     const file = event.target.files?.[0] || null;
     onFileChange(itemId, file);
+    
+    // Automatically check the checkbox when a file is uploaded
+    if (file) {
+      setCheckedItems(prev => ({ ...prev, [itemId]: true }));
+    } else {
+      setCheckedItems(prev => ({ ...prev, [itemId]: false }));
+    }
   };
 
   return (
@@ -47,7 +56,13 @@ export const DigitalDataUpload = ({
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center space-x-2">
-                <Checkbox id={itemId} />
+                <Checkbox 
+                  id={itemId} 
+                  checked={checkedItems[itemId] || false}
+                  onCheckedChange={(checked) => {
+                    setCheckedItems(prev => ({ ...prev, [itemId]: checked as boolean }));
+                  }}
+                />
                 <Label htmlFor={itemId} className="text-sm font-medium">
                   {item}
                 </Label>
