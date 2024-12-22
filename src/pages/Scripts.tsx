@@ -23,17 +23,17 @@ const Scripts = () => {
     if (savedScripts) {
       try {
         const scripts = JSON.parse(savedScripts);
-        // Filter out duplicates based on ID
-        const uniqueScripts = scripts.reduce((acc: LabScript[], current: LabScript) => {
-          const exists = acc.find(script => script.id === current.id);
-          if (!exists) {
-            acc.push(current);
-          }
-          return acc;
-        }, []);
+        // Filter out duplicates based on ID and content
+        const uniqueScripts = Object.values(
+          scripts.reduce((acc: { [key: string]: LabScript }, current: LabScript) => {
+            // Use ID as key to automatically remove duplicates
+            acc[current.id] = current;
+            return acc;
+          }, {})
+        );
         
         console.log("Loaded unique scripts:", uniqueScripts);
-        setLabScripts(uniqueScripts);
+        setLabScripts(uniqueScripts as LabScript[]);
       } catch (error) {
         console.error("Error loading scripts:", error);
       }
@@ -57,9 +57,17 @@ const Scripts = () => {
     };
 
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    // Filter out any potential duplicates before adding new script
-    const uniqueScripts = existingScripts.filter((script: LabScript) => script.id !== newScript.id);
-    const updatedScripts = [...uniqueScripts, newScript];
+    // Use an object to automatically remove duplicates by ID
+    const scriptsMap = existingScripts.reduce((acc: { [key: string]: LabScript }, script: LabScript) => {
+      acc[script.id] = script;
+      return acc;
+    }, {});
+    
+    // Add new script
+    scriptsMap[newScript.id] = newScript;
+    
+    // Convert back to array
+    const updatedScripts = Object.values(scriptsMap);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
@@ -74,9 +82,15 @@ const Scripts = () => {
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    // Filter out duplicates and update the script
-    const uniqueScripts = existingScripts.filter((script: LabScript) => script.id !== updatedScript.id);
-    const updatedScripts = [...uniqueScripts, updatedScript];
+    
+    // Use an object to automatically remove duplicates by ID
+    const scriptsMap = existingScripts.reduce((acc: { [key: string]: LabScript }, script: LabScript) => {
+      acc[script.id] = script.id === updatedScript.id ? updatedScript : script;
+      return acc;
+    }, {});
+    
+    // Convert back to array
+    const updatedScripts = Object.values(scriptsMap);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
