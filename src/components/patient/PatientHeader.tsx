@@ -19,11 +19,12 @@ type PatientData = {
   phone?: string;
   sex?: string;
   dob?: string;
+  address?: string;  // Add this line to include address
 };
 
 type PatientHeaderProps = {
   patientData: PatientData;
-  onCreateLabScript: () => void;
+  onCreateLabScript?: () => void;
   onUpdatePatient: (updatedData: PatientData) => void;
 };
 
@@ -41,6 +42,7 @@ export const PatientHeader = ({
     phone: string;
     sex: string;
     dob: string;
+    address: string;  // Add this line
   }) => {
     console.log("Updating patient data:", formData);
     
@@ -101,6 +103,7 @@ export const PatientHeader = ({
               phone: patientData.phone || "",
               sex: patientData.sex || "",
               dob: patientData.dob || "",
+              address: patientData.address || "",  // Add this line
             }}
             onSubmitSuccess={handleEditSubmit}
           />
