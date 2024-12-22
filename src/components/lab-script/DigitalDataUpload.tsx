@@ -37,6 +37,7 @@ export const DigitalDataUpload = ({
   const [checkedItems, setCheckedItems] = React.useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = React.useState<File | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = React.useState<string | null>(null);
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -58,15 +59,41 @@ export const DigitalDataUpload = ({
 
   const handlePreview = (e: React.MouseEvent, file: File) => {
     e.preventDefault(); // Prevent form submission
-    console.log("Opening STL preview for file:", file.name);
-    setPreviewFile(file);
+    console.log("Opening preview for file:", file.name);
+    
+    if (file.name.toLowerCase().endsWith('.stl')) {
+      setPreviewFile(file);
+      setImagePreviewUrl(null);
+    } else if (file.type.startsWith('image/')) {
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreviewUrl(imageUrl);
+      setPreviewFile(null);
+    }
     setIsPreviewOpen(true);
   };
 
   const closePreview = () => {
-    console.log("Closing STL preview");
+    console.log("Closing preview");
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+      setImagePreviewUrl(null);
+    }
     setPreviewFile(null);
     setIsPreviewOpen(false);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      // Cleanup any object URLs when component unmounts
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, []);
+
+  const isPreviewable = (file: File) => {
+    const extension = file.name.toLowerCase();
+    return extension.endsWith('.stl') || file.type.startsWith('image/');
   };
 
   return (
@@ -129,9 +156,9 @@ export const DigitalDataUpload = ({
                   {uploadedFiles.map((file, index) => (
                     <div key={index} className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-md">
                       <span className="text-sm text-gray-700">{file.name}</span>
-                      {file.name.toLowerCase().endsWith('.stl') && (
+                      {isPreviewable(file) && (
                         <Button
-                          type="button" // Explicitly set type to button
+                          type="button"
                           variant="outline"
                           size="sm"
                           onClick={(e) => handlePreview(e, file)}
@@ -152,10 +179,19 @@ export const DigitalDataUpload = ({
       <Dialog open={isPreviewOpen} onOpenChange={closePreview}>
         <DialogContent className="sm:max-w-[800px] h-[600px]">
           <DialogHeader>
-            <DialogTitle>STL Preview - {previewFile?.name}</DialogTitle>
+            <DialogTitle>
+              Preview - {previewFile?.name || imagePreviewUrl?.split('/').pop()}
+            </DialogTitle>
           </DialogHeader>
           <div className="relative flex-1 h-full">
             {previewFile && <STLViewer file={previewFile} />}
+            {imagePreviewUrl && (
+              <img
+                src={imagePreviewUrl}
+                alt="Preview"
+                className="w-full h-full object-contain"
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
