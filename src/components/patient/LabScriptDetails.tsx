@@ -37,6 +37,12 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
     setIsEditing(false);
   };
 
+  // Transform the data to match the expected format
+  const treatments = {
+    upper: script.upperTreatment !== "None" ? [script.upperTreatment] : [],
+    lower: script.lowerTreatment !== "None" ? [script.lowerTreatment] : []
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -77,14 +83,14 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
 
             <div>
               <h4 className="font-medium text-sm text-gray-500 mb-2">Treatments</h4>
-              {script.treatments.upper.length > 0 && (
+              {treatments.upper.length > 0 && (
                 <div className="mb-2">
-                  <span className="font-medium">Upper:</span> {script.treatments.upper.join(", ")}
+                  <span className="font-medium">Upper:</span> {treatments.upper.join(", ")}
                 </div>
               )}
-              {script.treatments.lower.length > 0 && (
+              {treatments.lower.length > 0 && (
                 <div>
-                  <span className="font-medium">Lower:</span> {script.treatments.lower.join(", ")}
+                  <span className="font-medium">Lower:</span> {treatments.lower.join(", ")}
                 </div>
               )}
             </div>
@@ -98,7 +104,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
 
             <div>
               <h4 className="font-medium text-sm text-gray-500 mb-2">Status</h4>
-              {getStatusBadge(script.status)}
+              {getStatusBadge(script.status || "pending")}
             </div>
 
             <div className="flex justify-end space-x-2">
