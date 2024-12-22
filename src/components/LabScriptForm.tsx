@@ -2,9 +2,9 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { DigitalDataSection } from "./lab-script/DigitalDataSection";
+import { TreatmentSection } from "./lab-script/TreatmentSection";
 
 type FileUpload = {
   id: string;
@@ -25,24 +25,53 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
   });
 
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>({});
+  
+  const [upperTeeth, setUpperTeeth] = React.useState<number[]>([]);
+  const [lowerTeeth, setLowerTeeth] = React.useState<number[]>([]);
+  
+  const [upperTreatments, setUpperTreatments] = React.useState({
+    fullArchFixed: false,
+    denture: false,
+    crown: false,
+    nightguard: false,
+  });
+  
+  const [lowerTreatments, setLowerTreatments] = React.useState({
+    fullArchFixed: false,
+    denture: false,
+    crown: false,
+    nightguard: false,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Lab script form submitted:", formData);
-    console.log("File uploads:", fileUploads);
-    
-    // Combine form data with file uploads
-    const submitData = {
+    console.log("Lab script form submitted:", {
       ...formData,
+      upperTeeth,
+      lowerTeeth,
+      upperTreatments,
+      lowerTreatments,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.file) {
           acc[key] = upload.file;
         }
         return acc;
       }, {} as Record<string, File>)
-    };
+    });
     
-    onSubmit?.(submitData);
+    onSubmit?.({
+      ...formData,
+      upperTeeth,
+      lowerTeeth,
+      upperTreatments,
+      lowerTreatments,
+      fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
+        if (upload.file) {
+          acc[key] = upload.file;
+        }
+        return acc;
+      }, {} as Record<string, File>)
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -107,48 +136,24 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
       <div className="space-y-4">
         <h3 className="font-semibold text-lg">Treatment</h3>
         <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-2">
-            <h4 className="font-medium">Upper</h4>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="upperFullArchFixed" />
-                <label htmlFor="upperFullArchFixed">Full Arch Fixed</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="upperDenture" />
-                <label htmlFor="upperDenture">Denture</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="upperCrown" />
-                <label htmlFor="upperCrown">Crown</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="upperNightguard" />
-                <label htmlFor="upperNightguard">Nightguard</label>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-medium">Lower</h4>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="lowerFullArchFixed" />
-                <label htmlFor="lowerFullArchFixed">Full Arch Fixed</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="lowerDenture" />
-                <label htmlFor="lowerDenture">Denture</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="lowerCrown" />
-                <label htmlFor="lowerCrown">Crown</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="lowerNightguard" />
-                <label htmlFor="lowerNightguard">Nightguard</label>
-              </div>
-            </div>
-          </div>
+          <TreatmentSection
+            title="Upper"
+            selectedTeeth={upperTeeth}
+            onTeethChange={setUpperTeeth}
+            treatments={upperTreatments}
+            onTreatmentChange={(key, checked) =>
+              setUpperTreatments(prev => ({ ...prev, [key]: checked }))
+            }
+          />
+          <TreatmentSection
+            title="Lower"
+            selectedTeeth={lowerTeeth}
+            onTeethChange={setLowerTeeth}
+            treatments={lowerTreatments}
+            onTreatmentChange={(key, checked) =>
+              setLowerTreatments(prev => ({ ...prev, [key]: checked }))
+            }
+          />
         </div>
       </div>
 
