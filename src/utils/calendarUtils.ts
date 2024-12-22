@@ -22,20 +22,33 @@ export const formatTime = (hour: number, minutes: number) => {
 export const calculatePosition = (time: string) => {
   const [hours, minutes] = time.split(':').map(Number);
   const baseHour = 6; // Calendar starts at 6 AM
-  return ((hours - baseHour) * 64) + ((minutes / 60) * 64);
+  const pixelsPerHour = 64;
+  return ((hours - baseHour) * pixelsPerHour) + ((minutes / 60) * pixelsPerHour);
 };
 
 export const calculateHeight = (startTime: string, endTime: string) => {
+  console.log('Calculating height for:', { startTime, endTime });
+  
   const [startHours, startMinutes] = startTime.split(':').map(Number);
   const [endHours, endMinutes] = endTime.split(':').map(Number);
   
-  // Calculate total minutes for both times
-  const totalStartMinutes = (startHours * 60) + startMinutes;
-  const totalEndMinutes = (endHours * 60) + endMinutes;
+  // Convert both times to minutes since midnight
+  const startTotalMinutes = (startHours * 60) + startMinutes;
+  const endTotalMinutes = (endHours * 60) + endMinutes;
   
   // Calculate the difference in minutes
-  const diffInMinutes = totalEndMinutes - totalStartMinutes;
+  const diffInMinutes = endTotalMinutes - startTotalMinutes;
   
-  // Convert minutes to pixels (64px per hour)
-  return Math.max((diffInMinutes / 60) * 64, 32); // Minimum height of 32px
+  // Convert to pixels (64px per hour = 64/60 pixels per minute)
+  const heightInPixels = (diffInMinutes * (64/60));
+  
+  console.log('Height calculation:', {
+    startTotalMinutes,
+    endTotalMinutes,
+    diffInMinutes,
+    heightInPixels
+  });
+  
+  // Return the calculated height, with a minimum of 32px
+  return Math.max(heightInPixels, 32);
 };
