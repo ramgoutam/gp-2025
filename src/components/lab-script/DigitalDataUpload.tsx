@@ -3,11 +3,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Folder } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type FileUpload = {
   id: string;
-  file: File | null;
+  files: File[];
 };
 
 type DigitalDataSection = {
@@ -18,7 +17,7 @@ interface DigitalDataUploadProps {
   section: DigitalDataSection;
   sectionKey: string;
   uploads: Record<string, FileUpload>;
-  onFileChange: (itemId: string, file: File | null) => void;
+  onFileChange: (itemId: string, files: File[]) => void;
 }
 
 // Extend HTMLInputElement to include directory attributes
@@ -41,18 +40,16 @@ export const DigitalDataUpload = ({
     event: React.ChangeEvent<HTMLInputElement>,
     itemId: string
   ) => {
-    const files = event.target.files;
-    if (!files) return;
+    const fileList = event.target.files;
+    if (!fileList) return;
 
-    // For now, we'll just use the first file since the current data structure
-    // only supports one file. In a real app, you'd want to modify the data structure
-    // to handle multiple files
-    const file = files[0] || null;
-    onFileChange(itemId, file);
+    // Convert FileList to array
+    const filesArray = Array.from(fileList);
+    onFileChange(itemId, filesArray);
     
-    if (files.length > 0) {
+    if (filesArray.length > 0) {
       setCheckedItems(prev => ({ ...prev, [itemId]: true }));
-      console.log(`Uploaded ${files.length} files for ${itemId}`);
+      console.log(`Uploaded ${filesArray.length} files for ${itemId}`);
     } else {
       setCheckedItems(prev => ({ ...prev, [itemId]: false }));
     }
@@ -62,7 +59,8 @@ export const DigitalDataUpload = ({
     <div className="space-y-4">
       {section.items.map((item) => {
         const itemId = `${sectionKey}-${item}`;
-        const hasFile = !!uploads[itemId]?.file;
+        const uploadedFiles = uploads[itemId]?.files || [];
+        const hasFiles = uploadedFiles.length > 0;
 
         return (
           <div
@@ -95,14 +93,14 @@ export const DigitalDataUpload = ({
                   />
                   <div
                     className={`flex items-center gap-2 px-4 py-2 rounded-md border ${
-                      hasFile
+                      hasFiles
                         ? "bg-primary/10 border-primary/20 text-primary"
                         : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
                     } transition-colors`}
                   >
                     <Upload size={16} />
                     <span className="text-sm font-medium">
-                      {hasFile ? "Files Selected" : "Upload Files"}
+                      {hasFiles ? `${uploadedFiles.length} files` : "Upload Files"}
                     </span>
                   </div>
                 </div>
@@ -118,7 +116,7 @@ export const DigitalDataUpload = ({
                   />
                   <div
                     className={`flex items-center gap-2 px-4 py-2 rounded-md border ${
-                      hasFile
+                      hasFiles
                         ? "bg-primary/10 border-primary/20 text-primary"
                         : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
                     } transition-colors`}
@@ -132,9 +130,9 @@ export const DigitalDataUpload = ({
               </div>
             </div>
 
-            {uploads[itemId]?.file && (
+            {hasFiles && (
               <div className="mt-2 text-sm text-primary">
-                Selected: {uploads[itemId].file.name}
+                {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected
               </div>
             )}
           </div>

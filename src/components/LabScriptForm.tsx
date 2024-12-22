@@ -11,7 +11,7 @@ import { VDOSection } from "./lab-script/VDOSection";
 
 type FileUpload = {
   id: string;
-  file: File | null;
+  files: File[];
 };
 
 export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) => {
@@ -38,21 +38,21 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     console.log("Lab script form submitted:", {
       ...formData,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
-        if (upload.file) {
-          acc[key] = upload.file;
+        if (upload.files.length > 0) {
+          acc[key] = upload.files;
         }
         return acc;
-      }, {} as Record<string, File>)
+      }, {} as Record<string, File[]>)
     });
     
     onSubmit?.({
       ...formData,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
-        if (upload.file) {
-          acc[key] = upload.file;
+        if (upload.files.length > 0) {
+          acc[key] = upload.files;
         }
         return acc;
-      }, {} as Record<string, File>)
+      }, {} as Record<string, File[]>)
     });
   };
 
@@ -61,10 +61,10 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (itemId: string, file: File | null) => {
+  const handleFileChange = (itemId: string, files: File[]) => {
     setFileUploads(prev => ({
       ...prev,
-      [itemId]: { id: itemId, file }
+      [itemId]: { id: itemId, files }
     }));
   };
 

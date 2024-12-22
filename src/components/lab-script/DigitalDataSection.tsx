@@ -21,12 +21,12 @@ const DIGITAL_DATA_SECTIONS = {
 
 type FileUpload = {
   id: string;
-  file: File | null;
+  files: File[];
 };
 
 interface DigitalDataSectionProps {
   uploads: Record<string, FileUpload>;
-  onFileChange: (itemId: string, file: File | null) => void;
+  onFileChange: (itemId: string, files: File[]) => void;
   applianceType: string;
 }
 
