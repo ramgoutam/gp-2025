@@ -26,11 +26,15 @@ export const LabScriptsContent = ({
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Handling lab script edit in LabScriptsContent:", updatedScript);
     
-    // Update localStorage
+    // Get existing scripts from localStorage
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    
+    // Update the script in the array
     const updatedScripts = existingScripts.map((script: LabScript) => 
       script.id === updatedScript.id ? updatedScript : script
     );
+    
+    // Save back to localStorage
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     
     // Notify parent component
@@ -44,30 +48,6 @@ export const LabScriptsContent = ({
       description: "The lab script has been successfully updated.",
     });
   };
-
-  // Listen for lab scripts updates
-  useEffect(() => {
-    const handleLabScriptsUpdate = () => {
-      console.log("Lab scripts updated event received in LabScriptsContent");
-      const savedScripts = localStorage.getItem('labScripts');
-      if (savedScripts) {
-        try {
-          const scripts = JSON.parse(savedScripts);
-          console.log("Updated lab scripts:", scripts);
-          scripts.forEach((script: LabScript) => {
-            onEditLabScript(script);
-          });
-        } catch (error) {
-          console.error("Error parsing lab scripts:", error);
-        }
-      }
-    };
-
-    window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-    return () => {
-      window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-    };
-  }, [onEditLabScript]);
 
   return (
     <div className="space-y-4">

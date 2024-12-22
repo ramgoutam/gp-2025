@@ -36,7 +36,6 @@ const PatientProfile = () => {
     }
   };
 
-  // Load initial lab scripts and listen for updates
   useEffect(() => {
     loadScripts();
     
@@ -46,16 +45,15 @@ const PatientProfile = () => {
     };
 
     window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-    window.addEventListener('storage', handleLabScriptsUpdate);
     
     return () => {
       window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
-      window.removeEventListener('storage', handleLabScriptsUpdate);
     };
   }, []);
 
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script in PatientProfile:", formData);
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     
     const newScript: LabScript = {
       ...formData,
@@ -67,14 +65,11 @@ const PatientProfile = () => {
       }
     };
 
-    // Update both local state and localStorage
-    const updatedScripts = [...labScripts, newScript];
-    setLabScripts(updatedScripts);
+    const updatedScripts = [...existingScripts, newScript];
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    
+    setLabScripts(updatedScripts);
     setShowLabScriptDialog(false);
     
-    // Dispatch event to notify other components
     window.dispatchEvent(new Event('labScriptsUpdated'));
     
     toast({
@@ -85,25 +80,21 @@ const PatientProfile = () => {
 
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script in PatientProfile:", updatedScript);
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     
-    const formattedScript: LabScript = {
-      ...updatedScript,
-      status: updatedScript.status || "pending",
-      treatments: {
-        upper: updatedScript.upperTreatment !== "None" ? [updatedScript.upperTreatment] : [],
-        lower: updatedScript.lowerTreatment !== "None" ? [updatedScript.lowerTreatment] : []
-      }
-    };
-
-    const updatedScripts = labScripts.map(script => 
-      script.id === formattedScript.id ? formattedScript : script
+    const updatedScripts = existingScripts.map((script: LabScript) => 
+      script.id === updatedScript.id ? updatedScript : script
     );
     
-    setLabScripts(updatedScripts);
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    setLabScripts(updatedScripts);
     
-    // Dispatch event to notify other components
     window.dispatchEvent(new Event('labScriptsUpdated'));
+    
+    toast({
+      title: "Lab Script Updated",
+      description: "The lab script has been successfully updated.",
+    });
   };
 
   const handleUpdatePatient = (updatedData: typeof patientData) => {

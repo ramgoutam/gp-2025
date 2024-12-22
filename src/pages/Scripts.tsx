@@ -23,7 +23,7 @@ const Scripts = () => {
     if (savedScripts) {
       try {
         const scripts = JSON.parse(savedScripts);
-        console.log("Loaded scripts in Scripts page:", scripts);
+        console.log("Loaded scripts:", scripts);
         setLabScripts(scripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
@@ -39,17 +39,17 @@ const Scripts = () => {
       loadScripts();
     };
 
-    window.addEventListener('storage', handleStorageChange);
     window.addEventListener('labScriptsUpdated', handleStorageChange);
-
+    
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('labScriptsUpdated', handleStorageChange);
     };
   }, []);
 
   const handleNewScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script in Scripts page:", formData);
+    console.log("Creating new lab script:", formData);
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    
     const newScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
@@ -60,7 +60,7 @@ const Scripts = () => {
       }
     };
 
-    const updatedScripts = [...labScripts, newScript];
+    const updatedScripts = [...existingScripts, newScript];
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
     setShowNewScriptDialog(false);
@@ -74,8 +74,9 @@ const Scripts = () => {
   };
 
   const handleEditScript = (updatedScript: LabScript) => {
-    console.log("Editing script in Scripts page:", updatedScript);
-    const updatedScripts = labScripts.map(script => 
+    console.log("Editing script:", updatedScript);
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const updatedScripts = existingScripts.map((script: LabScript) => 
       script.id === updatedScript.id ? updatedScript : script
     );
     
@@ -93,13 +94,13 @@ const Scripts = () => {
   };
 
   const handleRowClick = (script: LabScript) => {
-    console.log("Row clicked in Scripts page, script:", script);
+    console.log("Row clicked, script:", script);
     setSelectedScript(script);
     setIsEditing(false);
   };
 
   const handleEditClick = (script: LabScript) => {
-    console.log("Edit clicked in Scripts page, script:", script);
+    console.log("Edit clicked, script:", script);
     setSelectedScript(script);
     setIsEditing(true);
   };
