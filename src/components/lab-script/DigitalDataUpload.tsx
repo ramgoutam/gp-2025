@@ -56,7 +56,8 @@ export const DigitalDataUpload = ({
     }
   };
 
-  const handlePreview = (file: File) => {
+  const handlePreview = (e: React.MouseEvent, file: File) => {
+    e.preventDefault(); // Prevent form submission
     console.log("Opening STL preview for file:", file.name);
     setPreviewFile(file);
     setIsPreviewOpen(true);
@@ -130,9 +131,10 @@ export const DigitalDataUpload = ({
                       <span className="text-sm text-gray-700">{file.name}</span>
                       {file.name.toLowerCase().endsWith('.stl') && (
                         <Button
+                          type="button" // Explicitly set type to button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePreview(file)}
+                          onClick={(e) => handlePreview(e, file)}
                           className="h-7 px-2"
                         >
                           Preview
