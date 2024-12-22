@@ -1,9 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-interface Attendee {
-  name: string;
-  avatar?: string;
-}
+import { Attendee } from "@/types/calendar";
 
 interface EventCardProps {
   id: string;
@@ -36,7 +32,9 @@ export const EventCard = ({
 
   return (
     <div
-      className={`absolute inset-0 p-2 rounded-lg border shadow-sm ${categoryStyles[category]} transition-all cursor-move hover:shadow-md ${isDragging ? 'opacity-50 shadow-lg scale-105' : ''}`}
+      className={`absolute inset-0 p-2 rounded-lg border shadow-sm ${categoryStyles[category]} transition-all cursor-move hover:shadow-md ${
+        isDragging ? 'opacity-90 shadow-xl scale-[1.02] ring-2 ring-primary/20' : ''
+      }`}
       onMouseDown={(e) => onDragStart?.(id, e)}
     >
       <div className="flex flex-col h-full">

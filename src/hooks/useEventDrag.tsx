@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 interface DragState {
@@ -7,6 +7,7 @@ interface DragState {
   currentY: number;
   initialX: number;
   currentX: number;
+  element: HTMLElement;
 }
 
 export const useEventDrag = (updateEvent: (id: string, startTime: string, endTime: string) => void) => {
@@ -23,14 +24,20 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
       initialY,
       currentY: e.clientY,
       initialX,
-      currentX: e.clientX
+      currentX: e.clientX,
+      element
     });
 
+    // Add a class to the body to prevent text selection during drag
+    document.body.classList.add('select-none');
     console.log('Event drag started:', { eventId, initialY, initialX });
   };
 
   const handleDragMove = (e: MouseEvent) => {
     if (!dragState) return;
+
+    const deltaY = e.clientY - dragState.currentY;
+    dragState.element.style.transform = `translateY(${deltaY}px)`;
 
     setDragState({
       ...dragState,
@@ -50,6 +57,10 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
     getTimeFromY: (y: number) => { hour: number; minutes: number }
   ) => {
     if (!dragState) return;
+
+    // Reset the transform
+    dragState.element.style.transform = '';
+    document.body.classList.remove('select-none');
 
     const deltaY = e.clientY - dragState.currentY;
     const newPosition = getTimeFromY(e.clientY - dragState.initialY);
@@ -75,6 +86,28 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
       deltaY
     });
   };
+
+  useEffect(() => {
+    if (dragState) {
+      const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+      const handleMouseUp = (e: MouseEvent) => {
+        const getTimeFromY = (y: number) => {
+          const hour = Math.floor(y / 64) + 6; // 6 is the starting hour
+          const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
+          return { hour, minutes };
+        };
+        handleDragEnd(e, getTimeFromY);
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [dragState]);
 
   return {
     dragState,

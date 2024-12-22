@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { DateSelector } from "@/components/calendar/DateSelector";
 import { TimeGrid } from "@/components/calendar/TimeGrid";
-import { EventCard } from "@/components/calendar/EventCard";
+import { CalendarColumn } from "@/components/calendar/CalendarColumn";
 import { toast } from "sonner";
 import { snapToHalfHour, formatTime, calculatePosition, calculateHeight } from "@/utils/calendarUtils";
 import { useEventDrag } from "@/hooks/useEventDrag";
+import { Event } from "@/types/calendar";
 
-interface Event {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  attendees: { name: string; avatar?: string }[];
-  category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
-}
+const categoryLabels = {
+  lab: "Lab Schedule",
+  followup: "Follow Up",
+  emergency: "Emergency",
+  surgery: "Surgery",
+  dentist: "Dentist Calendar"
+} as const;
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -38,40 +38,10 @@ export default function Calendar() {
     );
   };
 
-  const { dragState, handleDragStart, handleDragMove: handleExistingEventDragMove, handleDragEnd: handleExistingEventDragEnd } = useEventDrag(updateEventTime);
+  const { dragState, handleDragStart, handleDragMove, handleDragEnd } = useEventDrag(updateEventTime);
 
-  useEffect(() => {
-    if (dragState) {
-      const handleMouseMove = (e: MouseEvent) => handleExistingEventDragMove(e);
-      const handleMouseUp = (e: MouseEvent) => {
-        const getTimeFromY = (y: number) => {
-          const hour = Math.floor(y / 64) + 6; // 6 is the starting hour
-          const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
-          return { hour, minutes };
-        };
-        handleExistingEventDragEnd(e, getTimeFromY);
-      };
-
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [dragState, handleExistingEventDragMove, handleExistingEventDragEnd]);
-  
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
-
-  const categoryLabels = {
-    lab: "Lab Schedule",
-    followup: "Follow Up",
-    emergency: "Emergency",
-    surgery: "Surgery",
-    dentist: "Dentist Calendar"
-  };
 
   const handleNewEventDragStart = (e: React.MouseEvent, hour: number, category: string) => {
     e.preventDefault();
@@ -89,8 +59,6 @@ export default function Calendar() {
       endTime: time,
       category
     });
-
-    console.log('New event drag started:', { time, category });
   };
 
   const handleNewEventDragMove = (e: React.MouseEvent, hour: number) => {
@@ -114,8 +82,6 @@ export default function Calendar() {
       ...previewEvent,
       endTime: finalEndTime
     });
-
-    console.log('New event drag move:', { startTime: dragStart.time, endTime: finalEndTime });
   };
 
   const handleNewEventDragEnd = (e: React.MouseEvent, hour: number) => {
@@ -149,8 +115,6 @@ export default function Calendar() {
     setDragStart(null);
     setPreviewEvent(null);
     toast.success("New appointment slot created");
-
-    console.log('New event created:', newEvent);
   };
 
   const navigateDay = (days: number) => {
@@ -181,56 +145,23 @@ export default function Calendar() {
 
             <div className="ml-14 grid grid-cols-5 gap-px bg-gray-100">
               {categories.map((category) => (
-                <div key={category} className="bg-white">
-                  <div className="px-3 py-3 text-sm font-medium text-gray-700 border-b bg-gray-50/50 sticky top-[57px] z-10">
-                    <div className="flex items-center justify-between">
-                      <span>{categoryLabels[category]}</span>
-                    </div>
-                  </div>
-                  <div className="relative bg-white">
-                    {timeSlots.map((hour) => (
-                      <div
-                        key={hour}
-                        className="border-t border-gray-100 h-16 relative"
-                        onMouseDown={(e) => handleNewEventDragStart(e, hour, category)}
-                        onMouseMove={(e) => handleNewEventDragMove(e, hour)}
-                        onMouseUp={(e) => handleNewEventDragEnd(e, hour)}
-                      />
-                    ))}
-
-                    {isDragging && previewEvent && previewEvent.category === category && (
-                      <div
-                        className="absolute left-1 right-1 bg-gray-200/50 border border-gray-300 rounded-lg pointer-events-none"
-                        style={{
-                          top: `${calculatePosition(previewEvent.startTime)}px`,
-                          height: `${calculateHeight(previewEvent.startTime, previewEvent.endTime)}px`,
-                          minHeight: '32px'
-                        }}
-                      />
-                    )}
-
-                    {events
-                      .filter(event => event.category === category)
-                      .map((event) => (
-                        <div
-                          key={event.id}
-                          className="absolute left-1 right-1"
-                          style={{
-                            top: `${calculatePosition(event.startTime)}px`,
-                            height: `${calculateHeight(event.startTime, event.endTime)}px`,
-                            minHeight: '32px'
-                          }}
-                        >
-                          <EventCard 
-                            {...event} 
-                            category={event.category}
-                            onDragStart={handleDragStart}
-                            isDragging={dragState?.eventId === event.id}
-                          />
-                        </div>
-                    ))}
-                  </div>
-                </div>
+                <CalendarColumn
+                  key={category}
+                  category={category}
+                  categoryLabel={categoryLabels[category]}
+                  timeSlots={timeSlots}
+                  events={events}
+                  onDragStart={handleDragStart}
+                  onNewEventDragStart={handleNewEventDragStart}
+                  onNewEventDragMove={handleNewEventDragMove}
+                  onNewEventDragEnd={handleNewEventDragEnd}
+                  dragState={dragState}
+                  isDragging={isDragging}
+                  dragStart={dragStart}
+                  previewEvent={previewEvent}
+                  calculatePosition={calculatePosition}
+                  calculateHeight={calculateHeight}
+                />
               ))}
             </div>
           </div>
