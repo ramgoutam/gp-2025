@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -30,6 +30,9 @@ export const LabScriptsContent = ({
     );
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
+    
     onEditLabScript(updatedScript);
     
     toast({
@@ -37,6 +40,23 @@ export const LabScriptsContent = ({
       description: "The lab script has been successfully updated.",
     });
   };
+
+  // Listen for lab scripts updates
+  useEffect(() => {
+    const handleLabScriptsUpdate = () => {
+      console.log("Lab scripts updated event received in LabScriptsContent");
+      const savedScripts = localStorage.getItem('labScripts');
+      if (savedScripts) {
+        const scripts = JSON.parse(savedScripts);
+        console.log("Updated lab scripts:", scripts);
+      }
+    };
+
+    window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+    return () => {
+      window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+    };
+  }, []);
 
   return (
     <div className="space-y-4">

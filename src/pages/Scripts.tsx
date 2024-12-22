@@ -25,6 +25,9 @@ const Scripts = () => {
       const scripts = JSON.parse(savedScripts);
       console.log("Loaded scripts:", scripts);
       setLabScripts(scripts);
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('labScriptsUpdated'));
     }
   };
 
@@ -65,6 +68,9 @@ const Scripts = () => {
     setLabScripts(updatedScripts);
     setShowNewScriptDialog(false);
 
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
+
     toast({
       title: "Lab Script Created",
       description: "The lab script has been successfully created.",
@@ -82,6 +88,9 @@ const Scripts = () => {
     setLabScripts(updatedScripts);
     setSelectedScript(null);
     setIsEditing(false);
+
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
 
     toast({
       title: "Lab Script Updated",
