@@ -127,7 +127,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select sex" />
           </SelectTrigger>
-          <SelectContent className="z-[9999]">
+          <SelectContent className="bg-white z-50">
             <SelectItem value="male">Male</SelectItem>
             <SelectItem value="female">Female</SelectItem>
             <SelectItem value="other">Other</SelectItem>
