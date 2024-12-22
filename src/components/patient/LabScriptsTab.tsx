@@ -60,7 +60,10 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
               <TableRow 
                 key={script.id}
                 className="cursor-pointer hover:bg-gray-50"
-                onClick={() => setSelectedScript(script)}
+                onClick={() => {
+                  console.log("Row clicked, script:", script);
+                  setSelectedScript(script);
+                }}
               >
                 <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
                 <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
