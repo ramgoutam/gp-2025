@@ -1,9 +1,7 @@
 import React from "react";
 import { Navigation } from "@/components/Navigation";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit, MoreVertical, Calendar, FileText, FileBarChart } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { LabScriptForm } from "@/components/LabScriptForm";
+import { PatientHeader } from "@/components/patient/PatientHeader";
+import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
 
 const PatientProfile = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   
   // This would typically fetch patient data from an API
@@ -29,7 +22,7 @@ const PatientProfile = () => {
     id,
     firstName: "Willie",
     lastName: "Jennie",
-    avatar: "/placeholder.svg", // Using placeholder for now
+    avatar: "/placeholder.svg",
     note: "Have uneven jawline",
   };
 
@@ -48,51 +41,10 @@ const PatientProfile = () => {
 
         {/* Patient Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <img
-                src={patientData.avatar}
-                alt={`${patientData.firstName} ${patientData.lastName}`}
-                className="w-16 h-16 rounded-full"
-              />
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">
-                  {patientData.firstName} {patientData.lastName}
-                </h1>
-                <p className="text-gray-500 flex items-center gap-2">
-                  {patientData.note}
-                  <Button variant="ghost" size="sm" className="h-6 px-2">
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </Button>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button>Actions</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => console.log("Create appointment clicked")}>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Create Appointment
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShowLabScriptDialog(true)}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Create Lab Script
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/reports")}>
-                    <FileBarChart className="mr-2 h-4 w-4" />
-                    Create Report
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+          <PatientHeader 
+            patientData={patientData}
+            onCreateLabScript={() => setShowLabScriptDialog(true)}
+          />
 
           {/* Tabs */}
           <Tabs defaultValue="medical-record" className="w-full">
@@ -108,6 +60,12 @@ const PatientProfile = () => {
                 className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
               >
                 Appointment History
+              </TabsTrigger>
+              <TabsTrigger 
+                value="lab-scripts"
+                className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+              >
+                Lab Scripts
               </TabsTrigger>
               <TabsTrigger 
                 value="next-treatment"
@@ -129,6 +87,10 @@ const PatientProfile = () => {
             
             <TabsContent value="appointment-history">
               <div className="text-gray-600">Appointment history will go here</div>
+            </TabsContent>
+
+            <TabsContent value="lab-scripts">
+              <LabScriptsTab />
             </TabsContent>
             
             <TabsContent value="next-treatment">
