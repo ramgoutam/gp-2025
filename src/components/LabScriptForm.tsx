@@ -154,6 +154,7 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
       <DigitalDataSection
         uploads={fileUploads}
         onFileChange={handleFileChange}
+        applianceType={formData.applianceType}
       />
 
       <div className="space-y-2">
