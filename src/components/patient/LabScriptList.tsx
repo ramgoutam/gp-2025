@@ -54,6 +54,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Patient Name</TableHead>
           <TableHead>Appliance Type</TableHead>
           <TableHead>Request Date</TableHead>
           <TableHead>Due Date</TableHead>
@@ -67,14 +68,14 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
       <TableBody>
         {labScripts.map((script) => {
           const treatments = getTreatments(script);
-          console.log("Processing script:", script);
-          console.log("Treatments:", treatments);
+          const patientName = `${script.patientFirstName || ''} ${script.patientLastName || ''}`.trim() || 'N/A';
           
           return (
             <TableRow 
               key={script.id}
               className="hover:bg-gray-50"
             >
+              <TableCell>{patientName}</TableCell>
               <TableCell 
                 className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                 onClick={() => onRowClick(script)}
