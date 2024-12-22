@@ -42,6 +42,7 @@ export const STLViewer = ({ file }: STLViewerProps) => {
     });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    containerRef.current.innerHTML = ''; // Clear any existing content
     containerRef.current.appendChild(renderer.domElement);
 
     // Lighting
@@ -157,7 +158,7 @@ export const STLViewer = ({ file }: STLViewerProps) => {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-[400px] rounded-lg overflow-hidden bg-gray-50"
+      className="w-full h-full rounded-lg overflow-hidden bg-gray-50"
       style={{ touchAction: 'none' }}
     />
   );

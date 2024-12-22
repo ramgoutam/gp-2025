@@ -57,8 +57,15 @@ export const DigitalDataUpload = ({
   };
 
   const handlePreview = (file: File) => {
+    console.log("Opening STL preview for file:", file.name);
     setPreviewFile(file);
     setIsPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    console.log("Closing STL preview");
+    setPreviewFile(null);
+    setIsPreviewOpen(false);
   };
 
   return (
@@ -105,7 +112,7 @@ export const DigitalDataUpload = ({
                   >
                     <Upload size={16} />
                     <span className="text-sm font-medium">
-                      {hasFiles ? `${uploadedFiles.length}/6 files` : "Upload Files"}
+                      {hasFiles ? `${uploadedFiles.length} files` : "Upload Files"}
                     </span>
                   </div>
                 </div>
@@ -119,14 +126,14 @@ export const DigitalDataUpload = ({
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {uploadedFiles.map((file, index) => (
-                    <div key={index} className="text-sm">
-                      {file.name}
+                    <div key={index} className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-md">
+                      <span className="text-sm text-gray-700">{file.name}</span>
                       {file.name.toLowerCase().endsWith('.stl') && (
                         <Button
                           variant="outline"
                           size="sm"
-                          className="ml-2"
                           onClick={() => handlePreview(file)}
+                          className="h-7 px-2"
                         >
                           Preview
                         </Button>
@@ -140,12 +147,14 @@ export const DigitalDataUpload = ({
         );
       })}
 
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="sm:max-w-[800px]">
+      <Dialog open={isPreviewOpen} onOpenChange={closePreview}>
+        <DialogContent className="sm:max-w-[800px] h-[600px]">
           <DialogHeader>
-            <DialogTitle>STL Preview</DialogTitle>
+            <DialogTitle>STL Preview - {previewFile?.name}</DialogTitle>
           </DialogHeader>
-          {previewFile && <STLViewer file={previewFile} />}
+          <div className="relative flex-1 h-full">
+            {previewFile && <STLViewer file={previewFile} />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
