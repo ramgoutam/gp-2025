@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -22,8 +22,9 @@ const PatientProfile = () => {
   });
   const { toast } = useToast();
 
-  const loadScripts = useCallback(() => {
-    console.log("Loading scripts in PatientProfile");
+  // Load scripts only once on mount
+  React.useEffect(() => {
+    console.log("Initial load of scripts");
     const savedScripts = localStorage.getItem('labScripts');
     if (savedScripts) {
       try {
@@ -34,29 +35,18 @@ const PatientProfile = () => {
         console.error("Error loading scripts:", error);
       }
     }
-  }, []);
-
-  useEffect(() => {
-    loadScripts();
-  }, []); // Only load scripts once on mount
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleLabScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script in PatientProfile:", formData);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    console.log("Creating new lab script with data:", formData);
     
-    const newScript: LabScript = {
-      ...formData,
-      id: Date.now().toString(),
-      status: "pending",
-      treatments: {
-        upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
-        lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : []
-      }
-    };
+    // Update state directly instead of relying on localStorage event
+    setLabScripts(prevScripts => {
+      const updatedScripts = [...prevScripts, formData];
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      return updatedScripts;
+    });
 
-    const updatedScripts = [...existingScripts, newScript];
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    setLabScripts(updatedScripts);
     setShowLabScriptDialog(false);
     
     toast({
@@ -66,15 +56,16 @@ const PatientProfile = () => {
   };
 
   const handleEditLabScript = (updatedScript: LabScript) => {
-    console.log("Updating lab script in PatientProfile:", updatedScript);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    console.log("Updating lab script:", updatedScript);
     
-    const updatedScripts = existingScripts.map((script: LabScript) => 
-      script.id === updatedScript.id ? updatedScript : script
-    );
-    
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    setLabScripts(updatedScripts);
+    // Update state directly
+    setLabScripts(prevScripts => {
+      const updatedScripts = prevScripts.map(script => 
+        script.id === updatedScript.id ? updatedScript : script
+      );
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      return updatedScripts;
+    });
     
     toast({
       title: "Lab Script Updated",
