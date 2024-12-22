@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -88,7 +89,14 @@ const Index = () => {
             <TableBody>
               {patients.map((patient) => (
                 <TableRow key={patient.id}>
-                  <TableCell>{`${patient.firstName} ${patient.lastName}`}</TableCell>
+                  <TableCell>
+                    <Link 
+                      to={`/patient/${patient.id}`}
+                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {`${patient.firstName} ${patient.lastName}`}
+                    </Link>
+                  </TableCell>
                   <TableCell>{patient.email}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
                   <TableCell className="capitalize">{patient.sex}</TableCell>
