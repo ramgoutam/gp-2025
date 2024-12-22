@@ -38,18 +38,18 @@ export default function Calendar() {
     );
   };
 
-  const { dragState, handleDragStart, handleDragMove, handleDragEnd } = useEventDrag(updateEventTime);
+  const { dragState, handleDragStart, handleDragMove: handleExistingEventDragMove, handleDragEnd: handleExistingEventDragEnd } = useEventDrag(updateEventTime);
 
   useEffect(() => {
     if (dragState) {
-      const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+      const handleMouseMove = (e: MouseEvent) => handleExistingEventDragMove(e);
       const handleMouseUp = (e: MouseEvent) => {
         const getTimeFromY = (y: number) => {
           const hour = Math.floor(y / 64) + 6; // 6 is the starting hour
           const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
           return { hour, minutes };
         };
-        handleDragEnd(e, getTimeFromY);
+        handleExistingEventDragEnd(e, getTimeFromY);
       };
 
       window.addEventListener('mousemove', handleMouseMove);
@@ -60,7 +60,7 @@ export default function Calendar() {
         window.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [dragState, handleDragMove, handleDragEnd]);
+  }, [dragState, handleExistingEventDragMove, handleExistingEventDragEnd]);
   
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
@@ -93,7 +93,7 @@ export default function Calendar() {
     console.log('New event drag started:', { time, category });
   };
 
-  const handleDragMove = (e: React.MouseEvent, hour: number) => {
+  const handleNewEventDragMove = (e: React.MouseEvent, hour: number) => {
     if (!isDragging || !dragStart || !previewEvent) return;
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -103,7 +103,6 @@ export default function Calendar() {
     const snapped = snapToHalfHour(hour, rawMinutes);
     const currentTime = formatTime(snapped.hour, snapped.minutes);
 
-    // Ensure end time is not before start time
     const [startHour, startMinute] = dragStart.time.split(':').map(Number);
     const [endHour, endMinute] = currentTime.split(':').map(Number);
     const startTotalMinutes = startHour * 60 + startMinute;
@@ -116,10 +115,10 @@ export default function Calendar() {
       endTime: finalEndTime
     });
 
-    console.log('Drag move:', { startTime: dragStart.time, endTime: finalEndTime });
+    console.log('New event drag move:', { startTime: dragStart.time, endTime: finalEndTime });
   };
 
-  const handleDragEnd = (e: React.MouseEvent, hour: number) => {
+  const handleNewEventDragEnd = (e: React.MouseEvent, hour: number) => {
     if (!isDragging || !dragStart || !previewEvent) return;
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -129,7 +128,6 @@ export default function Calendar() {
     const snapped = snapToHalfHour(hour, rawMinutes);
     const endTime = formatTime(snapped.hour, snapped.minutes);
 
-    // Ensure end time is not before start time
     const [startHour, startMinute] = dragStart.time.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
     const startTotalMinutes = startHour * 60 + startMinute;
@@ -152,7 +150,7 @@ export default function Calendar() {
     setPreviewEvent(null);
     toast.success("New appointment slot created");
 
-    console.log('Event created:', newEvent);
+    console.log('New event created:', newEvent);
   };
 
   const navigateDay = (days: number) => {
@@ -195,8 +193,8 @@ export default function Calendar() {
                         key={hour}
                         className="border-t border-gray-100 h-16 relative"
                         onMouseDown={(e) => handleNewEventDragStart(e, hour, category)}
-                        onMouseMove={(e) => handleDragMove(e, hour)}
-                        onMouseUp={(e) => handleDragEnd(e, hour)}
+                        onMouseMove={(e) => handleNewEventDragMove(e, hour)}
+                        onMouseUp={(e) => handleNewEventDragEnd(e, hour)}
                       />
                     ))}
 
