@@ -42,15 +42,31 @@ export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabS
   // Initialize fileUploads with existing files from initialData
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
     if (initialData?.fileUploads) {
-      // Convert the fileUploads object to the correct format
       const formattedUploads: Record<string, FileUpload> = {};
       Object.entries(initialData.fileUploads).forEach(([key, files]: [string, any]) => {
+        // Ensure files is always an array and contains valid File objects
+        const fileArray = Array.isArray(files) ? files : [files];
+        // Convert file-like objects to actual File objects if needed
+        const validFiles = fileArray.map(file => {
+          if (file instanceof File) {
+            return file;
+          }
+          // Create a new File object if we have a file-like object
+          if (file.name && file.type && file.size) {
+            return new File([file], file.name, {
+              type: file.type,
+              lastModified: file.lastModified || Date.now()
+            });
+          }
+          return null;
+        }).filter(Boolean);
+
         formattedUploads[key] = {
           id: key,
-          files: Array.isArray(files) ? files : []
+          files: validFiles
         };
       });
-      console.log("Initialized file uploads:", formattedUploads);
+      console.log("Initialized file uploads with converted files:", formattedUploads);
       return formattedUploads;
     }
     return {};
