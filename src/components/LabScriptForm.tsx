@@ -19,17 +19,26 @@ interface LabScriptFormProps {
   onSubmit?: (data: any) => void;
   initialData?: any;
   isEditing?: boolean;
+  patientData?: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
-export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabScriptFormProps) => {
+export const LabScriptForm = ({ 
+  onSubmit, 
+  initialData, 
+  isEditing = false,
+  patientData 
+}: LabScriptFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
     doctorName: initialData?.doctorName || "",
     clinicName: initialData?.clinicName || "",
     requestDate: initialData?.requestDate || "",
     dueDate: initialData?.dueDate || "",
-    firstName: initialData?.firstName || "",
-    lastName: initialData?.lastName || "",
+    firstName: patientData?.firstName || initialData?.firstName || "",
+    lastName: patientData?.lastName || initialData?.lastName || "",
     applianceType: initialData?.applianceType || "",
     shade: initialData?.shade || "",
     specificInstructions: initialData?.specificInstructions || "",
@@ -77,6 +86,8 @@ export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabS
     const submissionData = {
       ...formData,
       id: initialData?.id || Date.now().toString(),
+      patientFirstName: patientData?.firstName || formData.firstName,
+      patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.files.length > 0) {
           acc[key] = upload.files;
