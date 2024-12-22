@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, Plus, Filter } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 interface Event {
   id: string;
@@ -11,7 +11,6 @@ interface Event {
   startTime: string;
   endTime: string;
   attendees: { name: string; avatar?: string }[];
-  backgroundColor: string;
 }
 
 export default function Calendar() {
@@ -27,8 +26,7 @@ export default function Calendar() {
       attendees: [
         { name: "John Doe" },
         { name: "Jane Smith" }
-      ],
-      backgroundColor: "bg-blue-100"
+      ]
     },
     {
       id: "2",
@@ -39,8 +37,7 @@ export default function Calendar() {
         { name: "Alice Johnson" },
         { name: "Bob Wilson" },
         { name: "Carol Brown" }
-      ],
-      backgroundColor: "bg-orange-200"
+      ]
     }
   ];
 
@@ -56,94 +53,89 @@ export default function Calendar() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      <main className="container mx-auto py-6">
-        <Card className="bg-white">
+      <main className="container mx-auto py-4">
+        <Card className="bg-white border-0 shadow-none">
           {/* Calendar Header */}
-          <div className="p-4 border-b flex items-center justify-between">
+          <div className="px-4 py-3 border-b flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold">Calendar</h1>
+              <h1 className="text-xl font-medium text-gray-900">Calendar</h1>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-sm font-medium">
+                <span className="text-sm text-gray-600">
                   {formatDate(currentDate)}
                 </span>
-                <Button variant="outline" size="sm">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-1" />
-                Filter
-              </Button>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                New Event
-              </Button>
-            </div>
+            <Button size="sm" className="h-8">
+              <Plus className="h-4 w-4 mr-1" />
+              Event
+            </Button>
           </div>
 
           {/* Calendar Grid */}
-          <div className="p-4">
-            <div className="relative min-h-[800px]">
-              {/* Time slots */}
-              <div className="absolute top-0 left-0 w-16 h-full">
-                {timeSlots.map((hour) => (
-                  <div key={hour} className="h-20 -mt-3 text-sm text-gray-500">
-                    {`${hour}:00`}
-                  </div>
-                ))}
-              </div>
+          <div className="relative">
+            {/* Time slots */}
+            <div className="absolute top-0 left-0 w-14 h-full border-r border-gray-100">
+              {timeSlots.map((hour) => (
+                <div 
+                  key={hour} 
+                  className="flex items-start justify-end pr-2 h-16 -mt-2 text-xs text-gray-500"
+                >
+                  {`${hour}:00`}
+                </div>
+              ))}
+            </div>
 
-              {/* Events container */}
-              <div className="ml-16 relative">
-                {/* Time grid lines */}
-                {timeSlots.map((hour) => (
-                  <div
-                    key={hour}
-                    className="border-t border-gray-200 h-20"
-                  />
-                ))}
+            {/* Events container */}
+            <div className="ml-14">
+              {/* Time grid lines */}
+              {timeSlots.map((hour) => (
+                <div
+                  key={hour}
+                  className="border-t border-gray-100 h-16"
+                />
+              ))}
 
-                {/* Events */}
-                {events.map((event) => (
-                  <div
-                    key={event.id}
-                    className={`absolute left-4 right-4 p-3 rounded-lg ${event.backgroundColor}`}
-                    style={{
-                      top: `${(parseInt(event.startTime.split(':')[0]) - 6) * 80 + 
-                        (parseInt(event.startTime.split(':')[1]) / 60) * 80}px`,
-                      height: `${((parseInt(event.endTime.split(':')[0]) * 60 + 
-                        parseInt(event.endTime.split(':')[1])) - 
-                        (parseInt(event.startTime.split(':')[0]) * 60 + 
-                        parseInt(event.startTime.split(':')[1]))) / 60 * 80}px`
-                    }}
-                  >
-                    <div className="flex flex-col h-full">
-                      <h3 className="font-medium text-sm">{event.title}</h3>
-                      <p className="text-xs text-gray-600">
-                        {event.startTime} - {event.endTime}
-                      </p>
-                      <div className="flex -space-x-2 mt-2">
-                        {event.attendees.map((attendee, index) => (
-                          <Avatar key={index} className="h-6 w-6 border-2 border-white">
-                            <AvatarFallback>
-                              {attendee.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                      </div>
+              {/* Events */}
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  className="absolute left-16 right-4 p-2 rounded bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer"
+                  style={{
+                    top: `${(parseInt(event.startTime.split(':')[0]) - 6) * 64 + 
+                      (parseInt(event.startTime.split(':')[1]) / 60) * 64}px`,
+                    height: `${((parseInt(event.endTime.split(':')[0]) * 60 + 
+                      parseInt(event.endTime.split(':')[1])) - 
+                      (parseInt(event.startTime.split(':')[0]) * 60 + 
+                      parseInt(event.startTime.split(':')[1]))) / 60 * 64}px`
+                  }}
+                >
+                  <div className="flex flex-col h-full">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">{event.title}</h3>
+                    <p className="text-xs text-gray-600">
+                      {event.startTime} - {event.endTime}
+                    </p>
+                    <div className="flex -space-x-2 mt-1">
+                      {event.attendees.map((attendee, index) => (
+                        <Avatar key={index} className="h-6 w-6 border-2 border-white bg-gray-200">
+                          <AvatarFallback className="text-xs">
+                            {attendee.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </Card>
