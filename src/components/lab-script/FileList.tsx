@@ -4,9 +4,10 @@ import { FilePreviewDialog } from "./FilePreviewDialog";
 
 interface FileListProps {
   fileUploads: Record<string, File[]>;
+  onPreview?: (file: File) => void;  // Made optional since some places might not need it
 }
 
-export const FileList = ({ fileUploads }: FileListProps) => {
+export const FileList = ({ fileUploads, onPreview }: FileListProps) => {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -18,6 +19,11 @@ export const FileList = ({ fileUploads }: FileListProps) => {
 
   const handlePreview = (file: File) => {
     console.log("Opening preview for file:", file.name);
+    
+    if (onPreview) {
+      onPreview(file);
+      return;
+    }
     
     if (file.name.toLowerCase().endsWith('.stl')) {
       setPreviewFile(file);
@@ -78,12 +84,14 @@ export const FileList = ({ fileUploads }: FileListProps) => {
         );
       })}
 
-      <FilePreviewDialog
-        file={previewFile}
-        imageUrl={imagePreviewUrl}
-        isOpen={showPreview}
-        onClose={closePreview}
-      />
+      {!onPreview && (
+        <FilePreviewDialog
+          file={previewFile}
+          imageUrl={imagePreviewUrl}
+          isOpen={showPreview}
+          onClose={closePreview}
+        />
+      )}
     </>
   );
 };
