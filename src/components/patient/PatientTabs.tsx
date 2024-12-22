@@ -2,16 +2,19 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LabScriptsContent } from "./tabs/LabScriptsContent";
 import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
+import { LabScript } from "./LabScriptsTab";
+
+interface PatientTabsProps {
+  labScripts: LabScript[];
+  onCreateLabScript: () => void;
+  onEditLabScript: (updatedScript: LabScript) => void;
+}
 
 export const PatientTabs = ({
   labScripts,
   onCreateLabScript,
   onEditLabScript,
-}: {
-  labScripts: any[];
-  onCreateLabScript: () => void;
-  onEditLabScript: (scriptId: string) => void;
-}) => {
+}: PatientTabsProps) => {
   return (
     <Tabs defaultValue="lab-scripts" className="w-full">
       <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
