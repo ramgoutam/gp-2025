@@ -18,6 +18,7 @@ export type LabScript = {
   };
   specificInstructions?: string;
   applianceType?: string;
+  fileUploads?: Record<string, File[]>;
 };
 
 type LabScriptsTabProps = {
