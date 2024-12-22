@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { DateSelector } from "@/components/calendar/DateSelector";
@@ -6,6 +6,7 @@ import { TimeGrid } from "@/components/calendar/TimeGrid";
 import { EventCard } from "@/components/calendar/EventCard";
 import { toast } from "sonner";
 import { snapToHalfHour, formatTime, calculatePosition, calculateHeight } from "@/utils/calendarUtils";
+import { useEventDrag } from "@/hooks/useEventDrag";
 
 interface Event {
   id: string;
@@ -26,6 +27,40 @@ export default function Calendar() {
     endTime: string;
     category: string;
   } | null>(null);
+
+  const updateEventTime = (id: string, newStartTime: string, newEndTime: string) => {
+    setEvents(prevEvents => 
+      prevEvents.map(event => 
+        event.id === id 
+          ? { ...event, startTime: newStartTime, endTime: newEndTime }
+          : event
+      )
+    );
+  };
+
+  const { dragState, handleDragStart, handleDragMove, handleDragEnd } = useEventDrag(updateEventTime);
+
+  useEffect(() => {
+    if (dragState) {
+      const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+      const handleMouseUp = (e: MouseEvent) => {
+        const getTimeFromY = (y: number) => {
+          const hour = Math.floor(y / 64) + 6; // 6 is the starting hour
+          const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
+          return { hour, minutes };
+        };
+        handleDragEnd(e, getTimeFromY);
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [dragState, handleDragMove, handleDragEnd]);
   
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6);
   const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
@@ -38,7 +73,7 @@ export default function Calendar() {
     dentist: "Dentist Calendar"
   };
 
-  const handleDragStart = (e: React.MouseEvent, hour: number, category: string) => {
+  const handleNewEventDragStart = (e: React.MouseEvent, hour: number, category: string) => {
     e.preventDefault();
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
@@ -55,7 +90,7 @@ export default function Calendar() {
       category
     });
 
-    console.log('Drag started:', { time, category });
+    console.log('New event drag started:', { time, category });
   };
 
   const handleDragMove = (e: React.MouseEvent, hour: number) => {
@@ -159,13 +194,12 @@ export default function Calendar() {
                       <div
                         key={hour}
                         className="border-t border-gray-100 h-16 relative"
-                        onMouseDown={(e) => handleDragStart(e, hour, category)}
+                        onMouseDown={(e) => handleNewEventDragStart(e, hour, category)}
                         onMouseMove={(e) => handleDragMove(e, hour)}
                         onMouseUp={(e) => handleDragEnd(e, hour)}
                       />
                     ))}
 
-                    {/* Preview event while dragging */}
                     {isDragging && previewEvent && previewEvent.category === category && (
                       <div
                         className="absolute left-1 right-1 bg-gray-200/50 border border-gray-300 rounded-lg pointer-events-none"
@@ -189,7 +223,11 @@ export default function Calendar() {
                             minHeight: '32px'
                           }}
                         >
-                          <EventCard {...event} category={event.category} />
+                          <EventCard 
+                            {...event} 
+                            category={event.category}
+                            onDragStart={handleDragStart}
+                          />
                         </div>
                     ))}
                   </div>

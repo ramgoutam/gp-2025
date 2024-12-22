@@ -6,14 +6,24 @@ interface Attendee {
 }
 
 interface EventCardProps {
+  id: string;
   title: string;
   startTime: string;
   endTime: string;
   attendees: Attendee[];
   category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
+  onDragStart?: (id: string, e: React.MouseEvent) => void;
 }
 
-export const EventCard = ({ title, startTime, endTime, attendees, category }: EventCardProps) => {
+export const EventCard = ({ 
+  id,
+  title, 
+  startTime, 
+  endTime, 
+  attendees, 
+  category,
+  onDragStart 
+}: EventCardProps) => {
   const categoryStyles = {
     lab: "bg-blue-50 border-blue-200 hover:bg-blue-100/90 text-blue-800",
     followup: "bg-purple-50 border-purple-200 hover:bg-purple-100/90 text-purple-800",
@@ -24,7 +34,8 @@ export const EventCard = ({ title, startTime, endTime, attendees, category }: Ev
 
   return (
     <div
-      className={`absolute inset-0 p-2 rounded-lg border shadow-sm ${categoryStyles[category]} transition-all cursor-pointer hover:shadow-md`}
+      className={`absolute inset-0 p-2 rounded-lg border shadow-sm ${categoryStyles[category]} transition-all cursor-move hover:shadow-md`}
+      onMouseDown={(e) => onDragStart?.(id, e)}
     >
       <div className="flex flex-col h-full">
         <h3 className="text-sm font-medium truncate">
