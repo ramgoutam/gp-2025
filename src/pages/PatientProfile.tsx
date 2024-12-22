@@ -22,38 +22,42 @@ const PatientProfile = () => {
   });
   const { toast } = useToast();
 
-  // Load initial lab scripts
-  useEffect(() => {
-    const loadScripts = () => {
-      const savedScripts = localStorage.getItem('labScripts');
-      if (savedScripts) {
-        try {
-          const scripts = JSON.parse(savedScripts);
-          console.log("Loading initial lab scripts in PatientProfile:", scripts);
-          setLabScripts(scripts);
-        } catch (error) {
-          console.error("Error loading lab scripts:", error);
-        }
+  const loadScripts = () => {
+    console.log("Loading scripts in PatientProfile");
+    const savedScripts = localStorage.getItem('labScripts');
+    if (savedScripts) {
+      try {
+        const scripts = JSON.parse(savedScripts);
+        console.log("Loaded scripts in PatientProfile:", scripts);
+        setLabScripts(scripts);
+      } catch (error) {
+        console.error("Error loading scripts:", error);
       }
-    };
+    }
+  };
 
+  // Load initial lab scripts and listen for updates
+  useEffect(() => {
     loadScripts();
     
-    // Listen for lab script updates
     const handleLabScriptsUpdate = () => {
+      console.log("Lab scripts update event received in PatientProfile");
       loadScripts();
     };
 
     window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+    window.addEventListener('storage', handleLabScriptsUpdate);
+    
     return () => {
       window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+      window.removeEventListener('storage', handleLabScriptsUpdate);
     };
   }, []);
 
   const handleLabScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script with data:", formData);
+    console.log("Creating new lab script in PatientProfile:", formData);
     
-    const newLabScript: LabScript = {
+    const newScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
       status: "pending",
@@ -64,7 +68,7 @@ const PatientProfile = () => {
     };
 
     // Update both local state and localStorage
-    const updatedScripts = [...labScripts, newLabScript];
+    const updatedScripts = [...labScripts, newScript];
     setLabScripts(updatedScripts);
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     
@@ -150,7 +154,7 @@ const PatientProfile = () => {
               Create a new lab script for {patientData.firstName} {patientData.lastName}
             </DialogDescription>
           </DialogHeader>
-          <LabScriptForm onSubmit={handleLabScriptSubmit} />
+          <LabScriptForm onSubmit={handleLabScriptSubmit} patientData={patientData} />
         </DialogContent>
       </Dialog>
     </div>

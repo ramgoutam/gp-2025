@@ -17,29 +17,28 @@ const Scripts = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
-  // Load scripts from localStorage when component mounts
   const loadScripts = () => {
-    console.log("Loading scripts from localStorage");
+    console.log("Loading scripts in Scripts page");
     const savedScripts = localStorage.getItem('labScripts');
     if (savedScripts) {
-      const scripts = JSON.parse(savedScripts);
-      console.log("Loaded scripts:", scripts);
-      setLabScripts(scripts);
-      
-      // Dispatch event to notify other components
-      window.dispatchEvent(new Event('labScriptsUpdated'));
+      try {
+        const scripts = JSON.parse(savedScripts);
+        console.log("Loaded scripts in Scripts page:", scripts);
+        setLabScripts(scripts);
+      } catch (error) {
+        console.error("Error loading scripts:", error);
+      }
     }
   };
 
   useEffect(() => {
     loadScripts();
     
-    // Add event listener for storage changes
     const handleStorageChange = () => {
+      console.log("Storage change detected in Scripts page");
       loadScripts();
     };
 
-    // Listen for both storage events and custom events
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('labScriptsUpdated', handleStorageChange);
 
@@ -50,7 +49,7 @@ const Scripts = () => {
   }, []);
 
   const handleNewScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script:", formData);
+    console.log("Creating new lab script in Scripts page:", formData);
     const newScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
@@ -61,14 +60,11 @@ const Scripts = () => {
       }
     };
 
-    // Update localStorage and state
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = [...existingScripts, newScript];
+    const updatedScripts = [...labScripts, newScript];
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
     setShowNewScriptDialog(false);
 
-    // Dispatch event to notify other components
     window.dispatchEvent(new Event('labScriptsUpdated'));
 
     toast({
@@ -78,9 +74,8 @@ const Scripts = () => {
   };
 
   const handleEditScript = (updatedScript: LabScript) => {
-    console.log("Editing script:", updatedScript);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = existingScripts.map((script: LabScript) => 
+    console.log("Editing script in Scripts page:", updatedScript);
+    const updatedScripts = labScripts.map(script => 
       script.id === updatedScript.id ? updatedScript : script
     );
     
@@ -89,7 +84,6 @@ const Scripts = () => {
     setSelectedScript(null);
     setIsEditing(false);
 
-    // Dispatch event to notify other components
     window.dispatchEvent(new Event('labScriptsUpdated'));
 
     toast({
@@ -99,13 +93,13 @@ const Scripts = () => {
   };
 
   const handleRowClick = (script: LabScript) => {
-    console.log("Row clicked, script:", script);
+    console.log("Row clicked in Scripts page, script:", script);
     setSelectedScript(script);
     setIsEditing(false);
   };
 
   const handleEditClick = (script: LabScript) => {
-    console.log("Edit clicked, script:", script);
+    console.log("Edit clicked in Scripts page, script:", script);
     setSelectedScript(script);
     setIsEditing(true);
   };

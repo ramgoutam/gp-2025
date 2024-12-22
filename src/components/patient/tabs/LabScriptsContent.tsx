@@ -19,6 +19,7 @@ export const LabScriptsContent = ({
   const { toast } = useToast();
 
   const handleCreateLabScript = () => {
+    console.log("Creating new lab script in LabScriptsContent");
     onCreateLabScript();
   };
 
@@ -32,10 +33,11 @@ export const LabScriptsContent = ({
     );
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     
+    // Notify parent component
+    onEditLabScript(updatedScript);
+    
     // Dispatch event to notify other components
     window.dispatchEvent(new Event('labScriptsUpdated'));
-    
-    onEditLabScript(updatedScript);
     
     toast({
       title: "Lab Script Updated",
@@ -52,7 +54,6 @@ export const LabScriptsContent = ({
         try {
           const scripts = JSON.parse(savedScripts);
           console.log("Updated lab scripts:", scripts);
-          // Call onEditLabScript with each script to update the parent state
           scripts.forEach((script: LabScript) => {
             onEditLabScript(script);
           });
