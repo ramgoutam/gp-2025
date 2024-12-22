@@ -20,8 +20,8 @@ const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  // This would typically fetch patient data from an API
   const patientData = {
     id,
     firstName: "Willie",
@@ -33,9 +33,8 @@ const PatientProfile = () => {
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
-    // Create a new lab script object with proper treatment arrays
     const newLabScript: LabScript = {
-      id: Date.now().toString(), // In a real app, this would come from the backend
+      id: Date.now().toString(),
       doctorName: formData.doctorName,
       clinicName: formData.clinicName,
       requestDate: formData.requestDate,
@@ -46,17 +45,13 @@ const PatientProfile = () => {
         lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : [],
       },
       specificInstructions: formData.specificInstructions,
+      applianceType: formData.applianceType,
     };
 
     console.log("New lab script created:", newLabScript);
-
-    // Add the new lab script to the list
     setLabScripts(prev => [...prev, newLabScript]);
-    
-    // Close the dialog
     setShowLabScriptDialog(false);
     
-    // Show success toast
     toast({
       title: "Lab Script Created",
       description: "The lab script has been successfully created.",

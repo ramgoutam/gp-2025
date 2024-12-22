@@ -1,0 +1,108 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { LabScript } from "./LabScriptsTab";
+
+interface LabScriptDetailsProps {
+  script: LabScript | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEdit: (scriptId: string) => void;
+}
+
+const getStatusBadge = (status: LabScript["status"]) => {
+  const styles = {
+    pending: "bg-yellow-100 text-yellow-800",
+    in_progress: "bg-blue-100 text-blue-800",
+    completed: "bg-green-100 text-green-800",
+  };
+
+  return (
+    <Badge variant="secondary" className={styles[status]}>
+      {status.replace("_", " ")}
+    </Badge>
+  );
+};
+
+export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScriptDetailsProps) => {
+  if (!script) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Lab Script Details</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
+              <p>{script.applianceType || "N/A"}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Doctor</h4>
+              <p>{script.doctorName}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Clinic</h4>
+              <p>{script.clinicName}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
+              <p>{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
+              <p>{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-sm text-gray-500 mb-2">Treatments</h4>
+            {script.treatments.upper.length > 0 && (
+              <div className="mb-2">
+                <span className="font-medium">Upper:</span> {script.treatments.upper.join(", ")}
+              </div>
+            )}
+            {script.treatments.lower.length > 0 && (
+              <div>
+                <span className="font-medium">Lower:</span> {script.treatments.lower.join(", ")}
+              </div>
+            )}
+          </div>
+
+          {script.specificInstructions && (
+            <div>
+              <h4 className="font-medium text-sm text-gray-500 mb-2">Specific Instructions</h4>
+              <p className="text-sm">{script.specificInstructions}</p>
+            </div>
+          )}
+
+          <div>
+            <h4 className="font-medium text-sm text-gray-500 mb-2">Status</h4>
+            {getStatusBadge(script.status)}
+          </div>
+
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                onEdit(script.id);
+                onOpenChange(false);
+              }}
+            >
+              Edit Lab Script
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
