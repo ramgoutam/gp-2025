@@ -10,6 +10,9 @@ import { Maximize, Printer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { FileList } from "../lab-script/FileList";
 import { FilePreviewDialog } from "../lab-script/FilePreviewDialog";
+import { HeaderSection } from "./lab-script-details/HeaderSection";
+import { TreatmentsSection } from "./lab-script-details/TreatmentsSection";
+import { getTreatments } from "@/utils/treatmentUtils";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -28,7 +31,7 @@ const getStatusBadge = (status: LabScript["status"]) => {
 
   return (
     <Badge variant="secondary" className={styles[status]}>
-      {status.replace("_", " ")}
+      {status?.replace("_", " ") || "pending"}
     </Badge>
   );
 };
@@ -41,7 +44,6 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
 
   useEffect(() => {
     return () => {
-      // Cleanup any object URLs when component unmounts
       if (imagePreviewUrl) {
         URL.revokeObjectURL(imagePreviewUrl);
       }
@@ -79,8 +81,9 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    if (!printWindow || !script) return;
 
+    const treatments = getTreatments(script);
     const content = `
       <!DOCTYPE html>
       <html>
@@ -128,8 +131,8 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
           </div>
           <div class="section">
             <div class="section-title">Treatments:</div>
-            <div>Upper: ${script.treatments.upper.join(", ") || "None"}</div>
-            <div>Lower: ${script.treatments.lower.join(", ") || "None"}</div>
+            <div>Upper: ${treatments.upper.join(", ") || "None"}</div>
+            <div>Lower: ${treatments.lower.join(", ") || "None"}</div>
           </div>
           ${script.specificInstructions ? `
             <div class="section">
@@ -139,7 +142,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
           ` : ''}
           <div class="section">
             <div class="section-title">Status:</div>
-            <div>${script.status.replace("_", " ")}</div>
+            <div>${script.status?.replace("_", " ") || "pending"}</div>
           </div>
         </body>
       </html>
@@ -193,24 +196,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
               />
             ) : (
               <div className="space-y-6 p-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-500">Doctor Name</h4>
-                    <p className="text-lg">{script.doctorName}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-500">Clinic Name</h4>
-                    <p className="text-lg">{script.clinicName}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
-                    <p className="text-lg">{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
-                    <p className="text-lg">{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
-                  </div>
-                </div>
+                <HeaderSection script={script} />
 
                 <Separator />
 
@@ -221,19 +207,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
 
                 <Separator />
 
-                <div className="space-y-4">
-                  <h4 className="font-medium text-sm text-gray-500">Treatments</h4>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <h5 className="font-medium">Upper</h5>
-                      <p>{script.treatments.upper.join(", ") || "None"}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <h5 className="font-medium">Lower</h5>
-                      <p>{script.treatments.lower.join(", ") || "None"}</p>
-                    </div>
-                  </div>
-                </div>
+                <TreatmentsSection script={script} />
 
                 {script.fileUploads && Object.keys(script.fileUploads).length > 0 && (
                   <>
