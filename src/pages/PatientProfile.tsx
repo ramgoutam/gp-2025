@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -22,6 +22,34 @@ const PatientProfile = () => {
   });
   const { toast } = useToast();
 
+  // Load initial lab scripts
+  useEffect(() => {
+    const loadScripts = () => {
+      const savedScripts = localStorage.getItem('labScripts');
+      if (savedScripts) {
+        try {
+          const scripts = JSON.parse(savedScripts);
+          console.log("Loading initial lab scripts in PatientProfile:", scripts);
+          setLabScripts(scripts);
+        } catch (error) {
+          console.error("Error loading lab scripts:", error);
+        }
+      }
+    };
+
+    loadScripts();
+    
+    // Listen for lab script updates
+    const handleLabScriptsUpdate = () => {
+      loadScripts();
+    };
+
+    window.addEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+    return () => {
+      window.removeEventListener('labScriptsUpdated', handleLabScriptsUpdate);
+    };
+  }, []);
+
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
@@ -35,8 +63,15 @@ const PatientProfile = () => {
       }
     };
 
-    setLabScripts(prev => [...prev, newLabScript]);
+    // Update both local state and localStorage
+    const updatedScripts = [...labScripts, newLabScript];
+    setLabScripts(updatedScripts);
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
     setShowLabScriptDialog(false);
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     toast({
       title: "Lab Script Created",
@@ -45,7 +80,7 @@ const PatientProfile = () => {
   };
 
   const handleEditLabScript = (updatedScript: LabScript) => {
-    console.log("Updating lab script:", updatedScript);
+    console.log("Updating lab script in PatientProfile:", updatedScript);
     
     const formattedScript: LabScript = {
       ...updatedScript,
@@ -56,11 +91,15 @@ const PatientProfile = () => {
       }
     };
 
-    setLabScripts(prev => 
-      prev.map(script => 
-        script.id === formattedScript.id ? formattedScript : script
-      )
+    const updatedScripts = labScripts.map(script => 
+      script.id === formattedScript.id ? formattedScript : script
     );
+    
+    setLabScripts(updatedScripts);
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('labScriptsUpdated'));
   };
 
   const handleUpdatePatient = (updatedData: typeof patientData) => {
@@ -95,7 +134,7 @@ const PatientProfile = () => {
             labScripts={labScripts}
             onCreateLabScript={() => handleDialogChange(true)}
             onEditLabScript={handleEditLabScript}
-            patientData={patientData}  // Added this line to resolve the TypeScript error
+            patientData={patientData}
           />
         </div>
       </main>
