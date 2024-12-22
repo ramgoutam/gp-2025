@@ -59,13 +59,13 @@ const PatientProfile = () => {
     });
   };
 
+  // Updated dialog change handler to properly cleanup
   const handleDialogChange = (open: boolean) => {
     setShowLabScriptDialog(open);
+    // Ensure body styles are reset when dialog closes
     if (!open) {
-      setTimeout(() => {
-        document.body.style.pointerEvents = 'auto';
-        document.body.style.overflow = 'auto';
-      }, 100);
+      document.body.style.pointerEvents = '';
+      document.body.style.overflow = '';
     }
   };
 
