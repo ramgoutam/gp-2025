@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LabScriptForm } from "@/components/LabScriptForm";
 
 const PatientProfile = () => {
   const { id } = useParams();
@@ -30,6 +31,10 @@ const PatientProfile = () => {
     lastName: "Jennie",
     avatar: "/placeholder.svg", // Using placeholder for now
     note: "Have uneven jawline",
+  };
+
+  const handleLabScriptSubmit = () => {
+    setShowLabScriptDialog(false);
   };
 
   return (
@@ -182,17 +187,14 @@ const PatientProfile = () => {
 
       {/* Lab Script Dialog */}
       <Dialog open={showLabScriptDialog} onOpenChange={setShowLabScriptDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create Lab Script</DialogTitle>
             <DialogDescription>
               Create a new lab script for {patientData.firstName} {patientData.lastName}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {/* Add your lab script form here */}
-            <p className="text-sm text-gray-500">Lab script form will be implemented here.</p>
-          </div>
+          <LabScriptForm onSubmit={handleLabScriptSubmit} />
         </DialogContent>
       </Dialog>
     </div>
