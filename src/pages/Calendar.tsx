@@ -11,7 +11,7 @@ interface Event {
   startTime: string;
   endTime: string;
   attendees: { name: string; avatar?: string }[];
-  category: "personal" | "work" | "health" | "other";
+  category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
 }
 
 export default function Calendar() {
@@ -21,40 +21,56 @@ export default function Calendar() {
   const events: Event[] = [
     {
       id: "1",
-      title: "Kick-off meeting with project team",
+      title: "Dental Checkup",
       startTime: "6:00",
       endTime: "6:30",
       attendees: [
         { name: "John Doe" },
         { name: "Jane Smith" }
       ],
-      category: "work"
+      category: "dentist"
     },
     {
       id: "2",
-      title: "Gym session",
+      title: "Emergency Consultation",
       startTime: "9:40",
       endTime: "11:30",
       attendees: [
         { name: "Alice Johnson" }
       ],
-      category: "health"
+      category: "emergency"
     },
     {
       id: "3",
-      title: "Family dinner",
+      title: "Lab Work Review",
       startTime: "18:00",
       endTime: "19:30",
       attendees: [
         { name: "Bob Wilson" },
         { name: "Carol Brown" }
       ],
-      category: "personal"
+      category: "lab"
     }
   ];
 
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 6); // 6am to 6pm
-  const categories = ["personal", "work", "health", "other"] as const;
+  const categories = ["lab", "followup", "emergency", "surgery", "dentist"] as const;
+
+  const categoryLabels = {
+    lab: "Lab Schedule",
+    followup: "Follow Up",
+    emergency: "Emergency",
+    surgery: "Surgery",
+    dentist: "Dentist Calendar"
+  };
+
+  const categoryColors = {
+    lab: "bg-blue-50 border-blue-100",
+    followup: "bg-purple-50 border-purple-100",
+    emergency: "bg-red-50 border-red-100",
+    surgery: "bg-green-50 border-green-100",
+    dentist: "bg-amber-50 border-amber-100"
+  };
 
   const navigateDay = (days: number) => {
     const newDate = new Date(currentDate);
@@ -101,11 +117,11 @@ export default function Calendar() {
             <TimeGrid timeSlots={timeSlots} />
 
             {/* Category columns */}
-            <div className="ml-14 grid grid-cols-4">
+            <div className="ml-14 grid grid-cols-5">
               {categories.map((category) => (
                 <div key={category} className="border-r border-gray-100">
                   <div className="px-2 py-1 text-sm font-medium text-gray-700 capitalize border-b bg-gray-50 sticky top-[57px] z-10">
-                    {category}
+                    {categoryLabels[category]}
                   </div>
                   <div className="relative bg-white">
                     {timeSlots.map((hour) => (
@@ -127,7 +143,7 @@ export default function Calendar() {
                             minHeight: '32px'
                           }}
                         >
-                          <EventCard {...event} />
+                          <EventCard {...event} category={event.category} />
                         </div>
                     ))}
                   </div>

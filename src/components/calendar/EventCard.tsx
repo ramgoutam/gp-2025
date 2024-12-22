@@ -10,15 +10,16 @@ interface EventCardProps {
   startTime: string;
   endTime: string;
   attendees: Attendee[];
-  category: "personal" | "work" | "health" | "other";
+  category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
 }
 
 export const EventCard = ({ title, startTime, endTime, attendees, category }: EventCardProps) => {
   const categoryColors = {
-    personal: "bg-blue-50 border-blue-100",
-    work: "bg-purple-50 border-purple-100",
-    health: "bg-green-50 border-green-100",
-    other: "bg-gray-50 border-gray-100"
+    lab: "bg-blue-50 border-blue-100",
+    followup: "bg-purple-50 border-purple-100",
+    emergency: "bg-red-50 border-red-100",
+    surgery: "bg-green-50 border-green-100",
+    dentist: "bg-amber-50 border-amber-100"
   };
 
   return (
