@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -10,14 +10,17 @@ import { LabScript } from "@/components/patient/LabScriptsTab";
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
-  const { toast } = useToast();
-
-  const patientData = {
+  const [patientData, setPatientData] = useState({
     firstName: "Willie",
     lastName: "Jennie",
     avatar: "/placeholder.svg",
     note: "Have uneven jawline",
-  };
+    email: "willie.jennie@example.com",
+    phone: "+1234567890",
+    sex: "female",
+    dob: "1990-01-01",
+  });
+  const { toast } = useToast();
 
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
@@ -44,10 +47,9 @@ const PatientProfile = () => {
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script:", updatedScript);
     
-    // Ensure the treatments object and status are properly structured when updating
     const formattedScript: LabScript = {
       ...updatedScript,
-      status: updatedScript.status || "pending", // Ensure status is set
+      status: updatedScript.status || "pending",
       treatments: {
         upper: updatedScript.upperTreatment !== "None" ? [updatedScript.upperTreatment] : [],
         lower: updatedScript.lowerTreatment !== "None" ? [updatedScript.lowerTreatment] : []
@@ -59,6 +61,11 @@ const PatientProfile = () => {
         script.id === formattedScript.id ? formattedScript : script
       )
     );
+  };
+
+  const handleUpdatePatient = (updatedData: typeof patientData) => {
+    console.log("Updating patient data:", updatedData);
+    setPatientData(updatedData);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -81,6 +88,7 @@ const PatientProfile = () => {
           <PatientHeader 
             patientData={patientData}
             onCreateLabScript={() => handleDialogChange(true)}
+            onUpdatePatient={handleUpdatePatient}
           />
 
           <PatientTabs

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +11,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface PatientFormProps {
-  onSubmitSuccess?: (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    sex: string;
-    dob: string;
-  }) => void;
+interface PatientFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  sex: string;
+  dob: string;
 }
 
-export const PatientForm = ({ onSubmitSuccess }: PatientFormProps) => {
+interface PatientFormProps {
+  initialData?: PatientFormData;
+  onSubmitSuccess?: (data: PatientFormData) => void;
+}
+
+export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PatientFormData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -33,19 +36,24 @@ export const PatientForm = ({ onSubmitSuccess }: PatientFormProps) => {
     dob: "",
   });
 
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Patient data:", formData);
     
     onSubmitSuccess?.(formData);
     
-    toast({
-      title: "Success",
-      description: "Patient information saved successfully",
-    });
-
-    // Reset form if not in dialog
     if (!onSubmitSuccess) {
+      toast({
+        title: "Success",
+        description: "Patient information saved successfully",
+      });
+
       setFormData({
         firstName: "",
         lastName: "",
@@ -112,7 +120,10 @@ export const PatientForm = ({ onSubmitSuccess }: PatientFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="sex">Sex</Label>
-        <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}>
+        <Select
+          value={formData.sex}
+          onValueChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select sex" />
           </SelectTrigger>
@@ -137,7 +148,7 @@ export const PatientForm = ({ onSubmitSuccess }: PatientFormProps) => {
       </div>
 
       <Button type="submit" className="w-full">
-        Save Patient Information
+        {initialData ? "Update Patient Information" : "Save Patient Information"}
       </Button>
     </form>
   );
