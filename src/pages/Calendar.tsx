@@ -138,10 +138,11 @@ export default function Calendar() {
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const [endHours, endMinutes] = endTime.split(':').map(Number);
     
-    const startInMinutes = startHours * 60 + startMinutes;
-    const endInMinutes = endHours * 60 + endMinutes;
+    const totalStartMinutes = (startHours * 60) + startMinutes;
+    const totalEndMinutes = (endHours * 60) + endMinutes;
+    const diffInMinutes = totalEndMinutes - totalStartMinutes;
     
-    return ((endInMinutes - startInMinutes) / 60) * 64;
+    return (diffInMinutes / 60) * 64;
   };
 
   return (
