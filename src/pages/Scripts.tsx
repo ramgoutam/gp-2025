@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
+import { saveLabScript, updateLabScript, getLabScripts } from "@/utils/labScriptStorage";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -19,30 +20,9 @@ const Scripts = () => {
 
   const loadScripts = () => {
     console.log("Loading scripts in Scripts page");
-    const savedScripts = localStorage.getItem('labScripts');
-    if (savedScripts) {
-      try {
-        const parsedScripts = JSON.parse(savedScripts) as LabScript[];
-        console.log("Parsed scripts:", parsedScripts);
-        
-        // Create a Map to store unique scripts by ID
-        const uniqueScriptsMap = new Map<string, LabScript>();
-        parsedScripts.forEach(script => {
-          if (!uniqueScriptsMap.has(script.id)) {
-            uniqueScriptsMap.set(script.id, script);
-          }
-        });
-        
-        const uniqueScripts = Array.from(uniqueScriptsMap.values());
-        console.log("Loaded unique scripts:", uniqueScripts);
-        setLabScripts(uniqueScripts);
-      } catch (error) {
-        console.error("Error loading scripts:", error);
-        setLabScripts([]);
-      }
-    } else {
-      setLabScripts([]);
-    }
+    const uniqueScripts = getLabScripts();
+    console.log("Loaded unique scripts:", uniqueScripts);
+    setLabScripts(uniqueScripts);
   };
 
   useEffect(() => {
@@ -54,28 +34,20 @@ const Scripts = () => {
     const newScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
-      status: "pending",
-      treatments: {
-        upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
-        lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : []
-      }
+      status: "pending"
     };
 
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
-    console.log("Existing scripts before adding new:", existingScripts);
-    
-    // Create a Map to ensure uniqueness
-    const scriptsMap = new Map<string, LabScript>();
-    existingScripts.forEach(script => {
-      scriptsMap.set(script.id, script);
-    });
-    scriptsMap.set(newScript.id, newScript);
-    
-    const updatedScripts = Array.from(scriptsMap.values());
-    console.log("Updated scripts after adding new:", updatedScripts);
-    
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    setLabScripts(updatedScripts);
+    const saved = saveLabScript(newScript);
+    if (!saved) {
+      toast({
+        title: "Error",
+        description: "A similar lab script already exists. Please check the details and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    loadScripts(); // Reload scripts to ensure we have the latest data
     setShowNewScriptDialog(false);
 
     toast({
@@ -86,24 +58,8 @@ const Scripts = () => {
 
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
-    console.log("Existing scripts before edit:", existingScripts);
-    
-    // Create a Map to ensure uniqueness
-    const scriptsMap = new Map<string, LabScript>();
-    existingScripts.forEach(script => {
-      if (script.id === updatedScript.id) {
-        scriptsMap.set(script.id, updatedScript);
-      } else {
-        scriptsMap.set(script.id, script);
-      }
-    });
-    
-    const updatedScripts = Array.from(scriptsMap.values());
-    console.log("Updated scripts after edit:", updatedScripts);
-    
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    setLabScripts(updatedScripts);
+    updateLabScript(updatedScript);
+    loadScripts(); // Reload scripts to ensure we have the latest data
     setSelectedScript(null);
     setIsEditing(false);
 
@@ -115,8 +71,8 @@ const Scripts = () => {
 
   const handleScriptDelete = (scriptToDelete: LabScript) => {
     console.log("Deleting script:", scriptToDelete);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
-    const updatedScripts = existingScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
+    const existingScripts = getLabScripts();
+    const updatedScripts = existingScripts.filter(script => script.id !== scriptToDelete.id);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);

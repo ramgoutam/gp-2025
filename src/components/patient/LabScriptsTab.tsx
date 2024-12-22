@@ -5,6 +5,7 @@ import { LabScriptDetails } from "./LabScriptDetails";
 
 export type LabScript = {
   id: string;
+  requestNumber?: string;
   patientFirstName: string;
   patientLastName: string;
   doctorName: string;
