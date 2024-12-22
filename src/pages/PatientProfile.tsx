@@ -12,7 +12,7 @@ import { LabScript } from "@/components/patient/LabScriptsTab";
 const PatientProfile = () => {
   const navigate = useNavigate();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
-  const [labScripts, setLabScripts] = React.useState(demoLabScripts);
+  const [labScripts, setLabScripts] = React.useState<LabScript[]>(demoLabScripts);
   const { toast } = useToast();
 
   const patientData = {

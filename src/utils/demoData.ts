@@ -1,15 +1,19 @@
-export const demoLabScripts = [
+import { LabScript } from "@/components/patient/LabScriptsTab";
+
+export const demoLabScripts: LabScript[] = [
   {
     id: "1",
     doctorName: "Dr. Sarah Smith",
     clinicName: "Dental Excellence Center",
     requestDate: "2024-03-15",
     dueDate: "2024-03-30",
-    status: "pending" as const,
+    status: "pending",
+    upperTreatment: "Full Arch Fixed",
+    lowerTreatment: "None",
     applianceType: "Surgical Day appliance",
     treatments: {
       upper: ["Full Arch Fixed"],
-      lower: ["None"]
+      lower: []
     },
     specificInstructions: "Patient has metal sensitivity, please use ceramic materials only."
   },
@@ -19,7 +23,9 @@ export const demoLabScripts = [
     clinicName: "Advanced Dental Care",
     requestDate: "2024-03-10",
     dueDate: "2024-03-25",
-    status: "in_progress" as const,
+    status: "in_progress",
+    upperTreatment: "Crown",
+    lowerTreatment: "Denture",
     applianceType: "Printed Try-in",
     treatments: {
       upper: ["Crown"],
@@ -33,11 +39,13 @@ export const demoLabScripts = [
     clinicName: "Dental Excellence Center",
     requestDate: "2024-03-01",
     dueDate: "2024-03-20",
-    status: "completed" as const,
+    status: "completed",
+    upperTreatment: "Nightguard",
+    lowerTreatment: "None",
     applianceType: "Nightguard",
     treatments: {
       upper: ["Nightguard"],
-      lower: ["None"]
+      lower: []
     },
     specificInstructions: "Patient grinds teeth heavily - reinforce material thickness."
   }
