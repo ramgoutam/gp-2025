@@ -58,23 +58,31 @@ const PatientProfile = () => {
     });
   };
 
+  const handleDialogChange = (open: boolean) => {
+    setShowLabScriptDialog(open);
+    // Force a re-render of the main content when dialog closes
+    if (!open) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.overflow = 'auto';
+      }, 100);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="container mx-auto py-8 px-4">
-        {/* Breadcrumb */}
         <div className="text-sm text-gray-500 mb-6">
           Patient list / Patient detail
         </div>
 
-        {/* Patient Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <PatientHeader 
             patientData={patientData}
-            onCreateLabScript={() => setShowLabScriptDialog(true)}
+            onCreateLabScript={() => handleDialogChange(true)}
           />
 
-          {/* Tabs */}
           <Tabs defaultValue="lab-scripts" className="w-full">
             <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
               <TabsTrigger 
@@ -175,8 +183,10 @@ const PatientProfile = () => {
         </div>
       </main>
 
-      {/* Lab Script Dialog */}
-      <Dialog open={showLabScriptDialog} onOpenChange={setShowLabScriptDialog}>
+      <Dialog 
+        open={showLabScriptDialog} 
+        onOpenChange={handleDialogChange}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create Lab Script</DialogTitle>
