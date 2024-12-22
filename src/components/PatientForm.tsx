@@ -11,7 +11,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const PatientForm = () => {
+interface PatientFormProps {
+  onSubmitSuccess?: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    sex: string;
+    dob: string;
+  }) => void;
+}
+
+export const PatientForm = ({ onSubmitSuccess }: PatientFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -25,10 +36,25 @@ export const PatientForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Patient data:", formData);
+    
+    onSubmitSuccess?.(formData);
+    
     toast({
       title: "Success",
       description: "Patient information saved successfully",
     });
+
+    // Reset form if not in dialog
+    if (!onSubmitSuccess) {
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        sex: "",
+        dob: "",
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +63,7 @@ export const PatientForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto p-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="firstName">First Name</Label>
         <Input
