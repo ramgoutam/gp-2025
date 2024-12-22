@@ -28,7 +28,7 @@ const PatientProfile = () => {
       status: "pending",
       treatments: {
         upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
-        lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : [],
+        lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : []
       }
     };
 
@@ -43,9 +43,19 @@ const PatientProfile = () => {
 
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script:", updatedScript);
+    
+    // Ensure the treatments object is properly structured when updating
+    const formattedScript: LabScript = {
+      ...updatedScript,
+      treatments: {
+        upper: updatedScript.upperTreatment !== "None" ? [updatedScript.upperTreatment] : [],
+        lower: updatedScript.lowerTreatment !== "None" ? [updatedScript.lowerTreatment] : []
+      }
+    };
+
     setLabScripts(prev => 
       prev.map(script => 
-        script.id === updatedScript.id ? updatedScript : script
+        script.id === formattedScript.id ? formattedScript : script
       )
     );
   };
