@@ -21,6 +21,14 @@ interface DigitalDataUploadProps {
   onFileChange: (itemId: string, file: File | null) => void;
 }
 
+// Extend HTMLInputElement to include directory attributes
+declare module 'react' {
+  interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+    webkitdirectory?: string;
+    directory?: string;
+  }
+}
+
 export const DigitalDataUpload = ({
   section,
   sectionKey,
