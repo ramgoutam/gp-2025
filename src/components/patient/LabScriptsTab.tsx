@@ -17,6 +17,7 @@ export type LabScript = {
     lower: string[];
   };
   specificInstructions?: string;
+  applianceType?: string;
 };
 
 type LabScriptsTabProps = {
@@ -41,6 +42,11 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
   console.log("Rendering LabScriptsTab with scripts:", labScripts);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
   
+  const handleRowClick = (script: LabScript) => {
+    console.log("Row clicked, script:", script);
+    setSelectedScript(script);
+  };
+
   return (
     <>
       <ScrollArea className="h-[500px]">
@@ -51,6 +57,7 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
               <TableHead>Due Date</TableHead>
               <TableHead>Doctor</TableHead>
               <TableHead>Clinic</TableHead>
+              <TableHead>Appliance Type</TableHead>
               <TableHead>Treatments</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -60,15 +67,21 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
               <TableRow 
                 key={script.id}
                 className="cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  console.log("Row clicked, script:", script);
-                  setSelectedScript(script);
-                }}
+                onClick={() => handleRowClick(script)}
               >
                 <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
                 <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
                 <TableCell>{script.doctorName}</TableCell>
                 <TableCell>{script.clinicName}</TableCell>
+                <TableCell 
+                  className="font-medium text-blue-600 hover:text-blue-800"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRowClick(script);
+                  }}
+                >
+                  {script.applianceType || "N/A"}
+                </TableCell>
                 <TableCell>
                   <div className="space-y-1">
                     {script.treatments.upper.length > 0 && (
@@ -114,6 +127,10 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
                 <div>
                   <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
                   <p>{format(new Date(selectedScript.dueDate), "MMM dd, yyyy")}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
+                  <p>{selectedScript.applianceType || "N/A"}</p>
                 </div>
               </div>
 
