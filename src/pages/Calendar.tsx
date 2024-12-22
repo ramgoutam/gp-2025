@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { DateSelector } from "@/components/calendar/DateSelector";
 import { TimeGrid } from "@/components/calendar/TimeGrid";
 import { EventCard } from "@/components/calendar/EventCard";
@@ -65,11 +67,31 @@ export default function Calendar() {
   };
 
   const categoryColors = {
-    lab: "bg-blue-50 border-blue-100",
-    followup: "bg-purple-50 border-purple-100",
-    emergency: "bg-red-50 border-red-100",
-    surgery: "bg-green-50 border-green-100",
-    dentist: "bg-amber-50 border-amber-100"
+    lab: {
+      button: "bg-[#0EA5E9] hover:bg-[#0EA5E9]/90",
+      event: "bg-blue-50 border-blue-100"
+    },
+    followup: {
+      button: "bg-[#F97316] hover:bg-[#F97316]/90",
+      event: "bg-purple-50 border-purple-100"
+    },
+    emergency: {
+      button: "bg-[#ea384c] hover:bg-[#ea384c]/90",
+      event: "bg-red-50 border-red-100"
+    },
+    surgery: {
+      button: "bg-[#8B5CF6] hover:bg-[#8B5CF6]/90",
+      event: "bg-green-50 border-green-100"
+    },
+    dentist: {
+      button: "bg-[#D946EF] hover:bg-[#D946EF]/90",
+      event: "bg-amber-50 border-amber-100"
+    }
+  };
+
+  const handleAddEvent = (category: Event['category']) => {
+    console.log(`Adding event for category: ${category}`);
+    // TODO: Implement event addition logic
   };
 
   const navigateDay = (days: number) => {
@@ -120,8 +142,18 @@ export default function Calendar() {
             <div className="ml-14 grid grid-cols-5">
               {categories.map((category) => (
                 <div key={category} className="border-r border-gray-100">
-                  <div className="px-2 py-1 text-sm font-medium text-gray-700 capitalize border-b bg-gray-50 sticky top-[57px] z-10">
-                    {categoryLabels[category]}
+                  <div className="px-2 py-2 text-sm font-medium text-gray-700 border-b bg-gray-50 sticky top-[57px] z-10">
+                    <div className="flex flex-col gap-2">
+                      <span>{categoryLabels[category]}</span>
+                      <Button 
+                        className={`w-full ${categoryColors[category].button} text-white`}
+                        size="sm"
+                        onClick={() => handleAddEvent(category)}
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Event
+                      </Button>
+                    </div>
                   </div>
                   <div className="relative bg-white">
                     {timeSlots.map((hour) => (
