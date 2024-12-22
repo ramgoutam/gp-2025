@@ -4,6 +4,7 @@ import PatientProfile from "./pages/PatientProfile";
 import Index from "./pages/Index";
 import Scripts from "./pages/Scripts";
 import Reports from "./pages/Reports";
+import Calendar from "./pages/Calendar";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/patient/:id" element={<PatientProfile />} />
         <Route path="/scripts" element={<Scripts />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/calendar" element={<Calendar />} />
       </Routes>
       <Toaster />
     </BrowserRouter>

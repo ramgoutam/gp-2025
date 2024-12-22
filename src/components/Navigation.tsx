@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Users, ClipboardList, FileText } from "lucide-react";
+import { Users, ClipboardList, FileText, Calendar } from "lucide-react";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -9,6 +9,7 @@ export const Navigation = () => {
     { to: "/", label: "Patients", icon: Users },
     { to: "/scripts", label: "Lab Scripts", icon: ClipboardList },
     { to: "/reports", label: "Reports", icon: FileText },
+    { to: "/calendar", label: "Calendar", icon: Calendar },
   ];
 
   return (
