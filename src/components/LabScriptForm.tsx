@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DigitalDataSection } from "./lab-script/DigitalDataSection";
 import { TreatmentSection } from "./lab-script/TreatmentSection";
+import { ApplianceSection } from "./lab-script/ApplianceSection";
+import { ScrewSection } from "./lab-script/ScrewSection";
+import { VDOSection } from "./lab-script/VDOSection";
 
 type FileUpload = {
   id: string;
@@ -23,30 +25,18 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     applianceType: "",
     shade: "",
     specificInstructions: "",
+    upperTreatment: "None",
+    lowerTreatment: "None",
+    screwType: "",
+    vdoOption: "",
   });
 
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>({});
-  
-  const [upperTreatments, setUpperTreatments] = React.useState({
-    fullArchFixed: false,
-    denture: false,
-    crown: false,
-    nightguard: false,
-  });
-  
-  const [lowerTreatments, setLowerTreatments] = React.useState({
-    fullArchFixed: false,
-    denture: false,
-    crown: false,
-    nightguard: false,
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Lab script form submitted:", {
       ...formData,
-      upperTreatments,
-      lowerTreatments,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.file) {
           acc[key] = upload.file;
@@ -57,8 +47,6 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     
     onSubmit?.({
       ...formData,
-      upperTreatments,
-      lowerTreatments,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.file) {
           acc[key] = upload.file;
@@ -127,58 +115,40 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
         </div>
       </div>
 
+      <ApplianceSection
+        value={formData.applianceType}
+        onChange={(value) => setFormData(prev => ({ ...prev, applianceType: value }))}
+      />
+
       <div className="space-y-4">
         <h3 className="font-semibold text-lg">Treatment</h3>
         <div className="grid grid-cols-2 gap-8">
           <TreatmentSection
             title="Upper"
-            selectedTeeth={[]}
-            onTeethChange={() => {}}
-            treatments={upperTreatments}
-            onTreatmentChange={(key, checked) =>
-              setUpperTreatments(prev => ({ ...prev, [key]: checked }))
+            treatment={formData.upperTreatment}
+            onTreatmentChange={(value) => 
+              setFormData(prev => ({ ...prev, upperTreatment: value }))
             }
           />
           <TreatmentSection
             title="Lower"
-            selectedTeeth={[]}
-            onTeethChange={() => {}}
-            treatments={lowerTreatments}
-            onTreatmentChange={(key, checked) =>
-              setLowerTreatments(prev => ({ ...prev, [key]: checked }))
+            treatment={formData.lowerTreatment}
+            onTreatmentChange={(value) =>
+              setFormData(prev => ({ ...prev, lowerTreatment: value }))
             }
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <h4 className="font-medium">Screw</h4>
-          <div className="space-y-2">
-            {["Rosen", "Dess", "SIN", "DC Screw", "Others"].map((item) => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox id={`screw${item}`} />
-                <label htmlFor={`screw${item}`}>{item}</label>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h4 className="font-medium">VDO Details</h4>
-          <div className="space-y-2">
-            {[
-              "Open upto 4 mm without calling Doctor",
-              "Open upto 4 mm with calling Doctor",
-              "Open VDO based on requirement",
-              "No changes required in VDO"
-            ].map((item) => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox id={`vdo${item}`} />
-                <label htmlFor={`vdo${item}`}>{item}</label>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ScrewSection
+          value={formData.screwType}
+          onChange={(value) => setFormData(prev => ({ ...prev, screwType: value }))}
+        />
+        <VDOSection
+          value={formData.vdoOption}
+          onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))}
+        />
       </div>
 
       <DigitalDataSection
