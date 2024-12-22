@@ -1,12 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Edit, MoreVertical, Calendar, FileText, FileBarChart } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Edit } from "lucide-react";
 
 type PatientHeaderProps = {
   patientData: {
@@ -18,7 +12,7 @@ type PatientHeaderProps = {
   onCreateLabScript: () => void;
 };
 
-export const PatientHeader = ({ patientData, onCreateLabScript }: PatientHeaderProps) => {
+export const PatientHeader = ({ patientData }: PatientHeaderProps) => {
   return (
     <div className="flex items-start justify-between mb-6">
       <div className="flex items-center gap-4">
@@ -39,30 +33,6 @@ export const PatientHeader = ({ patientData, onCreateLabScript }: PatientHeaderP
             </Button>
           </p>
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button>Actions</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => console.log("Create appointment clicked")}>
-              <Calendar className="mr-2 h-4 w-4" />
-              Create Appointment
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onCreateLabScript}>
-              <FileText className="mr-2 h-4 w-4" />
-              Create Lab Script
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <FileBarChart className="mr-2 h-4 w-4" />
-              Create Report
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="ghost" size="icon">
-          <MoreVertical className="h-5 w-5" />
-        </Button>
       </div>
     </div>
   );

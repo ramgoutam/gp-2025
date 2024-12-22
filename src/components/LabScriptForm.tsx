@@ -9,37 +9,47 @@ import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "./ui/use-toast";
 
 type FileUpload = {
   id: string;
   files: File[];
 };
 
-export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) => {
+interface LabScriptFormProps {
+  onSubmit?: (data: any) => void;
+  initialData?: any;
+  isEditing?: boolean;
+}
+
+export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabScriptFormProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = React.useState({
-    doctorName: "",
-    clinicName: "",
-    requestDate: "",
-    dueDate: "",
-    firstName: "",
-    lastName: "",
-    applianceType: "",
-    shade: "",
-    specificInstructions: "",
-    upperTreatment: "None",
-    lowerTreatment: "None",
-    screwType: "",
-    vdoOption: "",
+    doctorName: initialData?.doctorName || "",
+    clinicName: initialData?.clinicName || "",
+    requestDate: initialData?.requestDate || "",
+    dueDate: initialData?.dueDate || "",
+    firstName: initialData?.firstName || "",
+    lastName: initialData?.lastName || "",
+    applianceType: initialData?.applianceType || "",
+    shade: initialData?.shade || "",
+    specificInstructions: initialData?.specificInstructions || "",
+    upperTreatment: initialData?.upperTreatment || "None",
+    lowerTreatment: initialData?.lowerTreatment || "None",
+    screwType: initialData?.screwType || "",
+    vdoOption: initialData?.vdoOption || "",
   });
 
-  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>({});
+  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(
+    initialData?.fileUploads || {}
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const submissionData = {
       ...formData,
-      id: Date.now().toString(),
+      id: initialData?.id || Date.now().toString(),
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
         if (upload.files.length > 0) {
           acc[key] = upload.files;
@@ -48,12 +58,18 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
       }, {} as Record<string, File[]>)
     };
     
-    console.log("Lab script form submitted:", submissionData);
+    console.log(`Lab script ${isEditing ? 'updated' : 'submitted'}:`, submissionData);
     
     onSubmit?.(submissionData);
 
-    // Navigate to scripts page with the submitted form data
-    navigate('/scripts', { state: { openScript: submissionData } });
+    toast({
+      title: isEditing ? "Lab Script Updated" : "Lab Script Created",
+      description: isEditing ? "The lab script has been successfully updated." : "The lab script has been successfully created.",
+    });
+
+    if (!isEditing) {
+      navigate('/scripts', { state: { openScript: submissionData } });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -169,7 +185,7 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="submit">Submit Lab Script</Button>
+        <Button type="submit">{isEditing ? 'Update' : 'Submit'} Lab Script</Button>
       </div>
     </form>
   );
