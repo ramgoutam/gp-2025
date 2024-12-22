@@ -8,7 +8,7 @@ import { LabScript } from "./LabScriptsTab";
 interface LabScriptListProps {
   labScripts: LabScript[];
   onRowClick: (script: LabScript) => void;
-  onEditClick: (e: React.MouseEvent, scriptId: string) => void;
+  onEditClick: (script: LabScript) => void;
 }
 
 const getStatusBadge = (status: LabScript["status"]) => {
@@ -26,6 +26,11 @@ const getStatusBadge = (status: LabScript["status"]) => {
 };
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScriptListProps) => {
+  const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
+    e.stopPropagation(); // Prevent row click when clicking edit
+    onEditClick(script);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -75,7 +80,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScript
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => onEditClick(e, script.id)}
+                onClick={(e) => handleEditClick(e, script)}
                 className="p-0 h-auto hover:bg-transparent"
               >
                 <Pencil className="h-4 w-4" />

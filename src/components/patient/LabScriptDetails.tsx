@@ -13,6 +13,7 @@ interface LabScriptDetailsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: (updatedScript: LabScript) => void;
+  isEditing?: boolean;
 }
 
 const getStatusBadge = (status: LabScript["status"]) => {
@@ -29,8 +30,7 @@ const getStatusBadge = (status: LabScript["status"]) => {
   );
 };
 
-export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScriptDetailsProps) => {
-  const [isEditing, setIsEditing] = useState(false);
+export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing = false }: LabScriptDetailsProps) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
   if (!script) return null;
@@ -38,7 +38,6 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
   const handleEdit = (updatedData: LabScript) => {
     console.log("Handling edit with updated data:", updatedData);
     onEdit(updatedData);
-    setIsEditing(false);
   };
 
   const dialogContentClass = isMaximized 
@@ -49,7 +48,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${dialogContentClass} overflow-hidden`}>
         <DialogHeader className="flex flex-row justify-between items-center">
-          <DialogTitle>Lab Script Details</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Lab Script' : 'Lab Script Details'}</DialogTitle>
           <Button
             variant="ghost"
             size="icon"
@@ -124,11 +123,6 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit }: LabScri
                   onClick={() => onOpenChange(false)}
                 >
                   Close
-                </Button>
-                <Button
-                  onClick={() => setIsEditing(true)}
-                >
-                  Edit Lab Script
                 </Button>
               </div>
             </div>

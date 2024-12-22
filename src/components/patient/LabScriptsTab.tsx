@@ -26,17 +26,19 @@ type LabScriptsTabProps = {
 };
 
 export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) => {
-  console.log("Rendering LabScriptsTab with scripts:", labScripts);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
+  const [isEditing, setIsEditing] = React.useState(false);
 
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
     setSelectedScript(script);
+    setIsEditing(false);
   };
 
-  const handleEditClick = (e: React.MouseEvent, scriptId: string) => {
-    e.stopPropagation();
-    onEditScript?.(scriptId);
+  const handleEditClick = (script: LabScript) => {
+    console.log("Edit clicked, script:", script);
+    setSelectedScript(script);
+    setIsEditing(true);
   };
 
   const handleScriptEdit = (updatedScript: LabScript) => {
@@ -44,6 +46,7 @@ export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) 
       onEditScript(updatedScript.id);
     }
     setSelectedScript(null);
+    setIsEditing(false);
   };
 
   return (
@@ -59,8 +62,14 @@ export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) 
       <LabScriptDetails
         script={selectedScript}
         open={!!selectedScript}
-        onOpenChange={(open) => !open && setSelectedScript(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedScript(null);
+            setIsEditing(false);
+          }
+        }}
         onEdit={handleScriptEdit}
+        isEditing={isEditing}
       />
     </>
   );
