@@ -65,7 +65,7 @@ export default function Calendar() {
   const calculatePosition = (time: string) => {
     const [hours, minutes] = time.split(':').map(Number);
     const baseHour = 6; // Starting hour (6 AM)
-    return ((hours - baseHour) + minutes / 60) * 64;
+    return ((hours - baseHour) * 64) + ((minutes / 60) * 64);
   };
 
   const calculateHeight = (startTime: string, endTime: string) => {
@@ -123,7 +123,8 @@ export default function Calendar() {
                           className="absolute left-1 right-1"
                           style={{
                             top: `${calculatePosition(event.startTime)}px`,
-                            height: `${calculateHeight(event.startTime, event.endTime)}px`
+                            height: `${calculateHeight(event.startTime, event.endTime)}px`,
+                            minHeight: '32px'
                           }}
                         >
                           <EventCard {...event} />
