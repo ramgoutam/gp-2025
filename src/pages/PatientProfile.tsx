@@ -44,9 +44,10 @@ const PatientProfile = () => {
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script:", updatedScript);
     
-    // Ensure the treatments object is properly structured when updating
+    // Ensure the treatments object and status are properly structured when updating
     const formattedScript: LabScript = {
       ...updatedScript,
+      status: updatedScript.status || "pending", // Ensure status is set
       treatments: {
         upper: updatedScript.upperTreatment !== "None" ? [updatedScript.upperTreatment] : [],
         lower: updatedScript.lowerTreatment !== "None" ? [updatedScript.lowerTreatment] : []
