@@ -33,23 +33,10 @@ const Scripts = () => {
 
   useEffect(() => {
     loadScripts();
-    
-    const handleStorageChange = () => {
-      console.log("Storage change detected in Scripts page");
-      loadScripts();
-    };
-
-    window.addEventListener('labScriptsUpdated', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('labScriptsUpdated', handleStorageChange);
-    };
   }, []);
 
   const handleNewScriptSubmit = (formData: any) => {
     console.log("Creating new lab script:", formData);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    
     const newScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
@@ -60,12 +47,11 @@ const Scripts = () => {
       }
     };
 
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     const updatedScripts = [...existingScripts, newScript];
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
     setShowNewScriptDialog(false);
-
-    window.dispatchEvent(new Event('labScriptsUpdated'));
 
     toast({
       title: "Lab Script Created",
@@ -84,8 +70,6 @@ const Scripts = () => {
     setLabScripts(updatedScripts);
     setSelectedScript(null);
     setIsEditing(false);
-
-    window.dispatchEvent(new Event('labScriptsUpdated'));
 
     toast({
       title: "Lab Script Updated",
