@@ -37,12 +37,35 @@ export default function Calendar() {
     dentist: "Dentist Calendar"
   };
 
+  const snapToHalfHour = (hour: number, minutes: number) => {
+    const roundedMinutes = Math.round(minutes / 30) * 30;
+    
+    let adjustedHour = hour;
+    let adjustedMinutes = roundedMinutes;
+    
+    if (roundedMinutes === 60) {
+      adjustedHour += 1;
+      adjustedMinutes = 0;
+    }
+    
+    return {
+      hour: adjustedHour,
+      minutes: adjustedMinutes
+    };
+  };
+
+  const formatTime = (hour: number, minutes: number) => {
+    return `${hour}:${minutes.toString().padStart(2, '0')}`;
+  };
+
   const handleDragStart = (e: React.MouseEvent, hour: number, category: string) => {
     e.preventDefault();
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const minutes = Math.floor((y / 64) * 60);
-    const time = `${hour}:${minutes.toString().padStart(2, '0')}`;
+    const rawMinutes = Math.floor((y / 64) * 60);
+    
+    const snapped = snapToHalfHour(hour, rawMinutes);
+    const time = formatTime(snapped.hour, snapped.minutes);
     
     setIsDragging(true);
     setDragStart({ time, category });
@@ -60,8 +83,10 @@ export default function Calendar() {
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const minutes = Math.floor((y / 64) * 60);
-    const currentTime = `${hour}:${minutes.toString().padStart(2, '0')}`;
+    const rawMinutes = Math.floor((y / 64) * 60);
+    
+    const snapped = snapToHalfHour(hour, rawMinutes);
+    const currentTime = formatTime(snapped.hour, snapped.minutes);
 
     setPreviewEvent({
       ...previewEvent,
@@ -74,8 +99,10 @@ export default function Calendar() {
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const minutes = Math.floor((y / 64) * 60);
-    const endTime = `${hour}:${minutes.toString().padStart(2, '0')}`;
+    const rawMinutes = Math.floor((y / 64) * 60);
+    
+    const snapped = snapToHalfHour(hour, rawMinutes);
+    const endTime = formatTime(snapped.hour, snapped.minutes);
 
     const newEvent: Event = {
       id: crypto.randomUUID(),
