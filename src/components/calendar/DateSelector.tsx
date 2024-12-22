@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 
 interface DateSelectorProps {
@@ -51,7 +50,10 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
             <span>{format(currentDate, 'PPP')}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent 
+          className="w-auto p-0 bg-white border shadow-md z-50" 
+          align="start"
+        >
           <Calendar
             mode="single"
             selected={currentDate}
@@ -62,6 +64,7 @@ export const DateSelector = ({ currentDate, onDateChange, onNavigateDay }: DateS
               }
             }}
             initialFocus
+            className="rounded-md"
           />
         </PopoverContent>
       </Popover>
