@@ -43,24 +43,6 @@ export const PatientInformationContent = ({
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-6 border-b">
-        <div className="flex items-center space-x-4">
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
-            <span className="text-base font-medium text-white">
-              {firstName.charAt(0)}{lastName.charAt(0)}
-            </span>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold">
-              {firstName} {lastName}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Patient Details
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <InfoItem 
           icon={User2}
