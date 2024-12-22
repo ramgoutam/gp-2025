@@ -27,9 +27,15 @@ type LabScriptsTabProps = {
   labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
+  onDeleteLabScript: (script: LabScript) => void;
 };
 
-export const LabScriptsTab = ({ labScripts, onCreateLabScript, onEditLabScript }: LabScriptsTabProps) => {
+export const LabScriptsTab = ({ 
+  labScripts, 
+  onCreateLabScript, 
+  onEditLabScript,
+  onDeleteLabScript 
+}: LabScriptsTabProps) => {
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -47,17 +53,14 @@ export const LabScriptsTab = ({ labScripts, onCreateLabScript, onEditLabScript }
 
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Handling script edit in LabScriptsTab:", updatedScript);
-    
-    // Update localStorage with edited script
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = existingScripts.map((script: LabScript) => 
-      script.id === updatedScript.id ? updatedScript : script
-    );
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    
     onEditLabScript(updatedScript);
     setSelectedScript(null);
     setIsEditing(false);
+  };
+
+  const handleDeleteClick = (script: LabScript) => {
+    console.log("Delete clicked, script:", script);
+    onDeleteLabScript(script);
   };
 
   return (
@@ -67,6 +70,7 @@ export const LabScriptsTab = ({ labScripts, onCreateLabScript, onEditLabScript }
           labScripts={labScripts}
           onRowClick={handleRowClick}
           onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
         />
       </ScrollArea>
 

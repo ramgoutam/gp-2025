@@ -9,6 +9,7 @@ interface PatientTabsProps {
   labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
+  onDeleteLabScript: (script: LabScript) => void;
   patientData: {
     firstName: string;
     lastName: string;
@@ -23,6 +24,7 @@ export const PatientTabs = ({
   labScripts,
   onCreateLabScript,
   onEditLabScript,
+  onDeleteLabScript,
   patientData,
 }: PatientTabsProps) => {
   const handleCreateLabScript = () => {
@@ -33,6 +35,11 @@ export const PatientTabs = ({
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Handling lab script edit in PatientTabs:", updatedScript);
     onEditLabScript(updatedScript);
+  };
+
+  const handleDeleteLabScript = (script: LabScript) => {
+    console.log("Handling lab script delete in PatientTabs:", script);
+    onDeleteLabScript(script);
   };
 
   return (
@@ -83,6 +90,7 @@ export const PatientTabs = ({
           labScripts={labScripts}
           onCreateLabScript={handleCreateLabScript}
           onEditLabScript={handleEditLabScript}
+          onDeleteLabScript={handleDeleteLabScript}
         />
       </TabsContent>
 

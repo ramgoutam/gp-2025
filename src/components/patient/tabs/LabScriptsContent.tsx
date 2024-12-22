@@ -9,12 +9,14 @@ interface LabScriptsContentProps {
   labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
+  onDeleteLabScript: (script: LabScript) => void;
 }
 
 export const LabScriptsContent = ({
   labScripts,
   onCreateLabScript,
   onEditLabScript,
+  onDeleteLabScript,
 }: LabScriptsContentProps) => {
   const { toast } = useToast();
 
@@ -33,6 +35,11 @@ export const LabScriptsContent = ({
     });
   };
 
+  const handleDeleteLabScript = (script: LabScript) => {
+    console.log("Handling lab script delete in LabScriptsContent:", script);
+    onDeleteLabScript(script);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -45,6 +52,7 @@ export const LabScriptsContent = ({
         labScripts={labScripts} 
         onCreateLabScript={handleCreateLabScript}
         onEditLabScript={handleEditLabScript}
+        onDeleteLabScript={handleDeleteLabScript}
       />
     </div>
   );

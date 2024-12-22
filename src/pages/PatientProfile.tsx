@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -40,7 +40,6 @@ const PatientProfile = () => {
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
-    // Update state directly instead of relying on localStorage event
     setLabScripts(prevScripts => {
       const updatedScripts = [...prevScripts, formData];
       localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
@@ -58,7 +57,6 @@ const PatientProfile = () => {
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script:", updatedScript);
     
-    // Update state directly
     setLabScripts(prevScripts => {
       const updatedScripts = prevScripts.map(script => 
         script.id === updatedScript.id ? updatedScript : script
@@ -70,6 +68,21 @@ const PatientProfile = () => {
     toast({
       title: "Lab Script Updated",
       description: "The lab script has been successfully updated.",
+    });
+  };
+
+  const handleDeleteLabScript = (scriptToDelete: LabScript) => {
+    console.log("Deleting script:", scriptToDelete);
+    
+    setLabScripts(prevScripts => {
+      const updatedScripts = prevScripts.filter(script => script.id !== scriptToDelete.id);
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      return updatedScripts;
+    });
+    
+    toast({
+      title: "Lab Script Deleted",
+      description: "The lab script has been successfully deleted.",
     });
   };
 
@@ -105,6 +118,7 @@ const PatientProfile = () => {
             labScripts={labScripts}
             onCreateLabScript={() => handleDialogChange(true)}
             onEditLabScript={handleEditLabScript}
+            onDeleteLabScript={handleDeleteLabScript}
             patientData={patientData}
           />
         </div>
