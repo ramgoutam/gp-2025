@@ -9,6 +9,7 @@ import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
 import { useToast } from "./ui/use-toast";
+import { LabScript } from "./patient/LabScriptsTab";
 
 type FileUpload = {
   id: string;
