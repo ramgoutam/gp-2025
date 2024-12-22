@@ -8,7 +8,6 @@ import { TreatmentSection } from "./lab-script/TreatmentSection";
 import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "./ui/use-toast";
 
 type FileUpload = {
@@ -23,7 +22,6 @@ interface LabScriptFormProps {
 }
 
 export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabScriptFormProps) => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
     doctorName: initialData?.doctorName || "",
@@ -66,10 +64,6 @@ export const LabScriptForm = ({ onSubmit, initialData, isEditing = false }: LabS
       title: isEditing ? "Lab Script Updated" : "Lab Script Created",
       description: isEditing ? "The lab script has been successfully updated." : "The lab script has been successfully created.",
     });
-
-    if (!isEditing) {
-      navigate('/scripts', { state: { openScript: submissionData } });
-    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

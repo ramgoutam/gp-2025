@@ -1,18 +1,15 @@
 import React from "react";
 import { Navigation } from "@/components/Navigation";
-import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
-import { demoLabScripts } from "@/utils/demoData";
 import { LabScript } from "@/components/patient/LabScriptsTab";
 
 const PatientProfile = () => {
-  const navigate = useNavigate();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
-  const [labScripts, setLabScripts] = React.useState<LabScript[]>(demoLabScripts);
+  const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
   const { toast } = useToast();
 
   const patientData = {
@@ -25,7 +22,6 @@ const PatientProfile = () => {
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
-    // Create new lab script with proper structure
     const newLabScript: LabScript = {
       ...formData,
       id: Date.now().toString(),
@@ -36,7 +32,6 @@ const PatientProfile = () => {
       }
     };
 
-    // Add new lab script to the existing list
     setLabScripts(prev => [...prev, newLabScript]);
     setShowLabScriptDialog(false);
     
@@ -48,7 +43,6 @@ const PatientProfile = () => {
 
   const handleEditLabScript = (scriptId: string) => {
     console.log("Editing lab script:", scriptId);
-    navigate(`/scripts/${scriptId}/edit`);
   };
 
   const handleDialogChange = (open: boolean) => {
