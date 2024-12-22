@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-export const LabScriptForm = ({ onSubmit }: { onSubmit?: () => void }) => {
+export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) => {
   const [formData, setFormData] = React.useState({
     doctorName: "",
     clinicName: "",
@@ -28,7 +28,7 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: () => void }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Lab script form submitted:", formData);
-    onSubmit?.();
+    onSubmit?.(formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

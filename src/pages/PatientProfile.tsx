@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
-import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
+import { LabScriptsTab, type LabScript } from "@/components/patient/LabScriptsTab";
+import { useToast } from "@/components/ui/use-toast";
 
 const PatientProfile = () => {
   const { id } = useParams();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
+  const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
+  const { toast } = useToast();
   
   // This would typically fetch patient data from an API
   const patientData = {
@@ -27,8 +30,35 @@ const PatientProfile = () => {
     note: "Have uneven jawline",
   };
 
-  const handleLabScriptSubmit = () => {
+  const handleLabScriptSubmit = (formData: any) => {
+    console.log("Creating new lab script with data:", formData);
+    
+    // Create a new lab script object
+    const newLabScript: LabScript = {
+      id: Date.now().toString(), // In a real app, this would come from the backend
+      doctorName: formData.doctorName,
+      clinicName: formData.clinicName,
+      requestDate: formData.requestDate,
+      dueDate: formData.dueDate,
+      status: "pending",
+      treatments: {
+        upper: [], // You would populate these based on the checkboxes
+        lower: [],
+      },
+      specificInstructions: formData.specificInstructions,
+    };
+
+    // Add the new lab script to the list
+    setLabScripts(prev => [...prev, newLabScript]);
+    
+    // Close the dialog
     setShowLabScriptDialog(false);
+    
+    // Show success toast
+    toast({
+      title: "Lab Script Created",
+      description: "The lab script has been successfully created.",
+    });
   };
 
   return (
@@ -91,7 +121,7 @@ const PatientProfile = () => {
             </TabsContent>
 
             <TabsContent value="lab-scripts">
-              <LabScriptsTab />
+              <LabScriptsTab labScripts={labScripts} />
             </TabsContent>
             
             <TabsContent value="next-treatment">

@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
-type LabScript = {
+export type LabScript = {
   id: string;
   doctorName: string;
   clinicName: string;
@@ -15,35 +15,12 @@ type LabScript = {
     upper: string[];
     lower: string[];
   };
+  specificInstructions?: string;
 };
 
-// Mock data - replace with actual data fetching
-const mockLabScripts: LabScript[] = [
-  {
-    id: "1",
-    doctorName: "Dr. Smith",
-    clinicName: "Dental Clinic",
-    requestDate: "2024-01-15",
-    dueDate: "2024-01-30",
-    status: "completed",
-    treatments: {
-      upper: ["Full Arch Fixed"],
-      lower: ["Crown"],
-    },
-  },
-  {
-    id: "2",
-    doctorName: "Dr. Johnson",
-    clinicName: "City Dental",
-    requestDate: "2024-02-01",
-    dueDate: "2024-02-15",
-    status: "in_progress",
-    treatments: {
-      upper: ["Denture"],
-      lower: ["Nightguard"],
-    },
-  },
-];
+type LabScriptsTabProps = {
+  labScripts: LabScript[];
+};
 
 const getStatusBadge = (status: LabScript["status"]) => {
   const styles = {
@@ -59,8 +36,9 @@ const getStatusBadge = (status: LabScript["status"]) => {
   );
 };
 
-export const LabScriptsTab = () => {
-  console.log("Rendering LabScriptsTab");
+export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
+  console.log("Rendering LabScriptsTab with scripts:", labScripts);
+  
   return (
     <ScrollArea className="h-[500px]">
       <Table>
@@ -75,7 +53,7 @@ export const LabScriptsTab = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockLabScripts.map((script) => (
+          {labScripts.map((script) => (
             <TableRow key={script.id}>
               <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
               <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
