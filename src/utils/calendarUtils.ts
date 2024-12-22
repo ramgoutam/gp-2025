@@ -32,15 +32,12 @@ export const calculateHeight = (startTime: string, endTime: string) => {
   const [startHours, startMinutes] = startTime.split(':').map(Number);
   const [endHours, endMinutes] = endTime.split(':').map(Number);
   
-  // Convert both times to minutes since midnight
   const startTotalMinutes = (startHours * 60) + startMinutes;
   const endTotalMinutes = (endHours * 60) + endMinutes;
   
-  // Calculate the difference in minutes
   const diffInMinutes = endTotalMinutes - startTotalMinutes;
-  
-  // Convert to pixels (64px per hour = 64/60 pixels per minute)
-  const heightInPixels = (diffInMinutes * (64/60));
+  const pixelsPerHour = 64;
+  const heightInPixels = (diffInMinutes * (pixelsPerHour / 60));
   
   console.log('Height calculation:', {
     startTotalMinutes,
@@ -49,6 +46,5 @@ export const calculateHeight = (startTime: string, endTime: string) => {
     heightInPixels
   });
   
-  // Return the calculated height, with a minimum of 32px
   return Math.max(heightInPixels, 32);
 };
