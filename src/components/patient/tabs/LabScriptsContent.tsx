@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -25,23 +25,7 @@ export const LabScriptsContent = ({
 
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Handling lab script edit in LabScriptsContent:", updatedScript);
-    
-    // Get existing scripts from localStorage
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    
-    // Update the script in the array
-    const updatedScripts = existingScripts.map((script: LabScript) => 
-      script.id === updatedScript.id ? updatedScript : script
-    );
-    
-    // Save back to localStorage
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    
-    // Notify parent component
     onEditLabScript(updatedScript);
-    
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('labScriptsUpdated'));
     
     toast({
       title: "Lab Script Updated",

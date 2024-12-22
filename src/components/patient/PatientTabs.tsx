@@ -26,26 +26,12 @@ export const PatientTabs = ({
   patientData,
 }: PatientTabsProps) => {
   const handleCreateLabScript = () => {
+    console.log("Creating lab script in PatientTabs");
     onCreateLabScript();
   };
 
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Handling lab script edit in PatientTabs:", updatedScript);
-    
-    // Get existing scripts from localStorage
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    
-    // Update the script in the array
-    const updatedScripts = existingScripts.map((script: LabScript) => 
-      script.id === updatedScript.id ? updatedScript : script
-    );
-    
-    // Save back to localStorage
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    
-    // Dispatch a custom event to notify other components
-    window.dispatchEvent(new Event('labScriptsUpdated'));
-    
     onEditLabScript(updatedScript);
   };
 
