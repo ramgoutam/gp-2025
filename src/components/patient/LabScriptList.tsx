@@ -44,10 +44,12 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScript
         {labScripts.map((script) => (
           <TableRow 
             key={script.id}
-            className="cursor-pointer hover:bg-gray-50"
-            onClick={() => onRowClick(script)}
+            className="hover:bg-gray-50"
           >
-            <TableCell className="font-medium text-blue-600 hover:text-blue-800">
+            <TableCell 
+              className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+              onClick={() => onRowClick(script)}
+            >
               {script.applianceType || "N/A"}
             </TableCell>
             <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
