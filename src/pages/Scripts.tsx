@@ -22,21 +22,26 @@ const Scripts = () => {
     const savedScripts = localStorage.getItem('labScripts');
     if (savedScripts) {
       try {
-        const scripts = JSON.parse(savedScripts);
-        // Filter out duplicates based on ID and content
-        const uniqueScripts = Object.values(
-          scripts.reduce((acc: { [key: string]: LabScript }, current: LabScript) => {
-            // Use ID as key to automatically remove duplicates
-            acc[current.id] = current;
-            return acc;
-          }, {})
-        );
+        const parsedScripts = JSON.parse(savedScripts) as LabScript[];
+        console.log("Parsed scripts:", parsedScripts);
         
+        // Create a Map to store unique scripts by ID
+        const uniqueScriptsMap = new Map<string, LabScript>();
+        parsedScripts.forEach(script => {
+          if (!uniqueScriptsMap.has(script.id)) {
+            uniqueScriptsMap.set(script.id, script);
+          }
+        });
+        
+        const uniqueScripts = Array.from(uniqueScriptsMap.values());
         console.log("Loaded unique scripts:", uniqueScripts);
-        setLabScripts(uniqueScripts as LabScript[]);
+        setLabScripts(uniqueScripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
+        setLabScripts([]);
       }
+    } else {
+      setLabScripts([]);
     }
   };
 
@@ -56,18 +61,18 @@ const Scripts = () => {
       }
     };
 
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    // Use an object to automatically remove duplicates by ID
-    const scriptsMap = existingScripts.reduce((acc: { [key: string]: LabScript }, script: LabScript) => {
-      acc[script.id] = script;
-      return acc;
-    }, {});
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
+    console.log("Existing scripts before adding new:", existingScripts);
     
-    // Add new script
-    scriptsMap[newScript.id] = newScript;
+    // Create a Map to ensure uniqueness
+    const scriptsMap = new Map<string, LabScript>();
+    existingScripts.forEach(script => {
+      scriptsMap.set(script.id, script);
+    });
+    scriptsMap.set(newScript.id, newScript);
     
-    // Convert back to array
-    const updatedScripts = Object.values(scriptsMap);
+    const updatedScripts = Array.from(scriptsMap.values());
+    console.log("Updated scripts after adding new:", updatedScripts);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
@@ -81,16 +86,21 @@ const Scripts = () => {
 
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
+    console.log("Existing scripts before edit:", existingScripts);
     
-    // Use an object to automatically remove duplicates by ID
-    const scriptsMap = existingScripts.reduce((acc: { [key: string]: LabScript }, script: LabScript) => {
-      acc[script.id] = script.id === updatedScript.id ? updatedScript : script;
-      return acc;
-    }, {});
+    // Create a Map to ensure uniqueness
+    const scriptsMap = new Map<string, LabScript>();
+    existingScripts.forEach(script => {
+      if (script.id === updatedScript.id) {
+        scriptsMap.set(script.id, updatedScript);
+      } else {
+        scriptsMap.set(script.id, script);
+      }
+    });
     
-    // Convert back to array
-    const updatedScripts = Object.values(scriptsMap);
+    const updatedScripts = Array.from(scriptsMap.values());
+    console.log("Updated scripts after edit:", updatedScripts);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
@@ -105,7 +115,7 @@ const Scripts = () => {
 
   const handleScriptDelete = (scriptToDelete: LabScript) => {
     console.log("Deleting script:", scriptToDelete);
-    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
     const updatedScripts = existingScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
