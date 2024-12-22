@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { DateSelector } from "@/components/calendar/DateSelector";
 import { TimeGrid } from "@/components/calendar/TimeGrid";
 import { EventCard } from "@/components/calendar/EventCard";
 import { toast } from "sonner";
+import { snapToHalfHour, formatTime, calculatePosition, calculateHeight } from "@/utils/calendarUtils";
 
 interface Event {
   id: string;
@@ -37,27 +38,6 @@ export default function Calendar() {
     dentist: "Dentist Calendar"
   };
 
-  const snapToHalfHour = (hour: number, minutes: number) => {
-    const roundedMinutes = Math.round(minutes / 30) * 30;
-    
-    let adjustedHour = hour;
-    let adjustedMinutes = roundedMinutes;
-    
-    if (roundedMinutes === 60) {
-      adjustedHour += 1;
-      adjustedMinutes = 0;
-    }
-    
-    return {
-      hour: adjustedHour,
-      minutes: adjustedMinutes
-    };
-  };
-
-  const formatTime = (hour: number, minutes: number) => {
-    return `${hour}:${minutes.toString().padStart(2, '0')}`;
-  };
-
   const handleDragStart = (e: React.MouseEvent, hour: number, category: string) => {
     e.preventDefault();
     const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -88,14 +68,24 @@ export default function Calendar() {
     const snapped = snapToHalfHour(hour, rawMinutes);
     const currentTime = formatTime(snapped.hour, snapped.minutes);
 
+    // Ensure end time is not before start time
+    const [startHour, startMinute] = dragStart.time.split(':').map(Number);
+    const [endHour, endMinute] = currentTime.split(':').map(Number);
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    const finalEndTime = endTotalMinutes < startTotalMinutes ? dragStart.time : currentTime;
+
     setPreviewEvent({
       ...previewEvent,
-      endTime: currentTime
+      endTime: finalEndTime
     });
+
+    console.log('Drag move:', { startTime: dragStart.time, endTime: finalEndTime });
   };
 
   const handleDragEnd = (e: React.MouseEvent, hour: number) => {
-    if (!isDragging || !dragStart) return;
+    if (!isDragging || !dragStart || !previewEvent) return;
 
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
@@ -104,11 +94,19 @@ export default function Calendar() {
     const snapped = snapToHalfHour(hour, rawMinutes);
     const endTime = formatTime(snapped.hour, snapped.minutes);
 
+    // Ensure end time is not before start time
+    const [startHour, startMinute] = dragStart.time.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    const finalEndTime = endTotalMinutes < startTotalMinutes ? dragStart.time : endTime;
+
     const newEvent: Event = {
       id: crypto.randomUUID(),
       title: "New Appointment",
       startTime: dragStart.time,
-      endTime,
+      endTime: finalEndTime,
       attendees: [],
       category: dragStart.category as Event['category']
     };
@@ -126,23 +124,6 @@ export default function Calendar() {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + days);
     setCurrentDate(newDate);
-  };
-
-  const calculatePosition = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    const baseHour = 6;
-    return ((hours - baseHour) * 64) + ((minutes / 60) * 64);
-  };
-
-  const calculateHeight = (startTime: string, endTime: string) => {
-    const [startHours, startMinutes] = startTime.split(':').map(Number);
-    const [endHours, endMinutes] = endTime.split(':').map(Number);
-    
-    const totalStartMinutes = (startHours * 60) + startMinutes;
-    const totalEndMinutes = (endHours * 60) + endMinutes;
-    const diffInMinutes = totalEndMinutes - totalStartMinutes;
-    
-    return (diffInMinutes / 60) * 64;
   };
 
   return (
