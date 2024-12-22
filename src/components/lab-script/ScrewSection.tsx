@@ -15,7 +15,7 @@ export const ScrewSection = ({ value, onChange }: ScrewSectionProps) => {
         <SelectTrigger>
           <SelectValue placeholder="Select screw type" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white z-50">
           {SCREW_TYPES.map((type) => (
             <SelectItem key={type} value={type}>
               {type}

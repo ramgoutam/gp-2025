@@ -23,7 +23,7 @@ export const ApplianceSection = ({ value, onChange }: ApplianceSectionProps) => 
         <SelectTrigger id="applianceType">
           <SelectValue placeholder="Select appliance type" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white z-50">
           {APPLIANCE_TYPES.map((type) => (
             <SelectItem key={type} value={type}>
               {type}

@@ -21,7 +21,7 @@ export const TreatmentSection = ({
         <SelectTrigger>
           <SelectValue placeholder={`Select ${title.toLowerCase()} treatment`} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white z-50">
           {TREATMENT_OPTIONS.map((option) => (
             <SelectItem key={option} value={option}>
               {option}
