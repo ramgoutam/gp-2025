@@ -2,13 +2,14 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "./LabScriptsTab";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
   onRowClick: (script: LabScript) => void;
   onEditClick: (script: LabScript) => void;
+  onDeleteClick?: (script: LabScript) => void;
 }
 
 const getStatusBadge = (status: LabScript["status"]) => {
@@ -26,22 +27,27 @@ const getStatusBadge = (status: LabScript["status"]) => {
 };
 
 const getTreatments = (script: LabScript) => {
-  // Handle both old and new data structures
   if (script.treatments) {
     return script.treatments;
   }
   
-  // Create treatments object from individual properties
   return {
     upper: script.upperTreatment && script.upperTreatment !== "None" ? [script.upperTreatment] : [],
     lower: script.lowerTreatment && script.lowerTreatment !== "None" ? [script.lowerTreatment] : []
   };
 };
 
-export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScriptListProps) => {
+export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
     onEditClick(script);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, script: LabScript) => {
+    e.stopPropagation();
+    if (onDeleteClick) {
+      onDeleteClick(script);
+    }
   };
 
   return (
@@ -95,14 +101,24 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScript
               </TableCell>
               <TableCell>{getStatusBadge(script.status)}</TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => handleEditClick(e, script)}
-                  className="p-0 h-auto hover:bg-transparent"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleDeleteClick(e, script)}
+                    className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleEditClick(e, script)}
+                    className="p-0 h-auto hover:bg-transparent"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           );

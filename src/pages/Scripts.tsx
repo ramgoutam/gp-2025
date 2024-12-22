@@ -59,7 +59,7 @@ const Scripts = () => {
     });
   };
 
-  const handleEditScript = (updatedScript: LabScript) => {
+  const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     const updatedScripts = existingScripts.map((script: LabScript) => 
@@ -77,16 +77,18 @@ const Scripts = () => {
     });
   };
 
-  const handleRowClick = (script: LabScript) => {
-    console.log("Row clicked, script:", script);
-    setSelectedScript(script);
-    setIsEditing(false);
-  };
+  const handleScriptDelete = (scriptToDelete: LabScript) => {
+    console.log("Deleting script:", scriptToDelete);
+    const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const updatedScripts = existingScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
+    
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    setLabScripts(updatedScripts);
 
-  const handleEditClick = (script: LabScript) => {
-    console.log("Edit clicked, script:", script);
-    setSelectedScript(script);
-    setIsEditing(true);
+    toast({
+      title: "Lab Script Deleted",
+      description: "The lab script has been successfully deleted.",
+    });
   };
 
   return (
@@ -108,8 +110,15 @@ const Scripts = () => {
           <ScrollArea className="h-[500px]">
             <LabScriptList 
               labScripts={labScripts}
-              onRowClick={handleRowClick}
-              onEditClick={handleEditClick}
+              onRowClick={(script) => {
+                setSelectedScript(script);
+                setIsEditing(false);
+              }}
+              onEditClick={(script) => {
+                setSelectedScript(script);
+                setIsEditing(true);
+              }}
+              onDeleteClick={handleScriptDelete}
             />
           </ScrollArea>
         </div>
@@ -135,7 +144,7 @@ const Scripts = () => {
               setIsEditing(false);
             }
           }}
-          onEdit={handleEditScript}
+          onEdit={handleScriptEdit}
           isEditing={isEditing}
         />
       </main>
