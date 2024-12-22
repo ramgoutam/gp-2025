@@ -27,9 +27,6 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
 
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>({});
   
-  const [upperTeeth, setUpperTeeth] = React.useState<number[]>([]);
-  const [lowerTeeth, setLowerTeeth] = React.useState<number[]>([]);
-  
   const [upperTreatments, setUpperTreatments] = React.useState({
     fullArchFixed: false,
     denture: false,
@@ -48,8 +45,6 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     e.preventDefault();
     console.log("Lab script form submitted:", {
       ...formData,
-      upperTeeth,
-      lowerTeeth,
       upperTreatments,
       lowerTreatments,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -62,8 +57,6 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
     
     onSubmit?.({
       ...formData,
-      upperTeeth,
-      lowerTeeth,
       upperTreatments,
       lowerTreatments,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -139,8 +132,8 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
         <div className="grid grid-cols-2 gap-8">
           <TreatmentSection
             title="Upper"
-            selectedTeeth={upperTeeth}
-            onTeethChange={setUpperTeeth}
+            selectedTeeth={[]}
+            onTeethChange={() => {}}
             treatments={upperTreatments}
             onTreatmentChange={(key, checked) =>
               setUpperTreatments(prev => ({ ...prev, [key]: checked }))
@@ -148,8 +141,8 @@ export const LabScriptForm = ({ onSubmit }: { onSubmit?: (data: any) => void }) 
           />
           <TreatmentSection
             title="Lower"
-            selectedTeeth={lowerTeeth}
-            onTeethChange={setLowerTeeth}
+            selectedTeeth={[]}
+            onTeethChange={() => {}}
             treatments={lowerTreatments}
             onTreatmentChange={(key, checked) =>
               setLowerTreatments(prev => ({ ...prev, [key]: checked }))
