@@ -23,8 +23,17 @@ const Scripts = () => {
     if (savedScripts) {
       try {
         const scripts = JSON.parse(savedScripts);
-        console.log("Loaded scripts:", scripts);
-        setLabScripts(scripts);
+        // Filter out duplicates based on ID
+        const uniqueScripts = scripts.reduce((acc: LabScript[], current: LabScript) => {
+          const exists = acc.find(script => script.id === current.id);
+          if (!exists) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        console.log("Loaded unique scripts:", uniqueScripts);
+        setLabScripts(uniqueScripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
       }
@@ -48,7 +57,10 @@ const Scripts = () => {
     };
 
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = [...existingScripts, newScript];
+    // Filter out any potential duplicates before adding new script
+    const uniqueScripts = existingScripts.filter((script: LabScript) => script.id !== newScript.id);
+    const updatedScripts = [...uniqueScripts, newScript];
+    
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
     setShowNewScriptDialog(false);
@@ -62,9 +74,9 @@ const Scripts = () => {
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
     const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = existingScripts.map((script: LabScript) => 
-      script.id === updatedScript.id ? updatedScript : script
-    );
+    // Filter out duplicates and update the script
+    const uniqueScripts = existingScripts.filter((script: LabScript) => script.id !== updatedScript.id);
+    const updatedScripts = [...uniqueScripts, updatedScript];
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
     setLabScripts(updatedScripts);
