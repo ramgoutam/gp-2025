@@ -2,14 +2,26 @@ import React, { useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { useLocation } from "react-router-dom";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
-import { demoLabScripts } from "@/utils/demoData";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { FilePlus } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LabScriptForm } from "@/components/LabScriptForm";
+import { useToast } from "@/hooks/use-toast";
 
 const Scripts = () => {
   const location = useLocation();
   const [showDetails, setShowDetails] = React.useState(false);
   const [scriptData, setScriptData] = React.useState(null);
+  const [showNewScriptDialog, setShowNewScriptDialog] = React.useState(false);
+  const { toast } = useToast();
+  
+  // Get scripts from localStorage
+  const [labScripts, setLabScripts] = React.useState(() => {
+    const savedScripts = localStorage.getItem('labScripts');
+    return savedScripts ? JSON.parse(savedScripts) : [];
+  });
 
   useEffect(() => {
     if (location.state?.openScript) {
@@ -18,6 +30,19 @@ const Scripts = () => {
       setShowDetails(true);
     }
   }, [location.state]);
+
+  const handleNewScriptSubmit = (formData: any) => {
+    console.log("Creating new lab script:", formData);
+    const newScripts = [...labScripts, formData];
+    setLabScripts(newScripts);
+    localStorage.setItem('labScripts', JSON.stringify(newScripts));
+    setShowNewScriptDialog(false);
+    
+    toast({
+      title: "Lab Script Created",
+      description: "The lab script has been successfully created.",
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -36,10 +61,20 @@ const Scripts = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Lab Scripts</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Lab Scripts</h1>
+          <Button 
+            onClick={() => setShowNewScriptDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <FilePlus className="h-4 w-4" />
+            New Script
+          </Button>
+        </div>
+
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="space-y-4">
-            {demoLabScripts.map((script) => (
+            {labScripts.map((script: any) => (
               <Card
                 key={script.id}
                 className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -57,7 +92,7 @@ const Scripts = () => {
                       <Badge
                         className={`${getStatusColor(script.status)} border-none`}
                       >
-                        {script.status.replace("_", " ")}
+                        {script.status?.replace("_", " ") || "pending"}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600">
@@ -75,6 +110,11 @@ const Scripts = () => {
                 </div>
               </Card>
             ))}
+            {labScripts.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                No lab scripts found. Create a new script to get started.
+              </div>
+            )}
           </div>
         </div>
 
@@ -84,6 +124,21 @@ const Scripts = () => {
           onOpenChange={setShowDetails}
           onEdit={() => {}}
         />
+
+        <Dialog 
+          open={showNewScriptDialog} 
+          onOpenChange={setShowNewScriptDialog}
+        >
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create Lab Script</DialogTitle>
+              <DialogDescription>
+                Create a new lab script
+              </DialogDescription>
+            </DialogHeader>
+            <LabScriptForm onSubmit={handleNewScriptSubmit} />
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
