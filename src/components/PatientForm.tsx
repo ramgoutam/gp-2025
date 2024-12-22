@@ -118,16 +118,16 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 relative">
         <Label htmlFor="sex">Sex</Label>
         <Select
           value={formData.sex}
           onValueChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select sex" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999]">
             <SelectItem value="male">Male</SelectItem>
             <SelectItem value="female">Female</SelectItem>
             <SelectItem value="other">Other</SelectItem>
