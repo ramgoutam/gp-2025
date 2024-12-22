@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Maximize, Printer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { STLViewer } from "../lab-script/STLViewer";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -33,12 +34,20 @@ const getStatusBadge = (status: LabScript["status"]) => {
 
 export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing = false }: LabScriptDetailsProps) => {
   const [isMaximized, setIsMaximized] = useState(false);
+  const [selectedSTLFile, setSelectedSTLFile] = useState<File | null>(null);
+  const [showSTLPreview, setShowSTLPreview] = useState(false);
 
   if (!script) return null;
 
   const handleEdit = (updatedData: LabScript) => {
     console.log("Handling edit with updated data:", updatedData);
     onEdit(updatedData);
+  };
+
+  const handleSTLPreview = (file: File) => {
+    console.log("Opening STL preview for file:", file.name);
+    setSelectedSTLFile(file);
+    setShowSTLPreview(true);
   };
 
   const handlePrint = () => {
@@ -118,113 +127,162 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
     ? "max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh]" 
     : "max-w-4xl";
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${dialogContentClass} overflow-hidden`}>
-        <DialogHeader className="flex flex-row justify-between items-center">
-          <DialogTitle>{isEditing ? 'Edit Lab Script' : 'Lab Script Details'}</DialogTitle>
-          <div className="flex gap-2">
-            {!isEditing && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePrint}
-                className="h-8 w-8"
-              >
-                <Printer className="h-4 w-4" />
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMaximized(!isMaximized)}
-              className="h-8 w-8"
-            >
-              <Maximize className="h-4 w-4" />
-            </Button>
+  const renderFilePreview = (fileUploads: Record<string, File[]>) => {
+    return Object.entries(fileUploads).map(([key, files]) => {
+      if (!files || files.length === 0) return null;
+
+      return (
+        <div key={key} className="space-y-2">
+          <h4 className="font-medium text-sm text-gray-500">{key}</h4>
+          <div className="flex flex-wrap gap-2">
+            {files.map((file, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="text-sm">{file.name}</span>
+                {file.name.toLowerCase().endsWith('.stl') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSTLPreview(file)}
+                  >
+                    Preview
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
-        </DialogHeader>
-        
-        <ScrollArea className="flex-1 h-full max-h-[calc(90vh-120px)]">
-          {isEditing ? (
-            <LabScriptForm
-              initialData={script}
-              onSubmit={handleEdit}
-              isEditing={true}
-            />
-          ) : (
-            <div className="space-y-6 p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Doctor Name</h4>
-                  <p className="text-lg">{script.doctorName}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Clinic Name</h4>
-                  <p className="text-lg">{script.clinicName}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
-                  <p className="text-lg">{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
-                  <p className="text-lg">{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
-                </div>
-              </div>
+        </div>
+      );
+    });
+  };
 
-              <Separator />
-
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
-                <p className="text-lg">{script.applianceType || "N/A"}</p>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h4 className="font-medium text-sm text-gray-500">Treatments</h4>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <h5 className="font-medium">Upper</h5>
-                    <p>{script.treatments.upper.join(", ") || "None"}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h5 className="font-medium">Lower</h5>
-                    <p>{script.treatments.lower.join(", ") || "None"}</p>
-                  </div>
-                </div>
-              </div>
-
-              {script.specificInstructions && (
-                <>
-                  <Separator />
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-500">Specific Instructions</h4>
-                    <p className="whitespace-pre-wrap">{script.specificInstructions}</p>
-                  </div>
-                </>
-              )}
-
-              <Separator />
-
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-500">Status</h4>
-                {getStatusBadge(script.status || "pending")}
-              </div>
-
-              <div className="flex justify-end space-x-2">
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className={`${dialogContentClass} overflow-hidden`}>
+          <DialogHeader className="flex flex-row justify-between items-center">
+            <DialogTitle>{isEditing ? 'Edit Lab Script' : 'Lab Script Details'}</DialogTitle>
+            <div className="flex gap-2">
+              {!isEditing && (
                 <Button
                   variant="outline"
-                  onClick={() => onOpenChange(false)}
+                  size="icon"
+                  onClick={handlePrint}
+                  className="h-8 w-8"
                 >
-                  Close
+                  <Printer className="h-4 w-4" />
                 </Button>
-              </div>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMaximized(!isMaximized)}
+                className="h-8 w-8"
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
             </div>
-          )}
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+          </DialogHeader>
+          
+          <ScrollArea className="flex-1 h-full max-h-[calc(90vh-120px)]">
+            {isEditing ? (
+              <LabScriptForm
+                initialData={script}
+                onSubmit={handleEdit}
+                isEditing={true}
+              />
+            ) : (
+              <div className="space-y-6 p-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-500">Doctor Name</h4>
+                    <p className="text-lg">{script.doctorName}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-500">Clinic Name</h4>
+                    <p className="text-lg">{script.clinicName}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
+                    <p className="text-lg">{format(new Date(script.requestDate), "MMM dd, yyyy")}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
+                    <p className="text-lg">{format(new Date(script.dueDate), "MMM dd, yyyy")}</p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
+                  <p className="text-lg">{script.applianceType || "N/A"}</p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm text-gray-500">Treatments</h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <h5 className="font-medium">Upper</h5>
+                      <p>{script.treatments.upper.join(", ") || "None"}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h5 className="font-medium">Lower</h5>
+                      <p>{script.treatments.lower.join(", ") || "None"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {script.fileUploads && Object.keys(script.fileUploads).length > 0 && (
+                  <>
+                    <Separator />
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm text-gray-500">Uploaded Files</h4>
+                      {renderFilePreview(script.fileUploads)}
+                    </div>
+                  </>
+                )}
+
+                {script.specificInstructions && (
+                  <>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm text-gray-500">Specific Instructions</h4>
+                      <p className="whitespace-pre-wrap">{script.specificInstructions}</p>
+                    </div>
+                  </>
+                )}
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-500">Status</h4>
+                  {getStatusBadge(script.status || "pending")}
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSTLPreview} onOpenChange={setShowSTLPreview}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>STL Preview</DialogTitle>
+          </DialogHeader>
+          {selectedSTLFile && <STLViewer file={selectedSTLFile} />}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
