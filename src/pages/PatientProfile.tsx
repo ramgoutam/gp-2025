@@ -1,11 +1,18 @@
-import { useParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit, MoreVertical } from "lucide-react";
+import { Edit, MoreVertical, Calendar, FileText, FileBarChart } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const PatientProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   
   // This would typically fetch patient data from an API
   const patientData = {
@@ -48,7 +55,25 @@ const PatientProfile = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button className="bg-primary">Create Appointment</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>Actions</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => console.log("Create appointment clicked")}>
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Create Appointment
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/scripts")}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Create Lab Script
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/reports")}>
+                    <FileBarChart className="mr-2 h-4 w-4" />
+                    Create Report
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="ghost" size="icon">
                 <MoreVertical className="h-5 w-5" />
               </Button>
