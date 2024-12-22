@@ -9,6 +9,7 @@ export const TimeGrid = ({ timeSlots }: TimeGridProps) => {
         <div 
           key={hour} 
           className="flex items-center justify-end pr-2 h-16 text-xs text-gray-500"
+          style={{ transform: 'translateY(0.5rem)' }}
         >
           {`${hour}:00`}
         </div>
