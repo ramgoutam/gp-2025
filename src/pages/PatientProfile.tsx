@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { PatientTabs } from "@/components/patient/PatientTabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { demoLabScripts } from "@/utils/demoData";
+import { LabScript } from "@/components/patient/LabScriptsTab";
 
 const PatientProfile = () => {
   const navigate = useNavigate();
@@ -24,21 +25,26 @@ const PatientProfile = () => {
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
-    const newLabScript = {
+    // Create new lab script with proper structure
+    const newLabScript: LabScript = {
       ...formData,
+      id: Date.now().toString(),
       status: "pending",
+      upperTreatment: formData.upperTreatment || "None",
+      lowerTreatment: formData.lowerTreatment || "None",
       treatments: {
         upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
         lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : [],
       }
     };
 
+    // Add new lab script to the existing list
     setLabScripts(prev => [...prev, newLabScript]);
     setShowLabScriptDialog(false);
     
     toast({
       title: "Lab Script Created",
-      description: "The lab script has been successfully created.",
+      description: "The lab script has been successfully created and added to the patient profile.",
     });
   };
 
