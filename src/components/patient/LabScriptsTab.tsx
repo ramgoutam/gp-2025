@@ -10,7 +10,9 @@ export type LabScript = {
   requestDate: string;
   dueDate: string;
   status: "pending" | "in_progress" | "completed";
-  treatments: {
+  upperTreatment: string;
+  lowerTreatment: string;
+  treatments?: {
     upper: string[];
     lower: string[];
   };
