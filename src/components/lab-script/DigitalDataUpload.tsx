@@ -2,7 +2,15 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, Folder } from "lucide-react";
+import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { STLViewer } from "./STLViewer";
 
 type FileUpload = {
   id: string;
@@ -20,14 +28,6 @@ interface DigitalDataUploadProps {
   onFileChange: (itemId: string, files: File[]) => void;
 }
 
-// Extend HTMLInputElement to include directory attributes
-declare module 'react' {
-  interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
-    webkitdirectory?: string;
-    directory?: string;
-  }
-}
-
 export const DigitalDataUpload = ({
   section,
   sectionKey,
@@ -35,6 +35,8 @@ export const DigitalDataUpload = ({
   onFileChange,
 }: DigitalDataUploadProps) => {
   const [checkedItems, setCheckedItems] = React.useState<Record<string, boolean>>({});
+  const [previewFile, setPreviewFile] = React.useState<File | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -43,7 +45,6 @@ export const DigitalDataUpload = ({
     const fileList = event.target.files;
     if (!fileList) return;
 
-    // Convert FileList to array
     const filesArray = Array.from(fileList);
     onFileChange(itemId, filesArray);
     
@@ -53,6 +54,11 @@ export const DigitalDataUpload = ({
     } else {
       setCheckedItems(prev => ({ ...prev, [itemId]: false }));
     }
+  };
+
+  const handlePreview = (file: File) => {
+    setPreviewFile(file);
+    setIsPreviewOpen(true);
   };
 
   return (
@@ -82,7 +88,6 @@ export const DigitalDataUpload = ({
               </div>
 
               <div className="flex gap-2">
-                {/* File Upload Button */}
                 <div className="relative">
                   <Input
                     type="file"
@@ -100,30 +105,7 @@ export const DigitalDataUpload = ({
                   >
                     <Upload size={16} />
                     <span className="text-sm font-medium">
-                      {hasFiles ? `${uploadedFiles.length} files` : "Upload Files"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Folder Upload Button */}
-                <div className="relative">
-                  <Input
-                    type="file"
-                    onChange={(e) => handleFileChange(e, itemId)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    webkitdirectory=""
-                    directory=""
-                  />
-                  <div
-                    className={`flex items-center gap-2 px-4 py-2 rounded-md border ${
-                      hasFiles
-                        ? "bg-primary/10 border-primary/20 text-primary"
-                        : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
-                    } transition-colors`}
-                  >
-                    <Folder size={16} />
-                    <span className="text-sm font-medium">
-                      Upload Folder
+                      {hasFiles ? `${uploadedFiles.length}/6 files` : "Upload Files"}
                     </span>
                   </div>
                 </div>
@@ -131,13 +113,41 @@ export const DigitalDataUpload = ({
             </div>
 
             {hasFiles && (
-              <div className="mt-2 text-sm text-primary">
-                {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected
+              <div className="mt-2">
+                <div className="text-sm text-primary mb-2">
+                  {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {uploadedFiles.map((file, index) => (
+                    <div key={index} className="text-sm">
+                      {file.name}
+                      {file.name.toLowerCase().endsWith('.stl') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="ml-2"
+                          onClick={() => handlePreview(file)}
+                        >
+                          Preview
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         );
       })}
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>STL Preview</DialogTitle>
+          </DialogHeader>
+          {previewFile && <STLViewer file={previewFile} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
