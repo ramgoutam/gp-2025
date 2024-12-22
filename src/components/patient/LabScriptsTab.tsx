@@ -22,10 +22,11 @@ export type LabScript = {
 
 type LabScriptsTabProps = {
   labScripts: LabScript[];
-  onEditScript?: (scriptId: string) => void;
+  onCreateLabScript: () => void;
+  onEditLabScript: (updatedScript: LabScript) => void;
 };
 
-export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) => {
+export const LabScriptsTab = ({ labScripts, onCreateLabScript, onEditLabScript }: LabScriptsTabProps) => {
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -42,9 +43,8 @@ export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) 
   };
 
   const handleScriptEdit = (updatedScript: LabScript) => {
-    if (onEditScript) {
-      onEditScript(updatedScript.id);
-    }
+    console.log("Handling script edit in LabScriptsTab:", updatedScript);
+    onEditLabScript(updatedScript);
     setSelectedScript(null);
     setIsEditing(false);
   };

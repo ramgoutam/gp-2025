@@ -41,8 +41,13 @@ const PatientProfile = () => {
     });
   };
 
-  const handleEditLabScript = (scriptId: string) => {
-    console.log("Editing lab script:", scriptId);
+  const handleEditLabScript = (updatedScript: LabScript) => {
+    console.log("Updating lab script:", updatedScript);
+    setLabScripts(prev => 
+      prev.map(script => 
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
   };
 
   const handleDialogChange = (open: boolean) => {
