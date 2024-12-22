@@ -24,26 +24,29 @@ interface Patient {
 }
 
 const Index = () => {
-  const [patients, setPatients] = useState<Patient[]>([
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john@example.com",
-      phone: "123-456-7890",
-      sex: "male",
-      dob: "1990-01-01",
-    },
-    {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane@example.com",
-      phone: "098-765-4321",
-      sex: "female",
-      dob: "1985-05-15",
-    },
-  ]);
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    const savedPatients = localStorage.getItem('patients');
+    return savedPatients ? JSON.parse(savedPatients) : [
+      {
+        id: 1,
+        firstName: "John",
+        lastName: "Doe",
+        email: "john@example.com",
+        phone: "123-456-7890",
+        sex: "male",
+        dob: "1990-01-01",
+      },
+      {
+        id: 2,
+        firstName: "Jane",
+        lastName: "Smith",
+        email: "jane@example.com",
+        phone: "098-765-4321",
+        sex: "female",
+        dob: "1985-05-15",
+      },
+    ];
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,7 +55,9 @@ const Index = () => {
       ...patientData,
       id: patients.length + 1,
     };
-    setPatients([...patients, newPatient]);
+    const updatedPatients = [...patients, newPatient];
+    setPatients(updatedPatients);
+    localStorage.setItem('patients', JSON.stringify(updatedPatients));
   };
 
   const filteredPatients = patients.filter((patient) =>
@@ -99,6 +104,7 @@ const Index = () => {
               <Link
                 key={patient.id}
                 to={`/patient/${patient.id}`}
+                state={{ patientData: patient }}
                 className="block group"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">

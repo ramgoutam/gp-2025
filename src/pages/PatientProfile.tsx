@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
@@ -10,39 +11,58 @@ import { LabScript } from "@/components/patient/LabScriptsTab";
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
-  const [patientData, setPatientData] = useState({
-    firstName: "Willie",
-    lastName: "Jennie",
-    avatar: "/placeholder.svg",
-    note: "Have uneven jawline",
-    email: "willie.jennie@example.com",
-    phone: "+1234567890",
-    sex: "female",
-    dob: "1990-01-01",
-  });
+  const { state } = useLocation();
+  const { id } = useParams();
   const { toast } = useToast();
 
-  // Load scripts only once on mount
-  React.useEffect(() => {
-    console.log("Initial load of scripts");
+  // Initialize patient data from route state or fetch from localStorage
+  const [patientData, setPatientData] = useState(() => {
+    if (state?.patientData) {
+      return state.patientData;
+    }
+    const savedPatients = localStorage.getItem('patients');
+    if (savedPatients) {
+      const patients = JSON.parse(savedPatients);
+      return patients.find((p: any) => p.id.toString() === id);
+    }
+    return null;
+  });
+
+  // Load and filter lab scripts for this patient
+  useEffect(() => {
+    console.log("Loading scripts for patient:", id);
     const savedScripts = localStorage.getItem('labScripts');
     if (savedScripts) {
       try {
-        const scripts = JSON.parse(savedScripts);
-        console.log("Loaded scripts:", scripts);
-        setLabScripts(scripts);
+        const allScripts = JSON.parse(savedScripts);
+        const patientScripts = allScripts.filter((script: LabScript) => 
+          script.patientFirstName === patientData?.firstName && 
+          script.patientLastName === patientData?.lastName
+        );
+        console.log("Filtered scripts for patient:", patientScripts);
+        setLabScripts(patientScripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
       }
     }
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, [id, patientData]);
 
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
+    const newScript = {
+      ...formData,
+      id: Date.now().toString(),
+      patientFirstName: patientData.firstName,
+      patientLastName: patientData.lastName,
+      status: "pending"
+    };
+
     setLabScripts(prevScripts => {
-      const updatedScripts = [...prevScripts, formData];
-      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      const updatedScripts = [...prevScripts, newScript];
+      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+      const newAllScripts = [...allScripts, newScript];
+      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
       return updatedScripts;
     });
 
@@ -61,7 +81,13 @@ const PatientProfile = () => {
       const updatedScripts = prevScripts.map(script => 
         script.id === updatedScript.id ? updatedScript : script
       );
-      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      
+      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+      const newAllScripts = allScripts.map((script: LabScript) => 
+        script.id === updatedScript.id ? updatedScript : script
+      );
+      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
+      
       return updatedScripts;
     });
     
@@ -76,7 +102,11 @@ const PatientProfile = () => {
     
     setLabScripts(prevScripts => {
       const updatedScripts = prevScripts.filter(script => script.id !== scriptToDelete.id);
-      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+      
+      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+      const newAllScripts = allScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
+      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
+      
       return updatedScripts;
     });
     
@@ -98,6 +128,10 @@ const PatientProfile = () => {
       document.body.style.overflow = '';
     }
   };
+
+  if (!patientData) {
+    return <div>Patient not found</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
