@@ -7,8 +7,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { STLViewer } from "./STLViewer";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface FilePreviewDialogProps {
   file: File | null;
@@ -22,19 +20,9 @@ export const FilePreviewDialog = ({ file, imageUrl, isOpen, onClose }: FilePrevi
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] p-0 gap-0">
         <DialogHeader className="p-4 pb-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl">
-              Preview - {file?.name || imageUrl?.split('/').pop()}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={onClose}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl">
+            Preview - {file?.name || imageUrl?.split('/').pop()}
+          </DialogTitle>
           <DialogDescription>
             {file?.type || (imageUrl ? 'Image file' : '')}
           </DialogDescription>
