@@ -20,14 +20,27 @@ const getStatusBadge = (status: LabScript["status"]) => {
 
   return (
     <Badge variant="secondary" className={styles[status]}>
-      {status.replace("_", " ")}
+      {status?.replace("_", " ") || "pending"}
     </Badge>
   );
 };
 
+const getTreatments = (script: LabScript) => {
+  // Handle both old and new data structures
+  if (script.treatments) {
+    return script.treatments;
+  }
+  
+  // Create treatments object from individual properties
+  return {
+    upper: script.upperTreatment && script.upperTreatment !== "None" ? [script.upperTreatment] : [],
+    lower: script.lowerTreatment && script.lowerTreatment !== "None" ? [script.lowerTreatment] : []
+  };
+};
+
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScriptListProps) => {
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
-    e.stopPropagation(); // Prevent row click when clicking edit
+    e.stopPropagation();
     onEditClick(script);
   };
 
@@ -46,48 +59,54 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick }: LabScript
         </TableRow>
       </TableHeader>
       <TableBody>
-        {labScripts.map((script) => (
-          <TableRow 
-            key={script.id}
-            className="hover:bg-gray-50"
-          >
-            <TableCell 
-              className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
-              onClick={() => onRowClick(script)}
+        {labScripts.map((script) => {
+          const treatments = getTreatments(script);
+          console.log("Processing script:", script);
+          console.log("Treatments:", treatments);
+          
+          return (
+            <TableRow 
+              key={script.id}
+              className="hover:bg-gray-50"
             >
-              {script.applianceType || "N/A"}
-            </TableCell>
-            <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
-            <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
-            <TableCell>{script.doctorName}</TableCell>
-            <TableCell>{script.clinicName}</TableCell>
-            <TableCell>
-              <div className="space-y-1">
-                {script.treatments.upper.length > 0 && (
-                  <div className="text-sm">
-                    <span className="font-medium">Upper:</span> {script.treatments.upper.join(", ")}
-                  </div>
-                )}
-                {script.treatments.lower.length > 0 && (
-                  <div className="text-sm">
-                    <span className="font-medium">Lower:</span> {script.treatments.lower.join(", ")}
-                  </div>
-                )}
-              </div>
-            </TableCell>
-            <TableCell>{getStatusBadge(script.status)}</TableCell>
-            <TableCell>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => handleEditClick(e, script)}
-                className="p-0 h-auto hover:bg-transparent"
+              <TableCell 
+                className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => onRowClick(script)}
               >
-                <Pencil className="h-4 w-4" />
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
+                {script.applianceType || "N/A"}
+              </TableCell>
+              <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
+              <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
+              <TableCell>{script.doctorName}</TableCell>
+              <TableCell>{script.clinicName}</TableCell>
+              <TableCell>
+                <div className="space-y-1">
+                  {treatments.upper.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Upper:</span> {treatments.upper.join(", ")}
+                    </div>
+                  )}
+                  {treatments.lower.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Lower:</span> {treatments.lower.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>{getStatusBadge(script.status)}</TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => handleEditClick(e, script)}
+                  className="p-0 h-auto hover:bg-transparent"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
