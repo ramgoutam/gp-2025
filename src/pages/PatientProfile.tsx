@@ -14,12 +14,13 @@ import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { LabScriptsTab, type LabScript } from "@/components/patient/LabScriptsTab";
 import { useToast } from "@/components/ui/use-toast";
+import { demoLabScripts } from "@/utils/demoData";
 
 const PatientProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
-  const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
+  const [labScripts, setLabScripts] = React.useState<LabScript[]>(demoLabScripts);
   const { toast } = useToast();
   
   const patientData = {
@@ -60,7 +61,6 @@ const PatientProfile = () => {
 
   const handleDialogChange = (open: boolean) => {
     setShowLabScriptDialog(open);
-    // Force a re-render of the main content when dialog closes
     if (!open) {
       setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
