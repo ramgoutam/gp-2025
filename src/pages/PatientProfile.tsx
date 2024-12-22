@@ -4,6 +4,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit, MoreVertical, Calendar, FileText, FileBarChart } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,6 +20,7 @@ import {
 const PatientProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   
   // This would typically fetch patient data from an API
   const patientData = {
@@ -64,7 +72,7 @@ const PatientProfile = () => {
                     <Calendar className="mr-2 h-4 w-4" />
                     Create Appointment
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/scripts")}>
+                  <DropdownMenuItem onClick={() => setShowLabScriptDialog(true)}>
                     <FileText className="mr-2 h-4 w-4" />
                     Create Lab Script
                   </DropdownMenuItem>
@@ -170,6 +178,22 @@ const PatientProfile = () => {
           </Tabs>
         </div>
       </main>
+
+      {/* Lab Script Dialog */}
+      <Dialog open={showLabScriptDialog} onOpenChange={setShowLabScriptDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create Lab Script</DialogTitle>
+            <DialogDescription>
+              Create a new lab script for {patientData.firstName} {patientData.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Add your lab script form here */}
+            <p className="text-sm text-gray-500">Lab script form will be implemented here.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
