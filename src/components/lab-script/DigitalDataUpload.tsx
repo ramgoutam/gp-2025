@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { STLViewer } from "./STLViewer";
+import { FilePreviewDialog } from "./FilePreviewDialog";
 
 type FileUpload = {
   id: string;
@@ -58,7 +59,7 @@ export const DigitalDataUpload = ({
   };
 
   const handlePreview = (e: React.MouseEvent, file: File) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     console.log("Opening preview for file:", file.name);
     
     if (file.name.toLowerCase().endsWith('.stl')) {
@@ -84,7 +85,6 @@ export const DigitalDataUpload = ({
 
   React.useEffect(() => {
     return () => {
-      // Cleanup any object URLs when component unmounts
       if (imagePreviewUrl) {
         URL.revokeObjectURL(imagePreviewUrl);
       }
@@ -176,25 +176,12 @@ export const DigitalDataUpload = ({
         );
       })}
 
-      <Dialog open={isPreviewOpen} onOpenChange={closePreview}>
-        <DialogContent className="sm:max-w-[800px] h-[600px]">
-          <DialogHeader>
-            <DialogTitle>
-              Preview - {previewFile?.name || imagePreviewUrl?.split('/').pop()}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="relative flex-1 h-full">
-            {previewFile && <STLViewer file={previewFile} />}
-            {imagePreviewUrl && (
-              <img
-                src={imagePreviewUrl}
-                alt="Preview"
-                className="w-full h-full object-contain"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FilePreviewDialog
+        file={previewFile}
+        imageUrl={imagePreviewUrl}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+      />
     </div>
   );
 };
