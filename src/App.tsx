@@ -1,30 +1,23 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import PatientProfile from "./pages/PatientProfile";
 import Index from "./pages/Index";
 import Scripts from "./pages/Scripts";
 import Reports from "./pages/Reports";
-import PatientProfile from "./pages/PatientProfile";
+import { Toaster } from "@/components/ui/toaster";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/patient/:id" element={<PatientProfile />} />
+        <Route path="/scripts" element={<Scripts />} />
+        <Route path="/reports" element={<Reports />} />
+      </Routes>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/scripts" element={<Scripts />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/patient/:id" element={<PatientProfile />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </BrowserRouter>
+  );
+}
 
 export default App;

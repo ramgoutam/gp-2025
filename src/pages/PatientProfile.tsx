@@ -17,10 +17,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 const PatientProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   const patientData = {
     id,
