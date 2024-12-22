@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNavigate } from "react-router-dom";
 import { LabScriptList } from "./LabScriptList";
 import { LabScriptDetails } from "./LabScriptDetails";
 
@@ -21,13 +20,13 @@ export type LabScript = {
 
 type LabScriptsTabProps = {
   labScripts: LabScript[];
+  onEditScript?: (scriptId: string) => void;
 };
 
-export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
+export const LabScriptsTab = ({ labScripts, onEditScript }: LabScriptsTabProps) => {
   console.log("Rendering LabScriptsTab with scripts:", labScripts);
-  const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
-  const navigate = useNavigate();
-  
+  const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
+
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
     setSelectedScript(script);
@@ -35,7 +34,7 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
 
   const handleEditClick = (e: React.MouseEvent, scriptId: string) => {
     e.stopPropagation();
-    navigate(`/scripts/${scriptId}/edit`);
+    onEditScript?.(scriptId);
   };
 
   return (
@@ -53,7 +52,7 @@ export const LabScriptsTab = ({ labScripts }: LabScriptsTabProps) => {
         open={!!selectedScript}
         onOpenChange={(open) => !open && setSelectedScript(null)}
         onEdit={(scriptId) => {
-          navigate(`/scripts/${scriptId}/edit`);
+          onEditScript?.(scriptId);
           setSelectedScript(null);
         }}
       />
