@@ -42,7 +42,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
 
   const dialogContentClass = isMaximized 
     ? "max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh]" 
-    : "max-w-3xl";
+    : "max-w-[120%] w-[120%]"; // Increased width by 1/5 (from max-w-3xl to max-w-[120%])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
