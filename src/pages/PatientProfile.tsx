@@ -33,7 +33,7 @@ const PatientProfile = () => {
   const handleLabScriptSubmit = (formData: any) => {
     console.log("Creating new lab script with data:", formData);
     
-    // Create a new lab script object
+    // Create a new lab script object with proper treatment arrays
     const newLabScript: LabScript = {
       id: Date.now().toString(), // In a real app, this would come from the backend
       doctorName: formData.doctorName,
@@ -42,11 +42,13 @@ const PatientProfile = () => {
       dueDate: formData.dueDate,
       status: "pending",
       treatments: {
-        upper: [], // You would populate these based on the checkboxes
-        lower: [],
+        upper: formData.upperTreatment !== "None" ? [formData.upperTreatment] : [],
+        lower: formData.lowerTreatment !== "None" ? [formData.lowerTreatment] : [],
       },
       specificInstructions: formData.specificInstructions,
     };
+
+    console.log("New lab script created:", newLabScript);
 
     // Add the new lab script to the list
     setLabScripts(prev => [...prev, newLabScript]);
@@ -78,7 +80,7 @@ const PatientProfile = () => {
           />
 
           {/* Tabs */}
-          <Tabs defaultValue="medical-record" className="w-full">
+          <Tabs defaultValue="lab-scripts" className="w-full">
             <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
               <TabsTrigger 
                 value="patient-information"
