@@ -8,7 +8,7 @@ export const TimeGrid = ({ timeSlots }: TimeGridProps) => {
       {timeSlots.map((hour) => (
         <div 
           key={hour} 
-          className="flex items-center justify-end pr-2 h-16 text-xs text-gray-500"
+          className="flex items-center justify-end pr-2 h-16 text-gray-500 font-bold text-sm"
           style={{ transform: 'translateY(0.75rem)' }}
         >
           {`${hour}:00`}
