@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface PatientFormData {
   firstName: string;
@@ -37,6 +39,9 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
     dob: "",
     address: "",
   });
+  const [suggestions, setSuggestions] = useState<Array<{ place_name: string }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -45,26 +50,42 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
   }, [initialData]);
 
   useEffect(() => {
-    // Initialize Google Places Autocomplete
-    const addressInput = document.getElementById("address") as HTMLInputElement;
-    if (addressInput && window.google && window.google.maps && window.google.maps.places) {
-      console.log("Initializing Google Places Autocomplete");
-      const autocomplete = new window.google.maps.places.Autocomplete(addressInput, {
-        types: ['address'],
-        fields: ['formatted_address'],
-      });
+    // Click outside handler for suggestions
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
 
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        console.log("Selected place:", place);
-        if (place.formatted_address) {
-          setFormData(prev => ({ ...prev, address: place.formatted_address }));
-        }
-      });
-    } else {
-      console.error("Google Maps Places API not loaded");
-    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (value.length > 2) {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${process.env.MAPBOX_TOKEN}&types=address`
+        );
+        const data = await response.json();
+        setSuggestions(data.features || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching address suggestions:', error);
+      }
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: { place_name: string }) => {
+    setFormData(prev => ({ ...prev, address: suggestion.place_name }));
+    setShowSuggestions(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,17 +164,33 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 relative">
         <Label htmlFor="address">Address</Label>
         <Input
           id="address"
           name="address"
           value={formData.address}
-          onChange={handleChange}
+          onChange={handleAddressChange}
           placeholder="Start typing to search address..."
           required
           autoComplete="off"
         />
+        {showSuggestions && suggestions.length > 0 && (
+          <div 
+            ref={suggestionsRef}
+            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+          >
+            {suggestions.map((suggestion, index) => (
+              <div
+                key={index}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion.place_name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2 relative">
