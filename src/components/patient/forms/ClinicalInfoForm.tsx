@@ -31,7 +31,6 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
     shade: "",
   });
 
-  // Load existing clinical data when component mounts
   React.useEffect(() => {
     const loadExistingData = () => {
       const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
@@ -45,6 +44,7 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
   }, [scriptId]);
 
   const handleClinicalDataChange = (field: string, value: string) => {
+    console.log(`Updating clinical info field ${field} to:`, value);
     setClinicalData(prev => ({ ...prev, [field]: value }));
   };
 
