@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TreatmentSectionProps {
@@ -16,13 +16,6 @@ export const TreatmentSection = ({
 }: TreatmentSectionProps) => {
   const TREATMENT_OPTIONS = ["None", "Full Arch Fixed", "Denture", "Crown"] as const;
   const NIGHTGUARD_OPTIONS = ["None", "Nightguard"] as const;
-
-  useEffect(() => {
-    // Set Nightguard as default when appliance type is Nightguard
-    if (applianceType === "Nightguard" && treatment === "None") {
-      onTreatmentChange("Nightguard");
-    }
-  }, [applianceType, treatment, onTreatmentChange]);
 
   const options = applianceType === "Nightguard" ? NIGHTGUARD_OPTIONS : TREATMENT_OPTIONS;
 

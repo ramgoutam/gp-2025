@@ -17,16 +17,42 @@ const generateDesignNames = (prefix: string, count: number) => {
 };
 
 const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
-  const count = applianceType === "Surgical Day appliance" ? 5 : 20;
-  
   const prefixMap = {
-    "Surgical Day appliance": isUpper ? "USDA" : "LSDA",
-    "Printed Try-in": isUpper ? "UPTI" : "LPTI",
-    "Nightguard": isUpper ? "UNG" : "LNG"
+    "Surgical Day appliance": {
+      count: 5,
+      prefix: isUpper ? "USDA" : "LSDA"
+    },
+    "Printed Try-in": {
+      count: 20,
+      prefix: isUpper ? "UPTI" : "LPTI"
+    },
+    "Nightguard": {
+      count: 20,
+      prefix: isUpper ? "UNG" : "LNG"
+    },
+    "Direct load PMMA": {
+      count: 5,
+      prefix: isUpper ? "UDLP" : "LDLP"
+    },
+    "Direct Load Zirconia": {
+      count: 5,
+      prefix: isUpper ? "UDLZ" : "LDLZ"
+    },
+    "Ti-Bar and Superstructure": {
+      count: 5,
+      prefixes: isUpper ? ["USS", "UTiBar"] : ["LSS", "LTiBar"]
+    }
   } as const;
   
-  const prefix = prefixMap[applianceType as keyof typeof prefixMap];
-  return prefix ? generateDesignNames(prefix, count) : [];
+  const config = prefixMap[applianceType as keyof typeof prefixMap];
+  
+  if (!config) return [];
+  
+  if ('prefixes' in config) {
+    return config.prefixes.flatMap(prefix => generateDesignNames(prefix, config.count));
+  }
+  
+  return generateDesignNames(config.prefix, config.count);
 };
 
 export const DesignNameSection = ({
