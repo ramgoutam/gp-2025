@@ -34,9 +34,14 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
 
   // Check if clinical info is complete
   const isClinicalInfoComplete = script.clinicalInfo && 
-    Object.values(script.clinicalInfo).every(value => 
-      value !== "" && value !== undefined && value !== null
-    );
+    script.clinicalInfo.insertionDate &&
+    script.clinicalInfo.applianceFit &&
+    script.clinicalInfo.designFeedback &&
+    script.clinicalInfo.occlusion &&
+    script.clinicalInfo.esthetics &&
+    script.clinicalInfo.adjustmentsMade &&
+    script.clinicalInfo.material &&
+    script.clinicalInfo.shade;
 
   console.log("Progress status check:", {
     hasDesignInfo,
