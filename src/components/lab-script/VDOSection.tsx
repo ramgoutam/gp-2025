@@ -20,9 +20,9 @@ export const VDOSection = ({ value, onChange }: VDOSectionProps) => {
         <SelectTrigger>
           <SelectValue placeholder="Select VDO option" />
         </SelectTrigger>
-        <SelectContent className="bg-white z-[100]">
+        <SelectContent className="bg-white z-[200]">
           {VDO_OPTIONS.map((option) => (
-            <SelectItem key={option} value={option}>
+            <SelectItem key={option} value={option} className="hover:bg-gray-100">
               {option}
             </SelectItem>
           ))}

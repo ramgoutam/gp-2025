@@ -66,9 +66,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select fit quality" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {FIT_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -85,9 +85,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select feedback" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {FEEDBACK_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -104,9 +104,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select occlusion status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {OCCLUSION_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -123,9 +123,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select esthetics quality" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {ESTHETICS_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -142,9 +142,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select adjustments" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {ADJUSTMENTS_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -161,9 +161,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select material" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {MATERIAL_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}
@@ -180,9 +180,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
             <SelectTrigger>
               <SelectValue placeholder="Select shade" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {SHADE_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="hover:bg-gray-100">
                   {option}
                 </SelectItem>
               ))}

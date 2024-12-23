@@ -15,9 +15,9 @@ export const ScrewSection = ({ value, onChange }: ScrewSectionProps) => {
         <SelectTrigger>
           <SelectValue placeholder="Select screw type" />
         </SelectTrigger>
-        <SelectContent className="bg-white z-[100]">
+        <SelectContent className="bg-white z-[200]">
           {SCREW_TYPES.map((type) => (
-            <SelectItem key={type} value={type}>
+            <SelectItem key={type} value={type} className="hover:bg-gray-100">
               {type}
             </SelectItem>
           ))}
