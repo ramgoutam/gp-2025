@@ -151,7 +151,7 @@ export const LabScriptsTab = ({
 
       {selectedScript && <ProgressBar steps={progressSteps} />}
 
-      <div className="bg-gray-50/50 rounded-lg border border-gray-100 shadow-sm">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm min-h-[calc(100vh-300px)]">
         <ScrollArea className="h-[calc(100vh-300px)] px-6 py-4">
           <div className="space-y-4 pr-4">
             {sortedLabScripts.length === 0 ? (

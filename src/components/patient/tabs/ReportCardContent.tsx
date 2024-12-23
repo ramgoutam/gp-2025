@@ -126,8 +126,8 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
         onCreateReport={handleCreateReport}
       />
       
-      <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
-        <ScrollArea className="h-[600px] pr-4">
+      <div className="bg-white rounded-lg p-6 border border-gray-100 min-h-[calc(100vh-300px)]">
+        <ScrollArea className="h-[calc(100vh-300px)] pr-4">
           <div className="space-y-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (
