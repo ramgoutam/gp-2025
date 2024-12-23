@@ -16,11 +16,11 @@ export type LabScript = {
   clinicName: string;
   requestDate: string;
   dueDate: string;
-  status: "pending" | "in_progress" | "completed";
+  status: "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
   upperTreatment: string;
   lowerTreatment: string;
-  upperDesignName?: string; // Added this property
-  lowerDesignName?: string; // Added this property
+  upperDesignName?: string;
+  lowerDesignName?: string;
   treatments: {
     upper: string[];
     lower: string[];

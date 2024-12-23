@@ -22,8 +22,13 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'processing':
       case 'in_progress':
         return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hold':
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
@@ -34,22 +39,24 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'Design Pending';
+        return 'Pending';
+      case 'processing':
+        return 'Processing';
       case 'in_progress':
-        return 'Design In Progress';
+        return 'In Progress';
+      case 'paused':
+        return 'Paused';
+      case 'hold':
+        return 'On Hold';
       case 'completed':
-        return 'Design Completed';
+        return 'Completed';
       default:
         return status.replace('_', ' ');
     }
   };
 
-  const handleStatusChange = () => {
-    const newStatus = script.status === 'pending' 
-      ? 'in_progress' 
-      : script.status === 'in_progress' 
-        ? 'completed' 
-        : 'completed';
+  const handleStatusChange = (newStatus: LabScript['status']) => {
+    console.log("Handling status change:", script.id, newStatus);
     onStatusChange(script, newStatus);
   };
 
