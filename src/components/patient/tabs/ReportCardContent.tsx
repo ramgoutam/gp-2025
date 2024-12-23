@@ -19,6 +19,7 @@ interface ReportCardContentProps {
 
 export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
   const { toast } = useToast();
+  const [showCreateDialog, setShowCreateDialog] = React.useState(false);
   const [showDesignInfo, setShowDesignInfo] = React.useState(false);
   const [showClinicalInfo, setShowClinicalInfo] = React.useState(false);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
@@ -27,6 +28,48 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   React.useEffect(() => {
     setLocalLabScripts(labScripts);
   }, [labScripts]);
+
+  const getProgressSteps = (script: LabScript) => {
+    console.log("Generating progress steps for script:", script);
+    return [
+      { 
+        label: "Request Created", 
+        status: "completed" as const 
+      },
+      { 
+        label: "Design Info", 
+        status: script?.designInfo ? "completed" as const : "current" as const 
+      },
+      {
+        label: "Clinical Info",
+        status: script?.clinicalInfo 
+          ? "completed" as const 
+          : script?.designInfo 
+          ? "current" as const 
+          : "upcoming" as const
+      },
+      { 
+        label: "Completed", 
+        status: script?.status === "completed" 
+          ? "completed" as const 
+          : "upcoming" as const 
+      }
+    ];
+  };
+
+  const handleCreateReport = () => {
+    console.log("Opening create report dialog");
+    setShowCreateDialog(true);
+  };
+
+  const handleSubmitReport = (data: any) => {
+    console.log("Submitting report with data:", data);
+    toast({
+      title: "Report Created",
+      description: "The lab report has been successfully created.",
+    });
+    setShowCreateDialog(false);
+  };
 
   const handleDesignInfo = (script: LabScript) => {
     console.log("Opening design info for script:", script.id);
@@ -53,15 +96,83 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     );
   };
 
+  const handleSaveDesignInfo = (updatedScript: LabScript) => {
+    console.log("Saving updated script:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
+
+    const savedScripts = localStorage.getItem('labScripts');
+    if (savedScripts) {
+      const allScripts = JSON.parse(savedScripts);
+      const updatedScripts = allScripts.map((script: LabScript) =>
+        script.id === updatedScript.id ? updatedScript : script
+      );
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <ReportCard
-        patientData={patientData}
-        labScripts={localLabScripts}
-        onDesignInfo={handleDesignInfo}
-        onClinicalInfo={handleClinicalInfo}
-        onUpdateScript={handleUpdateScript}
+    <div className="space-y-6 max-w-[1200px] mx-auto">
+      <ReportCardHeader
+        patientName={`${patientData?.firstName} ${patientData?.lastName}`}
+        onCreateReport={handleCreateReport}
       />
+      
+      <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
+        <ScrollArea className="h-[600px] pr-4">
+          <div className="space-y-4">
+            {localLabScripts && localLabScripts.length > 0 ? (
+              localLabScripts.map((script) => (
+                <div key={script.id}>
+                  <ReportCard
+                    script={script}
+                    onDesignInfo={handleDesignInfo}
+                    onClinicalInfo={handleClinicalInfo}
+                    onUpdateScript={handleUpdateScript}
+                  />
+                </div>
+              ))
+            ) : (
+              <EmptyState />
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Create New Lab Report</DialogTitle>
+          </DialogHeader>
+          <LabReportForm
+            onSubmit={handleSubmitReport}
+            onCancel={() => setShowCreateDialog(false)}
+            patientData={patientData}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDesignInfo} onOpenChange={setShowDesignInfo}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Design Information</DialogTitle>
+            <DialogDescription>
+              Design details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedScript && (
+            <DesignInfoForm
+              onClose={() => setShowDesignInfo(false)}
+              scriptId={selectedScript.id}
+              script={selectedScript}
+              onSave={handleSaveDesignInfo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
