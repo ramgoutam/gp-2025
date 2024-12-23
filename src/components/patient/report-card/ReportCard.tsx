@@ -26,23 +26,25 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     }
   };
 
+  // Check if design info is complete
+  const hasDesignInfo = script.designInfo && 
+    Object.values(script.designInfo).some(value => 
+      value !== "" && value !== undefined && value !== null
+    );
+
   // Check if clinical info is complete - all required fields must have values
   const isClinicalInfoComplete = script.clinicalInfo && 
     Object.values(script.clinicalInfo).every(value => 
       value !== "" && value !== undefined && value !== null
     );
 
-  console.log("Clinical info completion check:", {
-    hasClinicalInfo: !!script.clinicalInfo,
-    clinicalInfoValues: script.clinicalInfo ? Object.values(script.clinicalInfo) : [],
-    isComplete: isClinicalInfoComplete,
+  console.log("Progress status check:", {
+    hasDesignInfo,
+    isClinicalInfoComplete,
+    currentStatus: script.status,
+    designInfo: script.designInfo,
     clinicalInfo: script.clinicalInfo
   });
-
-  const hasDesignInfo = script.designInfo && 
-    Object.values(script.designInfo).some(value => 
-      value !== "" && value !== undefined && value !== null
-    );
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
@@ -57,14 +59,17 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     window.location.reload();
   };
 
+  // Define progress steps with proper status logic
   const progressSteps = [
     { 
       label: "Request Created", 
-      status: "completed" as const 
+      status: "completed" as const // First step is always completed once the request exists
     },
     { 
       label: "Design Info", 
-      status: hasDesignInfo ? "completed" as const : "current" as const 
+      status: hasDesignInfo 
+        ? "completed" as const 
+        : "current" as const 
     },
     { 
       label: "Clinical Info", 
