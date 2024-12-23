@@ -19,6 +19,8 @@ export type LabScript = {
   status: "pending" | "in_progress" | "completed";
   upperTreatment: string;
   lowerTreatment: string;
+  upperDesignName?: string; // Added this property
+  lowerDesignName?: string; // Added this property
   treatments: {
     upper: string[];
     lower: string[];
