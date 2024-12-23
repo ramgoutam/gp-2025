@@ -28,9 +28,9 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
 
   // Check if design info is complete
   const hasDesignInfo = script.designInfo && 
-    Object.values(script.designInfo).every(value => 
-      value !== "" && value !== undefined && value !== null
-    );
+    script.designInfo.designDate &&
+    script.designInfo.implantLibrary &&
+    script.designInfo.teethLibrary;
 
   // Check if clinical info is complete
   const isClinicalInfoComplete = script.clinicalInfo && 
@@ -43,8 +43,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     isClinicalInfoComplete,
     currentStatus: script.status,
     designInfo: script.designInfo,
-    clinicalInfo: script.clinicalInfo,
-    clinicalInfoValues: script.clinicalInfo ? Object.values(script.clinicalInfo) : []
+    clinicalInfo: script.clinicalInfo
   });
 
   const handleCompleteReport = () => {

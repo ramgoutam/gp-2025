@@ -23,14 +23,14 @@ interface DesignInfoFormProps {
 export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfoFormProps) => {
   const { toast } = useToast();
   const [designData, setDesignData] = React.useState({
-    designDate: new Date().toISOString().split('T')[0],
+    designDate: script.designInfo?.designDate || new Date().toISOString().split('T')[0],
     applianceType: script.applianceType || "",
     upperTreatment: script.upperTreatment || "None",
     lowerTreatment: script.lowerTreatment || "None",
     screw: script.screwType || "",
-    implantLibrary: "",
-    teethLibrary: "",
-    actionsTaken: "",
+    implantLibrary: script.designInfo?.implantLibrary || "",
+    teethLibrary: script.designInfo?.teethLibrary || "",
+    actionsTaken: script.designInfo?.actionsTaken || "",
   });
 
   const handleDesignDataChange = (field: string, value: string) => {
@@ -47,8 +47,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       upperTreatment: designData.upperTreatment,
       lowerTreatment: designData.lowerTreatment,
       screwType: designData.screw,
+      status: 'in_progress',
       designInfo: {
-        ...script.designInfo,
         designDate: designData.designDate,
         implantLibrary: designData.implantLibrary,
         teethLibrary: designData.teethLibrary,
@@ -62,6 +62,9 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       title: "Design Info Saved",
       description: "The design information has been successfully saved.",
     });
+
+    // Force a reload to update the progress bar
+    window.location.reload();
     onClose();
   };
 
