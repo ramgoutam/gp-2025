@@ -73,9 +73,15 @@ export const LabScriptsTab = ({
   const [isEditing, setIsEditing] = React.useState(false);
 
   // Sort lab scripts by request date in descending order (newest first)
-  const sortedLabScripts = [...labScripts].sort((a, b) => 
-    new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
-  );
+  const sortedLabScripts = React.useMemo(() => {
+    console.log("Sorting lab scripts by date...");
+    return [...labScripts].sort((a, b) => {
+      const dateA = new Date(a.requestDate).getTime();
+      const dateB = new Date(b.requestDate).getTime();
+      console.log(`Comparing dates: ${a.requestDate} vs ${b.requestDate}`);
+      return dateB - dateA; // Descending order
+    });
+  }, [labScripts]);
 
   console.log("Sorted lab scripts:", sortedLabScripts);
 
