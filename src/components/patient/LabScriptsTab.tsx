@@ -93,7 +93,10 @@ export const LabScriptsTab = ({
     : "Patient";
 
   const progressSteps = [
-    { label: "Request Created", status: "completed" as const },
+    { 
+      label: "Request Created", 
+      status: "completed" as const 
+    },
     { 
       label: "Design Info", 
       status: selectedScript?.designInfo ? "completed" as const : "current" as const 
@@ -113,6 +116,8 @@ export const LabScriptsTab = ({
         : "upcoming" as const 
     }
   ];
+
+  console.log("Progress steps being passed to ProgressBar:", progressSteps);
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto">

@@ -10,7 +10,7 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar = ({ steps }: ProgressBarProps) => {
-  console.log("Progress bar steps:", steps); // Added for debugging
+  console.log("Progress bar steps:", steps);
 
   return (
     <div className="flex items-center w-full gap-2">
@@ -40,10 +40,8 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
             </div>
             <span
               className={`text-sm font-medium ${
-                step.status === "completed"
-                  ? "text-primary"
-                  : step.status === "current"
-                  ? "text-primary"
+                step.status === "completed" || step.status === "current"
+                  ? "text-gray-900"
                   : "text-gray-400"
               }`}
             >
@@ -52,7 +50,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`h-[2px] w-12 mx-2 ${
+              className={`h-[2px] w-full mx-2 ${
                 step.status === "completed" ? "bg-primary" : "bg-gray-200"
               }`}
             />
