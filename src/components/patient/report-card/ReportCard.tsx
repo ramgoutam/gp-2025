@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock } from "lucide-react";
+import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, ClipboardList, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 
@@ -42,6 +42,23 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     Object.values(script.designInfo).some(value => 
       value !== "" && value !== undefined && value !== null
     );
+
+  const handleViewInfo = () => {
+    onClinicInfo(script);
+  };
+
+  const handleCompleteReport = () => {
+    // Update the script status to completed
+    const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    const updatedScripts = scripts.map((s: LabScript) => {
+      if (s.id === script.id) {
+        return { ...s, status: 'completed' };
+      }
+      return s;
+    });
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    window.location.reload(); // Refresh to show updated status
+  };
 
   const progressSteps = [
     { 
@@ -112,13 +129,25 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onClinicInfo(script)}
+              onClick={handleViewInfo}
               className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
-              <Stethoscope className="h-4 w-4" />
-              Clinical Info
+              <ClipboardList className="h-4 w-4" />
+              View Clinical Info
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
+            {hasDesignInfo && isClinicalInfoComplete && script.status !== 'completed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCompleteReport}
+                className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
+              >
+                <CheckCircle className="h-4 w-4" />
+                Complete Report
+                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+              </Button>
+            )}
           </div>
         </div>
         
