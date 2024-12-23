@@ -133,6 +133,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
             <DesignInfoForm
               onClose={() => setShowDesignInfo(false)}
               scriptId={selectedScript.id}
+              script={selectedScript}
             />
           )}
         </DialogContent>

@@ -8,6 +8,7 @@ import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
+import { LabScript } from "../LabScriptsTab";
 
 const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
 const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
@@ -15,22 +16,24 @@ const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
 interface DesignInfoFormProps {
   onClose: () => void;
   scriptId: string;
+  script: LabScript;
 }
 
-export const DesignInfoForm = ({ onClose, scriptId }: DesignInfoFormProps) => {
+export const DesignInfoForm = ({ onClose, scriptId, script }: DesignInfoFormProps) => {
   const { toast } = useToast();
   const [designData, setDesignData] = React.useState({
     designDate: new Date().toISOString().split('T')[0],
-    applianceType: "",
-    upperTreatment: "None",
-    lowerTreatment: "None",
-    screw: "",
+    applianceType: script.applianceType || "",
+    upperTreatment: script.upperTreatment || "None",
+    lowerTreatment: script.lowerTreatment || "None",
+    screw: script.screwType || "",
     implantLibrary: "",
     teethLibrary: "",
     actionsTaken: "",
   });
 
   const handleDesignDataChange = (field: string, value: string) => {
+    console.log(`Updating ${field} to:`, value);
     setDesignData(prev => ({ ...prev, [field]: value }));
   };
 
