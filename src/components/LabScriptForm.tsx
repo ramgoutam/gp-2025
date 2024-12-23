@@ -150,6 +150,7 @@ export const LabScriptForm = ({
             onTreatmentChange={(value) => 
               setFormData(prev => ({ ...prev, upperTreatment: value }))
             }
+            applianceType={formData.applianceType}
           />
           <TreatmentSection
             title="Lower"
@@ -157,6 +158,7 @@ export const LabScriptForm = ({
             onTreatmentChange={(value) =>
               setFormData(prev => ({ ...prev, lowerTreatment: value }))
             }
+            applianceType={formData.applianceType}
           />
         </div>
       </div>

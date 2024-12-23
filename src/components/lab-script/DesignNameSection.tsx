@@ -60,9 +60,9 @@ export const DesignNameSection = ({
               <SelectTrigger>
                 <SelectValue placeholder="Select upper design name" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-[200]">
                 {upperOptions.map((name) => (
-                  <SelectItem key={name} value={name}>
+                  <SelectItem key={name} value={name} className="hover:bg-gray-100">
                     {name}
                   </SelectItem>
                 ))}
@@ -78,9 +78,9 @@ export const DesignNameSection = ({
               <SelectTrigger>
                 <SelectValue placeholder="Select lower design name" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-[200]">
                 {lowerOptions.map((name) => (
-                  <SelectItem key={name} value={name}>
+                  <SelectItem key={name} value={name} className="hover:bg-gray-100">
                     {name}
                   </SelectItem>
                 ))}
