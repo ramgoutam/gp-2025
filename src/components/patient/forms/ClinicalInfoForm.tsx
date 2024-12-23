@@ -7,6 +7,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScript } from "../LabScriptsTab";
 
 const FIT_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
+const DESIGN_FEEDBACK_OPTIONS = ["Neutral", "Positive", "Negative"];
+const OCCLUSION_OPTIONS = ["Perfect", "Slight Adjustment Needed", "Major Adjustment Needed"];
+const ESTHETICS_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
+const ADJUSTMENTS_OPTIONS = ["None", "Minor", "Major"];
+const MATERIAL_OPTIONS = ["PMMA", "Zirconia", "Metal", "Other"];
+const SHADE_OPTIONS = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2"];
 
 interface ClinicalInfoFormProps {
   onClose: () => void;
@@ -43,6 +49,31 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
     onClose();
   };
 
+  const renderSelect = (
+    label: string,
+    id: keyof typeof formData,
+    options: string[]
+  ) => (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Select
+        value={formData[id]}
+        onValueChange={(value) => setFormData(prev => ({ ...prev, [id]: value }))}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+        </SelectTrigger>
+        <SelectContent className="bg-white z-[200]">
+          {options.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <div className="max-h-[400px] w-full">
       <ScrollArea className="h-full pr-4">
@@ -59,24 +90,13 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="applianceFit">Appliance Fit</Label>
-              <Select
-                value={formData.applianceFit}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, applianceFit: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select fit quality" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-[200]">
-                  {FIT_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {renderSelect("Appliance Fit", "applianceFit", FIT_OPTIONS)}
+            {renderSelect("Design Feedback", "designFeedback", DESIGN_FEEDBACK_OPTIONS)}
+            {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
+            {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
+            {renderSelect("Adjustments Made", "adjustmentsMade", ADJUSTMENTS_OPTIONS)}
+            {renderSelect("Material", "material", MATERIAL_OPTIONS)}
+            {renderSelect("Shade", "shade", SHADE_OPTIONS)}
           </div>
 
           <div className="flex justify-end space-x-2 pt-4 sticky bottom-0 bg-white">
