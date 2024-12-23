@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Mail, Phone } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Patient {
   id: number;
@@ -24,6 +25,7 @@ interface Patient {
 }
 
 const Index = () => {
+  const { toast } = useToast();
   const [patients, setPatients] = useState<Patient[]>(() => {
     const savedPatients = localStorage.getItem('patients');
     return savedPatients ? JSON.parse(savedPatients) : [
@@ -56,6 +58,17 @@ const Index = () => {
       id: patients.length + 1,
     };
     const updatedPatients = [...patients, newPatient];
+    setPatients(updatedPatients);
+    localStorage.setItem('patients', JSON.stringify(updatedPatients));
+    
+    toast({
+      title: "Success",
+      description: "Patient added successfully",
+    });
+  };
+
+  const handleDeletePatient = (patientId: number) => {
+    const updatedPatients = patients.filter(patient => patient.id !== patientId);
     setPatients(updatedPatients);
     localStorage.setItem('patients', JSON.stringify(updatedPatients));
   };
@@ -104,7 +117,7 @@ const Index = () => {
               <Link
                 key={patient.id}
                 to={`/patient/${patient.id}`}
-                state={{ patientData: patient }}
+                state={{ patientData: patient, onDeletePatient: () => handleDeletePatient(patient.id) }}
                 className="block group"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">

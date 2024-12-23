@@ -1,14 +1,25 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { PatientForm } from "@/components/PatientForm";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 type PatientData = {
   firstName: string;
@@ -19,21 +30,25 @@ type PatientData = {
   phone?: string;
   sex?: string;
   dob?: string;
-  address?: string;  // Add this line to include address
+  address?: string;
 };
 
 type PatientHeaderProps = {
   patientData: PatientData;
   onCreateLabScript?: () => void;
   onUpdatePatient: (updatedData: PatientData) => void;
+  onDeletePatient?: () => void;
 };
 
 export const PatientHeader = ({ 
   patientData, 
-  onUpdatePatient 
+  onUpdatePatient,
+  onDeletePatient 
 }: PatientHeaderProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEditSubmit = (formData: {
     firstName: string;
@@ -42,11 +57,10 @@ export const PatientHeader = ({
     phone: string;
     sex: string;
     dob: string;
-    address: string;  // Add this line
+    address: string;
   }) => {
     console.log("Updating patient data:", formData);
     
-    // Update patient data while preserving existing fields
     const updatedData = {
       ...patientData,
       ...formData,
@@ -59,6 +73,19 @@ export const PatientHeader = ({
       title: "Success",
       description: "Patient profile updated successfully",
     });
+  };
+
+  const handleDelete = () => {
+    console.log("Deleting patient:", patientData);
+    if (onDeletePatient) {
+      onDeletePatient();
+    }
+    setShowDeleteDialog(false);
+    toast({
+      title: "Success",
+      description: "Patient deleted successfully",
+    });
+    navigate('/');
   };
 
   return (
@@ -85,6 +112,15 @@ export const PatientHeader = ({
                 <Edit className="h-4 w-4 mr-1" />
                 Edit
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-destructive hover:text-destructive"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
+              </Button>
             </p>
           </div>
         </div>
@@ -103,12 +139,30 @@ export const PatientHeader = ({
               phone: patientData.phone || "",
               sex: patientData.sex || "",
               dob: patientData.dob || "",
-              address: patientData.address || "",  // Add this line
+              address: patientData.address || "",
             }}
             onSubmitSuccess={handleEditSubmit}
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete {patientData.firstName} {patientData.lastName}'s
+              profile and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
