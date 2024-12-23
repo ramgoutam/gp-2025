@@ -8,7 +8,7 @@ import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
-import { ReportCardDialog } from "./ReportCardDialog";
+import { ReportCardViewDialog } from "./ReportCardViewDialog";
 import { getReportCardState, saveReportCardState, ReportCardState } from './ReportCardState';
 
 interface ReportCardProps {
@@ -151,10 +151,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  onDesignInfo(script);
-                  setState(prev => ({ ...prev, isDesignInfoComplete: true }));
-                }}
+                onClick={() => onDesignInfo(script)}
                 className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
               >
                 <Settings className="h-4 w-4" />
@@ -171,18 +168,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 Clinical Info
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
-              {state.isDesignInfoComplete && state.isClinicalInfoComplete && state.reportStatus !== 'completed' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCompleteReport}
-                  className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Complete Report
-                  <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                </Button>
-              )}
             </div>
           </div>
           
@@ -235,7 +220,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
         </DialogContent>
       </Dialog>
 
-      <ReportCardDialog
+      <ReportCardViewDialog
         open={showReportCard}
         onOpenChange={setShowReportCard}
         script={script}
