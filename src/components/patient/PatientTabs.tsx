@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LabScriptsContent } from "./tabs/LabScriptsContent";
 import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
+import { ReportCardContent } from "./tabs/ReportCardContent";
 import { LabScript } from "./LabScriptsTab";
 
 interface PatientTabsProps {
@@ -75,6 +76,12 @@ export const PatientTabs = ({
         >
           Medical Record
         </TabsTrigger>
+        <TabsTrigger
+          value="report-card"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+        >
+          Report Card
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="patient-information">
@@ -100,6 +107,10 @@ export const PatientTabs = ({
 
       <TabsContent value="medical-record">
         <MedicalRecordContent />
+      </TabsContent>
+
+      <TabsContent value="report-card">
+        <ReportCardContent />
       </TabsContent>
     </Tabs>
   );
