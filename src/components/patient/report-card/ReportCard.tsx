@@ -25,12 +25,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
 
   useEffect(() => {
-    // Load initial state
     setState(getReportCardState(script.id));
   }, [script.id]);
 
   useEffect(() => {
-    // Save state whenever it changes
     saveReportCardState(script.id, state);
   }, [script.id, state]);
 
@@ -44,6 +42,19 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
         return 'bg-green-100 text-green-800 border-green-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Design Pending';
+      case 'in_progress':
+        return 'Design In Progress';
+      case 'completed':
+        return 'Design Completed';
+      default:
+        return status.replace('_', ' ');
     }
   };
 
@@ -106,8 +117,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     }
   ];
 
-  // ... keep existing code (JSX for the report card UI)
-
   return (
     <>
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
@@ -117,7 +126,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               <div className="flex items-center space-x-3">
                 <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
                 <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
-                  {script.status.replace('_', ' ')}
+                  {getStatusText(script.status)}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
