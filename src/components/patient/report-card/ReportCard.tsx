@@ -37,7 +37,10 @@ export const ReportCard = ({ script, onDesignInfo, onUpdateScript }: ReportCardP
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
-    const updatedScript = { ...script, status: 'completed' };
+    const updatedScript: LabScript = { 
+      ...script, 
+      status: "completed" as const 
+    };
     
     // Update localStorage
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
