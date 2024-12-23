@@ -31,16 +31,48 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
     shade: "",
   });
 
+  // Load existing clinical data when component mounts
+  React.useEffect(() => {
+    const loadExistingData = () => {
+      const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+      const script = scripts.find((s: any) => s.id === scriptId);
+      if (script?.clinicalInfo) {
+        console.log('Loading existing clinical data:', script.clinicalInfo);
+        setClinicalData(script.clinicalInfo);
+      }
+    };
+    loadExistingData();
+  }, [scriptId]);
+
   const handleClinicalDataChange = (field: string, value: string) => {
     setClinicalData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
     console.log("Saving clinical info for script:", scriptId, clinicalData);
+    
+    // Get current scripts from localStorage
+    const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
+    
+    // Find and update the specific script
+    const updatedScripts = scripts.map((script: any) => {
+      if (script.id === scriptId) {
+        return {
+          ...script,
+          clinicalInfo: clinicalData
+        };
+      }
+      return script;
+    });
+    
+    // Save back to localStorage
+    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    
     toast({
       title: "Clinical Info Saved",
       description: "The clinical information has been successfully saved.",
     });
+    
     onClose();
   };
 
