@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
 import { EmptyState } from "../report-card/EmptyState";
+import { ProgressBar } from "../ProgressBar";
 
 interface ReportCardContentProps {
   patientData?: {
@@ -28,6 +29,34 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   React.useEffect(() => {
     setLocalLabScripts(labScripts);
   }, [labScripts]);
+
+  const getProgressSteps = (script: LabScript) => {
+    console.log("Generating progress steps for script:", script);
+    return [
+      { 
+        label: "Request Created", 
+        status: "completed" as const 
+      },
+      { 
+        label: "Design Info", 
+        status: script?.designInfo ? "completed" as const : "current" as const 
+      },
+      {
+        label: "Clinical Info",
+        status: script?.clinicalInfo 
+          ? "completed" as const 
+          : script?.designInfo 
+          ? "current" as const 
+          : "upcoming" as const
+      },
+      { 
+        label: "Completed", 
+        status: script?.status === "completed" 
+          ? "completed" as const 
+          : "upcoming" as const 
+      }
+    ];
+  };
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -98,13 +127,15 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
           <div className="space-y-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (
-                <ReportCard
-                  key={script.id}
-                  script={script}
-                  onDesignInfo={handleDesignInfo}
-                  onClinicalInfo={handleClinicalInfo}
-                  onUpdateScript={handleUpdateScript}
-                />
+                <div key={script.id} className="space-y-4">
+                  <ProgressBar steps={getProgressSteps(script)} />
+                  <ReportCard
+                    script={script}
+                    onDesignInfo={handleDesignInfo}
+                    onClinicalInfo={handleClinicalInfo}
+                    onUpdateScript={handleUpdateScript}
+                  />
+                </div>
               ))
             ) : (
               <EmptyState />
