@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScript } from "../LabScriptsTab";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 interface ReportCardDialogProps {
   open: boolean;
@@ -17,30 +18,84 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
         </DialogHeader>
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-6 p-4">
-            {/* Design Information Section */}
+            {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Design Information</h3>
+              <h3 className="text-lg font-semibold">Basic Information</h3>
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Design Date</p>
-                  <p className="font-medium">{script.designInfo?.designDate || 'Not specified'}</p>
+                  <p className="text-sm text-gray-500">Request Number</p>
+                  <p className="font-medium">{script.requestNumber || 'Not specified'}</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Implant Library</p>
-                  <p className="font-medium">{script.designInfo?.implantLibrary || 'Not specified'}</p>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="font-medium capitalize">{script.status.replace('_', ' ')}</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Teeth Library</p>
-                  <p className="font-medium">{script.designInfo?.teethLibrary || 'Not specified'}</p>
+                  <p className="text-sm text-gray-500">Patient Name</p>
+                  <p className="font-medium">{`${script.patientFirstName} ${script.patientLastName}`}</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Actions Taken</p>
-                  <p className="font-medium">{script.designInfo?.actionsTaken || 'Not specified'}</p>
+                  <p className="text-sm text-gray-500">Doctor Name</p>
+                  <p className="font-medium">{script.doctorName}</p>
                 </div>
               </div>
             </div>
 
-            {/* Clinical Information Section */}
+            <Separator />
+
+            {/* Treatment Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Treatment Information</h3>
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Upper Treatment</p>
+                  <p className="font-medium">{script.upperTreatment}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Lower Treatment</p>
+                  <p className="font-medium">{script.lowerTreatment}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Appliance Type</p>
+                  <p className="font-medium">{script.applianceType || 'Not specified'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Screw Type</p>
+                  <p className="font-medium">{script.screwType || 'Not specified'}</p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Design Information */}
+            {script.designInfo && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Design Information</h3>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Design Date</p>
+                    <p className="font-medium">{script.designInfo.designDate}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Implant Library</p>
+                    <p className="font-medium">{script.designInfo.implantLibrary}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Teeth Library</p>
+                    <p className="font-medium">{script.designInfo.teethLibrary}</p>
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <p className="text-sm text-gray-500">Actions Taken</p>
+                    <p className="font-medium whitespace-pre-wrap">{script.designInfo.actionsTaken}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Separator />
+
+            {/* Clinical Information */}
             {script.clinicalInfo && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Clinical Information</h3>
@@ -79,6 +134,19 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Specific Instructions */}
+            {script.specificInstructions && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Specific Instructions</h3>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="whitespace-pre-wrap">{script.specificInstructions}</p>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </ScrollArea>
