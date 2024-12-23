@@ -28,11 +28,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
 
   // Check if design info is complete
   const hasDesignInfo = script.designInfo && 
-    Object.values(script.designInfo).some(value => 
+    Object.values(script.designInfo).every(value => 
       value !== "" && value !== undefined && value !== null
     );
 
-  // Check if clinical info is complete - all required fields must have values
+  // Check if clinical info is complete
   const isClinicalInfoComplete = script.clinicalInfo && 
     Object.values(script.clinicalInfo).every(value => 
       value !== "" && value !== undefined && value !== null
@@ -43,7 +43,8 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     isClinicalInfoComplete,
     currentStatus: script.status,
     designInfo: script.designInfo,
-    clinicalInfo: script.clinicalInfo
+    clinicalInfo: script.clinicalInfo,
+    clinicalInfoValues: script.clinicalInfo ? Object.values(script.clinicalInfo) : []
   });
 
   const handleCompleteReport = () => {
