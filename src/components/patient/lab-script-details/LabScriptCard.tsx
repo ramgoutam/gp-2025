@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, FileCheck, Clock, Plus } from "lucide-react";
+import { Calendar, User, FileCheck, Clock } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { format } from "date-fns";
 import {
@@ -60,6 +60,39 @@ export const LabScriptCard = ({
     onStatusChange(script, newStatus);
   };
 
+  const getDesignNameDisplay = () => {
+    const parts = [];
+    
+    // Add appliance type
+    parts.push(
+      <span key="appliance" className="text-lg font-semibold">
+        {script.applianceType || 'N/A'}
+      </span>
+    );
+
+    // Add separator and upper design name if exists
+    if (script.upperDesignName) {
+      parts.push(
+        <span key="separator1" className="text-gray-400 mx-2">|</span>,
+        <span key="upper" className="text-sm text-gray-600">
+          {script.upperDesignName}
+        </span>
+      );
+    }
+
+    // Add separator and lower design name if exists
+    if (script.lowerDesignName) {
+      parts.push(
+        <span key="separator2" className="text-gray-400 mx-2">|</span>,
+        <span key="lower" className="text-sm text-gray-600">
+          {script.lowerDesignName}
+        </span>
+      );
+    }
+
+    return parts;
+  };
+
   return (
     <>
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white animate-fade-in">
@@ -67,7 +100,9 @@ export const LabScriptCard = ({
           <div className="flex justify-between items-start">
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
+                <div className="flex items-center space-x-2 flex-wrap">
+                  {getDesignNameDisplay()}
+                </div>
                 <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
                   {script.status.replace('_', ' ')}
                 </Badge>
@@ -99,14 +134,6 @@ export const LabScriptCard = ({
           </div>
           
           <div className="flex justify-between items-center pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Add Note
-            </Button>
             <StatusButton
               status={script.status}
               onStatusChange={handleStatusChange}
