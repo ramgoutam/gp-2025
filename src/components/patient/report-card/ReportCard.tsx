@@ -49,7 +49,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = scripts.map((s: LabScript) => {
+    const updatedScripts = scripts.map((s: any) => {
       if (s.id === script.id) {
         return { ...s, status: 'completed' };
       }

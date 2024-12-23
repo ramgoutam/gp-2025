@@ -63,8 +63,6 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       description: "The design information has been successfully saved.",
     });
 
-    // Force a reload to update the progress bar
-    window.location.reload();
     onClose();
   };
 

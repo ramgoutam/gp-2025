@@ -74,9 +74,6 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
       description: "The clinical information has been successfully saved.",
     });
     
-    // Force a reload to update the progress bar
-    window.location.reload();
-    
     onClose();
   };
 
