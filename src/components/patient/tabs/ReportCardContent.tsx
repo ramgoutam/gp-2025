@@ -6,16 +6,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
 import { LabScript } from "../LabScriptsTab";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
-import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
-import { ScrewSection } from "@/components/lab-script/ScrewSection";
-
-const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
-const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
+import { DesignInfoForm } from "../forms/DesignInfoForm";
+import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 
 interface ReportCardContentProps {
   patientData?: {
@@ -31,16 +23,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const [showDesignInfo, setShowDesignInfo] = React.useState(false);
   const [showClinicInfo, setShowClinicInfo] = React.useState(false);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
-  const [designData, setDesignData] = React.useState({
-    designDate: new Date().toISOString().split('T')[0],
-    applianceType: "",
-    upperTreatment: "None",
-    lowerTreatment: "None",
-    screw: "",
-    implantLibrary: "",
-    teethLibrary: "",
-    actionsTaken: "",
-  });
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -66,10 +48,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     console.log("Opening clinic info for script:", script.id);
     setSelectedScript(script);
     setShowClinicInfo(true);
-  };
-
-  const handleDesignDataChange = (field: string, value: string) => {
-    setDesignData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -151,127 +129,28 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
               Design details for Lab Request #{selectedScript?.requestNumber}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="designDate">Design Date</Label>
-                  <Input
-                    id="designDate"
-                    type="date"
-                    value={designData.designDate}
-                    onChange={(e) => handleDesignDataChange("designDate", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <ApplianceSection
-                value={designData.applianceType}
-                onChange={(value) => handleDesignDataChange("applianceType", value)}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <TreatmentSection
-                  title="Upper"
-                  treatment={designData.upperTreatment}
-                  onTreatmentChange={(value) => handleDesignDataChange("upperTreatment", value)}
-                />
-                <TreatmentSection
-                  title="Lower"
-                  treatment={designData.lowerTreatment}
-                  onTreatmentChange={(value) => handleDesignDataChange("lowerTreatment", value)}
-                />
-              </div>
-
-              <ScrewSection
-                value={designData.screw}
-                onChange={(value) => handleDesignDataChange("screw", value)}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="implantLibrary">Implant Library</Label>
-                  <Select
-                    value={designData.implantLibrary}
-                    onValueChange={(value) => handleDesignDataChange("implantLibrary", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select implant library" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {IMPLANT_LIBRARIES.map((lib) => (
-                        <SelectItem key={lib} value={lib}>
-                          {lib}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="teethLibrary">Teeth Library</Label>
-                  <Select
-                    value={designData.teethLibrary}
-                    onValueChange={(value) => handleDesignDataChange("teethLibrary", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select teeth library" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TEETH_LIBRARIES.map((lib) => (
-                        <SelectItem key={lib} value={lib}>
-                          {lib}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="actionsTaken">Designer Actions & Changes Made</Label>
-                <Textarea
-                  id="actionsTaken"
-                  value={designData.actionsTaken}
-                  onChange={(e) => handleDesignDataChange("actionsTaken", e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-            </div>
-          </div>
+          {selectedScript && (
+            <DesignInfoForm
+              onClose={() => setShowDesignInfo(false)}
+              scriptId={selectedScript.id}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
       <Dialog open={showClinicInfo} onOpenChange={setShowClinicInfo}>
-        <DialogContent>
+        <DialogContent className="max-w-[1200px] w-full">
           <DialogHeader>
             <DialogTitle>Clinical Information</DialogTitle>
+            <DialogDescription>
+              Clinical details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
           </DialogHeader>
           {selectedScript && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
-                  <p>{new Date(selectedScript.requestDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
-                  <p>{new Date(selectedScript.dueDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Patient Name</h4>
-                  <p>{selectedScript.firstName} {selectedScript.lastName}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-gray-500">Status</h4>
-                  <p className="capitalize">{selectedScript.status}</p>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium text-sm text-gray-500">Notes</h4>
-                <p className="mt-1">{selectedScript.notes || "No notes available"}</p>
-              </div>
-            </div>
+            <ClinicalInfoForm
+              onClose={() => setShowClinicInfo(false)}
+              scriptId={selectedScript.id}
+            />
           )}
         </DialogContent>
       </Dialog>
