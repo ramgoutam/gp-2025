@@ -68,7 +68,7 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
   };
 
   return (
-    <ScrollArea className="h-[80vh] pr-4">
+    <ScrollArea className="h-[80vh] w-full pr-4">
       <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
