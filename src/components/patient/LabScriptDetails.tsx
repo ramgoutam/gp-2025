@@ -7,6 +7,7 @@ import { LabScriptForm } from "../LabScriptForm";
 import { useState, useEffect } from "react";
 import { FilePreviewDialog } from "../lab-script/FilePreviewDialog";
 import { LabScriptContent } from "./lab-script-details/LabScriptContent";
+import { format } from "date-fns";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -68,6 +69,11 @@ export const LabScriptDetails = ({
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow || !script) return;
+
+    const treatments = script.treatments || {
+      upper: script.upperTreatment ? [script.upperTreatment] : [],
+      lower: script.lowerTreatment ? [script.lowerTreatment] : []
+    };
 
     const content = `
       <!DOCTYPE html>
