@@ -18,6 +18,9 @@ interface ReportCardContentProps {
 export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
+  const [showDesignInfo, setShowDesignInfo] = React.useState(false);
+  const [showClinicInfo, setShowClinicInfo] = React.useState(false);
+  const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -33,14 +36,16 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     setShowCreateDialog(false);
   };
 
-  const handleDesignInfo = (scriptId: string) => {
-    console.log("Opening design info for script:", scriptId);
-    // Implementation for design info dialog
+  const handleDesignInfo = (script: LabScript) => {
+    console.log("Opening design info for script:", script.id);
+    setSelectedScript(script);
+    setShowDesignInfo(true);
   };
 
-  const handleClinicInfo = (scriptId: string) => {
-    console.log("Opening clinic info for script:", scriptId);
-    // Implementation for clinic info dialog
+  const handleClinicInfo = (script: LabScript) => {
+    console.log("Opening clinic info for script:", script.id);
+    setSelectedScript(script);
+    setShowClinicInfo(true);
   };
 
   return (
@@ -74,7 +79,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDesignInfo(script.id)}
+                      onClick={() => handleDesignInfo(script)}
                       className="flex items-center gap-2"
                     >
                       <Settings className="h-4 w-4" />
@@ -83,7 +88,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleClinicInfo(script.id)}
+                      onClick={() => handleClinicInfo(script)}
                       className="flex items-center gap-2"
                     >
                       <Stethoscope className="h-4 w-4" />
@@ -111,6 +116,70 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
             onCancel={() => setShowCreateDialog(false)}
             patientData={patientData}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDesignInfo} onOpenChange={setShowDesignInfo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Design Information</DialogTitle>
+          </DialogHeader>
+          {selectedScript && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Upper Treatment</h4>
+                  <p>{selectedScript.upperTreatment || "None"}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Lower Treatment</h4>
+                  <p>{selectedScript.lowerTreatment || "None"}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">VDO Option</h4>
+                  <p>{selectedScript.vdoOption || "Not specified"}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Screw Type</h4>
+                  <p>{selectedScript.screwType || "Not specified"}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showClinicInfo} onOpenChange={setShowClinicInfo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clinical Information</DialogTitle>
+          </DialogHeader>
+          {selectedScript && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Request Date</h4>
+                  <p>{new Date(selectedScript.requestDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Due Date</h4>
+                  <p>{new Date(selectedScript.dueDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Patient Name</h4>
+                  <p>{selectedScript.firstName} {selectedScript.lastName}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Status</h4>
+                  <p className="capitalize">{selectedScript.status}</p>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-medium text-sm text-gray-500">Notes</h4>
+                <p className="mt-1">{selectedScript.notes || "No notes available"}</p>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
