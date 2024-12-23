@@ -152,27 +152,31 @@ const PatientProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
       <Navigation />
-      <main className="container mx-auto py-8 px-4">
-        <div className="text-sm text-gray-500 mb-6">
-          Patient list / Patient detail
-        </div>
+      <main className="flex-1 overflow-hidden">
+        <div className="container mx-auto py-8 px-4 h-full flex flex-col">
+          <div className="text-sm text-gray-500 mb-6">
+            Patient list / Patient detail
+          </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <PatientHeader 
-            patientData={patientData}
-            onCreateLabScript={() => handleDialogChange(true)}
-            onUpdatePatient={handleUpdatePatient}
-          />
+          <div className="bg-white rounded-lg shadow-sm p-6 flex-1 flex flex-col overflow-hidden">
+            <PatientHeader 
+              patientData={patientData}
+              onCreateLabScript={() => handleDialogChange(true)}
+              onUpdatePatient={handleUpdatePatient}
+            />
 
-          <PatientTabs
-            labScripts={labScripts}
-            onCreateLabScript={() => handleDialogChange(true)}
-            onEditLabScript={handleEditLabScript}
-            onDeleteLabScript={handleDeleteLabScript}
-            patientData={patientData}
-          />
+            <div className="flex-1 overflow-hidden">
+              <PatientTabs
+                labScripts={labScripts}
+                onCreateLabScript={() => handleDialogChange(true)}
+                onEditLabScript={handleEditLabScript}
+                onDeleteLabScript={handleDeleteLabScript}
+                patientData={patientData}
+              />
+            </div>
+          </div>
         </div>
       </main>
 
