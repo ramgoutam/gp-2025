@@ -75,10 +75,10 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
   );
 
   return (
-    <div className="max-h-[400px] w-full">
+    <div className="w-full">
       <ScrollArea className="h-full pr-4">
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="insertionDate">Insertion Date</Label>
               <Input
@@ -89,14 +89,13 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
                 required
               />
             </div>
-
             {renderSelect("Appliance Fit", "applianceFit", FIT_OPTIONS)}
-            {renderSelect("Design Feedback", "designFeedback", DESIGN_FEEDBACK_OPTIONS)}
             {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
-            {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
             {renderSelect("Adjustments Made", "adjustmentsMade", ADJUSTMENTS_OPTIONS)}
-            {renderSelect("Material", "material", MATERIAL_OPTIONS)}
             {renderSelect("Shade", "shade", SHADE_OPTIONS)}
+            {renderSelect("Design Feedback", "designFeedback", DESIGN_FEEDBACK_OPTIONS)}
+            {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
+            {renderSelect("Material", "material", MATERIAL_OPTIONS)}
           </div>
 
           <div className="flex justify-end space-x-2 pt-4 sticky bottom-0 bg-white">
