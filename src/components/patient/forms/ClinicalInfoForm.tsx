@@ -57,12 +57,12 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
     // Find and update the specific script
     const updatedScripts = scripts.map((script: any) => {
       if (script.id === scriptId) {
-        // Check if all required fields are filled
-        const isComplete = Object.values(clinicalData).every(value => value !== "");
+        // Consider the form complete if at least one field is filled
+        const hasAnyValue = Object.values(clinicalData).some(value => value !== "");
         return {
           ...script,
           clinicalInfo: clinicalData,
-          status: isComplete ? 'in_progress' : script.status
+          status: hasAnyValue ? 'in_progress' : script.status
         };
       }
       return script;
