@@ -90,9 +90,9 @@ export const DesignInfoForm = ({ onClose, scriptId }: DesignInfoFormProps) => {
             <SelectTrigger>
               <SelectValue placeholder="Select implant library" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {IMPLANT_LIBRARIES.map((lib) => (
-                <SelectItem key={lib} value={lib}>
+                <SelectItem key={lib} value={lib} className="hover:bg-gray-100">
                   {lib}
                 </SelectItem>
               ))}
@@ -109,9 +109,9 @@ export const DesignInfoForm = ({ onClose, scriptId }: DesignInfoFormProps) => {
             <SelectTrigger>
               <SelectValue placeholder="Select teeth library" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-[200]">
               {TEETH_LIBRARIES.map((lib) => (
-                <SelectItem key={lib} value={lib}>
+                <SelectItem key={lib} value={lib} className="hover:bg-gray-100">
                   {lib}
                 </SelectItem>
               ))}
