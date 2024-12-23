@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2 } from "lucide-react";
+import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, ChevronDown, Plus } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { format } from "date-fns";
 import {
@@ -79,16 +79,9 @@ export const LabScriptCard = ({
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
-                <Select defaultValue={script.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className={`w-[140px] ${getStatusColor(script.status)}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
+                  {script.status.replace('_', ' ')}
+                </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
@@ -140,6 +133,29 @@ export const LabScriptCard = ({
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
             </div>
+          </div>
+          <div className="flex items-center gap-4 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Note
+            </Button>
+            <Select defaultValue={script.status} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-[180px]">
+                <div className="flex items-center gap-2">
+                  <span>Change Status</span>
+                  <ChevronDown className="h-4 w-4" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>
