@@ -28,9 +28,24 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
 
   const progressSteps = [
     { label: "Request Created", status: "completed" as const },
-    { label: "Design Info", status: script.designInfo ? "completed" as const : "current" as const },
-    { label: "Clinical Info", status: script.designInfo ? "current" as const : "upcoming" as const },
-    { label: "Completed", status: "upcoming" as const }
+    { 
+      label: "Design Info", 
+      status: script.designInfo ? "completed" as const : "current" as const 
+    },
+    { 
+      label: "Clinical Info", 
+      status: script.clinicalInfo 
+        ? "completed" as const 
+        : script.designInfo 
+          ? "current" as const 
+          : "upcoming" as const 
+    },
+    { 
+      label: "Completed", 
+      status: (script.designInfo && script.clinicalInfo) 
+        ? "completed" as const 
+        : "upcoming" as const 
+    }
   ];
 
   return (
