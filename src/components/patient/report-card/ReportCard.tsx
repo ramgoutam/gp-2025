@@ -21,6 +21,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
+  const [reportStatus, setReportStatus] = useState('pending');
 
   // Check if both design and clinical info are completed
   const isDesignInfoComplete = script.designInfo && 
@@ -32,13 +33,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     script.clinicalInfo.insertionDate &&
     script.clinicalInfo.applianceFit;
 
-  const canCompleteReport = isDesignInfoComplete && isClinicalInfoComplete && script.status !== 'completed';
+  const canCompleteReport = isDesignInfoComplete && isClinicalInfoComplete && reportStatus !== 'completed';
 
   console.log("Report completion status:", {
     isDesignInfoComplete,
     isClinicalInfoComplete,
     canCompleteReport,
-    status: script.status
+    reportStatus
   });
 
   const getStatusColor = (status: string) => {
@@ -65,18 +66,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       return;
     }
 
-    const updatedScript: LabScript = { 
-      ...script, 
-      status: "completed" as const 
-    };
+    setReportStatus('completed');
     
-    if (onUpdateScript) {
-      onUpdateScript(updatedScript);
-    }
-
     toast({
       title: "Report Completed",
-      description: "The lab script has been marked as completed.",
+      description: "The report has been marked as completed.",
     });
   };
 
@@ -119,7 +113,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     },
     { 
       label: "Completed", 
-      status: script.status === 'completed'
+      status: reportStatus === 'completed'
         ? "completed" as const
         : script.clinicalInfo
           ? "current" as const 
@@ -251,3 +245,4 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     </>
   );
 };
+
