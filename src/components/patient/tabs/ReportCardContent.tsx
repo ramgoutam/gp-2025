@@ -8,7 +8,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
 import { EmptyState } from "../report-card/EmptyState";
-import { ProgressBar } from "../ProgressBar";
 
 interface ReportCardContentProps {
   patientData?: {
@@ -134,9 +133,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                     onClinicalInfo={handleClinicalInfo}
                     onUpdateScript={handleUpdateScript}
                   />
-                  <div className="mt-4">
-                    <ProgressBar steps={getProgressSteps(script)} />
-                  </div>
                 </div>
               ))
             ) : (

@@ -74,11 +74,19 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
         ? "completed" as const 
         : "current" as const 
     },
+    {
+      label: "Clinical Info",
+      status: script.clinicalInfo 
+        ? "completed" as const 
+        : hasDesignInfo
+        ? "current" as const 
+        : "upcoming" as const
+    },
     { 
       label: "Completed", 
       status: script.status === 'completed'
         ? "completed" as const
-        : hasDesignInfo
+        : script.clinicalInfo
           ? "current" as const 
           : "upcoming" as const 
     }
