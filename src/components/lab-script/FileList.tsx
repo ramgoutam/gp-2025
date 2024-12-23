@@ -4,7 +4,7 @@ import { FilePreviewDialog } from "./FilePreviewDialog";
 
 interface FileListProps {
   fileUploads: Record<string, File[]>;
-  onPreview?: (file: File) => void;  // Made optional since some places might not need it
+  onPreview?: (file: File) => void;
 }
 
 export const FileList = ({ fileUploads, onPreview }: FileListProps) => {
@@ -12,12 +12,25 @@ export const FileList = ({ fileUploads, onPreview }: FileListProps) => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
+  const isValidFile = (file: any): file is File => {
+    return file instanceof File || (file && typeof file.name === 'string');
+  };
+
   const isPreviewable = (file: File) => {
+    if (!isValidFile(file)) {
+      console.log("Invalid file object:", file);
+      return false;
+    }
     const extension = file.name.toLowerCase();
     return extension.endsWith('.stl') || file.type.startsWith('image/');
   };
 
   const handlePreview = (file: File) => {
+    if (!isValidFile(file)) {
+      console.log("Attempted to preview invalid file:", file);
+      return;
+    }
+
     console.log("Opening preview for file:", file.name);
     
     if (onPreview) {
@@ -59,11 +72,15 @@ export const FileList = ({ fileUploads, onPreview }: FileListProps) => {
       {Object.entries(fileUploads).map(([key, files]) => {
         if (!files || files.length === 0) return null;
 
+        // Filter out invalid file objects
+        const validFiles = files.filter(isValidFile);
+        if (validFiles.length === 0) return null;
+
         return (
           <div key={key} className="space-y-2">
             <h4 className="font-medium text-sm text-gray-500">{key}</h4>
             <div className="flex flex-wrap gap-2">
-              {files.map((file, index) => (
+              {validFiles.map((file, index) => (
                 <div key={index} className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-md">
                   <span className="text-sm text-gray-700">{file.name}</span>
                   {isPreviewable(file) && (
