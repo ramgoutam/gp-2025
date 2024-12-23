@@ -59,7 +59,8 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
       if (script.id === scriptId) {
         return {
           ...script,
-          clinicalInfo: clinicalData
+          clinicalInfo: clinicalData,
+          status: 'in_progress'
         };
       }
       return script;
@@ -72,6 +73,9 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
       title: "Clinical Info Saved",
       description: "The clinical information has been successfully saved.",
     });
+    
+    // Force a reload to update the progress bar
+    window.location.reload();
     
     onClose();
   };

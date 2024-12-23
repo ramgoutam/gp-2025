@@ -64,7 +64,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
   const progressSteps = [
     { 
       label: "Request Created", 
-      status: "completed" as const // First step is always completed once the request exists
+      status: "completed" as const
     },
     { 
       label: "Design Info", 
