@@ -98,7 +98,7 @@ export const LabScriptCard = ({
             />
           </div>
           
-          <div className="flex items-center gap-4 pt-2">
+          <div className="flex justify-between items-center pt-2">
             <Button
               variant="outline"
               size="sm"
