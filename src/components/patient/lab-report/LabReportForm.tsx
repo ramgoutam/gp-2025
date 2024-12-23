@@ -143,7 +143,7 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
               <SelectTrigger>
                 <SelectValue placeholder="Select implant library" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-[100]">
                 {IMPLANT_LIBRARIES.map((lib) => (
                   <SelectItem key={lib} value={lib}>
                     {lib}
@@ -162,7 +162,7 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
               <SelectTrigger>
                 <SelectValue placeholder="Select teeth library" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white z-[100]">
                 {TEETH_LIBRARIES.map((lib) => (
                   <SelectItem key={lib} value={lib}>
                     {lib}
@@ -173,177 +173,167 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="latestApplianceId">Latest Appliance ID</Label>
-          <Input
-            id="latestApplianceId"
-            name="latestApplianceId"
-            value={formData.latestApplianceId}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Actions Taken</h3>
-        <div className="space-y-2">
-          <Label htmlFor="actionsTaken">Designer Actions & Changes Made</Label>
-          <Textarea
-            id="actionsTaken"
-            name="actionsTaken"
-            value={formData.actionsTaken}
-            onChange={handleChange}
-            className="min-h-[100px]"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Clinical Information</h3>
-        
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Actions Taken</h3>
           <div className="space-y-2">
-            <Label htmlFor="insertionDate">Insertion Date</Label>
-            <Input
-              id="insertionDate"
-              name="insertionDate"
-              type="date"
-              value={formData.insertionDate}
+            <Label htmlFor="actionsTaken">Designer Actions & Changes Made</Label>
+            <Textarea
+              id="actionsTaken"
+              name="actionsTaken"
+              value={formData.actionsTaken}
               onChange={handleChange}
+              className="min-h-[100px]"
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="applianceFit">Appliance Fit</Label>
-            <Select
-              value={formData.applianceFit}
-              onValueChange={(value) => handleSelectChange("applianceFit", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select fit quality" />
-              </SelectTrigger>
-              <SelectContent>
-                {FIT_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Clinical Information</h3>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="insertionDate">Insertion Date</Label>
+              <Input
+                id="insertionDate"
+                name="insertionDate"
+                type="date"
+                value={formData.insertionDate}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="designFeedback">Design Feedback</Label>
-            <Select
-              value={formData.designFeedback}
-              onValueChange={(value) => handleSelectChange("designFeedback", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select feedback" />
-              </SelectTrigger>
-              <SelectContent>
-                {FEEDBACK_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="applianceFit">Appliance Fit</Label>
+              <Select
+                value={formData.applianceFit}
+                onValueChange={(value) => handleSelectChange("applianceFit", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select fit quality" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {FIT_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="occlusion">Occlusion</Label>
-            <Select
-              value={formData.occlusion}
-              onValueChange={(value) => handleSelectChange("occlusion", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select occlusion status" />
-              </SelectTrigger>
-              <SelectContent>
-                {OCCLUSION_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="designFeedback">Design Feedback</Label>
+              <Select
+                value={formData.designFeedback}
+                onValueChange={(value) => handleSelectChange("designFeedback", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select feedback" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {FEEDBACK_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="esthetics">Esthetics</Label>
-            <Select
-              value={formData.esthetics}
-              onValueChange={(value) => handleSelectChange("esthetics", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select esthetics quality" />
-              </SelectTrigger>
-              <SelectContent>
-                {ESTHETICS_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="occlusion">Occlusion</Label>
+              <Select
+                value={formData.occlusion}
+                onValueChange={(value) => handleSelectChange("occlusion", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select occlusion status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {OCCLUSION_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="adjustmentsMade">Adjustments Made</Label>
-            <Select
-              value={formData.adjustmentsMade}
-              onValueChange={(value) => handleSelectChange("adjustmentsMade", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select adjustments" />
-              </SelectTrigger>
-              <SelectContent>
-                {ADJUSTMENTS_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="esthetics">Esthetics</Label>
+              <Select
+                value={formData.esthetics}
+                onValueChange={(value) => handleSelectChange("esthetics", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select esthetics quality" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {ESTHETICS_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="material">Material</Label>
-            <Select
-              value={formData.material}
-              onValueChange={(value) => handleSelectChange("material", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select material" />
-              </SelectTrigger>
-              <SelectContent>
-                {MATERIAL_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="adjustmentsMade">Adjustments Made</Label>
+              <Select
+                value={formData.adjustmentsMade}
+                onValueChange={(value) => handleSelectChange("adjustmentsMade", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select adjustments" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {ADJUSTMENTS_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="shade">Shade</Label>
-            <Select
-              value={formData.shade}
-              onValueChange={(value) => handleSelectChange("shade", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select shade" />
-              </SelectTrigger>
-              <SelectContent>
-                {SHADE_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label htmlFor="material">Material</Label>
+              <Select
+                value={formData.material}
+                onValueChange={(value) => handleSelectChange("material", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select material" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {MATERIAL_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="shade">Shade</Label>
+              <Select
+                value={formData.shade}
+                onValueChange={(value) => handleSelectChange("shade", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select shade" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[100]">
+                  {SHADE_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
