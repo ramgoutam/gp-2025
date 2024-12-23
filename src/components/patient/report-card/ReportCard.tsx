@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
+import { ProgressBar } from "../ProgressBar";
 
 interface ReportCardProps {
   script: LabScript;
@@ -25,9 +26,16 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     }
   };
 
+  const progressSteps = [
+    { label: "Request Created", status: "completed" as const },
+    { label: "Design Info", status: script.designInfo ? "completed" as const : "current" as const },
+    { label: "Clinical Info", status: script.designInfo ? "current" as const : "upcoming" as const },
+    { label: "Completed", status: "upcoming" as const }
+  ];
+
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
@@ -78,6 +86,8 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
             </Button>
           </div>
         </div>
+        
+        <ProgressBar steps={progressSteps} />
         
         {script.designInfo && (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">

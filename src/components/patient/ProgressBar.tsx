@@ -11,24 +11,24 @@ interface ProgressBarProps {
 
 export const ProgressBar = ({ steps }: ProgressBarProps) => {
   return (
-    <div className="flex items-center w-full mb-6 px-4">
+    <div className="flex items-center w-full gap-2">
       {steps.map((step, index) => (
         <div key={step.label} className="flex items-center flex-1">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3 flex-1">
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center border transition-colors duration-300 ${
+              className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${
                 step.status === "completed"
-                  ? "bg-green-500 border-green-500"
+                  ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "border-primary bg-white"
-                  : "border-gray-200 bg-white"
+                  ? "border-2 border-primary bg-white"
+                  : "border-2 border-gray-200 bg-white"
               }`}
             >
               {step.status === "completed" ? (
-                <Check className="h-3 w-3 text-white" />
+                <Check className="h-4 w-4 text-white" />
               ) : (
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-sm font-medium ${
                     step.status === "current" ? "text-primary" : "text-gray-400"
                   }`}
                 >
@@ -37,9 +37,9 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               )}
             </div>
             <span
-              className={`ml-2 text-xs font-medium ${
+              className={`text-sm font-medium ${
                 step.status === "completed"
-                  ? "text-green-500"
+                  ? "text-primary"
                   : step.status === "current"
                   ? "text-primary"
                   : "text-gray-400"
@@ -50,8 +50,8 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`h-[1px] w-full mx-2 ${
-                step.status === "completed" ? "bg-green-500" : "bg-gray-200"
+              className={`h-[2px] w-12 mx-2 ${
+                step.status === "completed" ? "bg-primary" : "bg-gray-200"
               }`}
             />
           )}
