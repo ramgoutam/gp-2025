@@ -55,7 +55,7 @@ const Index = () => {
   const handleAddPatient = (patientData: Omit<Patient, "id">) => {
     const newPatient = {
       ...patientData,
-      id: patients.length + 1,
+      id: Date.now(),
     };
     const updatedPatients = [...patients, newPatient];
     setPatients(updatedPatients);
@@ -65,12 +65,6 @@ const Index = () => {
       title: "Success",
       description: "Patient added successfully",
     });
-  };
-
-  const handleDeletePatient = (patientId: number) => {
-    const updatedPatients = patients.filter(patient => patient.id !== patientId);
-    setPatients(updatedPatients);
-    localStorage.setItem('patients', JSON.stringify(updatedPatients));
   };
 
   const filteredPatients = patients.filter((patient) =>
@@ -117,7 +111,7 @@ const Index = () => {
               <Link
                 key={patient.id}
                 to={`/patient/${patient.id}`}
-                state={{ patientData: patient, onDeletePatient: () => handleDeletePatient(patient.id) }}
+                state={{ patientData: patient }}
                 className="block group"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">

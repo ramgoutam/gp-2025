@@ -22,10 +22,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 type PatientData = {
+  id: number;
   firstName: string;
   lastName: string;
-  avatar: string;
-  note: string;
+  avatar?: string;
+  note?: string;
   email?: string;
   phone?: string;
   sex?: string;
@@ -37,13 +38,11 @@ type PatientHeaderProps = {
   patientData: PatientData;
   onCreateLabScript?: () => void;
   onUpdatePatient: (updatedData: PatientData) => void;
-  onDeletePatient?: () => void;
 };
 
 export const PatientHeader = ({ 
   patientData, 
   onUpdatePatient,
-  onDeletePatient 
 }: PatientHeaderProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -77,9 +76,15 @@ export const PatientHeader = ({
 
   const handleDelete = () => {
     console.log("Deleting patient:", patientData);
-    if (onDeletePatient) {
-      onDeletePatient();
+    
+    // Get current patients from localStorage
+    const savedPatients = localStorage.getItem('patients');
+    if (savedPatients) {
+      const patients = JSON.parse(savedPatients);
+      const updatedPatients = patients.filter((p: PatientData) => p.id !== patientData.id);
+      localStorage.setItem('patients', JSON.stringify(updatedPatients));
     }
+
     setShowDeleteDialog(false);
     toast({
       title: "Success",
@@ -92,11 +97,18 @@ export const PatientHeader = ({
     <>
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          <img
-            src={patientData.avatar}
-            alt={`${patientData.firstName} ${patientData.lastName}`}
-            className="w-16 h-16 rounded-full object-cover bg-gray-100"
-          />
+          {patientData.avatar ? (
+            <img
+              src={patientData.avatar}
+              alt={`${patientData.firstName} ${patientData.lastName}`}
+              className="w-16 h-16 rounded-full object-cover bg-gray-100"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl">
+              {patientData.firstName[0]}
+              {patientData.lastName[0]}
+            </div>
+          )}
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
               {patientData.firstName} {patientData.lastName}
