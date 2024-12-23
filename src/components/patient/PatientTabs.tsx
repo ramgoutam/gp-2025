@@ -110,7 +110,7 @@ export const PatientTabs = ({
       </TabsContent>
 
       <TabsContent value="report-card">
-        <ReportCardContent />
+        <ReportCardContent patientData={patientData} />
       </TabsContent>
     </Tabs>
   );

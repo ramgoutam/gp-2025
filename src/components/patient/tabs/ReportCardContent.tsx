@@ -6,7 +6,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
 
-export const ReportCardContent = () => {
+interface ReportCardContentProps {
+  patientData?: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+export const ReportCardContent = ({ patientData }: ReportCardContentProps) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
 
@@ -56,6 +63,7 @@ export const ReportCardContent = () => {
           <LabReportForm
             onSubmit={handleSubmitReport}
             onCancel={() => setShowCreateDialog(false)}
+            patientData={patientData}
           />
         </DialogContent>
       </Dialog>
