@@ -8,6 +8,7 @@ import { TreatmentSection } from "./lab-script/TreatmentSection";
 import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
+import { DesignNameSection } from "./lab-script/DesignNameSection";
 import { useLabScriptSubmit } from "@/hooks/useLabScriptSubmit";
 
 type FileUpload = {
@@ -44,6 +45,8 @@ export const LabScriptForm = ({
     lowerTreatment: initialData?.lowerTreatment || "None",
     screwType: initialData?.screwType || "",
     vdoOption: initialData?.vdoOption || "",
+    upperDesignName: initialData?.upperDesignName || "",
+    lowerDesignName: initialData?.lowerDesignName || "",
   });
 
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
@@ -157,6 +160,22 @@ export const LabScriptForm = ({
           />
         </div>
       </div>
+
+      {formData.applianceType && (
+        <DesignNameSection
+          applianceType={formData.applianceType}
+          upperTreatment={formData.upperTreatment}
+          lowerTreatment={formData.lowerTreatment}
+          upperDesignName={formData.upperDesignName}
+          lowerDesignName={formData.lowerDesignName}
+          onUpperDesignNameChange={(value) => 
+            setFormData(prev => ({ ...prev, upperDesignName: value }))
+          }
+          onLowerDesignNameChange={(value) =>
+            setFormData(prev => ({ ...prev, lowerDesignName: value }))
+          }
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-8">
         <ScrewSection
