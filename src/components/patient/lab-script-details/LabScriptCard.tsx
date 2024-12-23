@@ -81,7 +81,10 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
 
   return (
     <>
-      <Card className="p-6 border border-gray-100 group bg-white">
+      <Card 
+        className="p-6 border border-gray-100 group bg-white hover:shadow-md transition-all duration-200 hover:border-primary/20"
+        onClick={onClick}
+      >
         <div className="space-y-4">
           <div className="flex justify-between items-start">
             <div className="space-y-3">
@@ -95,10 +98,18 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                <div>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</div>
-                <div>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</div>
-                <div>Doctor: {script.doctorName}</div>
-                <div>Clinic: {script.clinicName}</div>
+                <div className="flex items-center space-x-2">
+                  <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span>Doctor: {script.doctorName}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span>Clinic: {script.clinicName}</span>
+                </div>
               </div>
             </div>
             <CardActions 

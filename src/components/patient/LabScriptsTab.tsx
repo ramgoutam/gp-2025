@@ -151,24 +151,26 @@ export const LabScriptsTab = ({
 
       {selectedScript && <ProgressBar steps={progressSteps} />}
 
-      <ScrollArea className="h-[500px] px-4">
-        <div className="space-y-4">
-          {sortedLabScripts.length === 0 ? (
-            <EmptyState />
-          ) : (
-            sortedLabScripts.map((script) => (
-              <LabScriptCard
-                key={script.id}
-                script={script}
-                onClick={() => handleRowClick(script)}
-                onEdit={() => handleEditClick(script)}
-                onDelete={() => onDeleteLabScript(script)}
-                onStatusChange={handleStatusChange}
-              />
-            ))
-          )}
-        </div>
-      </ScrollArea>
+      <div className="bg-gray-50/50 rounded-lg border border-gray-100 shadow-sm">
+        <ScrollArea className="h-[calc(100vh-300px)] px-6 py-4">
+          <div className="space-y-4 pr-4">
+            {sortedLabScripts.length === 0 ? (
+              <EmptyState />
+            ) : (
+              sortedLabScripts.map((script) => (
+                <LabScriptCard
+                  key={script.id}
+                  script={script}
+                  onClick={() => handleRowClick(script)}
+                  onEdit={() => handleEditClick(script)}
+                  onDelete={() => onDeleteLabScript(script)}
+                  onStatusChange={handleStatusChange}
+                />
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </div>
 
       <LabScriptDetails
         script={selectedScript}
