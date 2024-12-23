@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,10 +32,11 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
 
   React.useEffect(() => {
     const loadExistingData = () => {
+      console.log('Loading existing clinical data for script:', scriptId);
       const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
       const script = scripts.find((s: any) => s.id === scriptId);
       if (script?.clinicalInfo) {
-        console.log('Loading existing clinical data:', script.clinicalInfo);
+        console.log('Found existing clinical data:', script.clinicalInfo);
         setClinicalData(script.clinicalInfo);
       }
     };
@@ -57,10 +57,12 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
     // Find and update the specific script
     const updatedScripts = scripts.map((script: any) => {
       if (script.id === scriptId) {
+        // Check if all required fields are filled
+        const isComplete = Object.values(clinicalData).every(value => value !== "");
         return {
           ...script,
           clinicalInfo: clinicalData,
-          status: 'in_progress'
+          status: isComplete ? 'in_progress' : script.status
         };
       }
       return script;
@@ -82,11 +84,12 @@ export const ClinicalInfoForm = ({ onClose, scriptId }: ClinicalInfoFormProps) =
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="insertionDate">Insertion Date</Label>
-          <Input
+          <input
             id="insertionDate"
             type="date"
             value={clinicalData.insertionDate}
             onChange={(e) => handleClinicalDataChange("insertionDate", e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
           />
         </div>
 
