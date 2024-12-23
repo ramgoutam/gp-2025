@@ -26,7 +26,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     }
   };
 
-  // Check if clinical info is complete
+  // Check if clinical info is complete - all required fields must have values
   const isClinicalInfoComplete = script.clinicalInfo && 
     Object.values(script.clinicalInfo).every(value => 
       value !== "" && value !== undefined && value !== null
