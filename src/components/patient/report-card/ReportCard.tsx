@@ -1,230 +1,158 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, Stethoscope, FileText } from "lucide-react";
-import { LabScript } from "../LabScriptsTab";
-import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
+import { LabReportForm } from "../lab-report/LabReportForm";
+import { LabScript } from "../LabScriptsTab";
+import { DesignInfoForm } from "../forms/DesignInfoForm";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ReportCardHeader } from "./ReportCardHeader";
+import { EmptyState } from "./EmptyState";
 import { ReportCardViewDialog } from "./ReportCardViewDialog";
-import { getReportCardState, saveReportCardState, ReportCardState } from './ReportCardState';
 
-interface ReportCardProps {
-  script: LabScript;
-  onDesignInfo: (script: LabScript) => void;
-  onClinicalInfo: (script: LabScript) => void;
-  onUpdateScript?: (updatedScript: LabScript) => void;
+interface ReportCardContentProps {
+  patientData?: {
+    firstName: string;
+    lastName: string;
+  };
+  labScripts?: LabScript[];
 }
 
-export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
+export const ReportCard = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
   const { toast } = useToast();
-  const [showClinicalInfo, setShowClinicalInfo] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showDesignInfo, setShowDesignInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
-  const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
+  const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
+  const [localLabScripts, setLocalLabScripts] = useState<LabScript[]>(labScripts);
 
   useEffect(() => {
-    setState(getReportCardState(script.id));
-  }, [script.id]);
+    setLocalLabScripts(labScripts);
+  }, [labScripts]);
 
-  useEffect(() => {
-    saveReportCardState(script.id, state);
-  }, [script.id, state]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+  const handleCreateReport = () => {
+    console.log("Opening create report dialog");
+    setShowCreateDialog(true);
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Design Pending';
-      case 'in_progress':
-        return 'Design In Progress';
-      case 'completed':
-        return 'Design Completed';
-      default:
-        return status.replace('_', ' ');
-    }
-  };
-
-  const handleCompleteReport = () => {
-    console.log("Completing report for script:", script.id);
-    setState(prev => ({
-      ...prev,
-      reportStatus: 'completed'
-    }));
-    
+  const handleSubmitReport = (data: any) => {
+    console.log("Submitting report with data:", data);
     toast({
-      title: "Report Completed",
-      description: "The report has been marked as completed.",
+      title: "Report Created",
+      description: "The lab report has been successfully created.",
     });
+    setShowCreateDialog(false);
   };
 
-  const handleClinicalInfoSave = (updatedScript: LabScript) => {
-    console.log("Saving clinical info:", updatedScript);
-    if (onUpdateScript) {
-      onUpdateScript(updatedScript);
-    }
-    setState(prev => ({
-      ...prev,
-      isClinicalInfoComplete: true
-    }));
-    setShowClinicalInfo(false);
-    toast({
-      title: "Clinical Info Saved",
-      description: "The clinical information has been successfully saved.",
-    });
+  const handleDesignInfo = (script: LabScript) => {
+    console.log("Opening design info for script:", script.id);
+    setSelectedScript(script);
+    setShowDesignInfo(true);
   };
 
-  const progressSteps = [
-    { 
-      label: "Request Created", 
-      status: "completed" as const
-    },
-    { 
-      label: "Design Info", 
-      status: state.isDesignInfoComplete 
-        ? "completed" as const 
-        : "current" as const 
-    },
-    {
-      label: "Clinical Info",
-      status: state.isClinicalInfoComplete 
-        ? "completed" as const 
-        : state.isDesignInfoComplete
-        ? "current" as const 
-        : "upcoming" as const
-    },
-    { 
-      label: "Completed", 
-      status: state.reportStatus === 'completed'
-        ? "completed" as const
-        : state.isClinicalInfoComplete
-          ? "current" as const 
-          : "upcoming" as const 
-    }
-  ];
+  const handleViewReportCard = (script: LabScript) => {
+    console.log("Opening report card view for script:", script.id);
+    setSelectedScript(script);
+    setShowReportCard(true);
+  };
+
+  const handleUpdateScript = (updatedScript: LabScript) => {
+    console.log("Updating script in ReportCardContent:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
+  };
 
   return (
-    <>
-      <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
-        <div className="space-y-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
-                <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
-                  {getStatusText(script.status)}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-primary/60" />
-                  <span>Created: {new Date(script.requestDate).toLocaleDateString()}</span>
+    <div className="space-y-6 max-w-[1200px] mx-auto">
+      <ReportCardHeader
+        patientName={`${patientData?.firstName} ${patientData?.lastName}`}
+        onCreateReport={handleCreateReport}
+      />
+      
+      <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
+        <ScrollArea className="h-[600px] pr-4">
+          <div className="space-y-4">
+            {localLabScripts && localLabScripts.length > 0 ? (
+              localLabScripts.map((script) => (
+                <div key={script.id} className="bg-white p-6 rounded-lg border border-gray-100 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold text-lg">Lab Request #{script.requestNumber}</h4>
+                      <p className="text-gray-500">Status: {script.status}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDesignInfo(script)}
+                      >
+                        Design Info
+                      </Button>
+                      {script.designInfo && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewReportCard(script)}
+                          className="flex items-center gap-2"
+                        >
+                          <FileText className="h-4 w-4" />
+                          View Report Card
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-primary/60" />
-                  <span>Dr. {script.doctorName}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-primary/60" />
-                  <span>Due: {new Date(script.dueDate).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <FileCheck className="w-4 h-4 text-primary/60" />
-                  <span>Status: {script.status.replace('_', ' ')}</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onDesignInfo(script)}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Settings className="h-4 w-4" />
-                Design Info
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowClinicalInfo(true)}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Stethoscope className="h-4 w-4" />
-                Clinical Info
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-            </div>
+              ))
+            ) : (
+              <EmptyState />
+            )}
           </div>
-          
-          <ProgressBar steps={progressSteps} />
-          
-          {script.designInfo && (
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">
-                <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-primary/60" />
-                  Design Information
-                </h5>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-500">Design Date:</span>
-                    <span className="text-gray-900 font-medium">{script.designInfo.designDate}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-500">Implant Library:</span>
-                    <span className="text-gray-900 font-medium">{script.designInfo.implantLibrary}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowReportCard(true)}
-                className="w-full flex items-center justify-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <FileText className="h-4 w-4" />
-                View Report Card
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-            </div>
-          )}
-        </div>
-      </Card>
+        </ScrollArea>
+      </div>
 
-      <Dialog open={showClinicalInfo} onOpenChange={setShowClinicalInfo}>
-        <DialogContent className="max-w-[800px] w-full">
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-[1200px] w-full">
           <DialogHeader>
-            <DialogTitle>Clinical Information</DialogTitle>
+            <DialogTitle>Create New Lab Report</DialogTitle>
           </DialogHeader>
-          <ClinicalInfoForm
-            onClose={() => setShowClinicalInfo(false)}
-            script={script}
-            onSave={handleClinicalInfoSave}
+          <LabReportForm
+            onSubmit={handleSubmitReport}
+            onCancel={() => setShowCreateDialog(false)}
+            patientData={patientData}
           />
         </DialogContent>
       </Dialog>
 
-      <ReportCardViewDialog
-        open={showReportCard}
-        onOpenChange={setShowReportCard}
-        script={script}
-      />
-    </>
+      <Dialog open={showDesignInfo} onOpenChange={setShowDesignInfo}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Design Information</DialogTitle>
+            <DialogDescription>
+              Design details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedScript && (
+            <DesignInfoForm
+              onClose={() => setShowDesignInfo(false)}
+              scriptId={selectedScript.id}
+              script={selectedScript}
+              onSave={handleUpdateScript}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {selectedScript && (
+        <ReportCardViewDialog
+          open={showReportCard}
+          onOpenChange={setShowReportCard}
+          script={selectedScript}
+        />
+      )}
+    </div>
   );
 };
