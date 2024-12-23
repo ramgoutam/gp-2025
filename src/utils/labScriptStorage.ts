@@ -82,5 +82,5 @@ export const getLabScripts = (): LabScript[] => {
   }
 };
 
-// Uncomment the line below if you want to clear scripts immediately
-// clearLabScripts();
+// Clear all scripts immediately
+clearLabScripts();
