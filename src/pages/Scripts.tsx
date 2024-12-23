@@ -20,7 +20,17 @@ const Scripts = () => {
 
   const loadScripts = () => {
     console.log("Loading scripts in Scripts page");
-    const uniqueScripts = getLabScripts();
+    const scripts = getLabScripts();
+    
+    // Ensure uniqueness by ID using a Map
+    const scriptsMap = new Map<string, LabScript>();
+    scripts.forEach(script => {
+      if (script.id) {
+        scriptsMap.set(script.id, script);
+      }
+    });
+    
+    const uniqueScripts = Array.from(scriptsMap.values());
     console.log("Loaded unique scripts:", uniqueScripts);
     setLabScripts(uniqueScripts);
   };
@@ -75,7 +85,7 @@ const Scripts = () => {
     const updatedScripts = existingScripts.filter(script => script.id !== scriptToDelete.id);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    setLabScripts(updatedScripts);
+    loadScripts(); // Reload scripts to ensure we have the latest data
 
     toast({
       title: "Lab Script Deleted",
