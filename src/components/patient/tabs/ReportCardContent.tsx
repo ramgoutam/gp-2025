@@ -76,12 +76,12 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
-        <ReportCardHeader
-          patientName={`${patientData?.firstName} ${patientData?.lastName}`}
-          onCreateReport={handleCreateReport}
-        />
-        
+      <ReportCardHeader
+        patientName={`${patientData?.firstName} ${patientData?.lastName}`}
+        onCreateReport={handleCreateReport}
+      />
+      
+      <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-4">
             {localLabScripts && localLabScripts.length > 0 ? (

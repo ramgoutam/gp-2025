@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight } from "lucide-react";
+import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 
 interface ReportCardProps {
@@ -26,10 +26,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
   };
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-all duration-200 border border-gray-100 group">
+    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
       <div className="space-y-4">
         <div className="flex justify-between items-start">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center space-x-3">
               <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
               <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
@@ -38,16 +38,20 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 text-gray-400" />
+                <Calendar className="w-4 h-4 text-primary/60" />
                 <span>Created: {new Date(script.requestDate).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <User className="w-4 h-4 text-gray-400" />
+                <User className="w-4 h-4 text-primary/60" />
                 <span>Dr. {script.doctorName}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <FileCheck className="w-4 h-4 text-gray-400" />
+                <Clock className="w-4 h-4 text-primary/60" />
                 <span>Due: {new Date(script.dueDate).toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <FileCheck className="w-4 h-4 text-primary/60" />
+                <span>Status: {script.status.replace('_', ' ')}</span>
               </div>
             </div>
           </div>
@@ -56,28 +60,31 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
               variant="outline"
               size="sm"
               onClick={() => onDesignInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30"
+              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
               <Settings className="h-4 w-4" />
               Design Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onClinicInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30"
+              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
               <Stethoscope className="h-4 w-4" />
               Clinical Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
           </div>
         </div>
         
         {script.designInfo && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
-            <h5 className="font-medium text-sm text-gray-700 mb-3">Design Information</h5>
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">
+            <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center gap-2">
+              <Settings className="w-4 h-4 text-primary/60" />
+              Design Information
+            </h5>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center space-x-2">
                 <span className="text-gray-500">Design Date:</span>
