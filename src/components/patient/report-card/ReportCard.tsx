@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,25 +11,30 @@ import { ReportCardHeader } from "./ReportCardHeader";
 import { EmptyState } from "./EmptyState";
 import { ReportCardViewDialog } from "./ReportCardViewDialog";
 
-interface ReportCardContentProps {
+interface ReportCardProps {
   patientData?: {
     firstName: string;
     lastName: string;
   };
   labScripts?: LabScript[];
+  onDesignInfo?: (script: LabScript) => void;
+  onClinicalInfo?: (script: LabScript) => void;
+  onUpdateScript?: (updatedScript: LabScript) => void;
 }
 
-export const ReportCard = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
+export const ReportCard = ({ 
+  patientData, 
+  labScripts = [],
+  onDesignInfo,
+  onClinicalInfo,
+  onUpdateScript 
+}: ReportCardProps) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDesignInfo, setShowDesignInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
   const [localLabScripts, setLocalLabScripts] = useState<LabScript[]>(labScripts);
-
-  useEffect(() => {
-    setLocalLabScripts(labScripts);
-  }, [labScripts]);
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -51,14 +56,8 @@ export const ReportCard = ({ patientData, labScripts = [] }: ReportCardContentPr
     setShowDesignInfo(true);
   };
 
-  const handleViewReportCard = (script: LabScript) => {
-    console.log("Opening report card view for script:", script.id);
-    setSelectedScript(script);
-    setShowReportCard(true);
-  };
-
   const handleUpdateScript = (updatedScript: LabScript) => {
-    console.log("Updating script in ReportCardContent:", updatedScript);
+    console.log("Updating script in ReportCard:", updatedScript);
     setLocalLabScripts(prevScripts =>
       prevScripts.map(script =>
         script.id === updatedScript.id ? updatedScript : script
@@ -88,7 +87,7 @@ export const ReportCard = ({ patientData, labScripts = [] }: ReportCardContentPr
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDesignInfo(script)}
+                        onClick={() => onDesignInfo?.(script)}
                       >
                         Design Info
                       </Button>
@@ -96,7 +95,7 @@ export const ReportCard = ({ patientData, labScripts = [] }: ReportCardContentPr
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewReportCard(script)}
+                          onClick={() => setShowReportCard(true)}
                           className="flex items-center gap-2"
                         >
                           <FileText className="h-4 w-4" />
