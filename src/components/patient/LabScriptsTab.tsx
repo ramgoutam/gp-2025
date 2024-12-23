@@ -22,12 +22,17 @@ export type LabScript = {
   specificInstructions?: string;
   applianceType?: string;
   fileUploads?: Record<string, File[]>;
-  // Adding the missing properties
   vdoOption?: string;
   screwType?: string;
   firstName?: string;
   lastName?: string;
   notes?: string;
+  designInfo?: {
+    designDate: string;
+    implantLibrary: string;
+    teethLibrary: string;
+    actionsTaken: string;
+  };
 };
 
 type LabScriptsTabProps = {
@@ -96,3 +101,4 @@ export const LabScriptsTab = ({
     </>
   );
 };
+
