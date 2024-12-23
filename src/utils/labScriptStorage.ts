@@ -10,6 +10,11 @@ const createScriptKey = (script: LabScript): string => {
   return `${script.patientFirstName}-${script.patientLastName}-${script.doctorName}-${script.clinicName}-${script.requestDate}-${script.dueDate}`;
 };
 
+export const clearLabScripts = (): void => {
+  localStorage.removeItem('labScripts');
+  console.log("All lab scripts cleared from storage");
+};
+
 export const saveLabScript = (script: LabScript): boolean => {
   const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
   
@@ -70,3 +75,6 @@ export const getLabScripts = (): LabScript[] => {
     return [];
   }
 };
+
+// Clear all lab scripts on load
+clearLabScripts();
