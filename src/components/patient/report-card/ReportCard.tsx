@@ -43,11 +43,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
       value !== "" && value !== undefined && value !== null
     );
 
-  const handleViewClinicalInfo = () => {
-    console.log("Viewing clinical info for script:", script.id);
-    onClinicInfo(script);
-  };
-
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
@@ -132,11 +127,21 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
             <Button
               variant="outline"
               size="sm"
-              onClick={handleViewClinicalInfo}
+              onClick={() => onClinicInfo(script)}
+              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Clinical Info
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onClinicInfo(script)}
               className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
               <Eye className="h-4 w-4" />
-              View Clinical Info
+              View Report Card
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
             {hasDesignInfo && isClinicalInfoComplete && script.status !== 'completed' && (
