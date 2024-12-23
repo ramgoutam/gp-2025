@@ -189,37 +189,18 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
           
           <ProgressBar steps={progressSteps} />
           
-          {script.designInfo && (
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">
-                <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-primary/60" />
-                  Design Information
-                </h5>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-500">Design Date:</span>
-                    <span className="text-gray-900 font-medium">{script.designInfo.designDate}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-500">Implant Library:</span>
-                    <span className="text-gray-900 font-medium">{script.designInfo.implantLibrary}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowReportCard(true)}
-                className="w-full flex items-center justify-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <FileText className="h-4 w-4" />
-                View Report Card
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-            </div>
-          )}
+          <div className="space-y-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowReportCard(true)}
+              className="w-full flex items-center justify-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+            >
+              <FileText className="h-4 w-4" />
+              View Report Card
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+            </Button>
+          </div>
         </div>
       </Card>
 

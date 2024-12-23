@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, Plus, PlayCircle, CheckCircle } from "lucide-react";
+import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, Plus, PlayCircle, CheckCircle, FileText } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { format } from "date-fns";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ReportCardDialog } from "../report-card/ReportCardDialog";
 
 interface LabScriptCardProps {
   script: LabScript;
@@ -33,6 +34,7 @@ export const LabScriptCard = ({
   onStatusChange 
 }: LabScriptCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReportCard, setShowReportCard] = useState(false);
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -176,6 +178,7 @@ export const LabScriptCard = ({
               </Button>
             </div>
           </div>
+          
           <div className="flex items-center gap-4 pt-2">
             <Button
               variant="outline"
@@ -186,6 +189,16 @@ export const LabScriptCard = ({
               Add Note
             </Button>
             {getStatusButton()}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowReportCard(true)}
+              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+            >
+              <FileText className="h-4 w-4" />
+              View Report Card
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+            </Button>
           </div>
         </div>
       </Card>
@@ -207,6 +220,12 @@ export const LabScriptCard = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ReportCardDialog
+        open={showReportCard}
+        onOpenChange={setShowReportCard}
+        script={script}
+      />
     </>
   );
 };
