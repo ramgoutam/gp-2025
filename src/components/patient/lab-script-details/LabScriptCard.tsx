@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, Plus, PlayCircle, CheckCircle, FileText } from "lucide-react";
+import { Calendar, User, FileCheck, Clock, Plus } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { format } from "date-fns";
 import {
@@ -15,8 +15,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { ReportCardDialog } from "../report-card/ReportCardDialog";
+import { CardActions } from "./CardActions";
+import { StatusButton } from "./StatusButton";
 
 interface LabScriptCardProps {
   script: LabScript;
@@ -34,8 +34,6 @@ export const LabScriptCard = ({
   onStatusChange 
 }: LabScriptCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showReportCard, setShowReportCard] = useState(false);
-  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -55,64 +53,11 @@ export const LabScriptCard = ({
     onDelete();
   };
 
-  const handleStatusAction = () => {
-    console.log("Current status:", script.status);
-    let newStatus: LabScript['status'];
-    let message: string;
-
-    switch (script.status) {
-      case 'pending':
-        newStatus = 'in_progress';
-        message = 'Design started';
-        break;
-      case 'in_progress':
-        newStatus = 'completed';
-        message = 'Design completed';
-        break;
-      default:
-        return; // No action for completed status
-    }
-
-    if (onStatusChange) {
-      onStatusChange(script, newStatus);
-      toast({
-        title: "Status Updated",
-        description: message
-      });
-    }
-  };
-
-  const getStatusButton = () => {
-    switch (script.status) {
-      case 'pending':
-        return (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleStatusAction}
-            className="flex items-center gap-2 hover:bg-primary/5"
-          >
-            <PlayCircle className="h-4 w-4 text-primary" />
-            Start Design
-          </Button>
-        );
-      case 'in_progress':
-        return (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleStatusAction}
-            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
-          >
-            <CheckCircle className="h-4 w-4" />
-            Complete Design
-          </Button>
-        );
-      case 'completed':
-        return null;
-      default:
-        return null;
-    }
+  const handleStatusChange = () => {
+    if (!onStatusChange) return;
+    
+    const newStatus = script.status === 'pending' ? 'in_progress' : 'completed';
+    onStatusChange(script, newStatus);
   };
 
   return (
@@ -146,37 +91,11 @@ export const LabScriptCard = ({
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-                className="flex items-center gap-2 hover:bg-destructive/5 group-hover:border-destructive/30 transition-all duration-300"
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-                Delete
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onEdit}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Settings className="h-4 w-4" />
-                Edit
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClick}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Stethoscope className="h-4 w-4" />
-                View Details
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-            </div>
+            <CardActions
+              onEdit={onEdit}
+              onView={onClick}
+              onDelete={() => setShowDeleteDialog(true)}
+            />
           </div>
           
           <div className="flex items-center gap-4 pt-2">
@@ -188,17 +107,10 @@ export const LabScriptCard = ({
               <Plus className="h-4 w-4" />
               Add Note
             </Button>
-            {getStatusButton()}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowReportCard(true)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <FileText className="h-4 w-4" />
-              View Report Card
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
+            <StatusButton
+              status={script.status}
+              onStatusChange={handleStatusChange}
+            />
           </div>
         </div>
       </Card>
@@ -220,12 +132,6 @@ export const LabScriptCard = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <ReportCardDialog
-        open={showReportCard}
-        onOpenChange={setShowReportCard}
-        script={script}
-      />
     </>
   );
 };
