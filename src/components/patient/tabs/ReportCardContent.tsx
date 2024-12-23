@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { LabReportForm } from "../lab-report/LabReportForm";
 import { LabScript } from "../LabScriptsTab";
 import { DesignInfoForm } from "../forms/DesignInfoForm";
-import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
@@ -22,7 +21,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
   const [showDesignInfo, setShowDesignInfo] = React.useState(false);
-  const [showClinicInfo, setShowClinicInfo] = React.useState(false);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
 
@@ -48,12 +46,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     console.log("Opening design info for script:", script.id);
     setSelectedScript(script);
     setShowDesignInfo(true);
-  };
-
-  const handleClinicInfo = (script: LabScript) => {
-    console.log("Opening clinic info for script:", script.id);
-    setSelectedScript(script);
-    setShowClinicInfo(true);
   };
 
   const handleSaveDesignInfo = (updatedScript: LabScript) => {
@@ -90,7 +82,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                   key={script.id}
                   script={script}
                   onDesignInfo={handleDesignInfo}
-                  onClinicInfo={handleClinicInfo}
                 />
               ))
             ) : (
@@ -127,23 +118,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
               scriptId={selectedScript.id}
               script={selectedScript}
               onSave={handleSaveDesignInfo}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showClinicInfo} onOpenChange={setShowClinicInfo}>
-        <DialogContent className="max-w-[1200px] w-full">
-          <DialogHeader>
-            <DialogTitle>Clinical Information</DialogTitle>
-            <DialogDescription>
-              Clinical details for Lab Request #{selectedScript?.requestNumber}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedScript && (
-            <ClinicalInfoForm
-              onClose={() => setShowClinicInfo(false)}
-              scriptId={selectedScript.id}
             />
           )}
         </DialogContent>

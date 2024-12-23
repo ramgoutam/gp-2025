@@ -2,17 +2,16 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, ClipboardList, CheckCircle } from "lucide-react";
+import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 
 interface ReportCardProps {
   script: LabScript;
   onDesignInfo: (script: LabScript) => void;
-  onClinicInfo: (script: LabScript) => void;
 }
 
-export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardProps) => {
+export const ReportCard = ({ script, onDesignInfo }: ReportCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -31,25 +30,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     script.designInfo.designDate &&
     script.designInfo.implantLibrary &&
     script.designInfo.teethLibrary;
-
-  // Check if clinical info is complete
-  const isClinicalInfoComplete = script.clinicalInfo && 
-    script.clinicalInfo.insertionDate &&
-    script.clinicalInfo.applianceFit &&
-    script.clinicalInfo.designFeedback &&
-    script.clinicalInfo.occlusion &&
-    script.clinicalInfo.esthetics &&
-    script.clinicalInfo.adjustmentsMade &&
-    script.clinicalInfo.material &&
-    script.clinicalInfo.shade;
-
-  console.log("Progress status check:", {
-    hasDesignInfo,
-    isClinicalInfoComplete,
-    currentStatus: script.status,
-    designInfo: script.designInfo,
-    clinicalInfo: script.clinicalInfo
-  });
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
@@ -77,18 +57,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
         : "current" as const 
     },
     { 
-      label: "Clinical Info", 
-      status: isClinicalInfoComplete 
-        ? "completed" as const 
-        : hasDesignInfo 
-          ? "current" as const 
-          : "upcoming" as const 
-    },
-    { 
       label: "Completed", 
       status: script.status === 'completed'
         ? "completed" as const
-        : (hasDesignInfo && isClinicalInfoComplete) 
+        : hasDesignInfo 
           ? "current" as const 
           : "upcoming" as const 
     }
@@ -135,17 +107,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
               Design Info
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onClinicInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <ClipboardList className="h-4 w-4" />
-              Clinical Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
-            {hasDesignInfo && isClinicalInfoComplete && script.status !== 'completed' && (
+            {hasDesignInfo && script.status !== 'completed' && (
               <Button
                 variant="outline"
                 size="sm"
