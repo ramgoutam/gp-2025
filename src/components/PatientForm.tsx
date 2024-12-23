@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import mapboxgl from 'mapbox-gl';
+import { validateGoogleApiKey, getPlaceSuggestions, PlaceSuggestion } from "@/utils/googlePlaces";
 
 interface PatientFormData {
   firstName: string;
@@ -40,16 +40,16 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     address: "",
   });
 
-  const [suggestions, setSuggestions] = useState<Array<{ place_name: string }>>([]);
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>("");
-  const [isValidatingToken, setIsValidatingToken] = useState(false);
+  const [googleApiKey, setGoogleApiKey] = useState<string>("");
+  const [isValidatingKey, setIsValidatingKey] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('MAPBOX_TOKEN');
-    if (token) {
-      validateAndSetToken(token);
+    const key = localStorage.getItem('GOOGLE_MAPS_API_KEY');
+    if (key) {
+      validateAndSetKey(key);
     }
   }, []);
 
@@ -70,32 +70,28 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const validateAndSetToken = async (token: string) => {
-    setIsValidatingToken(true);
+  const validateAndSetKey = async (key: string) => {
+    setIsValidatingKey(true);
     try {
-      // Test the token with a simple forward geocoding request
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/test.json?access_token=${token}`
-      );
-      
-      if (response.ok) {
-        localStorage.setItem('MAPBOX_TOKEN', token);
-        setMapboxToken(token);
+      const isValid = await validateGoogleApiKey(key);
+      if (isValid) {
+        localStorage.setItem('GOOGLE_MAPS_API_KEY', key);
+        setGoogleApiKey(key);
         return true;
       } else {
-        throw new Error('Invalid token');
+        throw new Error('Invalid key');
       }
     } catch (error) {
-      console.error('Token validation failed:', error);
+      console.error('Key validation failed:', error);
       toast({
-        title: "Invalid Token",
-        description: "Please provide a valid Mapbox access token. You can get one at https://account.mapbox.com/access-tokens/",
+        title: "Invalid API Key",
+        description: "Please provide a valid Google Maps API key with Places API enabled",
         variant: "destructive",
       });
-      localStorage.removeItem('MAPBOX_TOKEN');
+      localStorage.removeItem('GOOGLE_MAPS_API_KEY');
       return false;
     } finally {
-      setIsValidatingToken(false);
+      setIsValidatingKey(false);
     }
   };
 
@@ -103,40 +99,28 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
-    if (!mapboxToken && value.length > 2) {
-      const token = prompt(
-        "Please enter your Mapbox public access token. You can find it at https://account.mapbox.com/access-tokens/"
+    if (!googleApiKey && value.length > 2) {
+      const key = prompt(
+        "Please enter your Google Maps API key with Places API enabled"
       );
-      if (token) {
-        const isValid = await validateAndSetToken(token);
+      if (key) {
+        const isValid = await validateAndSetKey(key);
         if (!isValid) return;
       } else {
         return;
       }
     }
 
-    if (value.length > 2 && mapboxToken) {
+    if (value.length > 2 && googleApiKey) {
       try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${mapboxToken}&types=address`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setSuggestions(data.features || []);
+        const suggestions = await getPlaceSuggestions(value);
+        setSuggestions(suggestions);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error fetching address suggestions:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch address suggestions. Please check your Mapbox token.",
-          variant: "destructive",
-        });
-        // Clear invalid token
-        if (error instanceof Error && error.message.includes('401')) {
-          localStorage.removeItem('MAPBOX_TOKEN');
-          setMapboxToken("");
+        if (error instanceof Error && error.message.includes('InvalidKeyMapError')) {
+          localStorage.removeItem('GOOGLE_MAPS_API_KEY');
+          setGoogleApiKey("");
         }
       }
     } else {
@@ -145,8 +129,8 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     }
   };
 
-  const handleSuggestionClick = (suggestion: { place_name: string }) => {
-    setFormData(prev => ({ ...prev, address: suggestion.place_name }));
+  const handleSuggestionClick = (suggestion: PlaceSuggestion) => {
+    setFormData(prev => ({ ...prev, address: suggestion.description }));
     setShowSuggestions(false);
   };
 
@@ -235,23 +219,23 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
           name="address"
           value={formData.address}
           onChange={handleAddressChange}
-          placeholder={isValidatingToken ? "Validating Mapbox token..." : "Start typing to search address..."}
+          placeholder={isValidatingKey ? "Validating API key..." : "Start typing to search address..."}
           required
           autoComplete="off"
-          disabled={isValidatingToken}
+          disabled={isValidatingKey}
         />
         {showSuggestions && suggestions.length > 0 && (
           <div 
             ref={suggestionsRef}
             className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
           >
-            {suggestions.map((suggestion, index) => (
+            {suggestions.map((suggestion) => (
               <div
-                key={index}
+                key={suggestion.place_id}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                 onClick={() => handleSuggestionClick(suggestion)}
               >
-                {suggestion.place_name}
+                {suggestion.description}
               </div>
             ))}
           </div>
