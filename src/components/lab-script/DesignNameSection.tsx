@@ -12,6 +12,13 @@ interface DesignNameSectionProps {
   lowerDesignName: string;
 }
 
+type DesignConfig = {
+  count: number;
+} & (
+  | { prefix: string; useCustomNames?: never }
+  | { useCustomNames: true; prefix?: never }
+);
+
 const generateDesignNames = (prefix: string, count: number) => {
   return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
 };
@@ -24,7 +31,7 @@ const generateTiBarNames = (count: number, isUpper: boolean) => {
 };
 
 const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
-  const prefixMap = {
+  const prefixMap: Record<string, DesignConfig> = {
     "Surgical Day appliance": {
       count: 5,
       prefix: isUpper ? "USDA" : "LSDA"
@@ -49,17 +56,17 @@ const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
       count: 5,
       useCustomNames: true
     }
-  } as const;
+  };
   
-  const config = prefixMap[applianceType as keyof typeof prefixMap];
+  const config = prefixMap[applianceType];
   
   if (!config) return [];
   
-  if (config.useCustomNames) {
-    return generateTiBarNames(5, isUpper);
+  if ('useCustomNames' in config && config.useCustomNames) {
+    return generateTiBarNames(config.count, isUpper);
   }
   
-  return generateDesignNames(config.prefix, config.count);
+  return generateDesignNames(config.prefix!, config.count);
 };
 
 export const DesignNameSection = ({
