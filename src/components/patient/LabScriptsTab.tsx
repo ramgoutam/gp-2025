@@ -22,6 +22,12 @@ export type LabScript = {
   specificInstructions?: string;
   applianceType?: string;
   fileUploads?: Record<string, File[]>;
+  // Adding the missing properties
+  vdoOption?: string;
+  screwType?: string;
+  firstName?: string;
+  lastName?: string;
+  notes?: string;
 };
 
 type LabScriptsTabProps = {
