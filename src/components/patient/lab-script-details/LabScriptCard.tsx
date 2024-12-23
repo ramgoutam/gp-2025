@@ -81,10 +81,7 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
 
   return (
     <>
-      <Card 
-        className="p-6 border border-gray-100 group bg-white hover:shadow-md transition-all duration-200 hover:border-primary/20"
-        onClick={onClick}
-      >
+      <Card className="p-6 border border-gray-100 group bg-white hover:shadow-md transition-all duration-200 hover:border-primary/20">
         <div className="space-y-4">
           <div className="flex justify-between items-start">
             <div className="space-y-3">
