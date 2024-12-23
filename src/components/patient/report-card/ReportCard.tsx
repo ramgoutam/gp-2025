@@ -20,6 +20,25 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
 
+  // Check if both design and clinical info are completed
+  const isDesignInfoComplete = script.designInfo && 
+    script.designInfo.designDate &&
+    script.designInfo.implantLibrary &&
+    script.designInfo.teethLibrary;
+
+  const isClinicalInfoComplete = script.clinicalInfo && 
+    script.clinicalInfo.insertionDate &&
+    script.clinicalInfo.applianceFit;
+
+  const canCompleteReport = isDesignInfoComplete && isClinicalInfoComplete && script.status !== 'completed';
+
+  console.log("Report completion status:", {
+    isDesignInfoComplete,
+    isClinicalInfoComplete,
+    canCompleteReport,
+    status: script.status
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -35,6 +54,15 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
+    if (!canCompleteReport) {
+      toast({
+        title: "Cannot Complete Report",
+        description: "Both design and clinical information must be completed first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const updatedScript: LabScript = { 
       ...script, 
       status: "completed" as const 
@@ -149,7 +177,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 Clinical Info
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
-              {script.designInfo && script.status !== 'completed' && (
+              {canCompleteReport && (
                 <Button
                   variant="outline"
                   size="sm"
