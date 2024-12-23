@@ -3,16 +3,26 @@ import { Card } from "@/components/ui/card";
 import { FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LabReportForm } from "../lab-report/LabReportForm";
 
 export const ReportCardContent = () => {
   const { toast } = useToast();
+  const [showCreateDialog, setShowCreateDialog] = React.useState(false);
 
   const handleCreateReport = () => {
-    console.log("Creating new lab report");
+    console.log("Opening create report dialog");
+    setShowCreateDialog(true);
+  };
+
+  const handleSubmitReport = (data: any) => {
+    console.log("Submitting report with data:", data);
+    // Here you would typically save the report data
     toast({
-      title: "Coming Soon",
-      description: "Lab report creation feature is under development",
+      title: "Report Created",
+      description: "The lab report has been successfully created.",
     });
+    setShowCreateDialog(false);
   };
 
   return (
@@ -37,6 +47,18 @@ export const ReportCardContent = () => {
           </Card>
         </div>
       </div>
+
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Lab Report</DialogTitle>
+          </DialogHeader>
+          <LabReportForm
+            onSubmit={handleSubmitReport}
+            onCancel={() => setShowCreateDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
