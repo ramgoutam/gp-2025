@@ -21,7 +21,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
   const [showDesignInfo, setShowDesignInfo] = React.useState(false);
-  const [showFileInfo, setShowFileInfo] = React.useState(false);
+  const [showClinicalInfo, setShowClinicalInfo] = React.useState(false);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
 
@@ -49,13 +49,13 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     setShowDesignInfo(true);
   };
 
-  const handleFileInfo = (script: LabScript) => {
-    console.log("Opening file info for script:", script.id);
+  const handleClinicalInfo = (script: LabScript) => {
+    console.log("Opening clinical info for script:", script.id);
     setSelectedScript(script);
-    setShowFileInfo(true);
+    setShowClinicalInfo(true);
     toast({
-      title: "File Info",
-      description: "File information feature coming soon.",
+      title: "Clinical Info",
+      description: "Clinical information feature coming soon.",
     });
   };
 
@@ -102,7 +102,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                   key={script.id}
                   script={script}
                   onDesignInfo={handleDesignInfo}
-                  onFileInfo={handleFileInfo}
+                  onClinicalInfo={handleClinicalInfo}
                   onUpdateScript={handleUpdateScript}
                 />
               ))

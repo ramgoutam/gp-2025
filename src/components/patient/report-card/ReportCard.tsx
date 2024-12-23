@@ -1,8 +1,7 @@
-import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, FileText } from "lucide-react";
+import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, Stethoscope } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
@@ -10,11 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 interface ReportCardProps {
   script: LabScript;
   onDesignInfo: (script: LabScript) => void;
-  onFileInfo: (script: LabScript) => void;
+  onClinicalInfo: (script: LabScript) => void;
   onUpdateScript?: (updatedScript: LabScript) => void;
 }
 
-export const ReportCard = ({ script, onDesignInfo, onFileInfo, onUpdateScript }: ReportCardProps) => {
+export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -119,21 +118,21 @@ export const ReportCard = ({ script, onDesignInfo, onFileInfo, onUpdateScript }:
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onFileInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <FileText className="h-4 w-4" />
-              File Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() => onDesignInfo(script)}
               className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
               <Settings className="h-4 w-4" />
               Design Info
+              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onClinicalInfo(script)}
+              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+            >
+              <Stethoscope className="h-4 w-4" />
+              Clinical Info
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
             {script.designInfo && script.status !== 'completed' && (
