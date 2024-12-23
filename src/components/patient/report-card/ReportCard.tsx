@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, Stethoscope } from "lucide-react";
+import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
@@ -10,11 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 interface ReportCardProps {
   script: LabScript;
   onDesignInfo: (script: LabScript) => void;
-  onClinicalInfo: (script: LabScript) => void;
   onUpdateScript?: (updatedScript: LabScript) => void;
 }
 
-export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
+export const ReportCard = ({ script, onDesignInfo, onUpdateScript }: ReportCardProps) => {
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -64,10 +63,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     script.designInfo.implantLibrary &&
     script.designInfo.teethLibrary;
 
-  const hasClinicalInfo = script.clinicalInfo && 
-    script.clinicalInfo.insertionDate &&
-    script.clinicalInfo.applianceFit;
-
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -79,19 +74,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
         ? "completed" as const 
         : "current" as const 
     },
-    {
-      label: "Clinical Info",
-      status: hasDesignInfo 
-        ? hasClinicalInfo 
-          ? "completed" as const
-          : "current" as const
-        : "upcoming" as const
-    },
     { 
       label: "Completed", 
       status: script.status === 'completed'
         ? "completed" as const
-        : (hasDesignInfo && hasClinicalInfo)
+        : hasDesignInfo
           ? "current" as const 
           : "upcoming" as const 
     }
@@ -138,17 +125,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               Design Info
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onClinicalInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <Stethoscope className="h-4 w-4" />
-              Clinical Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
-            {hasDesignInfo && hasClinicalInfo && script.status !== 'completed' && (
+            {hasDesignInfo && script.status !== 'completed' && (
               <Button
                 variant="outline"
                 size="sm"
