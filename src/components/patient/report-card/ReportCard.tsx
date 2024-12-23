@@ -26,6 +26,9 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     }
   };
 
+  // Check if clinical info is complete by verifying all required fields are filled
+  const isClinicalInfoComplete = script.clinicalInfo && Object.values(script.clinicalInfo).every(value => value !== "");
+
   const progressSteps = [
     { label: "Request Created", status: "completed" as const },
     { 
@@ -34,7 +37,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     },
     { 
       label: "Clinical Info", 
-      status: script.clinicalInfo 
+      status: isClinicalInfoComplete 
         ? "completed" as const 
         : script.designInfo 
           ? "current" as const 
@@ -42,7 +45,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     },
     { 
       label: "Completed", 
-      status: (script.designInfo && script.clinicalInfo) 
+      status: (script.designInfo && isClinicalInfoComplete) 
         ? "completed" as const 
         : "upcoming" as const 
     }
