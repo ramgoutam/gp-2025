@@ -109,6 +109,16 @@ export const LabScriptForm = ({
     }));
   };
 
+  const shouldShowScrewSection = () => {
+    return formData.upperTreatment !== "Denture" && 
+           formData.lowerTreatment !== "Denture" && 
+           formData.applianceType !== "Nightguard";
+  };
+
+  const shouldShowVDOSection = () => {
+    return formData.applianceType !== "Nightguard";
+  };
+
   return (
     <form onSubmit={onFormSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
@@ -180,15 +190,19 @@ export const LabScriptForm = ({
       )}
 
       <div className="grid grid-cols-2 gap-8">
-        <ScrewSection
-          value={formData.screwType}
-          onChange={(value) => setFormData(prev => ({ ...prev, screwType: value }))}
-        />
-        <VDOSection
-          value={formData.vdoOption}
-          onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))
-          }
-        />
+        {shouldShowScrewSection() && (
+          <ScrewSection
+            value={formData.screwType}
+            onChange={(value) => setFormData(prev => ({ ...prev, screwType: value }))}
+          />
+        )}
+        {shouldShowVDOSection() && (
+          <VDOSection
+            value={formData.vdoOption}
+            onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))
+            }
+          />
+        )}
       </div>
 
       <DigitalDataSection

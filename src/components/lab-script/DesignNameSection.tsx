@@ -16,6 +16,13 @@ const generateDesignNames = (prefix: string, count: number) => {
   return Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
 };
 
+const generateTiBarNames = (count: number, isUpper: boolean) => {
+  return Array.from({ length: count }, (_, i) => {
+    const num = i + 1;
+    return isUpper ? `USS${num} and UTi-Bar${num}` : `LSS${num} and LTi-Bar${num}`;
+  });
+};
+
 const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
   const prefixMap = {
     "Surgical Day appliance": {
@@ -32,7 +39,7 @@ const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
     },
     "Direct load PMMA": {
       count: 5,
-      prefix: isUpper ? "UDLP" : "LDLP"
+      prefix: isUpper ? "UDLZ" : "LDLZ"
     },
     "Direct Load Zirconia": {
       count: 5,
@@ -40,7 +47,7 @@ const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
     },
     "Ti-Bar and Superstructure": {
       count: 5,
-      prefixes: isUpper ? ["USS", "UTiBar"] : ["LSS", "LTiBar"]
+      useCustomNames: true
     }
   } as const;
   
@@ -48,8 +55,8 @@ const getDesignNameOptions = (applianceType: string, isUpper: boolean) => {
   
   if (!config) return [];
   
-  if ('prefixes' in config) {
-    return config.prefixes.flatMap(prefix => generateDesignNames(prefix, config.count));
+  if (config.useCustomNames) {
+    return generateTiBarNames(5, isUpper);
   }
   
   return generateDesignNames(config.prefix, config.count);
