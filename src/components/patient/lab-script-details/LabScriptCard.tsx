@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, ChevronDown, Plus } from "lucide-react";
+import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, Trash2, Plus, PlayCircle, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { format } from "date-fns";
 import {
@@ -14,13 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,14 +53,63 @@ export const LabScriptCard = ({
     onDelete();
   };
 
-  const handleStatusChange = (newStatus: string) => {
-    console.log("Status change requested:", newStatus);
+  const handleStatusAction = () => {
+    console.log("Current status:", script.status);
+    let newStatus: LabScript['status'];
+    let message: string;
+
+    switch (script.status) {
+      case 'pending':
+        newStatus = 'in_progress';
+        message = 'Design started';
+        break;
+      case 'in_progress':
+        newStatus = 'completed';
+        message = 'Design completed';
+        break;
+      default:
+        return; // No action for completed status
+    }
+
     if (onStatusChange) {
-      onStatusChange(script, newStatus as LabScript['status']);
+      onStatusChange(script, newStatus);
       toast({
         title: "Status Updated",
-        description: `Lab script status changed to ${newStatus.replace('_', ' ')}`
+        description: message
       });
+    }
+  };
+
+  const getStatusButton = () => {
+    switch (script.status) {
+      case 'pending':
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStatusAction}
+            className="flex items-center gap-2 hover:bg-primary/5"
+          >
+            <PlayCircle className="h-4 w-4 text-primary" />
+            Start Design
+          </Button>
+        );
+      case 'in_progress':
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStatusAction}
+            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Complete Design
+          </Button>
+        );
+      case 'completed':
+        return null;
+      default:
+        return null;
     }
   };
 
@@ -143,19 +185,7 @@ export const LabScriptCard = ({
               <Plus className="h-4 w-4" />
               Add Note
             </Button>
-            <Select defaultValue={script.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[180px]">
-                <div className="flex items-center gap-2">
-                  <span>Change Status</span>
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
+            {getStatusButton()}
           </div>
         </div>
       </Card>
