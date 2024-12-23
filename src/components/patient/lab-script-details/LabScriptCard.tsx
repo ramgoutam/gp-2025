@@ -14,17 +14,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onStatusChange?: (script: LabScript, newStatus: LabScript['status']) => void;
 }
 
-export const LabScriptCard = ({ script, onClick, onEdit, onDelete }: LabScriptCardProps) => {
+export const LabScriptCard = ({ 
+  script, 
+  onClick, 
+  onEdit, 
+  onDelete,
+  onStatusChange 
+}: LabScriptCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -44,6 +60,17 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete }: LabScriptCa
     onDelete();
   };
 
+  const handleStatusChange = (newStatus: string) => {
+    console.log("Status change requested:", newStatus);
+    if (onStatusChange) {
+      onStatusChange(script, newStatus as LabScript['status']);
+      toast({
+        title: "Status Updated",
+        description: `Lab script status changed to ${newStatus.replace('_', ' ')}`
+      });
+    }
+  };
+
   return (
     <>
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white animate-fade-in">
@@ -52,9 +79,16 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete }: LabScriptCa
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
-                <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
-                  {script.status.replace('_', ' ')}
-                </Badge>
+                <Select defaultValue={script.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className={`w-[140px] ${getStatusColor(script.status)}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">

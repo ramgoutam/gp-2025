@@ -5,6 +5,7 @@ import { LabScriptCard } from "./lab-script-details/LabScriptCard";
 import { EmptyState } from "./report-card/EmptyState";
 import { LabScriptHeader } from "./lab-script-details/LabScriptHeader";
 import { ProgressBar } from "./ProgressBar";
+import { updateLabScript } from "@/utils/labScriptStorage";
 
 export type LabScript = {
   id: string;
@@ -88,6 +89,13 @@ export const LabScriptsTab = ({
     setIsEditing(false);
   };
 
+  const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
+    console.log("Handling status change:", script.id, newStatus);
+    const updatedScript = { ...script, status: newStatus };
+    onEditLabScript(updatedScript);
+    updateLabScript(updatedScript);
+  };
+
   const patientName = patientData 
     ? `${patientData.firstName} ${patientData.lastName}`
     : "Patient";
@@ -140,6 +148,7 @@ export const LabScriptsTab = ({
                 onClick={() => handleRowClick(script)}
                 onEdit={() => handleEditClick(script)}
                 onDelete={() => onDeleteLabScript(script)}
+                onStatusChange={handleStatusChange}
               />
             ))
           )}
