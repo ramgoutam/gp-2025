@@ -17,9 +17,10 @@ interface DesignInfoFormProps {
   onClose: () => void;
   scriptId: string;
   script: LabScript;
+  onSave: (updatedScript: LabScript) => void;
 }
 
-export const DesignInfoForm = ({ onClose, scriptId, script }: DesignInfoFormProps) => {
+export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfoFormProps) => {
   const { toast } = useToast();
   const [designData, setDesignData] = React.useState({
     designDate: new Date().toISOString().split('T')[0],
@@ -39,6 +40,24 @@ export const DesignInfoForm = ({ onClose, scriptId, script }: DesignInfoFormProp
 
   const handleSave = () => {
     console.log("Saving design info for script:", scriptId, designData);
+    
+    const updatedScript: LabScript = {
+      ...script,
+      applianceType: designData.applianceType,
+      upperTreatment: designData.upperTreatment,
+      lowerTreatment: designData.lowerTreatment,
+      screwType: designData.screw,
+      designInfo: {
+        ...script.designInfo,
+        designDate: designData.designDate,
+        implantLibrary: designData.implantLibrary,
+        teethLibrary: designData.teethLibrary,
+        actionsTaken: designData.actionsTaken,
+      },
+    };
+
+    onSave(updatedScript);
+    
     toast({
       title: "Design Info Saved",
       description: "The design information has been successfully saved.",

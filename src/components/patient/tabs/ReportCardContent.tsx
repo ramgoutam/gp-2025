@@ -23,6 +23,11 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const [showDesignInfo, setShowDesignInfo] = React.useState(false);
   const [showClinicInfo, setShowClinicInfo] = React.useState(false);
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
+  const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
+
+  React.useEffect(() => {
+    setLocalLabScripts(labScripts);
+  }, [labScripts]);
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -50,6 +55,25 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     setShowClinicInfo(true);
   };
 
+  const handleSaveDesignInfo = (updatedScript: LabScript) => {
+    console.log("Saving updated script:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
+
+    // Update localStorage
+    const savedScripts = localStorage.getItem('labScripts');
+    if (savedScripts) {
+      const allScripts = JSON.parse(savedScripts);
+      const updatedScripts = allScripts.map((script: LabScript) =>
+        script.id === updatedScript.id ? updatedScript : script
+      );
+      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg p-6 border">
@@ -67,8 +91,8 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
         </div>
         
         <div className="space-y-4">
-          {labScripts && labScripts.length > 0 ? (
-            labScripts.map((script) => (
+          {localLabScripts && localLabScripts.length > 0 ? (
+            localLabScripts.map((script) => (
               <Card key={script.id} className="p-4 space-y-4">
                 <div className="flex justify-between items-center">
                   <div>
@@ -134,6 +158,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
               onClose={() => setShowDesignInfo(false)}
               scriptId={selectedScript.id}
               script={selectedScript}
+              onSave={handleSaveDesignInfo}
             />
           )}
         </DialogContent>
