@@ -26,7 +26,12 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
 
   React.useEffect(() => {
-    setLocalLabScripts(labScripts);
+    // Sort lab scripts by request date in descending order (newest first)
+    const sortedScripts = [...labScripts].sort((a, b) => 
+      new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
+    );
+    console.log("Sorted report card scripts:", sortedScripts);
+    setLocalLabScripts(sortedScripts);
   }, [labScripts]);
 
   const getProgressSteps = (script: LabScript) => {

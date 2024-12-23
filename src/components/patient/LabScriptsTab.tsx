@@ -72,6 +72,13 @@ export const LabScriptsTab = ({
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
 
+  // Sort lab scripts by request date in descending order (newest first)
+  const sortedLabScripts = [...labScripts].sort((a, b) => 
+    new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
+  );
+
+  console.log("Sorted lab scripts:", sortedLabScripts);
+
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
     setSelectedScript(script);
@@ -140,10 +147,10 @@ export const LabScriptsTab = ({
 
       <ScrollArea className="h-[500px] px-4">
         <div className="space-y-4">
-          {labScripts.length === 0 ? (
+          {sortedLabScripts.length === 0 ? (
             <EmptyState />
           ) : (
-            labScripts.map((script) => (
+            sortedLabScripts.map((script) => (
               <LabScriptCard
                 key={script.id}
                 script={script}
