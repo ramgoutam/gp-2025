@@ -87,7 +87,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     });
   };
 
-  // Define progress steps
   const progressSteps = [
     { 
       label: "Request Created", 
