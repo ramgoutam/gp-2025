@@ -35,7 +35,8 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
   console.log("Clinical info completion check:", {
     hasClinicalInfo: !!script.clinicalInfo,
     clinicalInfoValues: script.clinicalInfo ? Object.values(script.clinicalInfo) : [],
-    isComplete: isClinicalInfoComplete
+    isComplete: isClinicalInfoComplete,
+    clinicalInfo: script.clinicalInfo
   });
 
   const hasDesignInfo = script.designInfo && 
