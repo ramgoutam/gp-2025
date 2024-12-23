@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,7 @@ interface Patient {
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>(() => {
     const savedPatients = localStorage.getItem('patients');
     return savedPatients ? JSON.parse(savedPatients) : [
@@ -65,6 +66,9 @@ const Index = () => {
       title: "Success",
       description: "Patient added successfully",
     });
+
+    // Navigate to the new patient's profile
+    navigate(`/patient/${newPatient.id}`);
   };
 
   const filteredPatients = patients.filter((patient) =>
