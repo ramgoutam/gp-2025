@@ -1,7 +1,8 @@
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LabScriptList } from "./LabScriptList";
 import { LabScriptDetails } from "./LabScriptDetails";
+import { LabScriptCard } from "./lab-script-details/LabScriptCard";
+import { EmptyState } from "./report-card/EmptyState";
 
 export type LabScript = {
   id: string;
@@ -77,13 +78,22 @@ export const LabScriptsTab = ({
 
   return (
     <>
-      <ScrollArea className="h-[500px]">
-        <LabScriptList 
-          labScripts={labScripts}
-          onRowClick={handleRowClick}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteClick}
-        />
+      <ScrollArea className="h-[500px] px-4">
+        <div className="space-y-4">
+          {labScripts.length === 0 ? (
+            <EmptyState />
+          ) : (
+            labScripts.map((script) => (
+              <LabScriptCard
+                key={script.id}
+                script={script}
+                onClick={() => handleRowClick(script)}
+                onEdit={() => handleEditClick(script)}
+                onDelete={() => handleDeleteClick(script)}
+              />
+            ))
+          )}
+        </div>
       </ScrollArea>
 
       <LabScriptDetails
@@ -101,4 +111,3 @@ export const LabScriptsTab = ({
     </>
   );
 };
-

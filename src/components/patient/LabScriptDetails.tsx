@@ -1,18 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { Maximize, Printer } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScript } from "./LabScriptsTab";
 import { LabScriptForm } from "../LabScriptForm";
 import { useState, useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Maximize, Printer } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { FileList } from "../lab-script/FileList";
 import { FilePreviewDialog } from "../lab-script/FilePreviewDialog";
-import { HeaderSection } from "./lab-script-details/HeaderSection";
-import { TreatmentsSection } from "./lab-script-details/TreatmentsSection";
-import { getTreatments } from "@/utils/treatmentUtils";
+import { LabScriptContent } from "./lab-script-details/LabScriptContent";
 
 interface LabScriptDetailsProps {
   script: LabScript | null;
@@ -22,21 +16,13 @@ interface LabScriptDetailsProps {
   isEditing?: boolean;
 }
 
-const getStatusBadge = (status: LabScript["status"]) => {
-  const styles = {
-    pending: "bg-yellow-100 text-yellow-800",
-    in_progress: "bg-blue-100 text-blue-800",
-    completed: "bg-green-100 text-green-800",
-  };
-
-  return (
-    <Badge variant="secondary" className={styles[status]}>
-      {status?.replace("_", " ") || "pending"}
-    </Badge>
-  );
-};
-
-export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing = false }: LabScriptDetailsProps) => {
+export const LabScriptDetails = ({ 
+  script, 
+  open, 
+  onOpenChange, 
+  onEdit, 
+  isEditing = false 
+}: LabScriptDetailsProps) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -83,7 +69,6 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
     const printWindow = window.open('', '_blank');
     if (!printWindow || !script) return;
 
-    const treatments = getTreatments(script);
     const content = `
       <!DOCTYPE html>
       <html>
@@ -195,59 +180,7 @@ export const LabScriptDetails = ({ script, open, onOpenChange, onEdit, isEditing
                 isEditing={true}
               />
             ) : (
-              <div className="space-y-6 p-6">
-                <HeaderSection script={script} />
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
-                  <p className="text-lg">{script.applianceType || "N/A"}</p>
-                </div>
-
-                <Separator />
-
-                <TreatmentsSection script={script} />
-
-                {script.fileUploads && Object.keys(script.fileUploads).length > 0 && (
-                  <>
-                    <Separator />
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-sm text-gray-500">Uploaded Files</h4>
-                      <FileList 
-                        fileUploads={script.fileUploads}
-                        onPreview={handlePreview}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {script.specificInstructions && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-gray-500">Specific Instructions</h4>
-                      <p className="whitespace-pre-wrap">{script.specificInstructions}</p>
-                    </div>
-                  </>
-                )}
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-500">Status</h4>
-                  {getStatusBadge(script.status || "pending")}
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
+              <LabScriptContent script={script} handlePreview={handlePreview} />
             )}
           </ScrollArea>
         </DialogContent>
