@@ -6,8 +6,11 @@ const generateRequestNumber = (): string => {
   return `LAB-${timestamp}-${random}`;
 };
 
+const createScriptKey = (script: LabScript): string => {
+  return `${script.patientFirstName}-${script.patientLastName}-${script.doctorName}-${script.clinicName}-${script.requestDate}-${script.dueDate}`;
+};
+
 export const saveLabScript = (script: LabScript): boolean => {
-  console.log("Attempting to save lab script:", script);
   const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
   
   const scriptToSave = {
@@ -15,79 +18,53 @@ export const saveLabScript = (script: LabScript): boolean => {
     requestNumber: script.requestNumber || generateRequestNumber()
   };
 
-  // Create a unique key for comparison
-  const createKey = (s: LabScript) => 
-    `${s.patientFirstName}-${s.patientLastName}-${s.doctorName}-${s.clinicName}-${s.requestDate}-${s.dueDate}`;
-  
-  const newScriptKey = createKey(scriptToSave);
+  const newScriptKey = createScriptKey(scriptToSave);
   
   // Check for duplicates using the composite key
-  const isDuplicate = existingScripts.some((existing: LabScript) => {
-    const existingKey = createKey(existing);
-    const duplicate = existingKey === newScriptKey;
-    
-    if (duplicate) {
-      console.log("Duplicate detected - Comparing:", {
-        existing: existingKey,
-        new: newScriptKey,
-        existingScript: existing,
-        newScript: scriptToSave
-      });
-    }
-    
-    return duplicate;
-  });
+  const existingScript = existingScripts.find((existing: LabScript) => 
+    createScriptKey(existing) === newScriptKey
+  );
 
-  if (isDuplicate) {
-    console.error("Duplicate script detected - Not saving:", scriptToSave);
+  if (existingScript) {
+    console.log("Duplicate script detected - Not saving");
     return false;
   }
 
-  // Save new script
   const newScripts = [...existingScripts, scriptToSave];
   localStorage.setItem('labScripts', JSON.stringify(newScripts));
-  console.log("Lab script saved successfully. New total:", newScripts.length);
   return true;
 };
 
 export const updateLabScript = (updatedScript: LabScript): void => {
-  console.log("Updating lab script:", updatedScript);
   const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
   
-  // Remove old version and add updated version
-  const updatedScripts = existingScripts
-    .filter((script: LabScript) => script.id !== updatedScript.id)
-    .concat(updatedScript);
+  // Remove old version by ID and add updated version
+  const updatedScripts = [
+    ...existingScripts.filter((script: LabScript) => script.id !== updatedScript.id),
+    updatedScript
+  ];
   
   localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-  console.log("Lab script updated. New total:", updatedScripts.length);
 };
 
 export const getLabScripts = (): LabScript[] => {
   try {
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
     
-    // Use Map to ensure uniqueness by composite key
+    // Use Map to ensure uniqueness by ID (keeping most recent version)
     const uniqueScripts = new Map<string, LabScript>();
     
-    // Sort by timestamp (newest first)
-    const sortedScripts = [...scripts].sort((a, b) => {
-      const aTime = parseInt(a.id || '0');
-      const bTime = parseInt(b.id || '0');
-      return bTime - aTime;
-    });
-    
-    // Keep only unique scripts using composite key
-    sortedScripts.forEach(script => {
-      const key = `${script.patientFirstName}-${script.patientLastName}-${script.doctorName}-${script.clinicName}-${script.requestDate}-${script.dueDate}`;
-      if (!uniqueScripts.has(key)) {
-        uniqueScripts.set(key, script);
-      }
-    });
-    
-    const result = Array.from(uniqueScripts.values());
-    console.log("Retrieved unique scripts. Total:", result.length);
-    return result;
+    // Sort by timestamp (newest first) and ensure uniqueness
+    return scripts
+      .sort((a, b) => parseInt(b.id || '0') - parseInt(a.id || '0'))
+      .filter(script => {
+        const key = script.id;
+        if (!uniqueScripts.has(key)) {
+          uniqueScripts.set(key, script);
+          return true;
+        }
+        return false;
+      });
   } catch (error) {
     console.error("Error loading scripts:", error);
     return [];
