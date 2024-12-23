@@ -43,6 +43,15 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
   const [suggestions, setSuggestions] = useState<Array<{ place_name: string }>>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [mapboxToken, setMapboxToken] = useState<string>("");
+
+  useEffect(() => {
+    // Get the Mapbox token from localStorage if user hasn't set it in Supabase
+    const token = localStorage.getItem('MAPBOX_TOKEN');
+    if (token) {
+      setMapboxToken(token);
+    }
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -65,16 +74,33 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
+    if (!mapboxToken) {
+      const token = prompt("Please enter your Mapbox public access token. You can find it at https://account.mapbox.com/access-tokens/");
+      if (token) {
+        localStorage.setItem('MAPBOX_TOKEN', token);
+        setMapboxToken(token);
+      }
+      return;
+    }
+
     if (value.length > 2) {
       try {
         const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${process.env.MAPBOX_TOKEN}&types=address`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${mapboxToken}&types=address`
         );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setSuggestions(data.features || []);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error fetching address suggestions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch address suggestions. Please check your Mapbox token.",
+          variant: "destructive",
+        });
       }
     } else {
       setSuggestions([]);
