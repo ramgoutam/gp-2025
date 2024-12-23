@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
+import { getReportCardState, saveReportCardState, ReportCardState } from './ReportCardState';
 
 interface ReportCardProps {
   script: LabScript;
@@ -21,26 +22,17 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
-  const [reportStatus, setReportStatus] = useState('pending');
+  const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
 
-  // Check if both design and clinical info are completed
-  const isDesignInfoComplete = script.designInfo && 
-    script.designInfo.designDate &&
-    script.designInfo.implantLibrary &&
-    script.designInfo.teethLibrary;
+  useEffect(() => {
+    // Load initial state
+    setState(getReportCardState(script.id));
+  }, [script.id]);
 
-  const isClinicalInfoComplete = script.clinicalInfo && 
-    script.clinicalInfo.insertionDate &&
-    script.clinicalInfo.applianceFit;
-
-  const canCompleteReport = isDesignInfoComplete && isClinicalInfoComplete && reportStatus !== 'completed';
-
-  console.log("Report completion status:", {
-    isDesignInfoComplete,
-    isClinicalInfoComplete,
-    canCompleteReport,
-    reportStatus
-  });
+  useEffect(() => {
+    // Save state whenever it changes
+    saveReportCardState(script.id, state);
+  }, [script.id, state]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,16 +49,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
-    if (!canCompleteReport) {
-      toast({
-        title: "Cannot Complete Report",
-        description: "Both design and clinical information must be completed first.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setReportStatus('completed');
+    setState(prev => ({
+      ...prev,
+      reportStatus: 'completed'
+    }));
     
     toast({
       title: "Report Completed",
@@ -79,6 +65,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     if (onUpdateScript) {
       onUpdateScript(updatedScript);
     }
+    setState(prev => ({
+      ...prev,
+      isClinicalInfoComplete: true
+    }));
     setShowClinicalInfo(false);
     toast({
       title: "Clinical Info Saved",
@@ -86,12 +76,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     });
   };
 
-  // Define progress steps with proper status logic
-  const hasDesignInfo = script.designInfo && 
-    script.designInfo.designDate &&
-    script.designInfo.implantLibrary &&
-    script.designInfo.teethLibrary;
-
+  // Define progress steps
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -99,27 +84,29 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     },
     { 
       label: "Design Info", 
-      status: hasDesignInfo 
+      status: state.isDesignInfoComplete 
         ? "completed" as const 
         : "current" as const 
     },
     {
       label: "Clinical Info",
-      status: script.clinicalInfo 
+      status: state.isClinicalInfoComplete 
         ? "completed" as const 
-        : hasDesignInfo
+        : state.isDesignInfoComplete
         ? "current" as const 
         : "upcoming" as const
     },
     { 
       label: "Completed", 
-      status: reportStatus === 'completed'
+      status: state.reportStatus === 'completed'
         ? "completed" as const
-        : script.clinicalInfo
+        : state.isClinicalInfoComplete
           ? "current" as const 
           : "upcoming" as const 
     }
   ];
+
+  // ... keep existing code (JSX for the report card UI)
 
   return (
     <>
@@ -156,7 +143,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onDesignInfo(script)}
+                onClick={() => {
+                  onDesignInfo(script);
+                  setState(prev => ({ ...prev, isDesignInfoComplete: true }));
+                }}
                 className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
               >
                 <Settings className="h-4 w-4" />
@@ -173,7 +163,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 Clinical Info
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
-              {canCompleteReport && (
+              {state.isDesignInfoComplete && state.isClinicalInfoComplete && state.reportStatus !== 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
