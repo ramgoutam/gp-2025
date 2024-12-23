@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Stethoscope, Calendar, User, FileCheck, ArrowRight, Clock, ClipboardList, CheckCircle } from "lucide-react";
+import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, ClipboardList, CheckCircle, Eye } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 
@@ -26,7 +26,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     }
   };
 
-  // Check if clinical info is complete by verifying all required fields are filled
+  // Check if clinical info is complete
   const isClinicalInfoComplete = script.clinicalInfo && 
     Object.values(script.clinicalInfo).every(value => 
       value !== "" && value !== undefined && value !== null
@@ -43,12 +43,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
       value !== "" && value !== undefined && value !== null
     );
 
-  const handleViewInfo = () => {
+  const handleViewClinicalInfo = () => {
+    console.log("Viewing clinical info for script:", script.id);
     onClinicInfo(script);
   };
 
   const handleCompleteReport = () => {
-    // Update the script status to completed
+    console.log("Completing report for script:", script.id);
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     const updatedScripts = scripts.map((s: LabScript) => {
       if (s.id === script.id) {
@@ -57,7 +58,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
       return s;
     });
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    window.location.reload(); // Refresh to show updated status
+    window.location.reload();
   };
 
   const progressSteps = [
@@ -79,9 +80,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
     },
     { 
       label: "Completed", 
-      status: (hasDesignInfo && isClinicalInfoComplete) 
-        ? "completed" as const 
-        : "upcoming" as const 
+      status: script.status === 'completed'
+        ? "completed" as const
+        : (hasDesignInfo && isClinicalInfoComplete) 
+          ? "current" as const 
+          : "upcoming" as const 
     }
   ];
 
@@ -129,10 +132,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicInfo }: ReportCardPro
             <Button
               variant="outline"
               size="sm"
-              onClick={handleViewInfo}
+              onClick={handleViewClinicalInfo}
               className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
             >
-              <ClipboardList className="h-4 w-4" />
+              <Eye className="h-4 w-4" />
               View Clinical Info
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Button>
