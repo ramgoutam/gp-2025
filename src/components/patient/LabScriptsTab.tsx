@@ -93,10 +93,25 @@ export const LabScriptsTab = ({
     : "Patient";
 
   const progressSteps = [
-    { label: "Shopping basket", status: "completed" as const },
-    { label: "Personal details", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
-    { label: "Shipping details", status: "upcoming" as const },
-    { label: "Confirmation", status: "upcoming" as const }
+    { label: "Request Created", status: "completed" as const },
+    { 
+      label: "Design Info", 
+      status: selectedScript?.designInfo ? "completed" as const : "current" as const 
+    },
+    { 
+      label: "Clinical Info", 
+      status: selectedScript?.clinicalInfo 
+        ? "completed" as const 
+        : selectedScript?.designInfo 
+          ? "current" as const 
+          : "upcoming" as const 
+    },
+    { 
+      label: "Completed", 
+      status: selectedScript?.status === 'completed' 
+        ? "completed" as const 
+        : "upcoming" as const 
+    }
   ];
 
   return (
