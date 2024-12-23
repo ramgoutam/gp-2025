@@ -16,6 +16,7 @@ export const clearLabScripts = (): void => {
 };
 
 export const saveLabScript = (script: LabScript): boolean => {
+  console.log("Saving lab script:", script);
   const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
   
   const scriptToSave = {
@@ -37,10 +38,12 @@ export const saveLabScript = (script: LabScript): boolean => {
 
   const newScripts = [...existingScripts, scriptToSave];
   localStorage.setItem('labScripts', JSON.stringify(newScripts));
+  console.log("Lab script saved successfully");
   return true;
 };
 
 export const updateLabScript = (updatedScript: LabScript): void => {
+  console.log("Updating lab script:", updatedScript);
   const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
   
   // Remove old version by ID and add updated version
@@ -50,6 +53,7 @@ export const updateLabScript = (updatedScript: LabScript): void => {
   ];
   
   localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
+  console.log("Lab script updated successfully");
 };
 
 export const getLabScripts = (): LabScript[] => {
@@ -75,6 +79,3 @@ export const getLabScripts = (): LabScript[] => {
     return [];
   }
 };
-
-// Clear all lab scripts on load
-clearLabScripts();
