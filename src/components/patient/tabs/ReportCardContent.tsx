@@ -127,14 +127,16 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
           <div className="space-y-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (
-                <div key={script.id} className="space-y-4">
-                  <ProgressBar steps={getProgressSteps(script)} />
+                <div key={script.id}>
                   <ReportCard
                     script={script}
                     onDesignInfo={handleDesignInfo}
                     onClinicalInfo={handleClinicalInfo}
                     onUpdateScript={handleUpdateScript}
                   />
+                  <div className="mt-4">
+                    <ProgressBar steps={getProgressSteps(script)} />
+                  </div>
                 </div>
               ))
             ) : (
