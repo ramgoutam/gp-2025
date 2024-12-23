@@ -1,19 +1,21 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Settings, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
+import { LabScript } from "../LabScriptsTab";
 
 interface ReportCardContentProps {
   patientData?: {
     firstName: string;
     lastName: string;
   };
+  labScripts?: LabScript[];
 }
 
-export const ReportCardContent = ({ patientData }: ReportCardContentProps) => {
+export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = React.useState(false);
 
@@ -24,12 +26,21 @@ export const ReportCardContent = ({ patientData }: ReportCardContentProps) => {
 
   const handleSubmitReport = (data: any) => {
     console.log("Submitting report with data:", data);
-    // Here you would typically save the report data
     toast({
       title: "Report Created",
       description: "The lab report has been successfully created.",
     });
     setShowCreateDialog(false);
+  };
+
+  const handleDesignInfo = (scriptId: string) => {
+    console.log("Opening design info for script:", scriptId);
+    // Implementation for design info dialog
+  };
+
+  const handleClinicInfo = (scriptId: string) => {
+    console.log("Opening clinic info for script:", scriptId);
+    // Implementation for clinic info dialog
   };
 
   return (
@@ -49,9 +60,44 @@ export const ReportCardContent = ({ patientData }: ReportCardContentProps) => {
         </div>
         
         <div className="space-y-4">
-          <Card className="p-4">
-            <div className="text-sm text-gray-500">No reports available yet</div>
-          </Card>
+          {labScripts && labScripts.length > 0 ? (
+            labScripts.map((script) => (
+              <Card key={script.id} className="p-4 space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">Lab Request #{script.requestNumber}</h4>
+                    <p className="text-sm text-gray-500">
+                      Created on {new Date(script.requestDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDesignInfo(script.id)}
+                      className="flex items-center gap-2"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Design Info
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleClinicInfo(script.id)}
+                      className="flex items-center gap-2"
+                    >
+                      <Stethoscope className="h-4 w-4" />
+                      Clinical Info
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))
+          ) : (
+            <Card className="p-4">
+              <div className="text-sm text-gray-500">No reports available yet</div>
+            </Card>
+          )}
         </div>
       </div>
 
