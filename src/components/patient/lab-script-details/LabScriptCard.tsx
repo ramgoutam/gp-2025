@@ -74,34 +74,33 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
 
   return (
     <>
-      <Card 
-        className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white"
-        onClick={onClick}
-      >
-        <div className="flex justify-between items-start">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              {getScriptTitle()}
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
-              >
-                {getStatusText(script.status)}
-              </Badge>
+      <Card className="p-6 border border-gray-100 group bg-white">
+        <div className="space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                {getScriptTitle()}
+                <Badge 
+                  variant="outline" 
+                  className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
+                >
+                  {getStatusText(script.status)}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                <div>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</div>
+                <div>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</div>
+                <div>Doctor: {script.doctorName}</div>
+                <div>Clinic: {script.clinicName}</div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-              <div>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</div>
-              <div>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</div>
-              <div>Doctor: {script.doctorName}</div>
-              <div>Clinic: {script.clinicName}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
             <CardActions 
               onEdit={onEdit}
               onView={onClick}
               onDelete={() => setShowDeleteDialog(true)}
             />
+          </div>
+          <div className="flex justify-end">
             <StatusButton 
               status={script.status} 
               onStatusChange={handleStatusChange}
