@@ -1,45 +1,46 @@
 import { Button } from "@/components/ui/button";
-import { PlayCircle, CheckCircle2 } from "lucide-react";
+import { PlayCircle, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
+import { useToast } from "@/hooks/use-toast";
 
 interface StatusButtonProps {
-  status: LabScript["status"];
-  onStatusChange?: () => void;
+  status: LabScript['status'];
+  onStatusChange: () => void;
 }
 
 export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
-  if (status === "completed") {
-    return (
-      <Button
-        variant="ghost"
-        className="bg-green-500/10 text-green-700 hover:bg-green-500/20 hover:text-green-800 
-                 px-8 py-6 h-auto gap-3 text-lg font-semibold rounded-xl shadow-sm 
-                 border-2 border-green-500/20 hover:border-green-500/30 
-                 transition-all duration-300 transform hover:scale-[1.02]"
-        disabled
-      >
-        <CheckCircle2 className="h-6 w-6" />
-        Design Completed
-      </Button>
-    );
-  }
+  const { toast } = useToast();
 
-  const isPending = status === "pending";
+  const handleClick = () => {
+    onStatusChange();
+    const message = status === 'pending' ? 'Design started' : 'Design completed';
+    toast({
+      title: "Status Updated",
+      description: message
+    });
+  };
 
-  return (
+  if (status === 'completed') return null;
+
+  return status === 'pending' ? (
     <Button
-      onClick={onStatusChange}
-      variant="ghost"
-      className={`${
-        isPending
-          ? "bg-primary text-white hover:bg-primary/90"
-          : "bg-green-500 text-white hover:bg-green-600"
-      } px-8 py-6 h-auto gap-3 text-lg font-semibold rounded-xl
-        shadow-md hover:shadow-lg transform hover:scale-[1.02]
-        transition-all duration-300`}
+      variant="outline"
+      size="sm"
+      onClick={handleClick}
+      className="flex items-center gap-2 hover:bg-primary/5"
     >
-      <PlayCircle className="h-6 w-6" />
-      {isPending ? "Start Design" : "Complete Design"}
+      <PlayCircle className="h-4 w-4 text-primary" />
+      Start Design
+    </Button>
+  ) : (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleClick}
+      className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
+    >
+      <CheckCircle className="h-4 w-4" />
+      Complete Design
     </Button>
   );
 };
