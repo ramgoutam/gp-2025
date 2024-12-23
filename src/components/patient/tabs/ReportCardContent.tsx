@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
 import { EmptyState } from "../report-card/EmptyState";
+import { ProgressBar } from "../ProgressBar";
 
 interface ReportCardContentProps {
   patientData?: {
@@ -29,6 +30,13 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   React.useEffect(() => {
     setLocalLabScripts(labScripts);
   }, [labScripts]);
+
+  const progressSteps = [
+    { label: "Request Created", status: "completed" as const },
+    { label: "Design Info", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
+    { label: "Clinical Info", status: showClinicInfo ? "current" as const : "upcoming" as const },
+    { label: "Completed", status: "upcoming" as const }
+  ];
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -80,6 +88,8 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
         patientName={`${patientData?.firstName} ${patientData?.lastName}`}
         onCreateReport={handleCreateReport}
       />
+      
+      {selectedScript && <ProgressBar steps={progressSteps} />}
       
       <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
         <ScrollArea className="h-[600px] pr-4">

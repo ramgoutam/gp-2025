@@ -4,6 +4,7 @@ import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
 import { EmptyState } from "./report-card/EmptyState";
 import { LabScriptHeader } from "./lab-script-details/LabScriptHeader";
+import { ProgressBar } from "./ProgressBar";
 
 export type LabScript = {
   id: string;
@@ -81,12 +82,21 @@ export const LabScriptsTab = ({
     ? `${patientData.firstName} ${patientData.lastName}`
     : "Patient";
 
+  const progressSteps = [
+    { label: "Request Created", status: "completed" as const },
+    { label: "Design Info", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
+    { label: "Clinical Info", status: "upcoming" as const },
+    { label: "Completed", status: "upcoming" as const }
+  ];
+
   return (
     <div className="space-y-6">
       <LabScriptHeader 
         patientName={patientName}
         onCreateLabScript={onCreateLabScript}
       />
+
+      {selectedScript && <ProgressBar steps={progressSteps} />}
 
       <ScrollArea className="h-[500px] px-4">
         <div className="space-y-4">
