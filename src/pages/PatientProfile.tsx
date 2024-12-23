@@ -35,12 +35,17 @@ const PatientProfile = () => {
     if (savedScripts) {
       try {
         const allScripts = JSON.parse(savedScripts);
-        const patientScripts = allScripts.filter((script: LabScript) => 
-          script.patientFirstName === patientData?.firstName && 
-          script.patientLastName === patientData?.lastName
-        );
-        console.log("Filtered scripts for patient:", patientScripts);
-        setLabScripts(patientScripts);
+        // Use a Map to ensure uniqueness by ID
+        const scriptsMap = new Map();
+        allScripts.forEach((script: LabScript) => {
+          if (script.patientFirstName === patientData?.firstName && 
+              script.patientLastName === patientData?.lastName) {
+            scriptsMap.set(script.id, script);
+          }
+        });
+        const uniqueScripts = Array.from(scriptsMap.values());
+        console.log("Filtered unique scripts for patient:", uniqueScripts);
+        setLabScripts(uniqueScripts);
       } catch (error) {
         console.error("Error loading scripts:", error);
       }
@@ -55,15 +60,24 @@ const PatientProfile = () => {
       id: Date.now().toString(),
       patientFirstName: patientData.firstName,
       patientLastName: patientData.lastName,
-      status: "pending"
+      status: "pending",
+      requestNumber: `REQ-${Date.now()}`
     };
 
+    // Update state with unique scripts
     setLabScripts(prevScripts => {
-      const updatedScripts = [...prevScripts, newScript];
+      const scriptsMap = new Map();
+      // Add existing scripts to map
+      prevScripts.forEach(script => scriptsMap.set(script.id, script));
+      // Add new script
+      scriptsMap.set(newScript.id, newScript);
+      
+      // Update localStorage
       const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
       const newAllScripts = [...allScripts, newScript];
       localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
-      return updatedScripts;
+      
+      return Array.from(scriptsMap.values());
     });
 
     setShowLabScriptDialog(false);
@@ -78,9 +92,10 @@ const PatientProfile = () => {
     console.log("Updating lab script:", updatedScript);
     
     setLabScripts(prevScripts => {
-      const updatedScripts = prevScripts.map(script => 
-        script.id === updatedScript.id ? updatedScript : script
-      );
+      const scriptsMap = new Map();
+      prevScripts.forEach(script => {
+        scriptsMap.set(script.id, script.id === updatedScript.id ? updatedScript : script);
+      });
       
       const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
       const newAllScripts = allScripts.map((script: LabScript) => 
@@ -88,7 +103,7 @@ const PatientProfile = () => {
       );
       localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
       
-      return updatedScripts;
+      return Array.from(scriptsMap.values());
     });
     
     toast({
@@ -101,13 +116,16 @@ const PatientProfile = () => {
     console.log("Deleting script:", scriptToDelete);
     
     setLabScripts(prevScripts => {
-      const updatedScripts = prevScripts.filter(script => script.id !== scriptToDelete.id);
+      const scriptsMap = new Map();
+      prevScripts
+        .filter(script => script.id !== scriptToDelete.id)
+        .forEach(script => scriptsMap.set(script.id, script));
       
       const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
       const newAllScripts = allScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
       localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
       
-      return updatedScripts;
+      return Array.from(scriptsMap.values());
     });
     
     toast({
