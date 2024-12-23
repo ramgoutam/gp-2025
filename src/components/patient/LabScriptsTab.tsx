@@ -143,7 +143,7 @@ export const LabScriptsTab = ({
   console.log("Progress steps being passed to ProgressBar:", progressSteps);
 
   return (
-    <div className="space-y-6 max-w-[1200px] mx-auto">
+    <div className="flex flex-col h-full space-y-6 max-w-[1200px] mx-auto">
       <LabScriptHeader 
         patientName={patientName}
         onCreateLabScript={onCreateLabScript}
@@ -151,8 +151,8 @@ export const LabScriptsTab = ({
 
       {selectedScript && <ProgressBar steps={progressSteps} />}
 
-      <div className="bg-white rounded-lg border border-gray-100 shadow-sm min-h-[calc(100vh-250px)]">
-        <ScrollArea className="h-[calc(100vh-250px)] px-6 py-4">
+      <div className="flex-1 min-h-0 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <ScrollArea className="h-full px-6 py-4">
           <div className="space-y-4 pr-4">
             {sortedLabScripts.length === 0 ? (
               <EmptyState />

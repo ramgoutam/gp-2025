@@ -119,15 +119,15 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   };
 
   return (
-    <div className="h-full flex flex-col space-y-6 max-w-[1200px] mx-auto">
+    <div className="flex flex-col h-full space-y-6 max-w-[1200px] mx-auto">
       <ReportCardHeader
         patientName={`${patientData?.firstName} ${patientData?.lastName}`}
         onCreateReport={handleCreateReport}
       />
       
-      <div className="flex-1 bg-white rounded-lg p-6 border border-gray-100">
-        <ScrollArea className="h-full pr-4">
-          <div className="space-y-4">
+      <div className="flex-1 min-h-0 bg-white rounded-lg border border-gray-100">
+        <ScrollArea className="h-full p-6">
+          <div className="space-y-4 pr-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (
                 <div key={script.id}>
