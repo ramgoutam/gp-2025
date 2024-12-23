@@ -26,7 +26,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
 
   React.useEffect(() => {
-    // Sort lab scripts by request date in descending order (newest first)
     const sortedScripts = [...labScripts].sort((a, b) => 
       new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
     );
@@ -120,14 +119,14 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   };
 
   return (
-    <div className="space-y-6 max-w-[1200px] mx-auto">
+    <div className="h-full flex flex-col space-y-6 max-w-[1200px] mx-auto">
       <ReportCardHeader
         patientName={`${patientData?.firstName} ${patientData?.lastName}`}
         onCreateReport={handleCreateReport}
       />
       
-      <div className="bg-white rounded-lg p-6 border border-gray-100 min-h-[calc(100vh-300px)]">
-        <ScrollArea className="h-[calc(100vh-300px)] pr-4">
+      <div className="flex-1 bg-white rounded-lg p-6 border border-gray-100">
+        <ScrollArea className="h-full pr-4">
           <div className="space-y-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (

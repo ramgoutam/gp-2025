@@ -152,35 +152,29 @@ const PatientProfile = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
       <Navigation />
       <main className="flex-1 overflow-hidden">
-        <div className="h-full flex flex-col">
-          <div className="px-4 py-4">
-            <div className="text-sm text-gray-500 mb-6">
-              Patient list / Patient detail
-            </div>
+        <div className="container mx-auto py-8 px-4 h-full flex flex-col">
+          <div className="text-sm text-gray-500 mb-6">
+            Patient list / Patient detail
           </div>
 
-          <div className="flex-1 overflow-hidden px-4 pb-4">
-            <div className="bg-white rounded-lg shadow-sm h-full flex flex-col">
-              <div className="p-6">
-                <PatientHeader 
-                  patientData={patientData}
-                  onCreateLabScript={() => handleDialogChange(true)}
-                  onUpdatePatient={handleUpdatePatient}
-                />
-              </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 flex-1 flex flex-col overflow-hidden">
+            <PatientHeader 
+              patientData={patientData}
+              onCreateLabScript={() => handleDialogChange(true)}
+              onUpdatePatient={handleUpdatePatient}
+            />
 
-              <div className="flex-1 overflow-hidden">
-                <PatientTabs
-                  labScripts={labScripts}
-                  onCreateLabScript={() => handleDialogChange(true)}
-                  onEditLabScript={handleEditLabScript}
-                  onDeleteLabScript={handleDeleteLabScript}
-                  patientData={patientData}
-                />
-              </div>
+            <div className="flex-1 overflow-hidden">
+              <PatientTabs
+                labScripts={labScripts}
+                onCreateLabScript={() => handleDialogChange(true)}
+                onEditLabScript={handleEditLabScript}
+                onDeleteLabScript={handleDeleteLabScript}
+                patientData={patientData}
+              />
             </div>
           </div>
         </div>
