@@ -5,13 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReportCardProps {
   script: LabScript;
   onDesignInfo: (script: LabScript) => void;
+  onUpdateScript?: (updatedScript: LabScript) => void;
 }
 
-export const ReportCard = ({ script, onDesignInfo }: ReportCardProps) => {
+export const ReportCard = ({ script, onDesignInfo, onUpdateScript }: ReportCardProps) => {
+  const { toast } = useToast();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -33,15 +37,27 @@ export const ReportCard = ({ script, onDesignInfo }: ReportCardProps) => {
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
+    const updatedScript = { ...script, status: 'completed' };
+    
+    // Update localStorage
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
     const updatedScripts = scripts.map((s: any) => {
       if (s.id === script.id) {
-        return { ...s, status: 'completed' };
+        return updatedScript;
       }
       return s;
     });
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    window.location.reload();
+    
+    // Update parent component state
+    if (onUpdateScript) {
+      onUpdateScript(updatedScript);
+    }
+
+    toast({
+      title: "Report Completed",
+      description: "The lab script has been marked as completed.",
+    });
   };
 
   // Define progress steps with proper status logic

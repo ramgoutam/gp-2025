@@ -1,5 +1,5 @@
 import React from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
 import { LabScript } from "../LabScriptsTab";
@@ -48,6 +48,15 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     setShowDesignInfo(true);
   };
 
+  const handleUpdateScript = (updatedScript: LabScript) => {
+    console.log("Updating script in ReportCardContent:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
+  };
+
   const handleSaveDesignInfo = (updatedScript: LabScript) => {
     console.log("Saving updated script:", updatedScript);
     setLocalLabScripts(prevScripts =>
@@ -82,6 +91,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                   key={script.id}
                   script={script}
                   onDesignInfo={handleDesignInfo}
+                  onUpdateScript={handleUpdateScript}
                 />
               ))
             ) : (
