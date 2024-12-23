@@ -12,10 +12,13 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
     return (
       <Button
         variant="ghost"
-        className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 px-6 py-5 h-auto gap-2 text-base font-medium"
+        className="bg-green-500/10 text-green-700 hover:bg-green-500/20 hover:text-green-800 
+                 px-8 py-6 h-auto gap-3 text-lg font-semibold rounded-xl shadow-sm 
+                 border-2 border-green-500/20 hover:border-green-500/30 
+                 transition-all duration-300 transform hover:scale-[1.02]"
         disabled
       >
-        <CheckCircle2 className="h-5 w-5" />
+        <CheckCircle2 className="h-6 w-6" />
         Design Completed
       </Button>
     );
@@ -29,11 +32,13 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
       variant="ghost"
       className={`${
         isPending
-          ? "bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
-          : "bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
-      } px-6 py-5 h-auto gap-2 text-base font-medium transition-all duration-200`}
+          ? "bg-primary text-white hover:bg-primary/90"
+          : "bg-green-500 text-white hover:bg-green-600"
+      } px-8 py-6 h-auto gap-3 text-lg font-semibold rounded-xl
+        shadow-md hover:shadow-lg transform hover:scale-[1.02]
+        transition-all duration-300`}
     >
-      <PlayCircle className="h-5 w-5" />
+      <PlayCircle className="h-6 w-6" />
       {isPending ? "Start Design" : "Complete Design"}
     </Button>
   );
