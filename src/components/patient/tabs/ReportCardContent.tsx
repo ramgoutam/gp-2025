@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { FileText, Plus, Settings, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
 import { LabScript } from "../LabScriptsTab";
 
@@ -107,7 +107,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
       </div>
 
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-[1200px] w-full">
           <DialogHeader>
             <DialogTitle>Create New Lab Report</DialogTitle>
           </DialogHeader>
