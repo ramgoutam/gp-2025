@@ -245,4 +245,3 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     </>
   );
 };
-

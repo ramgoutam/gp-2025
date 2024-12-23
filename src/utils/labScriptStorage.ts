@@ -79,3 +79,6 @@ export const getLabScripts = (): LabScript[] => {
     return [];
   }
 };
+
+// Call this to clear all lab scripts
+clearLabScripts();
