@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import mapboxgl from 'mapbox-gl';
-// Import CSS in index.css instead
 
 interface PatientFormData {
   firstName: string;
@@ -26,9 +25,10 @@ interface PatientFormData {
 interface PatientFormProps {
   initialData?: PatientFormData;
   onSubmitSuccess?: (data: PatientFormData) => void;
+  onClose?: () => void;
 }
 
-export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) => {
+export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<PatientFormData>({
     firstName: "",
@@ -51,7 +51,6 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
   }, [initialData]);
 
   useEffect(() => {
-    // Click outside handler for suggestions
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
@@ -93,6 +92,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
     console.log("Patient data:", formData);
     
     onSubmitSuccess?.(formData);
+    onClose?.(); // Close the dialog after successful submission
     
     if (!onSubmitSuccess) {
       toast({
@@ -224,7 +224,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess }: PatientFormProps) 
       </div>
 
       <Button type="submit" className="w-full">
-        {initialData ? "Update Patient Information" : "Save Patient Information"}
+        {initialData ? "Update Patient Information" : "Create"}
       </Button>
     </form>
   );

@@ -91,7 +91,15 @@ const Index = () => {
                 <DialogHeader>
                   <DialogTitle>New Patient Registration</DialogTitle>
                 </DialogHeader>
-                <PatientForm onSubmitSuccess={handleAddPatient} />
+                <PatientForm 
+                  onSubmitSuccess={handleAddPatient}
+                  onClose={() => {
+                    const closeButton = document.querySelector('[aria-label="Close"]');
+                    if (closeButton instanceof HTMLButtonElement) {
+                      closeButton.click();
+                    }
+                  }}
+                />
               </DialogContent>
             </Dialog>
           </div>
