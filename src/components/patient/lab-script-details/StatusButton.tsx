@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle, Loader } from "lucide-react";
+import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
 import { LabScript } from "../LabScriptsTab";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,6 +34,7 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
         ];
       
       case 'processing':
+      case 'in_progress':
         return [
           <Button
             key="pause"
@@ -62,10 +63,26 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
                 description: "Design on hold"
               });
             }}
-            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200"
+            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200 mr-2"
           >
             <StopCircle className="h-4 w-4" />
             Hold Design
+          </Button>,
+          <Button
+            key="complete"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onStatusChange('completed');
+              toast({
+                title: "Status Updated",
+                description: "Design completed"
+              });
+            }}
+            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Complete Design
           </Button>
         ];
       
@@ -87,26 +104,6 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
           >
             <PlayCircle className="h-4 w-4" />
             Resume Design
-          </Button>
-        ];
-      
-      case 'in_progress':
-        return [
-          <Button
-            key="complete"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onStatusChange('completed');
-              toast({
-                title: "Status Updated",
-                description: "Design completed"
-              });
-            }}
-            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
-          >
-            <CheckCircle className="h-4 w-4" />
-            Complete Design
           </Button>
         ];
       
