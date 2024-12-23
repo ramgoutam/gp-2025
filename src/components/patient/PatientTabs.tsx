@@ -65,6 +65,12 @@ export const PatientTabs = ({
           Lab Scripts
         </TabsTrigger>
         <TabsTrigger
+          value="report-card"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+        >
+          Report Card
+        </TabsTrigger>
+        <TabsTrigger
           value="next-treatment"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
         >
@@ -75,12 +81,6 @@ export const PatientTabs = ({
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
         >
           Medical Record
-        </TabsTrigger>
-        <TabsTrigger
-          value="report-card"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
-        >
-          Report Card
         </TabsTrigger>
       </TabsList>
 
@@ -101,19 +101,19 @@ export const PatientTabs = ({
         />
       </TabsContent>
 
+      <TabsContent value="report-card">
+        <ReportCardContent 
+          patientData={patientData} 
+          labScripts={labScripts}
+        />
+      </TabsContent>
+
       <TabsContent value="next-treatment">
         <div className="text-gray-600">Next treatment details will go here</div>
       </TabsContent>
 
       <TabsContent value="medical-record">
         <MedicalRecordContent />
-      </TabsContent>
-
-      <TabsContent value="report-card">
-        <ReportCardContent 
-          patientData={patientData} 
-          labScripts={labScripts}
-        />
       </TabsContent>
     </Tabs>
   );
