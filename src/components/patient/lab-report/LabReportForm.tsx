@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LabReportFormProps {
   onSubmit: (data: any) => void;
@@ -67,7 +68,8 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <ScrollArea className="h-[80vh] pr-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="date">Date</Label>
@@ -346,6 +348,7 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
           Submit Report
         </Button>
       </div>
-    </form>
+      </form>
+    </ScrollArea>
   );
 };
