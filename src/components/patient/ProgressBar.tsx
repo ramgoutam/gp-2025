@@ -10,6 +10,8 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar = ({ steps }: ProgressBarProps) => {
+  console.log("Progress bar steps:", steps); // Added for debugging
+
   return (
     <div className="flex items-center w-full gap-2">
       {steps.map((step, index) => (
