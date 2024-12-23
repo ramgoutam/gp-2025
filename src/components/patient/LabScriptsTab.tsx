@@ -36,6 +36,16 @@ export type LabScript = {
     teethLibrary: string;
     actionsTaken: string;
   };
+  clinicalInfo?: {
+    insertionDate: string;
+    applianceFit: string;
+    designFeedback: string;
+    occlusion: string;
+    esthetics: string;
+    adjustmentsMade: string;
+    material: string;
+    shade: string;
+  };
 };
 
 type LabScriptsTabProps = {
