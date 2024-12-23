@@ -32,10 +32,10 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   }, [labScripts]);
 
   const progressSteps = [
-    { label: "Request Created", status: "completed" as const },
-    { label: "Design Info", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
-    { label: "Clinical Info", status: showClinicInfo ? "current" as const : "upcoming" as const },
-    { label: "Completed", status: "upcoming" as const }
+    { label: "Shopping basket", status: "completed" as const },
+    { label: "Personal details", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
+    { label: "Shipping details", status: "upcoming" as const },
+    { label: "Confirmation", status: "upcoming" as const }
   ];
 
   const handleCreateReport = () => {
@@ -83,7 +83,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1200px] mx-auto">
       <ReportCardHeader
         patientName={`${patientData?.firstName} ${patientData?.lastName}`}
         onCreateReport={handleCreateReport}

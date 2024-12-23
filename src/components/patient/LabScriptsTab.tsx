@@ -83,14 +83,14 @@ export const LabScriptsTab = ({
     : "Patient";
 
   const progressSteps = [
-    { label: "Request Created", status: "completed" as const },
-    { label: "Design Info", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
-    { label: "Clinical Info", status: "upcoming" as const },
-    { label: "Completed", status: "upcoming" as const }
+    { label: "Shopping basket", status: "completed" as const },
+    { label: "Personal details", status: selectedScript?.designInfo ? "completed" as const : "current" as const },
+    { label: "Shipping details", status: "upcoming" as const },
+    { label: "Confirmation", status: "upcoming" as const }
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1200px] mx-auto">
       <LabScriptHeader 
         patientName={patientName}
         onCreateLabScript={onCreateLabScript}

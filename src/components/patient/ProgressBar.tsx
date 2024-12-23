@@ -11,24 +11,24 @@ interface ProgressBarProps {
 
 export const ProgressBar = ({ steps }: ProgressBarProps) => {
   return (
-    <div className="flex items-center justify-between w-full max-w-2xl mx-auto mb-8">
+    <div className="flex items-center w-full mb-6 px-4">
       {steps.map((step, index) => (
-        <div key={step.label} className="flex items-center">
-          <div className="flex flex-col items-center">
+        <div key={step.label} className="flex items-center flex-1">
+          <div className="flex items-center">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center border transition-colors duration-300 ${
                 step.status === "completed"
                   ? "bg-green-500 border-green-500"
                   : step.status === "current"
                   ? "border-primary bg-white"
-                  : "border-gray-300 bg-white"
+                  : "border-gray-200 bg-white"
               }`}
             >
               {step.status === "completed" ? (
-                <Check className="h-4 w-4 text-white" />
+                <Check className="h-3 w-3 text-white" />
               ) : (
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-xs font-medium ${
                     step.status === "current" ? "text-primary" : "text-gray-400"
                   }`}
                 >
@@ -37,7 +37,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               )}
             </div>
             <span
-              className={`mt-2 text-sm font-medium ${
+              className={`ml-2 text-xs font-medium ${
                 step.status === "completed"
                   ? "text-green-500"
                   : step.status === "current"
@@ -50,8 +50,8 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`h-[2px] w-16 mx-2 ${
-                step.status === "completed" ? "bg-green-500" : "bg-gray-300"
+              className={`h-[1px] w-full mx-2 ${
+                step.status === "completed" ? "bg-green-500" : "bg-gray-200"
               }`}
             />
           )}
