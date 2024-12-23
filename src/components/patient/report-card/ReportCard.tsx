@@ -5,6 +5,9 @@ import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, St
 import { LabScript } from "../LabScriptsTab";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 
 interface ReportCardProps {
   script: LabScript;
@@ -15,6 +18,7 @@ interface ReportCardProps {
 
 export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
   const { toast } = useToast();
+  const [showClinicalInfo, setShowClinicalInfo] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -36,17 +40,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       status: "completed" as const 
     };
     
-    // Update localStorage
-    const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-    const updatedScripts = scripts.map((s: any) => {
-      if (s.id === script.id) {
-        return updatedScript;
-      }
-      return s;
-    });
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    
-    // Update parent component state
     if (onUpdateScript) {
       onUpdateScript(updatedScript);
     }
@@ -54,6 +47,18 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     toast({
       title: "Report Completed",
       description: "The lab script has been marked as completed.",
+    });
+  };
+
+  const handleClinicalInfoSave = (updatedScript: LabScript) => {
+    console.log("Saving clinical info:", updatedScript);
+    if (onUpdateScript) {
+      onUpdateScript(updatedScript);
+    }
+    setShowClinicalInfo(false);
+    toast({
+      title: "Clinical Info Saved",
+      description: "The clinical information has been successfully saved.",
     });
   };
 
@@ -93,92 +98,107 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   ];
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
-      <div className="space-y-6">
-        <div className="flex justify-between items-start">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
-              <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
-                {script.status.replace('_', ' ')}
-              </Badge>
+    <>
+      <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
+        <div className="space-y-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <h4 className="font-semibold text-lg text-gray-900">Lab Request #{script.requestNumber}</h4>
+                <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
+                  {script.status.replace('_', ' ')}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-primary/60" />
+                  <span>Created: {new Date(script.requestDate).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-primary/60" />
+                  <span>Dr. {script.doctorName}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-primary/60" />
+                  <span>Due: {new Date(script.dueDate).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <FileCheck className="w-4 h-4 text-primary/60" />
+                  <span>Status: {script.status.replace('_', ' ')}</span>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 text-primary/60" />
-                <span>Created: {new Date(script.requestDate).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4 text-primary/60" />
-                <span>Dr. {script.doctorName}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-primary/60" />
-                <span>Due: {new Date(script.dueDate).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <FileCheck className="w-4 h-4 text-primary/60" />
-                <span>Status: {script.status.replace('_', ' ')}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDesignInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <Settings className="h-4 w-4" />
-              Design Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onClinicalInfo(script)}
-              className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-            >
-              <Stethoscope className="h-4 w-4" />
-              Clinical Info
-              <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </Button>
-            {script.designInfo && script.status !== 'completed' && (
+            <div className="flex gap-3">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCompleteReport}
-                className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
+                onClick={() => onDesignInfo(script)}
+                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
               >
-                <CheckCircle className="h-4 w-4" />
-                Complete Report
+                <Settings className="h-4 w-4" />
+                Design Info
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
-            )}
-          </div>
-        </div>
-        
-        <ProgressBar steps={progressSteps} />
-        
-        {script.designInfo && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">
-            <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-primary/60" />
-              Design Information
-            </h5>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-500">Design Date:</span>
-                <span className="text-gray-900 font-medium">{script.designInfo.designDate}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-500">Implant Library:</span>
-                <span className="text-gray-900 font-medium">{script.designInfo.implantLibrary}</span>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowClinicalInfo(true)}
+                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+              >
+                <Stethoscope className="h-4 w-4" />
+                Clinical Info
+                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+              </Button>
+              {script.designInfo && script.status !== 'completed' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCompleteReport}
+                  className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Complete Report
+                  <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                </Button>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </Card>
+          
+          <ProgressBar steps={progressSteps} />
+          
+          {script.designInfo && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition-all duration-300">
+              <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-primary/60" />
+                Design Information
+              </h5>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-500">Design Date:</span>
+                  <span className="text-gray-900 font-medium">{script.designInfo.designDate}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-500">Implant Library:</span>
+                  <span className="text-gray-900 font-medium">{script.designInfo.implantLibrary}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Dialog open={showClinicalInfo} onOpenChange={setShowClinicalInfo}>
+        <DialogContent className="max-w-[800px] w-full">
+          <DialogHeader>
+            <DialogTitle>Clinical Information</DialogTitle>
+          </DialogHeader>
+          <ClinicalInfoForm
+            onClose={() => setShowClinicalInfo(false)}
+            script={script}
+            onSave={handleClinicalInfoSave}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
