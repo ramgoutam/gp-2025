@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
 import { EmptyState } from "./report-card/EmptyState";
+import { LabScriptHeader } from "./lab-script-details/LabScriptHeader";
 
 export type LabScript = {
   id: string;
@@ -41,13 +42,18 @@ type LabScriptsTabProps = {
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
+  patientData?: {
+    firstName: string;
+    lastName: string;
+  };
 };
 
 export const LabScriptsTab = ({ 
   labScripts, 
   onCreateLabScript, 
   onEditLabScript,
-  onDeleteLabScript 
+  onDeleteLabScript,
+  patientData 
 }: LabScriptsTabProps) => {
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
@@ -71,13 +77,17 @@ export const LabScriptsTab = ({
     setIsEditing(false);
   };
 
-  const handleDeleteClick = (script: LabScript) => {
-    console.log("Delete clicked, script:", script);
-    onDeleteLabScript(script);
-  };
+  const patientName = patientData 
+    ? `${patientData.firstName} ${patientData.lastName}`
+    : "Patient";
 
   return (
-    <>
+    <div className="space-y-6">
+      <LabScriptHeader 
+        patientName={patientName}
+        onCreateLabScript={onCreateLabScript}
+      />
+
       <ScrollArea className="h-[500px] px-4">
         <div className="space-y-4">
           {labScripts.length === 0 ? (
@@ -89,7 +99,7 @@ export const LabScriptsTab = ({
                 script={script}
                 onClick={() => handleRowClick(script)}
                 onEdit={() => handleEditClick(script)}
-                onDelete={() => handleDeleteClick(script)}
+                onDelete={() => onDeleteLabScript(script)}
               />
             ))
           )}
@@ -108,6 +118,6 @@ export const LabScriptsTab = ({
         onEdit={handleScriptEdit}
         isEditing={isEditing}
       />
-    </>
+    </div>
   );
 };

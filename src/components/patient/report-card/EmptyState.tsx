@@ -9,8 +9,8 @@ export const EmptyState = () => {
         <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
           <FileText className="w-8 h-8 text-primary/60" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No reports available</h3>
-        <p className="text-sm text-gray-500">Create a new report to get started tracking patient progress</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No lab scripts available</h3>
+        <p className="text-sm text-gray-500">Create a new lab script to get started tracking patient progress</p>
       </div>
     </Card>
   );
