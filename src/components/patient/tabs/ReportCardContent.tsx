@@ -126,7 +126,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
       />
       
       <div className="flex-1 min-h-0 bg-white rounded-lg border border-gray-100">
-        <ScrollArea className="h-[calc(100vh-300px)] p-6">
+        <ScrollArea className="h-[calc(100vh-400px)] p-6">
           <div className="space-y-4 pr-4">
             {localLabScripts && localLabScripts.length > 0 ? (
               localLabScripts.map((script) => (
