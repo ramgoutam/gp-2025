@@ -6,8 +6,16 @@ const generateRequestNumber = (): string => {
   return `LAB-${timestamp}-${random}`;
 };
 
-const createScriptKey = (script: LabScript): string => {
-  return `${script.patientFirstName}-${script.patientLastName}-${script.doctorName}-${script.clinicName}-${script.requestDate}-${script.dueDate}`;
+const hasDesignNameConflict = (newScript: LabScript, existingScripts: LabScript[]): boolean => {
+  return existingScripts.some(existingScript => {
+    // Only check if the design names match
+    const upperNameConflict = newScript.upperDesignName && 
+      newScript.upperDesignName === existingScript.upperDesignName;
+    const lowerNameConflict = newScript.lowerDesignName && 
+      newScript.lowerDesignName === existingScript.lowerDesignName;
+    
+    return upperNameConflict || lowerNameConflict;
+  });
 };
 
 export const clearLabScripts = (): void => {
@@ -24,15 +32,9 @@ export const saveLabScript = (script: LabScript): boolean => {
     requestNumber: script.requestNumber || generateRequestNumber()
   };
 
-  const newScriptKey = createScriptKey(scriptToSave);
-  
-  // Check for duplicates using the composite key
-  const existingScript = existingScripts.find((existing: LabScript) => 
-    createScriptKey(existing) === newScriptKey
-  );
-
-  if (existingScript) {
-    console.log("Duplicate script detected - Not saving");
+  // Check for duplicate design names
+  if (hasDesignNameConflict(scriptToSave, existingScripts)) {
+    console.log("Duplicate design name detected - Not saving");
     return false;
   }
 
@@ -79,6 +81,3 @@ export const getLabScripts = (): LabScript[] => {
     return [];
   }
 };
-
-// Call this to clear all lab scripts
-clearLabScripts();
