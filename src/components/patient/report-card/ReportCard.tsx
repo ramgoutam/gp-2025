@@ -36,8 +36,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'processing':
       case 'in_progress':
         return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'paused':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'hold':
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
@@ -49,8 +54,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     switch (status) {
       case 'pending':
         return 'Design Pending';
+      case 'processing':
       case 'in_progress':
-        return 'Design In Progress';
+        return 'Design in Process';
+      case 'paused':
+        return 'Design in Pause';
+      case 'hold':
+        return 'Design in Hold';
       case 'completed':
         return 'Design Completed';
       default:
@@ -139,7 +149,10 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 {getScriptTitle()}
-                <Badge variant="outline" className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}>
+                <Badge 
+                  variant="outline" 
+                  className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
+                >
                   {getStatusText(script.status)}
                 </Badge>
               </div>
