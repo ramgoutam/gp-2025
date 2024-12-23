@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -34,11 +34,7 @@ export const ReportCard = ({
   const [showDesignInfo, setShowDesignInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
-
-  // Update local state when labScripts prop changes
-  useEffect(() => {
-    console.log("Lab scripts updated in ReportCard:", labScripts);
-  }, [labScripts]);
+  const [localLabScripts, setLocalLabScripts] = useState<LabScript[]>(labScripts);
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
@@ -60,14 +56,13 @@ export const ReportCard = ({
     setShowDesignInfo(true);
   };
 
-  const handleViewReportCard = (script: LabScript) => {
-    console.log("Opening report card view for script:", script);
-    setSelectedScript(script);
-    setShowReportCard(true);
-  };
-
-  const isReportCardViewable = (script: LabScript) => {
-    return script.designInfo && script.clinicalInfo;
+  const handleUpdateScript = (updatedScript: LabScript) => {
+    console.log("Updating script in ReportCard:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
+        script.id === updatedScript.id ? updatedScript : script
+      )
+    );
   };
 
   return (
@@ -80,8 +75,8 @@ export const ReportCard = ({
       <div className="bg-gray-50/50 rounded-lg p-6 border border-gray-100">
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-4">
-            {labScripts && labScripts.length > 0 ? (
-              labScripts.map((script) => (
+            {localLabScripts && localLabScripts.length > 0 ? (
+              localLabScripts.map((script) => (
                 <div key={script.id} className="bg-white p-6 rounded-lg border border-gray-100 space-y-4">
                   <div className="flex justify-between items-start">
                     <div>
@@ -96,11 +91,11 @@ export const ReportCard = ({
                       >
                         Design Info
                       </Button>
-                      {isReportCardViewable(script) && (
+                      {script.designInfo && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewReportCard(script)}
+                          onClick={() => setShowReportCard(true)}
                           className="flex items-center gap-2"
                         >
                           <FileText className="h-4 w-4" />
@@ -144,7 +139,7 @@ export const ReportCard = ({
               onClose={() => setShowDesignInfo(false)}
               scriptId={selectedScript.id}
               script={selectedScript}
-              onSave={onUpdateScript}
+              onSave={handleUpdateScript}
             />
           )}
         </DialogContent>
