@@ -33,8 +33,6 @@ export const LabScriptForm = ({
 }: LabScriptFormProps) => {
   const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
   const [formData, setFormData] = React.useState({
-    doctorName: initialData?.doctorName || "",
-    clinicName: initialData?.clinicName || "",
     requestDate: initialData?.requestDate || "",
     dueDate: initialData?.dueDate || "",
     firstName: patientData?.firstName || initialData?.firstName || "",
@@ -112,32 +110,12 @@ export const LabScriptForm = ({
     <form onSubmit={onFormSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="doctorName">Doctor Name</Label>
-          <Input
-            id="doctorName"
-            name="doctorName"
-            value={formData.doctorName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
           <Label htmlFor="requestDate">Request Date</Label>
           <Input
             id="requestDate"
             name="requestDate"
             type="date"
             value={formData.requestDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="clinicName">Clinic Name</Label>
-          <Input
-            id="clinicName"
-            name="clinicName"
-            value={formData.clinicName}
             onChange={handleChange}
             required
           />
@@ -187,7 +165,8 @@ export const LabScriptForm = ({
         />
         <VDOSection
           value={formData.vdoOption}
-          onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))}
+          onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))
+          }
         />
       </div>
 
