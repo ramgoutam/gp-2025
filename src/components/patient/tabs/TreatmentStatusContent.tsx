@@ -2,10 +2,11 @@ import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, AlertCircle, Stethoscope, Activity, ArrowRight } from "lucide-react";
+import { Activity } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TreatmentPreviewCards } from "./treatment-status/TreatmentPreviewCards";
 
 interface TreatmentStatusProps {
   labScripts: LabScript[];
@@ -17,7 +18,7 @@ interface TreatmentStatusProps {
   };
 }
 
-export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) => {
+export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentStatusProps) => {
   const { toast } = useToast();
   const [localPatientData, setLocalPatientData] = React.useState(patientData);
 
@@ -59,7 +60,7 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
       <Card className="p-8">
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center shadow-inner">
-            <AlertCircle className="h-8 w-8 text-gray-400" />
+            <Activity className="h-8 w-8 text-gray-400" />
           </div>
           <p className="text-lg font-medium text-gray-500">No treatment data available</p>
           <p className="text-sm text-gray-400">Please add treatment information to see status</p>
@@ -67,19 +68,6 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
       </Card>
     );
   }
-
-  const getStatusIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'upper':
-        return <CheckCircle className="h-6 w-6 text-primary" />;
-      case 'lower':
-        return <CheckCircle className="h-6 w-6 text-primary" />;
-      case 'dual':
-        return <Stethoscope className="h-6 w-6 text-primary" />;
-      default:
-        return <AlertCircle className="h-6 w-6 text-yellow-500" />;
-    }
-  };
 
   const getStatusColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -92,6 +80,9 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
         return 'bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm shadow-yellow-100';
     }
   };
+
+  // Get the latest lab script for preview data
+  const latestScript = labScripts[0];
 
   return (
     <div className="space-y-6">
@@ -121,19 +112,24 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
 
           <Separator className="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
 
+          <TreatmentPreviewCards
+            surgeryDate={latestScript?.surgeryDate}
+            deliveryDate={latestScript?.deliveryDate}
+            status={latestScript?.status}
+            upperAppliance={localPatientData.upper_treatment}
+            lowerAppliance={localPatientData.lower_treatment}
+            nightguard={latestScript?.applianceType === "Nightguard" ? "Yes" : "No"}
+            shade={latestScript?.shade}
+            screw={latestScript?.screwType}
+          />
+
           <div className="grid gap-6">
             <Card className="overflow-hidden border border-gray-100/50 hover:border-primary/20 transition-all duration-300 group">
               <div className="p-6 space-y-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium text-gray-900">Active Treatment Plan</h3>
-                      <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-300" />
-                    </div>
+                    <h3 className="text-lg font-medium text-gray-900">Active Treatment Plan</h3>
                     <p className="text-sm text-gray-500">Detailed treatment information and progress</p>
-                  </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-gray-50 to-white shadow-sm border border-gray-100 group-hover:border-primary/20 transition-all duration-300">
-                    {getStatusIcon(localPatientData.treatment_type)}
                   </div>
                 </div>
 
