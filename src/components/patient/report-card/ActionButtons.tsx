@@ -20,8 +20,8 @@ export const ActionButtons = ({
   designInfoStatus = 'pending',
   clinicalInfoStatus = 'pending'
 }: ActionButtonsProps) => {
-  const isDesignInfoCompleted = designInfoStatus === 'completed';
-  const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
+  const isDesignInfoCompleted = designInfoStatus === 'completed' || !!script.designInfo;
+  const isClinicalInfoCompleted = clinicalInfoStatus === 'completed' || !!script.clinicalInfo;
 
   return (
     <div className="flex gap-3">
