@@ -25,7 +25,14 @@ export const clearLabScripts = (): void => {
 
 export const saveLabScript = (script: LabScript): boolean => {
   console.log("Saving lab script:", script);
-  const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
+  const existingScripts = getLabScripts();
+  
+  // Check if script with same ID already exists
+  const isDuplicate = existingScripts.some(existing => existing.id === script.id);
+  if (isDuplicate) {
+    console.log("Duplicate script ID detected - Not saving");
+    return false;
+  }
   
   const scriptToSave = {
     ...script,
@@ -46,13 +53,13 @@ export const saveLabScript = (script: LabScript): boolean => {
 
 export const updateLabScript = (updatedScript: LabScript): void => {
   console.log("Updating lab script:", updatedScript);
-  const existingScripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
+  const existingScripts = getLabScripts();
   
-  // Remove old version by ID and add updated version
-  const updatedScripts = [
-    ...existingScripts.filter((script: LabScript) => script.id !== updatedScript.id),
-    updatedScript
-  ];
+  // Remove duplicates and old version by ID
+  const filteredScripts = existingScripts.filter(script => script.id !== updatedScript.id);
+  
+  // Add the updated version
+  const updatedScripts = [...filteredScripts, updatedScript];
   
   localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
   console.log("Lab script updated successfully");
@@ -62,25 +69,33 @@ export const getLabScripts = (): LabScript[] => {
   try {
     const scripts = JSON.parse(localStorage.getItem('labScripts') || '[]') as LabScript[];
     
-    // Use Map to ensure uniqueness by ID (keeping most recent version)
+    // Create a Map to ensure uniqueness by ID
     const uniqueScripts = new Map<string, LabScript>();
     
-    // Sort by timestamp (newest first) and ensure uniqueness
-    return scripts
-      .sort((a, b) => parseInt(b.id || '0') - parseInt(a.id || '0'))
-      .filter(script => {
-        const key = script.id;
-        if (!uniqueScripts.has(key)) {
-          uniqueScripts.set(key, script);
-          return true;
+    // Process scripts in reverse chronological order
+    scripts
+      .sort((a, b) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime())
+      .forEach(script => {
+        if (script.id && !uniqueScripts.has(script.id)) {
+          uniqueScripts.set(script.id, script);
         }
-        return false;
       });
+    
+    const result = Array.from(uniqueScripts.values());
+    console.log("Retrieved unique lab scripts:", result.length);
+    return result;
   } catch (error) {
     console.error("Error loading scripts:", error);
     return [];
   }
 };
 
-// Clear all scripts immediately
-clearLabScripts();
+// Clear duplicates from existing storage
+const cleanupStorage = () => {
+  const uniqueScripts = getLabScripts();
+  localStorage.setItem('labScripts', JSON.stringify(uniqueScripts));
+  console.log("Storage cleaned up, removed duplicates");
+};
+
+// Run cleanup on module load
+cleanupStorage();
