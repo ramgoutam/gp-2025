@@ -13,9 +13,9 @@ interface ClinicalInfoFormProps {
 }
 
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
-  const { formData, handleFieldChange, handleSubmit, isLoading } = useClinicalInfo(script, onSave, onClose);
+  const { formData, handleFieldChange, handleSubmit, isSubmitting } = useClinicalInfo(script, onSave, onClose);
 
-  if (isLoading) {
+  if (isSubmitting) {
     return (
       <div className="w-full space-y-6">
         <Skeleton className="h-10 w-1/3" />
@@ -43,7 +43,7 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={isSubmitting}>
               Save Clinical Info
             </Button>
           </div>
