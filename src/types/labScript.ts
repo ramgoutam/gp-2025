@@ -10,6 +10,8 @@ export interface DesignInfo {
   upper_treatment?: string;
   lower_treatment?: string;
   screw?: string;
+  upper_design_name?: string;
+  lower_design_name?: string;
 }
 
 export interface ClinicalInfo {
