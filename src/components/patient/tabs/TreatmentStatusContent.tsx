@@ -58,8 +58,8 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
     return (
       <Card className="p-8">
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center shadow-inner">
-            <Activity className="h-8 w-8 text-gray-400" />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center shadow-inner">
+            <Activity className="h-8 w-8 text-primary" />
           </div>
           <p className="text-lg font-medium text-gray-500">No treatment data available</p>
           <p className="text-sm text-gray-400">Please add treatment information to see status</p>
@@ -87,15 +87,15 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-white via-gray-50/50 to-gray-50">
+      <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-purple-50 via-indigo-50/50 to-blue-50">
         <div className="p-8 space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-xl bg-primary/5 text-primary">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary">
                 <Activity className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                   Treatment Status
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">Current treatment progress and details</p>
