@@ -29,75 +29,48 @@ export const useClinicalInfo = (
     console.log("Submitting clinical info:", formData);
 
     try {
-      // First, check if a report card exists for this lab script
-      const { data: existingReport, error: fetchError } = await supabase
+      // Get the report card for this lab script
+      const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
         .eq('lab_script_id', script.id)
-        .maybeSingle();
+        .single();
 
-      if (fetchError) {
-        console.error("Error fetching report card:", fetchError);
-        throw fetchError;
+      if (reportCardError) {
+        console.error("Error fetching report card:", reportCardError);
+        throw reportCardError;
       }
 
-      let reportCardId;
-      
-      if (existingReport) {
-        reportCardId = existingReport.id;
-        console.log("Found existing report card:", reportCardId);
-      } else {
-        // Create new report card
-        const { data: newReport, error: createError } = await supabase
-          .from('report_cards')
-          .insert({
-            lab_script_id: script.id,
-            patient_id: script.patientId,
-            clinical_info_status: 'completed',
-            design_info_status: 'pending'
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error("Error creating report card:", createError);
-          throw createError;
-        }
-        reportCardId = newReport.id;
-        console.log("Created new report card:", reportCardId);
-      }
-
-      // Now handle the clinical info
-      const clinicalInfoData = {
-        ...formData,
-        report_card_id: reportCardId
-      };
-
-      const { data: clinicalInfo, error: saveError } = await supabase
+      // Create clinical info entry
+      const { data: clinicalInfo, error: clinicalError } = await supabase
         .from('clinical_info')
-        .insert(clinicalInfoData)
+        .insert({
+          ...formData,
+          report_card_id: reportCard.id
+        })
         .select()
         .single();
 
-      if (saveError) {
-        console.error("Error saving clinical info:", saveError);
-        throw saveError;
+      if (clinicalError) {
+        console.error("Error saving clinical info:", clinicalError);
+        throw clinicalError;
       }
 
-      // Update report card with clinical_info_id
+      // Update report card with clinical info status
       const { error: updateError } = await supabase
         .from('report_cards')
         .update({ 
           clinical_info_id: clinicalInfo.id,
           clinical_info_status: 'completed'
         })
-        .eq('id', reportCardId);
+        .eq('id', reportCard.id);
 
       if (updateError) {
         console.error("Error updating report card:", updateError);
         throw updateError;
       }
 
+      // Update the script with the new clinical info
       const updatedScript: LabScript = {
         ...script,
         clinicalInfo: clinicalInfo
