@@ -12,6 +12,7 @@ import { ReportCardDialog } from "./ReportCardDialog";
 import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
 import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReportCardProps {
   script: LabScript;
@@ -24,18 +25,23 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
-  const [state, setState] = useState<ReportCardState>({
-    reportStatus: 'pending',
+  const [reportCardState, setReportCardState] = useState<ReportCardState>({
+    reportStatus: script.status, // Initialize with lab script status
     isDesignInfoComplete: false,
     isClinicalInfoComplete: false
   });
 
+  // Sync report card state with lab script status
   useEffect(() => {
     const loadReportCardState = async () => {
       try {
         const savedState = await getReportCardState(script.id);
         if (savedState) {
-          setState(savedState);
+          // Merge the saved state with the current lab script status
+          setReportCardState(prev => ({
+            ...savedState,
+            reportStatus: script.status // Always use lab script status
+          }));
         }
       } catch (error) {
         console.error("Error loading report card state:", error);
@@ -48,22 +54,23 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     };
 
     loadReportCardState();
-  }, [script.id]);
+  }, [script.id, script.status]);
 
-  // Sync state with script status and info completion
+  // Update report card state when script status changes
   useEffect(() => {
     const updateState = async () => {
       const newState = {
-        ...state,
+        ...reportCardState,
         reportStatus: script.status,
         isDesignInfoComplete: !!script.designInfo,
         isClinicalInfoComplete: !!script.clinicalInfo
       };
 
-      setState(newState);
+      setReportCardState(newState);
 
       try {
         await saveReportCardState(script.id, newState);
+        console.log("Successfully saved report card state:", newState);
       } catch (error) {
         console.error("Error saving report card state:", error);
         toast({
@@ -136,11 +143,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     
     try {
       await saveReportCardState(script.id, {
-        ...state,
+        ...reportCardState,
         reportStatus: 'completed'
       });
       
-      setState(prev => ({
+      setReportCardState(prev => ({
         ...prev,
         reportStatus: 'completed'
       }));
@@ -173,7 +180,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     );
   };
 
-  // Define progress steps based on completion status
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -299,7 +305,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
             onSave={async (updatedScript) => {
               try {
                 await saveReportCardState(script.id, {
-                  ...state,
+                  ...reportCardState,
                   isClinicalInfoComplete: true,
                   clinicalInfo: updatedScript.clinicalInfo
                 });
