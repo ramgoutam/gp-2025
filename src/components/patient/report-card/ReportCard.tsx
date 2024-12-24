@@ -70,13 +70,37 @@ export const ReportCard = ({
         },
         (payload) => {
           console.log("Report card updated, payload:", payload);
-          fetchReportCardStatus();
+          if (payload.new) {
+            setDesignInfoStatus(payload.new.design_info_status as InfoStatus);
+            setClinicalInfoStatus(payload.new.clinical_info_status as InfoStatus);
+          }
+        }
+      )
+      .subscribe();
+
+    // Subscribe to lab script changes
+    const scriptChannel = supabase
+      .channel('lab-script-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lab_scripts',
+          filter: `id=eq.${script.id}`
+        },
+        (payload) => {
+          console.log("Lab script updated, payload:", payload);
+          if (payload.new) {
+            setIsCompleted(payload.new.status === 'completed');
+          }
         }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(scriptChannel);
     };
   }, [script.id]);
 

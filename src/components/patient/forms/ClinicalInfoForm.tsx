@@ -5,6 +5,8 @@ import { LabScript } from "@/types/labScript";
 import { FormFields } from "./clinical-info/FormFields";
 import { useClinicalInfo } from "./clinical-info/useClinicalInfo";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClinicalInfoFormProps {
   onClose: () => void;
@@ -13,7 +15,35 @@ interface ClinicalInfoFormProps {
 }
 
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
-  const { formData, handleFieldChange, handleSubmit, isSubmitting } = useClinicalInfo(script, onSave, onClose);
+  const { formData, handleFieldChange, handleSubmit: submitForm, isSubmitting } = useClinicalInfo(script, onSave, onClose);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      await submitForm(e);
+      
+      // Update report card status
+      const { error: updateError } = await supabase
+        .from('report_cards')
+        .update({ clinical_info_status: 'completed' })
+        .eq('lab_script_id', script.id);
+
+      if (updateError) {
+        console.error('Error updating report card status:', updateError);
+        toast({
+          title: "Error",
+          description: "Failed to update clinical info status",
+          variant: "destructive"
+        });
+        return;
+      }
+
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+    }
+  };
 
   if (isSubmitting) {
     return (
@@ -44,7 +74,7 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              Save Clinical Info
+              {script.clinicalInfo ? 'Update Clinical Info' : 'Save Clinical Info'}
             </Button>
           </div>
         </form>

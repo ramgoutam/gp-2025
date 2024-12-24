@@ -11,6 +11,7 @@ import { LibrarySection } from "./design-info/LibrarySection";
 import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
 import { PenTool } from "lucide-react";
 import { useDesignForm } from "./design-info/useDesignForm";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -37,6 +38,22 @@ export const DesignInfoForm = ({
     const result = await handleSave(scriptId);
     
     if (result.success) {
+      // Update report card status
+      const { error: updateError } = await supabase
+        .from('report_cards')
+        .update({ design_info_status: 'completed' })
+        .eq('lab_script_id', scriptId);
+
+      if (updateError) {
+        console.error('Error updating report card status:', updateError);
+        toast({
+          title: "Error",
+          description: "Failed to update design info status",
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "Success",
         description: "Design information saved successfully",
