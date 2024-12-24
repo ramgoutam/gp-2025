@@ -10,7 +10,7 @@ export interface DesignInfo {
   actions_taken?: string;
   created_at?: string;
   updated_at?: string;
-  report_card_id: string; // Changed to required
+  report_card_id: string;
 }
 
 export interface ClinicalInfo {
@@ -25,7 +25,7 @@ export interface ClinicalInfo {
   shade?: string;
   created_at?: string;
   updated_at?: string;
-  report_card_id: string; // Changed to required
+  report_card_id: string;
 }
 
 export type InfoStatus = 'pending' | 'completed';
@@ -49,6 +49,9 @@ export interface ReportCardData {
   clinical_info_id: string | null;
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
+  status: 'pending' | 'completed';
+  design_info?: DesignInfo;
+  clinical_info?: ClinicalInfo;
 }
 
 export interface ReportCardProps {

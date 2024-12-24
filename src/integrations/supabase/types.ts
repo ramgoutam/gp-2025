@@ -273,6 +273,7 @@ export type Database = {
           id: string
           lab_script_id: string | null
           patient_id: string
+          status: string
           updated_at: string
         }
         Insert: {
@@ -284,6 +285,7 @@ export type Database = {
           id?: string
           lab_script_id?: string | null
           patient_id: string
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -295,6 +297,7 @@ export type Database = {
           id?: string
           lab_script_id?: string | null
           patient_id?: string
+          status?: string
           updated_at?: string
         }
         Relationships: [
