@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Calendar, Info, AlignVerticalSpaceBetween, Droplet, ScrewDriver } from "lucide-react";
+import { Calendar, Info, AlignVerticalSpaceBetween, Droplet, Wrench } from "lucide-react";
 import { format } from "date-fns";
 
 interface TreatmentPreviewProps {
@@ -110,7 +110,7 @@ export const TreatmentPreviewCards = ({
         className="bg-gradient-to-br from-white to-gray-50"
       />
       <PreviewCard
-        icon={ScrewDriver}
+        icon={Wrench}
         title="Screw"
         value={screw}
         className="bg-gradient-to-br from-white to-gray-50"

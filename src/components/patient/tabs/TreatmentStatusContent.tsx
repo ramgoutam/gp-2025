@@ -113,14 +113,14 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
           <Separator className="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
 
           <TreatmentPreviewCards
-            surgeryDate={latestScript?.surgeryDate}
-            deliveryDate={latestScript?.deliveryDate}
+            surgeryDate={latestScript?.request_date}
+            deliveryDate={latestScript?.due_date}
             status={latestScript?.status}
             upperAppliance={localPatientData.upper_treatment}
             lowerAppliance={localPatientData.lower_treatment}
-            nightguard={latestScript?.applianceType === "Nightguard" ? "Yes" : "No"}
-            shade={latestScript?.shade}
-            screw={latestScript?.screwType}
+            nightguard={latestScript?.appliance_type === "Nightguard" ? "Yes" : "No"}
+            shade={latestScript?.screw_type}
+            screw={latestScript?.screw_type}
           />
 
           <div className="grid gap-6">
