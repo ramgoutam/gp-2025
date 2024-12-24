@@ -24,9 +24,15 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [showReportCard, setShowReportCard] = useState(false);
   const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
 
+  // Sync state with script status
   useEffect(() => {
-    setState(getReportCardState(script.id));
-  }, [script.id]);
+    setState(prev => ({
+      ...prev,
+      reportStatus: script.status,
+      isDesignInfoComplete: !!script.designInfo,
+      isClinicalInfoComplete: !!script.clinicalInfo
+    }));
+  }, [script.status, script.designInfo, script.clinicalInfo]);
 
   useEffect(() => {
     saveReportCardState(script.id, state);
@@ -70,6 +76,15 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
+    const updatedScript = {
+      ...script,
+      status: 'completed' as const
+    };
+    
+    if (onUpdateScript) {
+      onUpdateScript(updatedScript);
+    }
+    
     setState(prev => ({
       ...prev,
       reportStatus: 'completed'
@@ -111,7 +126,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     );
   };
 
-  // Define progress steps
+  // Define progress steps based on script status
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -119,27 +134,29 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     },
     { 
       label: "Design Info", 
-      status: state.isDesignInfoComplete 
+      status: script.designInfo 
         ? "completed" as const 
         : "current" as const 
     },
     {
       label: "Clinical Info",
-      status: state.isClinicalInfoComplete 
+      status: script.clinicalInfo 
         ? "completed" as const 
-        : state.isDesignInfoComplete
+        : script.designInfo
         ? "current" as const 
         : "upcoming" as const
     },
     { 
       label: "Completed", 
-      status: state.reportStatus === 'completed'
+      status: script.status === 'completed'
         ? "completed" as const
-        : state.isClinicalInfoComplete
+        : script.clinicalInfo
           ? "current" as const 
           : "upcoming" as const 
     }
   ];
+
+  // ... keep existing code (render JSX)
 
   return (
     <>
@@ -181,7 +198,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 size="sm"
                 onClick={() => {
                   onDesignInfo(script);
-                  setState(prev => ({ ...prev, isDesignInfoComplete: true }));
                 }}
                 className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
               >
@@ -199,7 +215,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 Clinical Info
                 <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
-              {state.isDesignInfoComplete && state.isClinicalInfoComplete && state.reportStatus !== 'completed' && (
+              {script.designInfo && script.clinicalInfo && script.status !== 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -252,4 +268,3 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     </>
   );
 };
-
