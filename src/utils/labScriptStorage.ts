@@ -6,17 +6,6 @@ const generateRequestNumber = (): string => {
   return `LAB-${timestamp}-${random}`;
 };
 
-const hasDesignNameConflict = (newScript: LabScript, existingScripts: LabScript[]): boolean => {
-  return existingScripts.some(existingScript => {
-    const upperNameConflict = newScript.upperDesignName && 
-      newScript.upperDesignName === existingScript.upperDesignName;
-    const lowerNameConflict = newScript.lowerDesignName && 
-      newScript.lowerDesignName === existingScript.lowerDesignName;
-    
-    return upperNameConflict || lowerNameConflict;
-  });
-};
-
 export const clearLabScripts = (): void => {
   localStorage.removeItem('labScripts');
   console.log("All lab scripts cleared from storage");
@@ -38,12 +27,6 @@ export const saveLabScript = (script: LabScript): boolean => {
     requestNumber: script.requestNumber || generateRequestNumber()
   };
 
-  // Check for duplicate design names
-  if (hasDesignNameConflict(scriptToSave, existingScripts)) {
-    console.log("Duplicate design name detected - Not saving");
-    return false;
-  }
-
   const newScripts = [...existingScripts, scriptToSave];
   localStorage.setItem('labScripts', JSON.stringify(newScripts));
   console.log("Lab script saved successfully");
@@ -54,7 +37,7 @@ export const updateLabScript = (updatedScript: LabScript): void => {
   console.log("Updating lab script:", updatedScript);
   const existingScripts = getLabScripts();
   
-  // Remove old version by ID
+  // Remove old version and duplicates by ID
   const filteredScripts = existingScripts.filter(script => script.id !== updatedScript.id);
   
   // Add the updated version
@@ -89,7 +72,7 @@ export const getLabScripts = (): LabScript[] => {
   }
 };
 
-// Clear duplicates from existing storage
+// Clean up any existing duplicates in storage
 const cleanupStorage = () => {
   const uniqueScripts = getLabScripts();
   localStorage.setItem('labScripts', JSON.stringify(uniqueScripts));

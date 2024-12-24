@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/components/patient/LabScriptsTab";
+import { getLabScripts, saveLabScript, updateLabScript } from "@/utils/labScriptStorage";
 
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
@@ -31,25 +31,13 @@ const PatientProfile = () => {
   // Load and filter lab scripts for this patient
   useEffect(() => {
     console.log("Loading scripts for patient:", id);
-    const savedScripts = localStorage.getItem('labScripts');
-    if (savedScripts) {
-      try {
-        const allScripts = JSON.parse(savedScripts);
-        // Use a Map to ensure uniqueness by ID
-        const scriptsMap = new Map();
-        allScripts.forEach((script: LabScript) => {
-          if (script.patientFirstName === patientData?.firstName && 
-              script.patientLastName === patientData?.lastName) {
-            scriptsMap.set(script.id, script);
-          }
-        });
-        const uniqueScripts = Array.from(scriptsMap.values());
-        console.log("Filtered unique scripts for patient:", uniqueScripts);
-        setLabScripts(uniqueScripts);
-      } catch (error) {
-        console.error("Error loading scripts:", error);
-      }
-    }
+    const allScripts = getLabScripts();
+    const patientScripts = allScripts.filter(script => 
+      script.patientFirstName === patientData?.firstName && 
+      script.patientLastName === patientData?.lastName
+    );
+    console.log("Filtered unique scripts for patient:", patientScripts);
+    setLabScripts(patientScripts);
   }, [id, patientData]);
 
   const handleLabScriptSubmit = (formData: any) => {
@@ -64,46 +52,30 @@ const PatientProfile = () => {
       requestNumber: `REQ-${Date.now()}`
     };
 
-    // Update state with unique scripts
-    setLabScripts(prevScripts => {
-      const scriptsMap = new Map();
-      // Add existing scripts to map
-      prevScripts.forEach(script => scriptsMap.set(script.id, script));
-      // Add new script
-      scriptsMap.set(newScript.id, newScript);
+    if (saveLabScript(newScript)) {
+      setLabScripts(prevScripts => [...prevScripts, newScript]);
+      setShowLabScriptDialog(false);
       
-      // Update localStorage
-      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-      const newAllScripts = [...allScripts, newScript];
-      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
-      
-      return Array.from(scriptsMap.values());
-    });
-
-    setShowLabScriptDialog(false);
-    
-    toast({
-      title: "Lab Script Created",
-      description: "The lab script has been successfully created and added to the patient profile.",
-    });
+      toast({
+        title: "Lab Script Created",
+        description: "The lab script has been successfully created and added to the patient profile.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to create lab script. A duplicate may exist.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleEditLabScript = (updatedScript: LabScript) => {
     console.log("Updating lab script:", updatedScript);
+    updateLabScript(updatedScript);
     
     setLabScripts(prevScripts => {
-      const scriptsMap = new Map();
-      prevScripts.forEach(script => {
-        scriptsMap.set(script.id, script.id === updatedScript.id ? updatedScript : script);
-      });
-      
-      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-      const newAllScripts = allScripts.map((script: LabScript) => 
-        script.id === updatedScript.id ? updatedScript : script
-      );
-      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
-      
-      return Array.from(scriptsMap.values());
+      const filtered = prevScripts.filter(script => script.id !== updatedScript.id);
+      return [...filtered, updatedScript];
     });
     
     toast({
@@ -115,18 +87,12 @@ const PatientProfile = () => {
   const handleDeleteLabScript = (scriptToDelete: LabScript) => {
     console.log("Deleting script:", scriptToDelete);
     
-    setLabScripts(prevScripts => {
-      const scriptsMap = new Map();
-      prevScripts
-        .filter(script => script.id !== scriptToDelete.id)
-        .forEach(script => scriptsMap.set(script.id, script));
-      
-      const allScripts = JSON.parse(localStorage.getItem('labScripts') || '[]');
-      const newAllScripts = allScripts.filter((script: LabScript) => script.id !== scriptToDelete.id);
-      localStorage.setItem('labScripts', JSON.stringify(newAllScripts));
-      
-      return Array.from(scriptsMap.values());
-    });
+    const allScripts = getLabScripts().filter(script => script.id !== scriptToDelete.id);
+    localStorage.setItem('labScripts', JSON.stringify(allScripts));
+    
+    setLabScripts(prevScripts => 
+      prevScripts.filter(script => script.id !== scriptToDelete.id)
+    );
     
     toast({
       title: "Lab Script Deleted",
@@ -141,10 +107,6 @@ const PatientProfile = () => {
 
   const handleDialogChange = (open: boolean) => {
     setShowLabScriptDialog(open);
-    if (!open) {
-      document.body.style.pointerEvents = '';
-      document.body.style.overflow = '';
-    }
   };
 
   if (!patientData) {
@@ -153,7 +115,6 @@ const PatientProfile = () => {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
-      <Navigation />
       <main className="flex-1 overflow-hidden">
         <div className="container mx-auto py-8 px-4 h-full flex flex-col">
           <div className="text-sm text-gray-500 mb-6">
