@@ -9,7 +9,7 @@ export const useDesignForm = (
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Initialize form data with lab script values if no design info exists
+  // Initialize form data with existing values, prioritizing design_info if it exists
   const [designData, setDesignData] = useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
@@ -23,16 +23,7 @@ export const useDesignForm = (
     actions_taken: script.designInfo?.actions_taken || "",
   });
 
-  console.log("Initializing design form with data:", {
-    scriptData: {
-      applianceType: script.applianceType,
-      upperTreatment: script.upperTreatment,
-      lowerTreatment: script.lowerTreatment,
-      screwType: script.screwType,
-    },
-    designInfo: script.designInfo,
-    formData: designData
-  });
+  console.log("Current design data:", designData);
 
   const handleDesignDataChange = (field: string, value: string) => {
     console.log(`Updating ${field} to:`, value);
@@ -57,7 +48,7 @@ export const useDesignForm = (
 
       let designInfo;
 
-      // Also update the lab script with the latest values
+      // Update the lab script with the latest values
       const { error: labScriptError } = await supabase
         .from('lab_scripts')
         .update({
