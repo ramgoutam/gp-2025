@@ -24,7 +24,7 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
       specific_instructions,
       created_at,
       updated_at,
-      report_cards!lab_scripts_id_fkey (
+      report_cards!report_cards_lab_script_id_fkey (
         id,
         design_info_status,
         clinical_info_status,
