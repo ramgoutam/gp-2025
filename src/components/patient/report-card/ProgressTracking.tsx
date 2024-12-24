@@ -6,16 +6,16 @@ interface ProgressTrackingProps {
   script: LabScript;
   designInfoStatus: InfoStatus;
   clinicalInfoStatus: InfoStatus;
+  isCompleted: boolean;
 }
 
 export const ProgressTracking = ({ 
   script,
   designInfoStatus,
-  clinicalInfoStatus
+  clinicalInfoStatus,
+  isCompleted
 }: ProgressTrackingProps) => {
-  console.log("Progress tracking status:", { designInfoStatus, clinicalInfoStatus });
-
-  const isCompleted = designInfoStatus === 'completed' && clinicalInfoStatus === 'completed';
+  console.log("Progress tracking status:", { designInfoStatus, clinicalInfoStatus, isCompleted });
 
   const progressSteps = [
     { 

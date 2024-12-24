@@ -10,6 +10,7 @@ interface ActionButtonsProps {
   onComplete: () => void;
   designInfoStatus?: InfoStatus;
   clinicalInfoStatus?: InfoStatus;
+  isCompleted?: boolean;
 }
 
 export const ActionButtons = ({ 
@@ -18,11 +19,12 @@ export const ActionButtons = ({
   onClinicalInfo, 
   onComplete,
   designInfoStatus = 'pending',
-  clinicalInfoStatus = 'pending'
+  clinicalInfoStatus = 'pending',
+  isCompleted = false
 }: ActionButtonsProps) => {
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
-  const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted;
+  const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
   return (
     <div className="flex gap-3">

@@ -23,6 +23,7 @@ export const ReportCard = ({
 }: ReportCardProps) => {
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const fetchReportCardStatus = async () => {
     console.log("Fetching report card status for script:", script.id);
@@ -47,6 +48,7 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+        setIsCompleted(reportCard.design_info_status === 'completed' && reportCard.clinical_info_status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -67,8 +69,8 @@ export const ReportCard = ({
           table: 'report_cards',
           filter: `lab_script_id=eq.${script.id}`
         },
-        () => {
-          console.log("Report card updated, fetching new status");
+        (payload) => {
+          console.log("Report card updated, payload:", payload);
           fetchReportCardStatus();
         }
       )
@@ -79,13 +81,14 @@ export const ReportCard = ({
     };
   }, [script.id]);
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (onUpdateScript) {
       const updatedScript = {
         ...script,
         status: 'completed' as const
       };
       onUpdateScript(updatedScript);
+      setIsCompleted(true);
     }
   };
 
@@ -103,6 +106,7 @@ export const ReportCard = ({
           onComplete={handleComplete}
           designInfoStatus={designInfoStatus}
           clinicalInfoStatus={clinicalInfoStatus}
+          isCompleted={isCompleted}
         />
       </div>
 
@@ -110,6 +114,7 @@ export const ReportCard = ({
         script={script}
         designInfoStatus={designInfoStatus}
         clinicalInfoStatus={clinicalInfoStatus}
+        isCompleted={isCompleted}
       />
     </Card>
   );
