@@ -14,6 +14,7 @@ interface ReportCardContentProps {
   patientData?: {
     firstName: string;
     lastName: string;
+    id: string; // Added id to match LabReportForm requirements
   };
   labScripts?: LabScript[];
 }
@@ -33,34 +34,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     console.log("Sorted report card scripts:", sortedScripts);
     setLocalLabScripts(sortedScripts);
   }, [labScripts]);
-
-  const getProgressSteps = (script: LabScript) => {
-    console.log("Generating progress steps for script:", script);
-    return [
-      { 
-        label: "Request Created", 
-        status: "completed" as const 
-      },
-      { 
-        label: "Design Info", 
-        status: script?.designInfo ? "completed" as const : "current" as const 
-      },
-      {
-        label: "Clinical Info",
-        status: script?.clinicalInfo 
-          ? "completed" as const 
-          : script?.designInfo 
-          ? "current" as const 
-          : "upcoming" as const
-      },
-      { 
-        label: "Completed", 
-        status: script?.status === "completed" 
-          ? "completed" as const 
-          : "upcoming" as const 
-      }
-    ];
-  };
 
   const handleCreateReport = () => {
     console.log("Opening create report dialog");
