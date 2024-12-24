@@ -7,6 +7,10 @@ export interface PatientAvatarProps {
 }
 
 export const PatientAvatar = ({ firstName, lastName, avatar }: PatientAvatarProps) => {
+  // Add null checks and provide default values
+  const firstInitial = firstName ? firstName[0] : '';
+  const lastInitial = lastName ? lastName[0] : '';
+
   return avatar ? (
     <img
       src={avatar}
@@ -15,8 +19,8 @@ export const PatientAvatar = ({ firstName, lastName, avatar }: PatientAvatarProp
     />
   ) : (
     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl">
-      {firstName[0]}
-      {lastName[0]}
+      {firstInitial}
+      {lastInitial}
     </div>
   );
 };

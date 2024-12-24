@@ -15,6 +15,21 @@ export const PatientHeader = ({
   onCreateLabScript,
   onUpdatePatient,
 }: PatientHeaderProps) => {
+  const handleEditPatient = () => {
+    // Handle edit patient action
+    console.log("Edit patient:", patientData.id);
+  };
+
+  const handleDeletePatient = () => {
+    // Handle delete patient action
+    console.log("Delete patient:", patientData.id);
+  };
+
+  const handleAddTreatment = () => {
+    // Handle add treatment action
+    console.log("Add treatment for patient:", patientData.id);
+  };
+
   return (
     <div className="flex items-center justify-between pb-6 border-b">
       <div className="flex items-center gap-4">
@@ -49,9 +64,9 @@ export const PatientHeader = ({
           Create Lab Script
         </Button>
         <PatientActions 
-          onEdit={() => {}} 
-          onDelete={() => {}} 
-          onAddTreatment={() => {}}
+          onEdit={handleEditPatient}
+          onDelete={handleDeletePatient}
+          onAddTreatment={handleAddTreatment}
           isDeleting={false}
         />
       </div>
