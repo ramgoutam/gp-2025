@@ -14,6 +14,7 @@ import { PatientActions } from "./header/PatientActions";
 import { DeletePatientDialog } from "./header/DeletePatientDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { TreatmentForm } from "./treatment/TreatmentForm";
 
 type PatientData = {
   id: number;
@@ -41,6 +42,7 @@ export const PatientHeader = ({
 }: PatientHeaderProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showTreatmentForm, setShowTreatmentForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -131,13 +133,13 @@ export const PatientHeader = ({
             <PatientActions
               onEdit={() => setShowEditDialog(true)}
               onDelete={() => setShowDeleteDialog(true)}
-              onAddTreatment={onCreateLabScript || (() => {})}
+              onAddTreatment={() => setShowTreatmentForm(true)}
               isDeleting={isDeleting}
             />
           </div>
         </div>
         <Button
-          onClick={onCreateLabScript}
+          onClick={() => setShowTreatmentForm(true)}
           className="bg-primary hover:bg-primary/90 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -171,6 +173,12 @@ export const PatientHeader = ({
         onConfirm={handleDelete}
         isDeleting={isDeleting}
         patientName={`${patientData.firstName} ${patientData.lastName}`}
+      />
+
+      <TreatmentForm
+        isOpen={showTreatmentForm}
+        onClose={() => setShowTreatmentForm(false)}
+        patientId={patientData.id.toString()}
       />
     </>
   );
