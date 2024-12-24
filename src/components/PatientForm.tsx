@@ -20,6 +20,7 @@ interface PatientFormData {
   sex: string;
   dob: string;
   address: string;
+  surgeryDate?: string;
 }
 
 interface PatientFormProps {
@@ -38,6 +39,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     sex: "",
     dob: "",
     address: "",
+    surgeryDate: "",
   });
 
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
@@ -219,10 +221,9 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
           name="address"
           value={formData.address}
           onChange={handleAddressChange}
-          placeholder={isValidatingKey ? "Validating API key..." : "Start typing to search address..."}
+          placeholder="Start typing to search address..."
           required
           autoComplete="off"
-          disabled={isValidatingKey}
         />
         {showSuggestions && suggestions.length > 0 && (
           <div 
@@ -240,6 +241,17 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
             ))}
           </div>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="surgeryDate">Surgery Date</Label>
+        <Input
+          id="surgeryDate"
+          name="surgeryDate"
+          type="date"
+          value={formData.surgeryDate}
+          onChange={handleChange}
+        />
       </div>
 
       <div className="space-y-2 relative">

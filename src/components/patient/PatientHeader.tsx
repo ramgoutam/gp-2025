@@ -39,6 +39,7 @@ export const PatientHeader = ({
           sex: updatedData.sex,
           dob: updatedData.dob,
           address: updatedData.address,
+          surgery_date: updatedData.surgeryDate,
         })
         .eq('id', patientData.id)
         .select()
@@ -148,6 +149,7 @@ export const PatientHeader = ({
               sex: patientData.sex,
               dob: patientData.dob,
               address: patientData.address,
+              surgeryDate: patientData.surgery_date,
             }}
             onSubmitSuccess={handleEditPatient}
             onClose={() => setShowEditDialog(false)}
