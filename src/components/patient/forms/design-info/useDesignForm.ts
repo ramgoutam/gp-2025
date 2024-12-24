@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScript) => void, onClose: () => void) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [designData, setDesignData] = useState({
-    design_date: script.designInfo?.design_date || "",
+    design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0], // Default to today
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
     upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
     lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
@@ -26,6 +26,7 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
     try {
       setIsSubmitting(true);
       
+      // Get the report card for this lab script
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
@@ -44,11 +45,17 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
 
       let designInfo;
 
+      // Ensure design_date is never empty
+      const designDataToSave = {
+        ...designData,
+        design_date: designData.design_date || new Date().toISOString().split('T')[0]
+      };
+
       if (reportCard.design_info_id) {
         console.log("Updating existing design info:", reportCard.design_info_id);
         const { data: updatedInfo, error: updateError } = await supabase
           .from('design_info')
-          .update(designData)
+          .update(designDataToSave)
           .eq('id', reportCard.design_info_id)
           .select()
           .single();
@@ -64,7 +71,7 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
         const { data: newInfo, error: createError } = await supabase
           .from('design_info')
           .insert({
-            ...designData,
+            ...designDataToSave,
             report_card_id: reportCard.id
           })
           .select()
@@ -75,6 +82,7 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
           throw createError;
         }
 
+        // Update report card with design_info_id
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
