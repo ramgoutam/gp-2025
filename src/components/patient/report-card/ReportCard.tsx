@@ -20,6 +20,16 @@ export const ReportCard = ({
   onUpdateScript,
 }: ReportCardProps) => {
   console.log("Rendering report card with script:", script);
+
+  const handleComplete = () => {
+    if (onUpdateScript) {
+      const updatedScript = {
+        ...script,
+        status: 'completed'
+      };
+      onUpdateScript(updatedScript);
+    }
+  };
   
   return (
     <Card className="p-6 space-y-6">
@@ -32,6 +42,7 @@ export const ReportCard = ({
           script={script}
           onDesignInfo={() => onDesignInfo(script)}
           onClinicalInfo={() => onClinicalInfo(script)}
+          onComplete={handleComplete}
           designInfoStatus={script.designInfo ? 'completed' : 'pending'}
           clinicalInfoStatus={script.clinicalInfo ? 'completed' : 'pending'}
         />
