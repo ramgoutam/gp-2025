@@ -24,7 +24,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [showReportCard, setShowReportCard] = useState(false);
   const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
 
-  // Sync state with script status
+  // Sync state with script status and info completion
   useEffect(() => {
     setState(prev => ({
       ...prev,
@@ -46,7 +46,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       case 'in_progress':
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'paused':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'hold':
         return 'bg-red-100 text-red-800 border-red-200';
       case 'completed':
@@ -59,16 +59,17 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'Design Pending';
+        return 'Pending';
       case 'processing':
+        return 'Processing';
       case 'in_progress':
-        return 'Design in Process';
+        return 'In Progress';
       case 'paused':
-        return 'Design in Pause';
+        return 'Paused';
       case 'hold':
-        return 'Design in Hold';
+        return 'On Hold';
       case 'completed':
-        return 'Design Completed';
+        return 'Completed';
       default:
         return status.replace('_', ' ');
     }
@@ -76,6 +77,15 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = () => {
     console.log("Completing report for script:", script.id);
+    if (!script.designInfo || !script.clinicalInfo) {
+      toast({
+        title: "Cannot Complete Report",
+        description: "Both design and clinical information must be completed first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const updatedScript = {
       ...script,
       status: 'completed' as const
@@ -126,7 +136,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     );
   };
 
-  // Define progress steps based on script status
+  // Define progress steps based on completion status
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -148,15 +158,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     },
     { 
       label: "Completed", 
-      status: script.status === 'completed'
-        ? "completed" as const
-        : script.clinicalInfo
-          ? "current" as const 
-          : "upcoming" as const 
+      status: (script.designInfo && script.clinicalInfo)
+        ? script.status === 'completed'
+          ? "completed" as const
+          : "current" as const
+        : "upcoming" as const 
     }
   ];
-
-  // ... keep existing code (render JSX)
 
   return (
     <>
@@ -175,20 +183,16 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-primary/60" />
-                  <span>Created: {new Date(script.requestDate).toLocaleDateString()}</span>
+                  <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-primary/60" />
-                  <span>Dr. {script.doctorName}</span>
+                  <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-primary/60" />
-                  <span>Due: {new Date(script.dueDate).toLocaleDateString()}</span>
+                  <span>Doctor: {script.doctorName}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <FileCheck className="w-4 h-4 text-primary/60" />
-                  <span>Status: {script.status.replace('_', ' ')}</span>
+                  <span>Clinic: {script.clinicName}</span>
                 </div>
               </div>
             </div>
