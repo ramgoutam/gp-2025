@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
-import { DesignNameSection } from "@/components/lab-script/DesignNameSection";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -88,16 +87,6 @@ export const DesignInfoForm = ({
           applianceType={designData.appliance_type}
         />
       </div>
-
-      <DesignNameSection
-        applianceType={designData.appliance_type}
-        upperTreatment={designData.upper_treatment}
-        lowerTreatment={designData.lower_treatment}
-        onUpperDesignNameChange={(value) => handleDesignDataChange('upper_design_name', value)}
-        onLowerDesignNameChange={(value) => handleDesignDataChange('lower_design_name', value)}
-        upperDesignName={designData.upper_design_name}
-        lowerDesignName={designData.lower_design_name}
-      />
 
       <ScrewSection
         value={designData.screw}
