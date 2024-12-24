@@ -82,7 +82,7 @@ export const ReportCard = ({
         },
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
-          if (payload.new && 'design_info_status' in payload.new) {
+          if (payload.new) {
             setDesignInfoStatus(payload.new.design_info_status);
             setClinicalInfoStatus(payload.new.clinical_info_status);
             fetchReportCardStatus();
