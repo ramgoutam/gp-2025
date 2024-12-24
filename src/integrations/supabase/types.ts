@@ -233,39 +233,48 @@ export type Database = {
       patients: {
         Row: {
           address: string | null
+          arch: string | null
           created_at: string
           dob: string
           email: string
           first_name: string
           id: string
           last_name: string
+          lower_treatment: string | null
           phone: string
           sex: string
           updated_at: string
+          upper_treatment: string | null
         }
         Insert: {
           address?: string | null
+          arch?: string | null
           created_at?: string
           dob: string
           email: string
           first_name: string
           id?: string
           last_name: string
+          lower_treatment?: string | null
           phone: string
           sex: string
           updated_at?: string
+          upper_treatment?: string | null
         }
         Update: {
           address?: string | null
+          arch?: string | null
           created_at?: string
           dob?: string
           email?: string
           first_name?: string
           id?: string
           last_name?: string
+          lower_treatment?: string | null
           phone?: string
           sex?: string
           updated_at?: string
+          upper_treatment?: string | null
         }
         Relationships: []
       }
