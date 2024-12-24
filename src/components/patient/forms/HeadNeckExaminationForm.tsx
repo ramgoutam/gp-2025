@@ -3,71 +3,40 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FormSteps } from "./head-neck-examination/FormSteps";
+import { useFormSteps } from "./head-neck-examination/useFormSteps";
+import { FormContent } from "./head-neck-examination/FormContent";
 
 interface HeadNeckExaminationFormProps {
   patientId: string;
   onSuccess?: () => void;
 }
 
-type FormStep = {
-  title: string;
-  description: string;
-};
-
-const FORM_STEPS: FormStep[] = [
-  {
-    title: "Patient Information & Vital Signs",
-    description: "Basic patient details and vital measurements",
-  },
-  {
-    title: "Medical History",
-    description: "Past medical conditions and current medications",
-  },
-  {
-    title: "Clinical Examination",
-    description: "Extra-oral and intra-oral examination details",
-  },
-  {
-    title: "Observations & Analysis",
-    description: "Clinical observations and diagnostic findings",
-  },
-];
-
 export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExaminationFormProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    patientData: {},
-    vitalSigns: {},
-    medicalHistory: {},
-    chiefComplaints: {},
-    extraOralExamination: {},
-    intraOralExamination: {},
-    dentalClassification: {},
-    skeletalPresentation: {},
-    functionalPresentation: {},
-    clinicalObservation: {},
-    tactileObservation: {},
-    radiographicPresentation: {},
-    tomographyData: {},
-    evaluationNotes: "",
-    maxillarySinusesEvaluation: "",
-    airwayEvaluation: "",
-    guidelineQuestions: {},
+    patient_id: patientId,
+    patient_data: {},
+    vital_signs: {},
+    medical_history: {},
+    chief_complaints: {},
+    extra_oral_examination: {},
+    intra_oral_examination: {},
+    dental_classification: {},
+    skeletal_presentation: {},
+    functional_presentation: {},
+    clinical_observation: {},
+    tactile_observation: {},
+    radiographic_presentation: {},
+    tomography_data: {},
+    evaluation_notes: "",
+    maxillary_sinuses_evaluation: "",
+    airway_evaluation: "",
+    guideline_questions: {},
+    status: "draft"
   });
-
-  const handleNext = () => {
-    if (currentStep < FORM_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,13 +46,7 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
       console.log("Submitting head and neck examination form for patient:", patientId);
       const { error } = await supabase
         .from('head_neck_examinations')
-        .insert([
-          {
-            patient_id: patientId,
-            ...formData,
-            status: 'completed'
-          }
-        ]);
+        .insert([formData]);
 
       if (error) throw error;
 
@@ -105,74 +68,16 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-500">
-              This section will contain fields for patient information and vital signs
-            </h4>
-          </div>
-        );
-      case 1:
-        return (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-500">
-              This section will contain fields for medical history
-            </h4>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-500">
-              This section will contain fields for clinical examination
-            </h4>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-500">
-              This section will contain fields for observations and analysis
-            </h4>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      {/* Progress indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {FORM_STEPS[currentStep].title}
-          </h3>
-          <span className="text-sm text-gray-500">
-            Step {currentStep + 1} of {FORM_STEPS.length}
-          </span>
-        </div>
-        <div className="relative">
-          <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-100">
-            <div
-              style={{ width: `${((currentStep + 1) / FORM_STEPS.length) * 100}%` }}
-              className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary transition-all duration-500"
-            />
-          </div>
-        </div>
-        <p className="text-sm text-gray-500">{FORM_STEPS[currentStep].description}</p>
-      </div>
+      <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
+      
+      <FormContent 
+        currentStep={currentStep} 
+        formData={formData}
+        setFormData={setFormData}
+      />
 
-      {/* Form content */}
-      <div className="min-h-[300px]">
-        {renderStepContent()}
-      </div>
-
-      {/* Navigation buttons */}
       <div className="flex justify-between pt-6 border-t">
         <Button
           type="button"
@@ -185,7 +90,7 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
           Previous
         </Button>
 
-        {currentStep === FORM_STEPS.length - 1 ? (
+        {currentStep === totalSteps - 1 ? (
           <Button
             type="submit"
             disabled={isSubmitting}
