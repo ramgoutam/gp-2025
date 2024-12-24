@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, ArrowRight, CheckCircle, Stethoscope, FileText } from "lucide-react"; // Added FileText import
+import { Settings, ArrowRight, CheckCircle, Stethoscope, FileText } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
-import { saveReportCardState, getReportCardState, ReportCardState } from '@/utils/reportCardUtils';
+import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
+import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
 
 interface ReportCardProps {

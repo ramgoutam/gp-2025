@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { ReportCardState, DesignInfo, ClinicalInfo } from "@/types/reportCard";
+import { ReportCardState, DesignInfo, ClinicalInfo, ReportCardData } from "@/types/reportCard";
 
 export const saveReportCardState = async (
   labScriptId: string, 
@@ -12,8 +12,8 @@ export const saveReportCardState = async (
     .upsert({
       lab_script_id: labScriptId,
       report_status: state.reportStatus,
-      design_info: state.designInfo,
-      clinical_info: state.clinicalInfo,
+      design_info: state.designInfo as any,
+      clinical_info: state.clinicalInfo as any,
       updated_at: new Date().toISOString()
     })
     .select()
@@ -51,11 +51,12 @@ export const getReportCardState = async (labScriptId: string): Promise<ReportCar
 
   console.log("Retrieved report card state:", data);
   
-  const designInfo = data.design_info as DesignInfo;
-  const clinicalInfo = data.clinical_info as ClinicalInfo;
+  const reportCard = data as ReportCardData;
+  const designInfo = reportCard.design_info as DesignInfo | null;
+  const clinicalInfo = reportCard.clinical_info as ClinicalInfo | null;
   
   return {
-    reportStatus: data.report_status,
+    reportStatus: reportCard.report_status || 'pending',
     isDesignInfoComplete: !!designInfo,
     isClinicalInfoComplete: !!clinicalInfo,
     designInfo: designInfo || {

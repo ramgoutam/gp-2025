@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface DesignInfo {
   designDate: string;
   applianceType: string;
@@ -24,6 +26,16 @@ export interface ReportCardState {
   reportStatus: string;
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
-  designInfo: DesignInfo;
-  clinicalInfo: ClinicalInfo;
+  designInfo?: DesignInfo | null;
+  clinicalInfo?: ClinicalInfo | null;
+}
+
+export interface ReportCardData {
+  id: string;
+  lab_script_id: string | null;
+  design_info: Json | null;
+  clinical_info: Json | null;
+  report_status: string | null;
+  created_at: string;
+  updated_at: string;
 }
