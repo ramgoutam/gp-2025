@@ -56,9 +56,8 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     setShowDesignInfo(true);
   };
 
-  const handleClinicalInfo = (script: LabScript) => {
-    console.log("Opening clinical info for script:", script.id);
-    setSelectedScript(script);
+  const handleClinicalInfo = () => {
+    console.log("Opening clinical info for script:", selectedScript?.id);
     setShowClinicalInfo(true);
   };
 
@@ -106,7 +105,10 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
                   <ReportCard
                     script={script}
                     onDesignInfo={handleDesignInfo}
-                    onClinicalInfo={handleClinicalInfo}
+                    onClinicalInfo={() => {
+                      setSelectedScript(script);
+                      handleClinicalInfo();
+                    }}
                     onUpdateScript={handleUpdateScript}
                   />
                 </div>

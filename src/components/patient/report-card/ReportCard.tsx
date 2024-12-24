@@ -46,8 +46,8 @@ export const ReportCard = ({
 
         if (reportCard) {
           console.log("Found report card:", reportCard);
-          setDesignInfoStatus(reportCard.design_info_status);
-          setClinicialInfoStatus(reportCard.clinical_info_status);
+          setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
+          setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
         }
       } catch (error) {
         console.error("Error in fetchReportCardStatus:", error);
