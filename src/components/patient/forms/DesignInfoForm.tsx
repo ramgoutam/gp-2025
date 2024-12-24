@@ -27,8 +27,11 @@ export const DesignInfoForm = ({
 }: DesignInfoFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Initialize with current date if no existing date
+  const today = new Date().toISOString().split('T')[0];
   const [designData, setDesignData] = useState({
-    design_date: script.designInfo?.design_date || "", // Changed to empty string as default
+    design_date: script.designInfo?.design_date || today,
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
     upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
     lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
@@ -66,6 +69,12 @@ export const DesignInfoForm = ({
         throw new Error("No report card found for this lab script");
       }
 
+      // Ensure design_date is never empty
+      const dataToSave = {
+        ...designData,
+        design_date: designData.design_date || today
+      };
+
       let designInfo;
 
       // If design info already exists, update it
@@ -73,10 +82,7 @@ export const DesignInfoForm = ({
         console.log("Updating existing design info:", reportCard.design_info_id);
         const { data: updatedInfo, error: updateError } = await supabase
           .from('design_info')
-          .update({
-            ...designData,
-            updated_at: new Date().toISOString()
-          })
+          .update(dataToSave)
           .eq('id', reportCard.design_info_id)
           .select()
           .single();
@@ -93,7 +99,7 @@ export const DesignInfoForm = ({
         const { data: newInfo, error: createError } = await supabase
           .from('design_info')
           .insert({
-            ...designData,
+            ...dataToSave,
             report_card_id: reportCard.id
           })
           .select()
