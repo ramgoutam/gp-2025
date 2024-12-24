@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { saveLabScript, updateLabScript } from "@/utils/databaseUtils";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const useLabScriptSubmit = (
   onSubmit?: (data: any) => void,
@@ -17,15 +17,17 @@ export const useLabScriptSubmit = (
     }
 
     setIsSubmitting(true);
-    console.log("Processing lab script submission:", formData);
+    console.log("Processing lab script submission with data:", formData);
 
     try {
       if (isEditing && initialData?.id) {
+        console.log("Updating existing lab script:", initialData.id);
         const updatedScript = await updateLabScript({
           ...formData,
           id: initialData.id
         });
         
+        console.log("Lab script updated successfully:", updatedScript);
         toast({
           title: "Lab Script Updated",
           description: "The lab script has been successfully updated.",
@@ -33,7 +35,13 @@ export const useLabScriptSubmit = (
         
         onSubmit?.(updatedScript);
       } else {
+        console.log("Creating new lab script with patient ID:", formData.patientId);
+        if (!formData.patientId) {
+          throw new Error("Patient ID is required to create a lab script");
+        }
+        
         const newScript = await saveLabScript(formData);
+        console.log("New lab script created successfully:", newScript);
         
         toast({
           title: "Lab Script Created",
@@ -43,12 +51,13 @@ export const useLabScriptSubmit = (
         onSubmit?.(newScript);
       }
     } catch (error) {
-      console.error("Error saving lab script:", error);
+      console.error("Error in lab script submission:", error);
       toast({
         title: "Error",
-        description: "Failed to save lab script. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save lab script. Please try again.",
         variant: "destructive"
       });
+      throw error; // Re-throw to be handled by the component
     } finally {
       setIsSubmitting(false);
     }

@@ -47,16 +47,19 @@ const PatientProfile = () => {
 
   const handleLabScriptSubmit = async (formData: any) => {
     try {
-      console.log("Creating new lab script with data:", formData);
+      console.log("Creating new lab script with data:", {
+        ...formData,
+        patientId: id,
+      });
       
       const newScript = await saveLabScript({
         ...formData,
         patientId: id,
-        doctor_name: formData.doctorName,
-        clinic_name: formData.clinicName,
+        doctor_name: formData.doctorName || "Default Doctor",
+        clinic_name: formData.clinicName || "Default Clinic",
       });
 
-      // Update the local state directly instead of reloading
+      console.log("Lab script created successfully:", newScript);
       setLabScripts(prev => [newScript, ...prev]);
       setShowLabScriptDialog(false);
       
@@ -68,7 +71,7 @@ const PatientProfile = () => {
       console.error("Error creating lab script:", error);
       toast({
         title: "Error",
-        description: "Failed to create lab script. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create lab script. Please try again.",
         variant: "destructive"
       });
     }

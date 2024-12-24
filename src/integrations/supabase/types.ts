@@ -57,7 +57,7 @@ export type Database = {
           id: string
           lower_design_name: string | null
           lower_treatment: string | null
-          patient_id: string | null
+          patient_id: string
           request_date: string
           request_number: string | null
           screw_type: string | null
@@ -77,7 +77,7 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
-          patient_id?: string | null
+          patient_id: string
           request_date: string
           request_number?: string | null
           screw_type?: string | null
@@ -97,7 +97,7 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
-          patient_id?: string | null
+          patient_id?: string
           request_date?: string
           request_number?: string | null
           screw_type?: string | null

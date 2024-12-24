@@ -53,7 +53,11 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
 
   if (error) {
     console.error("Error saving lab script:", error);
-    throw error;
+    throw new Error(`Failed to save lab script: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error("No data returned after saving lab script");
   }
 
   console.log("Successfully saved lab script:", data);
