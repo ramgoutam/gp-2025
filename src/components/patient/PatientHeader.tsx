@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PatientAvatar } from "./header/PatientAvatar";
 import { PatientActions } from "./header/PatientActions";
 import { DeletePatientDialog } from "./header/DeletePatientDialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 type PatientData = {
   id: number;
@@ -126,17 +128,21 @@ export const PatientHeader = ({
             <h1 className="text-2xl font-semibold text-gray-900">
               {patientData.firstName} {patientData.lastName}
             </h1>
-            <p className="text-gray-500 flex items-center gap-2">
-              {patientData.note}
-              <PatientActions
-                onEdit={() => setShowEditDialog(true)}
-                onDelete={() => setShowDeleteDialog(true)}
-                onAddTreatment={onCreateLabScript || (() => {})}
-                isDeleting={isDeleting}
-              />
-            </p>
+            <PatientActions
+              onEdit={() => setShowEditDialog(true)}
+              onDelete={() => setShowDeleteDialog(true)}
+              onAddTreatment={onCreateLabScript || (() => {})}
+              isDeleting={isDeleting}
+            />
           </div>
         </div>
+        <Button
+          onClick={onCreateLabScript}
+          className="bg-primary hover:bg-primary/90 text-white"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Treatment
+        </Button>
       </div>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>

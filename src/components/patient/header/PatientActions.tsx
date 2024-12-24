@@ -20,7 +20,7 @@ export const PatientActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 px-2"
+        className="text-gray-600 hover:text-gray-900"
         onClick={onEdit}
       >
         <Edit className="h-4 w-4 mr-1" />
@@ -29,21 +29,12 @@ export const PatientActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 px-2 text-destructive hover:text-destructive"
+        className="text-red-600 hover:text-red-700"
         onClick={onDelete}
         disabled={isDeleting}
       >
         <Trash2 className="h-4 w-4 mr-1" />
-        {isDeleting ? "Deleting..." : "Delete"}
-      </Button>
-      <Button
-        variant="default"
-        size="sm"
-        onClick={onAddTreatment}
-        className="h-6 px-2 bg-primary text-white hover:bg-primary/90"
-      >
-        <Plus className="h-4 w-4 mr-1" />
-        Add Treatment
+        Delete
       </Button>
     </div>
   );
