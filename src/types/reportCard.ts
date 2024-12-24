@@ -4,6 +4,8 @@ export interface DesignInfo {
   appliance_type?: string;
   upper_treatment?: string;
   lower_treatment?: string;
+  upper_design_name?: string;
+  lower_design_name?: string;
   screw?: string;
   implant_library?: string;
   teeth_library?: string;

@@ -70,11 +70,13 @@ export type Database = {
           design_date: string
           id: string
           implant_library: string | null
+          lower_design_name: string | null
           lower_treatment: string | null
           report_card_id: string | null
           screw: string | null
           teeth_library: string | null
           updated_at: string
+          upper_design_name: string | null
           upper_treatment: string | null
         }
         Insert: {
@@ -84,11 +86,13 @@ export type Database = {
           design_date?: string
           id?: string
           implant_library?: string | null
+          lower_design_name?: string | null
           lower_treatment?: string | null
           report_card_id?: string | null
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
+          upper_design_name?: string | null
           upper_treatment?: string | null
         }
         Update: {
@@ -98,11 +102,13 @@ export type Database = {
           design_date?: string
           id?: string
           implant_library?: string | null
+          lower_design_name?: string | null
           lower_treatment?: string | null
           report_card_id?: string | null
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
+          upper_design_name?: string | null
           upper_treatment?: string | null
         }
         Relationships: [
