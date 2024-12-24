@@ -25,7 +25,7 @@ export const ReportCard = ({
     if (onUpdateScript) {
       const updatedScript = {
         ...script,
-        status: 'completed'
+        status: 'completed' as const
       };
       onUpdateScript(updatedScript);
     }
