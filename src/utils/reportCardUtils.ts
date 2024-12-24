@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { ReportCardState, DesignInfo, ClinicalInfo } from "@/types/reportCard";
+import { Json } from "@/integrations/supabase/types";
 
 export const saveReportCardState = async (
   labScriptId: string,
@@ -10,12 +11,12 @@ export const saveReportCardState = async (
   try {
     const { data, error } = await supabase
       .from('report_cards')
-      .upsert({
+      .upsert([{  // Wrap the object in an array
         lab_script_id: labScriptId,
         design_info: state.designInfo || null,
         clinical_info: state.clinicalInfo || null,
         report_status: state.reportStatus
-      })
+      }])
       .select('*')
       .single();
 
