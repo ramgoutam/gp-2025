@@ -55,7 +55,7 @@ export const PatientList = () => {
             <div key={i} className="h-24 bg-white rounded-lg animate-pulse border border-gray-100" />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 animate-pulse">
               <div className="flex items-start gap-4">
@@ -76,7 +76,7 @@ export const PatientList = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
         <ShortcutButton 
           icon={FileText} 
@@ -105,7 +105,7 @@ export const PatientList = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4">
         {filteredPatients.map((patient: Patient) => (
           <Link
             key={patient.id}
