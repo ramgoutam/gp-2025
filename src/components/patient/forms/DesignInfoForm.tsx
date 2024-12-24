@@ -52,33 +52,59 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         throw reportCardError;
       }
 
-      // Create or update design info
-      const { data: designInfo, error: designError } = await supabase
-        .from('design_info')
-        .insert({
-          ...designData,
-          report_card_id: reportCard.id
-        })
-        .select()
-        .single();
+      let designInfo;
 
-      if (designError) {
-        console.error("Error saving design info:", designError);
-        throw designError;
-      }
+      if (reportCard.design_info_id) {
+        // Update existing design info
+        console.log("Updating existing design info:", reportCard.design_info_id);
+        const { data: updatedDesignInfo, error: updateError } = await supabase
+          .from('design_info')
+          .update({
+            ...designData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', reportCard.design_info_id)
+          .select()
+          .single();
 
-      // Update report card with design info status
-      const { error: updateError } = await supabase
-        .from('report_cards')
-        .update({ 
-          design_info_id: designInfo.id,
-          design_info_status: 'completed'
-        })
-        .eq('id', reportCard.id);
+        if (updateError) {
+          console.error("Error updating design info:", updateError);
+          throw updateError;
+        }
 
-      if (updateError) {
-        console.error("Error updating report card:", updateError);
-        throw updateError;
+        designInfo = updatedDesignInfo;
+      } else {
+        // Create new design info
+        console.log("Creating new design info");
+        const { data: newDesignInfo, error: createError } = await supabase
+          .from('design_info')
+          .insert({
+            ...designData,
+            report_card_id: reportCard.id
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Error creating design info:", createError);
+          throw createError;
+        }
+
+        // Update report card with design info id
+        const { error: updateError } = await supabase
+          .from('report_cards')
+          .update({ 
+            design_info_id: newDesignInfo.id,
+            design_info_status: 'completed'
+          })
+          .eq('id', reportCard.id);
+
+        if (updateError) {
+          console.error("Error updating report card:", updateError);
+          throw updateError;
+        }
+
+        designInfo = newDesignInfo;
       }
 
       // Update the script with the new design info
@@ -94,8 +120,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       onSave(updatedScript);
       
       toast({
-        title: "Design Info Saved",
-        description: "The design information has been successfully saved.",
+        title: script.designInfo ? "Design Info Updated" : "Design Info Saved",
+        description: `The design information has been successfully ${script.designInfo ? 'updated' : 'saved'}.`,
       });
 
       onClose();
