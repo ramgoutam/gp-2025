@@ -1,3 +1,5 @@
+import { LabScript } from "./labScript";
+
 export interface DesignInfo {
   id?: string;
   design_date: string;
