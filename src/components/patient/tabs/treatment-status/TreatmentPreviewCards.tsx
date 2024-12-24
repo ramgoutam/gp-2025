@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Calendar, Info, AlignVerticalSpaceBetween, Droplet, Wrench, Pencil } from "lucide-react";
+import { Calendar, Info, Droplet, Wrench, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PreviewCard } from "./PreviewCard";
+import { ApplianceCard } from "./ApplianceCard";
 
 interface TreatmentPreviewProps {
   surgeryDate?: string;
@@ -18,6 +19,7 @@ interface TreatmentPreviewProps {
   screw?: string;
   patientId?: string;
   onUpdate?: () => void;
+  labScripts?: any[];
 }
 
 export const TreatmentPreviewCards = ({
@@ -31,6 +33,7 @@ export const TreatmentPreviewCards = ({
   screw,
   patientId,
   onUpdate,
+  labScripts = []
 }: TreatmentPreviewProps) => {
   const [showDateDialog, setShowDateDialog] = useState(false);
   const [newSurgeryDate, setNewSurgeryDate] = useState(surgeryDate || "");
@@ -68,44 +71,6 @@ export const TreatmentPreviewCards = ({
     }
   };
 
-  const PreviewCard = ({ 
-    icon: Icon, 
-    title, 
-    value, 
-    className = "",
-    showEdit = false,
-    onEdit,
-  }: { 
-    icon: React.ElementType; 
-    title: string; 
-    value?: string; 
-    className?: string;
-    showEdit?: boolean;
-    onEdit?: () => void;
-  }) => (
-    <Card className={`p-4 hover:shadow-lg transition-all duration-300 group relative ${className}`}>
-      <div className="flex items-start space-x-4">
-        <div className="p-2 rounded-xl bg-primary/5 text-primary group-hover:scale-110 transition-transform duration-300">
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="space-y-1 flex-1">
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="font-semibold text-gray-900">
-            {value || "Not specified"}
-          </p>
-        </div>
-        {showEdit && (
-          <button
-            onClick={onEdit}
-            className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-          >
-            <Pencil className="w-4 h-4 text-gray-500" />
-          </button>
-        )}
-      </div>
-    </Card>
-  );
-
   const formatDate = (date?: string) => {
     if (!date) return undefined;
     try {
@@ -114,6 +79,16 @@ export const TreatmentPreviewCards = ({
       return undefined;
     }
   };
+
+  // Find the latest completed lab script with a completed report card
+  const latestCompletedScript = labScripts
+    ?.filter(script => 
+      script.status === 'completed' && 
+      script.reportCard?.status === 'completed'
+    )
+    .sort((a, b) => 
+      new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
+    )[0];
 
   return (
     <>
@@ -141,30 +116,15 @@ export const TreatmentPreviewCards = ({
           value={status}
           className="bg-gradient-to-br from-white to-gray-50"
         />
-        <Card className="p-4 col-span-full hover:shadow-lg transition-all duration-300 group bg-gradient-to-br from-white to-gray-50">
-          <div className="flex items-start space-x-4">
-            <div className="p-2 rounded-xl bg-primary/5 text-primary group-hover:scale-110 transition-transform duration-300">
-              <AlignVerticalSpaceBetween className="w-5 h-5" />
-            </div>
-            <div className="space-y-3 flex-1">
-              <p className="text-sm font-medium text-gray-500">Latest Appliance</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-1">
-                  <p className="text-sm text-gray-500">Upper</p>
-                  <p className="font-semibold text-gray-900">{upperAppliance || "None"}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-gray-500">Lower</p>
-                  <p className="font-semibold text-gray-900">{lowerAppliance || "None"}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-gray-500">Nightguard</p>
-                  <p className="font-semibold text-gray-900">{nightguard || "None"}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+
+        <ApplianceCard
+          upperTreatment={upperAppliance}
+          lowerTreatment={lowerAppliance}
+          nightguard={nightguard}
+          upperDesignName={latestCompletedScript?.upperDesignName}
+          lowerDesignName={latestCompletedScript?.lowerDesignName}
+        />
+
         <PreviewCard
           icon={Droplet}
           title="Shade"

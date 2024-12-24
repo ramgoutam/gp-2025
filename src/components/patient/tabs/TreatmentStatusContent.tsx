@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Activity } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,8 +89,6 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
             </div>
           </div>
 
-          <Separator className="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
-
           <TreatmentPreviewCards
             surgeryDate={localPatientData.surgery_date}
             deliveryDate={latestScript?.dueDate}
@@ -103,6 +99,7 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
             shade={latestScript?.screwType}
             screw={latestScript?.screwType}
             patientId={localPatientData.id}
+            labScripts={labScripts}
             onUpdate={() => {
               // Refresh the patient data
               if (patientData?.id) {
