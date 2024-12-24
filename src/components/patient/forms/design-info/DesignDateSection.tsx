@@ -16,7 +16,7 @@ export const DesignDateSection = ({ value, onChange }: DesignDateSectionProps) =
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="focus:ring-0 focus:ring-offset-0 focus:border-gray-300"
+        className="focus:ring-0 focus:ring-offset-0 focus:border-gray-300 focus:outline-none [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-datetime-edit-fields-wrapper]:text-gray-900"
       />
     </div>
   );
