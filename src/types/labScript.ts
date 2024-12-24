@@ -1,19 +1,25 @@
 export type LabScriptStatus = "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
 
 export interface DesignInfo {
-  designDate: string;
-  implantLibrary?: string;
-  teethLibrary?: string;
-  actionsTaken?: string;
+  report_card_id: string;
+  design_date: string;
+  implant_library?: string;
+  teeth_library?: string;
+  actions_taken?: string;
+  appliance_type?: string;
+  upper_treatment?: string;
+  lower_treatment?: string;
+  screw?: string;
 }
 
 export interface ClinicalInfo {
-  insertionDate: string;
-  applianceFit?: string;
-  designFeedback?: string;
+  report_card_id: string;
+  insertion_date: string;
+  appliance_fit?: string;
+  design_feedback?: string;
   occlusion?: string;
   esthetics?: string;
-  adjustmentsMade?: string;
+  adjustments_made?: string;
   material?: string;
   shade?: string;
 }

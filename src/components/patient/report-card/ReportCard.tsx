@@ -56,11 +56,28 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = async () => {
     try {
+      // Get the report card ID first
+      const { data: reportCard } = await supabase
+        .from('report_cards')
+        .select('id')
+        .eq('lab_script_id', script.id)
+        .single();
+
+      if (!reportCard) {
+        throw new Error('Report card not found');
+      }
+
       const newState = {
         ...reportCardState,
         reportStatus: 'completed',
-        clinicalInfo: reportCardState.clinicalInfo,
-        designInfo: reportCardState.designInfo
+        clinicalInfo: reportCardState.clinicalInfo ? {
+          ...reportCardState.clinicalInfo,
+          report_card_id: reportCard.id
+        } : undefined,
+        designInfo: reportCardState.designInfo ? {
+          ...reportCardState.designInfo,
+          report_card_id: reportCard.id
+        } : undefined
       };
       
       await saveReportCardState(script.id, newState);
