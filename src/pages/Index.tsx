@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,9 @@ import { Search, Plus, Mail, Phone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { createPatient, getPatients } from "@/utils/databaseUtils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Database } from '@/integrations/supabase/types';
 
-interface Patient {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  sex: string;
-  dob: string;
-}
+type Patient = Database['public']['Tables']['patients']['Row'];
 
 const Index = () => {
   const { toast } = useToast();
@@ -52,12 +45,14 @@ const Index = () => {
   const createPatientMutation = useMutation({
     mutationFn: createPatient,
     onSuccess: (newPatient) => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] });
-      toast({
-        title: "Success",
-        description: "Patient added successfully",
-      });
-      navigate(`/patient/${newPatient.id}`);
+      if (newPatient) {
+        queryClient.invalidateQueries({ queryKey: ['patients'] });
+        toast({
+          title: "Success",
+          description: "Patient added successfully",
+        });
+        navigate(`/patient/${newPatient.id}`);
+      }
     },
     onError: (error) => {
       console.error('Error creating patient:', error);
