@@ -20,6 +20,7 @@ import {
 import { PatientForm } from "@/components/PatientForm";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 type PatientData = {
   id: number;
@@ -46,6 +47,7 @@ export const PatientHeader = ({
 }: PatientHeaderProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -74,23 +76,56 @@ export const PatientHeader = ({
     });
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     console.log("Deleting patient:", patientData);
+    setIsDeleting(true);
     
-    // Get current patients from localStorage
-    const savedPatients = localStorage.getItem('patients');
-    if (savedPatients) {
-      const patients = JSON.parse(savedPatients);
-      const updatedPatients = patients.filter((p: PatientData) => p.id !== patientData.id);
-      localStorage.setItem('patients', JSON.stringify(updatedPatients));
-    }
+    try {
+      // Delete patient from database
+      // Due to CASCADE DELETE, this will automatically delete:
+      // - All lab scripts
+      // - All lab script files records
+      // - All report cards
+      const { error: deleteError } = await supabase
+        .from('patients')
+        .delete()
+        .eq('id', patientData.id);
 
-    setShowDeleteDialog(false);
-    toast({
-      title: "Success",
-      description: "Patient deleted successfully",
-    });
-    navigate('/');
+      if (deleteError) throw deleteError;
+
+      // Clean up files from storage
+      const { data: files } = await supabase
+        .from('lab_script_files')
+        .select('file_path')
+        .eq('lab_script_id', patientData.id);
+
+      if (files && files.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('lab_script_files')
+          .remove(files.map(file => file.file_path));
+
+        if (storageError) {
+          console.error('Error deleting files from storage:', storageError);
+          // Continue with navigation even if file deletion fails
+        }
+      }
+
+      setShowDeleteDialog(false);
+      toast({
+        title: "Success",
+        description: "Patient and all associated data deleted successfully",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete patient. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -129,9 +164,10 @@ export const PatientHeader = ({
                 size="sm"
                 className="h-6 px-2 text-destructive hover:text-destructive"
                 onClick={() => setShowDeleteDialog(true)}
+                disabled={isDeleting}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                Delete
+                {isDeleting ? "Deleting..." : "Delete"}
               </Button>
             </p>
           </div>
@@ -164,13 +200,17 @@ export const PatientHeader = ({
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete {patientData.firstName} {patientData.lastName}'s
-              profile and all associated data.
+              profile and all associated data, including lab scripts, files, and report cards.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
