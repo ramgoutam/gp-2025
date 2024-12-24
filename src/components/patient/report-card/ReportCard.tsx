@@ -8,6 +8,7 @@ import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { InfoStatus, ReportCardData } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReportCardProps {
   script: LabScript;
@@ -25,10 +26,11 @@ export const ReportCard = ({
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
   const [isCompleted, setIsCompleted] = useState(false);
+  const { toast } = useToast();
 
   const fetchReportCardStatus = async () => {
-    console.log("Fetching report card status for script:", script.id);
     try {
+      console.log("Fetching report card status for script:", script.id);
       const { data: reportCard, error } = await supabase
         .from('report_cards')
         .select(`
@@ -48,6 +50,7 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+        setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -85,18 +88,32 @@ export const ReportCard = ({
     };
   }, [script.id]);
 
-  useEffect(() => {
-    setIsCompleted(script.status === 'completed');
-  }, [script.status]);
-
   const handleComplete = async () => {
-    if (onUpdateScript) {
+    console.log("Completing report card");
+    try {
+      // Update lab script status to completed
       const updatedScript: LabScript = {
         ...script,
         status: 'completed' as LabScriptStatus
       };
-      onUpdateScript(updatedScript);
+
+      if (onUpdateScript) {
+        onUpdateScript(updatedScript);
+      }
+
       setIsCompleted(true);
+      
+      toast({
+        title: "Success",
+        description: "Report card has been completed successfully.",
+      });
+    } catch (error) {
+      console.error("Error completing report card:", error);
+      toast({
+        title: "Error",
+        description: "Failed to complete report card. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
