@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
@@ -31,64 +31,69 @@ export const LabScriptsTab = ({
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
   const { toast } = useToast();
-  const [scriptDetails, setScriptDetails] = React.useState<Record<string, any>>({});
+  const [enrichedLabScripts, setEnrichedLabScripts] = useState<LabScript[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sort lab scripts by request date in descending order (newest first)
-  const sortedLabScripts = React.useMemo(() => {
-    console.log("Sorting lab scripts by date...");
-    return [...labScripts].sort((a, b) => {
-      const dateA = new Date(a.requestDate).getTime();
-      const dateB = new Date(b.requestDate).getTime();
-      console.log(`Comparing dates: ${a.requestDate} vs ${b.requestDate}`);
-      return dateB - dateA; // Descending order
-    });
-  }, [labScripts]);
-
-  // Preload all script details when the component mounts or lab scripts change
-  React.useEffect(() => {
-    const fetchScriptDetails = async () => {
+  // Sort and enrich lab scripts with their report card data
+  useEffect(() => {
+    const enrichLabScripts = async () => {
       try {
-        for (const script of sortedLabScripts) {
-          console.log("Preloading details for script:", script.id);
-          
-          const { data: reportCard, error: reportCardError } = await supabase
-            .from('report_cards')
-            .select(`
-              *,
-              design_info!report_cards_design_info_id_fkey (*),
-              clinical_info!report_cards_clinical_info_id_fkey (*)
-            `)
-            .eq('lab_script_id', script.id)
-            .maybeSingle();
+        setIsLoading(true);
+        const enrichedScripts = await Promise.all(
+          labScripts.map(async (script) => {
+            console.log("Fetching report card data for script:", script.id);
+            
+            const { data: reportCard, error: reportCardError } = await supabase
+              .from('report_cards')
+              .select(`
+                *,
+                design_info!report_cards_design_info_id_fkey (*),
+                clinical_info!report_cards_clinical_info_id_fkey (*)
+              `)
+              .eq('lab_script_id', script.id)
+              .maybeSingle();
 
-          if (reportCardError) {
-            console.error("Error fetching report card:", reportCardError);
-            continue;
-          }
+            if (reportCardError) {
+              console.error("Error fetching report card:", reportCardError);
+              return script;
+            }
 
-          if (reportCard) {
-            setScriptDetails(prev => ({
-              ...prev,
-              [script.id]: {
-                reportCard,
+            if (reportCard) {
+              return {
+                ...script,
                 designInfo: reportCard.design_info,
-                clinicalInfo: reportCard.clinical_info
-              }
-            }));
-          }
-        }
+                clinicalInfo: reportCard.clinical_info,
+                reportCard
+              };
+            }
+
+            return script;
+          })
+        );
+
+        // Sort by request date (newest first)
+        const sortedScripts = enrichedScripts.sort((a, b) => {
+          const dateA = new Date(a.requestDate).getTime();
+          const dateB = new Date(b.requestDate).getTime();
+          return dateB - dateA;
+        });
+
+        console.log("Enriched and sorted scripts:", sortedScripts);
+        setEnrichedLabScripts(sortedScripts);
       } catch (error) {
-        console.error("Error preloading script details:", error);
+        console.error("Error enriching lab scripts:", error);
         toast({
           title: "Error",
           description: "Failed to load some script details",
           variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchScriptDetails();
-  }, [sortedLabScripts]);
+    enrichLabScripts();
+  }, [labScripts]);
 
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
@@ -157,17 +162,13 @@ export const LabScriptsTab = ({
       <div className="flex-1 min-h-0 bg-white rounded-lg border border-gray-100 shadow-sm">
         <ScrollArea className="h-[calc(100vh-500px)] px-6 py-4">
           <div className="space-y-4 pr-4 pb-8">
-            {sortedLabScripts.length === 0 ? (
+            {enrichedLabScripts.length === 0 ? (
               <EmptyState />
             ) : (
-              sortedLabScripts.map((script) => (
+              enrichedLabScripts.map((script) => (
                 <LabScriptCard
                   key={script.id}
-                  script={{
-                    ...script,
-                    designInfo: scriptDetails[script.id]?.designInfo,
-                    clinicalInfo: scriptDetails[script.id]?.clinicalInfo
-                  }}
+                  script={script}
                   onClick={() => handleRowClick(script)}
                   onEdit={() => handleEditClick(script)}
                   onDelete={() => onDeleteLabScript(script)}
@@ -180,11 +181,7 @@ export const LabScriptsTab = ({
       </div>
 
       <LabScriptDetails
-        script={selectedScript ? {
-          ...selectedScript,
-          designInfo: scriptDetails[selectedScript.id]?.designInfo,
-          clinicalInfo: scriptDetails[selectedScript.id]?.clinicalInfo
-        } : null}
+        script={selectedScript}
         open={!!selectedScript}
         onOpenChange={(open) => {
           if (!open) {
