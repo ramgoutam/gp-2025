@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, AlertCircle, Stethoscope } from "lucide-react";
 import { LabScript } from "@/types/labScript";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface TreatmentStatusProps {
   labScripts: LabScript[];
   patientData?: {
+    id?: string;
     treatment_type?: string;
     upper_treatment?: string;
     lower_treatment?: string;
@@ -16,9 +19,44 @@ interface TreatmentStatusProps {
 }
 
 export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) => {
-  console.log("Treatment status data:", patientData);
+  const { toast } = useToast();
+  const [localPatientData, setLocalPatientData] = React.useState(patientData);
 
-  if (!patientData?.treatment_type) {
+  console.log("Initial treatment status data:", patientData);
+
+  useEffect(() => {
+    if (!patientData?.id) return;
+
+    // Subscribe to changes on the patients table for this specific patient
+    const channel = supabase
+      .channel('patient-treatment-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'patients',
+          filter: `id=eq.${patientData.id}`
+        },
+        (payload) => {
+          console.log("Received real-time update:", payload);
+          const updatedPatient = payload.new;
+          setLocalPatientData(updatedPatient);
+          
+          toast({
+            title: "Treatment Status Updated",
+            description: "The treatment information has been updated.",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [patientData?.id]);
+
+  if (!localPatientData?.treatment_type) {
     return (
       <Card className="p-6">
         <div className="text-center py-8">
@@ -61,9 +99,9 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
           <h2 className="text-2xl font-semibold">Treatment Status</h2>
           <Badge 
             variant="outline" 
-            className={`${getStatusColor(patientData.treatment_type)} px-3 py-1`}
+            className={`${getStatusColor(localPatientData.treatment_type)} px-3 py-1`}
           >
-            {patientData.treatment_type?.toUpperCase().replace('_', ' ')}
+            {localPatientData.treatment_type?.toUpperCase().replace('_', ' ')}
           </Badge>
         </div>
 
@@ -78,17 +116,17 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
                     <h3 className="text-lg font-medium">Current Treatment</h3>
                   </div>
                 </div>
-                {getStatusIcon(patientData.treatment_type)}
+                {getStatusIcon(localPatientData.treatment_type)}
               </div>
 
               <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">Upper Treatment</p>
-                  <p className="font-medium">{patientData.upper_treatment || 'None specified'}</p>
+                  <p className="font-medium">{localPatientData.upper_treatment || 'None specified'}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">Lower Treatment</p>
-                  <p className="font-medium">{patientData.lower_treatment || 'None specified'}</p>
+                  <p className="font-medium">{localPatientData.lower_treatment || 'None specified'}</p>
                 </div>
               </div>
             </div>
