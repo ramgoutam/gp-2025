@@ -21,6 +21,7 @@ export const ActionButtons = ({
   clinicalInfoStatus = 'pending'
 }: ActionButtonsProps) => {
   const isDesignInfoCompleted = designInfoStatus === 'completed';
+  const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
 
   return (
     <div className="flex gap-3">
@@ -35,7 +36,7 @@ export const ActionButtons = ({
         ) : (
           <Settings className="h-4 w-4" />
         )}
-        {isDesignInfoCompleted ? 'Edit Design Info' : 'Design Info'}
+        {isDesignInfoCompleted ? 'Edit Design Info' : 'Add Design Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
       <Button
@@ -45,7 +46,7 @@ export const ActionButtons = ({
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         <Stethoscope className="h-4 w-4" />
-        {clinicalInfoStatus === 'completed' ? 'Edit Clinical Info' : 'Clinical Info'}
+        {isClinicalInfoCompleted ? 'Edit Clinical Info' : 'Add Clinical Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
       {script.designInfo && script.clinicalInfo && script.status !== 'completed' && (
