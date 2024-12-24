@@ -15,6 +15,7 @@ interface TreatmentStatusProps {
     treatment_type?: string;
     upper_treatment?: string;
     lower_treatment?: string;
+    surgery_date?: string;
   };
 }
 
@@ -93,7 +94,7 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
           <Separator className="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
 
           <TreatmentPreviewCards
-            surgeryDate={latestScript?.requestDate}
+            surgeryDate={localPatientData.surgery_date}
             deliveryDate={latestScript?.dueDate}
             status={latestScript?.status}
             upperAppliance={localPatientData.upper_treatment}
@@ -101,6 +102,22 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
             nightguard={latestScript?.applianceType === "Nightguard" ? "Yes" : "No"}
             shade={latestScript?.screwType}
             screw={latestScript?.screwType}
+            patientId={localPatientData.id}
+            onUpdate={() => {
+              // Refresh the patient data
+              if (patientData?.id) {
+                supabase
+                  .from('patients')
+                  .select('*')
+                  .eq('id', patientData.id)
+                  .single()
+                  .then(({ data, error }) => {
+                    if (!error && data) {
+                      setLocalPatientData(data);
+                    }
+                  });
+              }
+            }}
           />
         </div>
       </Card>
