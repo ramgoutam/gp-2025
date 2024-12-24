@@ -1,3 +1,4 @@
+import React from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +24,11 @@ const Login = () => {
           case "USER_UPDATED":
             console.log("User updated");
             break;
-          case "USER_DELETED":
-            navigate("/login");
+          case "TOKEN_REFRESHED":
+            console.log("Token refreshed");
+            break;
+          case "MFA_CHALLENGE_VERIFIED":
+            console.log("MFA challenge verified");
             break;
           default:
             console.log("Unhandled auth event:", event);
