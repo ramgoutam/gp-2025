@@ -10,8 +10,10 @@ export const useClinicalInfo = (
 ) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Initialize form data with existing clinical info if available
   const [formData, setFormData] = useState({
-    insertion_date: script.clinicalInfo?.insertion_date || "", // Changed to empty string
+    insertion_date: script.clinicalInfo?.insertion_date || "",
     appliance_fit: script.clinicalInfo?.appliance_fit || "",
     design_feedback: script.clinicalInfo?.design_feedback || "",
     occlusion: script.clinicalInfo?.occlusion || "",

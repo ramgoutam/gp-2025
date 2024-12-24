@@ -8,6 +8,8 @@ export const useDesignForm = (
   onClose: () => void
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Initialize form data with existing design info if available
   const [designData, setDesignData] = useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
