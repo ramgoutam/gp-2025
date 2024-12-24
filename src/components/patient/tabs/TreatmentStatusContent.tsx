@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, AlertCircle, Stethoscope, Activity } from "lucide-react";
+import { CheckCircle, AlertCircle, Stethoscope, Activity, ArrowRight } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +58,7 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
     return (
       <Card className="p-8">
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center shadow-inner">
             <AlertCircle className="h-8 w-8 text-gray-400" />
           </div>
           <p className="text-lg font-medium text-gray-500">No treatment data available</p>
@@ -71,11 +71,11 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
   const getStatusIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'upper':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle className="h-6 w-6 text-primary" />;
       case 'lower':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle className="h-6 w-6 text-primary" />;
       case 'dual':
-        return <Stethoscope className="h-6 w-6 text-blue-500" />;
+        return <Stethoscope className="h-6 w-6 text-primary" />;
       default:
         return <AlertCircle className="h-6 w-6 text-yellow-500" />;
     }
@@ -85,9 +85,9 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
     switch (type.toLowerCase()) {
       case 'upper':
       case 'lower':
-        return 'bg-green-50 text-green-700 border-green-200 shadow-sm shadow-green-100';
+        return 'bg-primary/5 text-primary border-primary/20 shadow-sm shadow-primary/5';
       case 'dual':
-        return 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm shadow-blue-100';
+        return 'bg-secondary/10 text-secondary border-secondary/20 shadow-sm shadow-secondary/5';
       default:
         return 'bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm shadow-yellow-100';
     }
@@ -95,46 +95,66 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-        <div className="space-y-6">
+      <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-white via-gray-50/50 to-gray-50">
+        <div className="p-8 space-y-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Activity className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-semibold">Treatment Status</h2>
+            <div className="flex items-center space-x-4">
+              <div className="p-3 rounded-xl bg-primary/5 text-primary">
+                <Activity className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  Treatment Status
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">Current treatment progress and details</p>
+              </div>
             </div>
             <Badge 
               variant="outline" 
-              className={`${getStatusColor(localPatientData.treatment_type)} px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200`}
+              className={`${getStatusColor(localPatientData.treatment_type)} 
+                px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 
+                hover:scale-105 uppercase tracking-wide`}
             >
-              {localPatientData.treatment_type?.toUpperCase().replace('_', ' ')}
+              {localPatientData.treatment_type?.replace('_', ' ')}
             </Badge>
           </div>
 
-          <Separator className="bg-gray-100" />
+          <Separator className="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
 
-          <div className="space-y-6">
-            <Card className="overflow-hidden border border-gray-100 hover:border-primary/20 transition-all duration-200">
+          <div className="grid gap-6">
+            <Card className="overflow-hidden border border-gray-100/50 hover:border-primary/20 transition-all duration-300 group">
               <div className="p-6 space-y-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium">Current Treatment Plan</h3>
+                      <h3 className="text-lg font-medium text-gray-900">Active Treatment Plan</h3>
+                      <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-300" />
                     </div>
-                    <p className="text-sm text-gray-500">Active treatment details and progress</p>
+                    <p className="text-sm text-gray-500">Detailed treatment information and progress</p>
                   </div>
-                  {getStatusIcon(localPatientData.treatment_type)}
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-gray-50 to-white shadow-sm border border-gray-100 group-hover:border-primary/20 transition-all duration-300">
+                    {getStatusIcon(localPatientData.treatment_type)}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="p-4 rounded-xl bg-gray-50/50 border border-gray-100 space-y-3 hover:bg-gray-50 transition-colors duration-200">
-                    <p className="text-sm font-medium text-gray-500">Upper Treatment</p>
-                    <p className="font-medium text-gray-900">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 space-y-3 
+                    hover:border-primary/20 hover:shadow-md transition-all duration-300 group">
+                    <p className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                      Upper Treatment
+                      <span className="h-1 w-1 rounded-full bg-primary/20 group-hover:bg-primary/40 transition-colors duration-300" />
+                    </p>
+                    <p className="font-medium text-gray-900 group-hover:text-gray-800 transition-colors duration-300">
                       {localPatientData.upper_treatment || 'None specified'}
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-gray-50/50 border border-gray-100 space-y-3 hover:bg-gray-50 transition-colors duration-200">
-                    <p className="text-sm font-medium text-gray-500">Lower Treatment</p>
-                    <p className="font-medium text-gray-900">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 space-y-3 
+                    hover:border-primary/20 hover:shadow-md transition-all duration-300 group">
+                    <p className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                      Lower Treatment
+                      <span className="h-1 w-1 rounded-full bg-primary/20 group-hover:bg-primary/40 transition-colors duration-300" />
+                    </p>
+                    <p className="font-medium text-gray-900 group-hover:text-gray-800 transition-colors duration-300">
                       {localPatientData.lower_treatment || 'None specified'}
                     </p>
                   </div>
