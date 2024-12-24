@@ -13,21 +13,15 @@ interface TreatmentFormProps {
 
 const SHADE_OPTIONS = ["A1", "A2", "A3", "A3.5", "A4", "B1", "B2", "B3", "B4"];
 
-const APPLIANCE_TYPES = [
-  "Surgical Day appliance",
-  "Printed Try-in",
-  "Nightguard",
-  "Direct load PMMA",
-  "Direct Load Zirconia",
-  "Ti-Bar and Superstructure"
-];
+const TREATMENT_OPTIONS = ["None", "Full Arch Fixed", "Denture", "Crown"];
 
 export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
     arch: "",
     shade: "",
-    applianceType: "",
+    upperTreatment: "",
+    lowerTreatment: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,18 +90,37 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="applianceType">Appliance Type</Label>
+              <Label htmlFor="upperTreatment">Upper Treatment</Label>
               <Select
-                value={formData.applianceType}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, applianceType: value }))}
+                value={formData.upperTreatment}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, upperTreatment: value }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select appliance type" />
+                  <SelectValue placeholder="Select upper treatment" />
                 </SelectTrigger>
                 <SelectContent className="bg-white z-[200]">
-                  {APPLIANCE_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                  {TREATMENT_OPTIONS.map((treatment) => (
+                    <SelectItem key={treatment} value={treatment}>
+                      {treatment}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lowerTreatment">Lower Treatment</Label>
+              <Select
+                value={formData.lowerTreatment}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, lowerTreatment: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select lower treatment" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[200]">
+                  {TREATMENT_OPTIONS.map((treatment) => (
+                    <SelectItem key={treatment} value={treatment}>
+                      {treatment}
                     </SelectItem>
                   ))}
                 </SelectContent>
