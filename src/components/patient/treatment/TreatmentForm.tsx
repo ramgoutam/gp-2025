@@ -13,6 +13,15 @@ interface TreatmentFormProps {
 
 const SHADE_OPTIONS = ["A1", "A2", "A3", "A3.5", "A4", "B1", "B2", "B3", "B4"];
 
+const APPLIANCE_TYPES = [
+  "Surgical Day appliance",
+  "Printed Try-in",
+  "Nightguard",
+  "Direct load PMMA",
+  "Direct Load Zirconia",
+  "Ti-Bar and Superstructure"
+];
+
 export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
@@ -59,7 +68,7 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
                 <SelectTrigger>
                   <SelectValue placeholder="Select arch type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-[200]">
                   <SelectItem value="upper">Upper</SelectItem>
                   <SelectItem value="lower">Lower</SelectItem>
                   <SelectItem value="dual">Dual</SelectItem>
@@ -76,7 +85,7 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
                 <SelectTrigger>
                   <SelectValue placeholder="Select shade" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-[200]">
                   {SHADE_OPTIONS.map((shade) => (
                     <SelectItem key={shade} value={shade}>
                       {shade}
@@ -95,9 +104,12 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
                 <SelectTrigger>
                   <SelectValue placeholder="Select appliance type" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="type1">Type 1</SelectItem>
-                  {/* Add more appliance types as needed */}
+                <SelectContent className="bg-white z-[200]">
+                  {APPLIANCE_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
