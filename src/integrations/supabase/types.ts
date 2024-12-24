@@ -9,6 +9,112 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      clinical_info: {
+        Row: {
+          adjustments_made: string | null
+          appliance_fit: string | null
+          created_at: string
+          design_feedback: string | null
+          esthetics: string | null
+          id: string
+          insertion_date: string | null
+          material: string | null
+          occlusion: string | null
+          report_card_id: string
+          shade: string | null
+          updated_at: string
+        }
+        Insert: {
+          adjustments_made?: string | null
+          appliance_fit?: string | null
+          created_at?: string
+          design_feedback?: string | null
+          esthetics?: string | null
+          id?: string
+          insertion_date?: string | null
+          material?: string | null
+          occlusion?: string | null
+          report_card_id: string
+          shade?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adjustments_made?: string | null
+          appliance_fit?: string | null
+          created_at?: string
+          design_feedback?: string | null
+          esthetics?: string | null
+          id?: string
+          insertion_date?: string | null
+          material?: string | null
+          occlusion?: string | null
+          report_card_id?: string
+          shade?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_info_report_card_id_fkey"
+            columns: ["report_card_id"]
+            isOneToOne: true
+            referencedRelation: "report_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      design_info: {
+        Row: {
+          actions_taken: string | null
+          appliance_type: string | null
+          created_at: string
+          design_date: string
+          id: string
+          implant_library: string | null
+          lower_treatment: string | null
+          report_card_id: string
+          screw: string | null
+          teeth_library: string | null
+          updated_at: string
+          upper_treatment: string | null
+        }
+        Insert: {
+          actions_taken?: string | null
+          appliance_type?: string | null
+          created_at?: string
+          design_date?: string
+          id?: string
+          implant_library?: string | null
+          lower_treatment?: string | null
+          report_card_id: string
+          screw?: string | null
+          teeth_library?: string | null
+          updated_at?: string
+          upper_treatment?: string | null
+        }
+        Update: {
+          actions_taken?: string | null
+          appliance_type?: string | null
+          created_at?: string
+          design_date?: string
+          id?: string
+          implant_library?: string | null
+          lower_treatment?: string | null
+          report_card_id?: string
+          screw?: string | null
+          teeth_library?: string | null
+          updated_at?: string
+          upper_treatment?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "design_info_report_card_id_fkey"
+            columns: ["report_card_id"]
+            isOneToOne: true
+            referencedRelation: "report_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lab_script_files: {
         Row: {
           created_at: string
@@ -159,9 +265,7 @@ export type Database = {
       }
       report_cards: {
         Row: {
-          clinical_info: Json | null
           created_at: string
-          design_info: Json | null
           id: string
           lab_script_id: string | null
           patient_id: string
@@ -169,9 +273,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          clinical_info?: Json | null
           created_at?: string
-          design_info?: Json | null
           id?: string
           lab_script_id?: string | null
           patient_id: string
@@ -179,9 +281,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          clinical_info?: Json | null
           created_at?: string
-          design_info?: Json | null
           id?: string
           lab_script_id?: string | null
           patient_id?: string

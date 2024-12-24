@@ -1,6 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 import { ReportCardState, DesignInfo, ClinicalInfo } from "@/types/reportCard";
-import { Json } from "@/integrations/supabase/types";
 
 export const saveReportCardState = async (
   labScriptId: string,
@@ -44,8 +43,6 @@ export const saveReportCardState = async (
       reportCardOperation = supabase
         .from('report_cards')
         .update({
-          design_info: state.designInfo as Json,
-          clinical_info: state.clinicalInfo as Json,
           report_status: state.reportStatus,
           updated_at: new Date().toISOString()
         })
@@ -58,8 +55,6 @@ export const saveReportCardState = async (
         .insert({
           lab_script_id: labScriptId,
           patient_id: labScript.patient_id,
-          design_info: state.designInfo as Json,
-          clinical_info: state.clinicalInfo as Json,
           report_status: state.reportStatus || 'pending'
         });
     }
@@ -84,33 +79,32 @@ export const getReportCardState = async (
   console.log("Getting report card state for lab script:", labScriptId);
   
   try {
-    const { data, error } = await supabase
+    const { data: reportCard, error: reportError } = await supabase
       .from('report_cards')
-      .select('*')
+      .select(`
+        *,
+        design_info (*),
+        clinical_info (*)
+      `)
       .eq('lab_script_id', labScriptId)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching report card state:", error);
-      throw error;
+    if (reportError) {
+      console.error("Error fetching report card state:", reportError);
+      throw reportError;
     }
 
-    if (!data) {
+    if (!reportCard) {
       console.log("No report card data found");
       return null;
     }
 
-    const designInfo = data.design_info as DesignInfo | null;
-    const clinicalInfo = data.clinical_info as ClinicalInfo | null;
-
-    console.log("Successfully retrieved report card state:", data);
+    console.log("Successfully retrieved report card state:", reportCard);
     
     return {
-      reportStatus: data.report_status || 'pending',
-      isDesignInfoComplete: !!designInfo,
-      isClinicalInfoComplete: !!clinicalInfo,
-      designInfo,
-      clinicalInfo
+      reportStatus: reportCard.report_status || 'pending',
+      isDesignInfoComplete: !!reportCard.design_info,
+      isClinicalInfoComplete: !!reportCard.clinical_info,
     };
   } catch (error) {
     console.error("Error in getReportCardState:", error);

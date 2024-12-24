@@ -1,18 +1,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
-
-const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
-const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
+import { DesignDateSection } from "./design-info/DesignDateSection";
+import { LibrarySection } from "./design-info/LibrarySection";
+import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -48,37 +44,73 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         .from('report_cards')
         .select('*')
         .eq('lab_script_id', script.id)
-        .single();
+        .maybeSingle();
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      if (fetchError) {
         throw fetchError;
       }
 
-      let reportCardOperation;
+      let reportCardId;
+      
       if (existingReport) {
-        // Update existing report card
-        console.log("Updating existing report card:", existingReport.id);
-        reportCardOperation = supabase
-          .from('report_cards')
-          .update({
-            design_info: designData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingReport.id);
+        reportCardId = existingReport.id;
       } else {
         // Create new report card
-        console.log("Creating new report card for lab script:", script.id);
-        reportCardOperation = supabase
+        const { data: newReport, error: createError } = await supabase
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            patient_id: script.patientId, // Use patientId from script
-            design_info: designData,
+            patient_id: script.patientId,
             report_status: 'in_progress'
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        reportCardId = newReport.id;
+      }
+
+      // Now handle the design info
+      const { data: existingDesign } = await supabase
+        .from('design_info')
+        .select('*')
+        .eq('report_card_id', reportCardId)
+        .maybeSingle();
+
+      let designOperation;
+      if (existingDesign) {
+        // Update existing design info
+        designOperation = supabase
+          .from('design_info')
+          .update({
+            design_date: designData.designDate,
+            appliance_type: designData.applianceType,
+            upper_treatment: designData.upperTreatment,
+            lower_treatment: designData.lowerTreatment,
+            screw: designData.screw,
+            implant_library: designData.implantLibrary,
+            teeth_library: designData.teethLibrary,
+            actions_taken: designData.actionsTaken,
+          })
+          .eq('id', existingDesign.id);
+      } else {
+        // Create new design info
+        designOperation = supabase
+          .from('design_info')
+          .insert({
+            report_card_id: reportCardId,
+            design_date: designData.designDate,
+            appliance_type: designData.applianceType,
+            upper_treatment: designData.upperTreatment,
+            lower_treatment: designData.lowerTreatment,
+            screw: designData.screw,
+            implant_library: designData.implantLibrary,
+            teeth_library: designData.teethLibrary,
+            actions_taken: designData.actionsTaken,
           });
       }
 
-      const { error: saveError } = await reportCardOperation;
+      const { error: saveError } = await designOperation;
       if (saveError) throw saveError;
 
       // Update the script with the new design info
@@ -108,15 +140,10 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="designDate">Design Date</Label>
-          <Input
-            id="designDate"
-            type="date"
-            value={designData.designDate}
-            onChange={(e) => handleDesignDataChange("designDate", e.target.value)}
-          />
-        </div>
+        <DesignDateSection
+          value={designData.designDate}
+          onChange={(value) => handleDesignDataChange("designDate", value)}
+        />
       </div>
 
       <ApplianceSection
@@ -142,55 +169,17 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         onChange={(value) => handleDesignDataChange("screw", value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="implantLibrary">Implant Library</Label>
-          <Select
-            value={designData.implantLibrary}
-            onValueChange={(value) => handleDesignDataChange("implantLibrary", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select implant library" />
-            </SelectTrigger>
-            <SelectContent className="bg-white z-[200]">
-              {IMPLANT_LIBRARIES.map((lib) => (
-                <SelectItem key={lib} value={lib} className="hover:bg-gray-100">
-                  {lib}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <LibrarySection
+        implantLibrary={designData.implantLibrary}
+        teethLibrary={designData.teethLibrary}
+        onImplantLibraryChange={(value) => handleDesignDataChange("implantLibrary", value)}
+        onTeethLibraryChange={(value) => handleDesignDataChange("teethLibrary", value)}
+      />
 
-        <div className="space-y-2">
-          <Label htmlFor="teethLibrary">Teeth Library</Label>
-          <Select
-            value={designData.teethLibrary}
-            onValueChange={(value) => handleDesignDataChange("teethLibrary", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select teeth library" />
-            </SelectTrigger>
-            <SelectContent className="bg-white z-[200]">
-              {TEETH_LIBRARIES.map((lib) => (
-                <SelectItem key={lib} value={lib} className="hover:bg-gray-100">
-                  {lib}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="actionsTaken">Designer Actions & Changes Made</Label>
-        <Textarea
-          id="actionsTaken"
-          value={designData.actionsTaken}
-          onChange={(e) => handleDesignDataChange("actionsTaken", e.target.value)}
-          className="min-h-[100px]"
-        />
-      </div>
+      <ActionsTakenSection
+        value={designData.actionsTaken}
+        onChange={(value) => handleDesignDataChange("actionsTaken", value)}
+      />
 
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={onClose}>
