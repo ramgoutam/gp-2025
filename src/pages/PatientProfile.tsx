@@ -7,6 +7,7 @@ import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
 import { getLabScripts, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
+import { Loader } from "lucide-react";
 
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
@@ -117,18 +118,25 @@ const PatientProfile = () => {
   };
 
   if (!patientData) {
-    return <div>Patient not found</div>;
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-gray-600">Loading patient data...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50 animate-fade-in">
       <main className="flex-1 overflow-hidden">
         <div className="container mx-auto py-8 px-4 h-full flex flex-col">
-          <div className="text-sm text-gray-500 mb-6">
+          <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
             Patient list / Patient detail
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6 flex-1 flex flex-col overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border border-purple-100/50">
             <PatientHeader 
               patientData={patientData}
               onCreateLabScript={() => setShowLabScriptDialog(true)}
@@ -152,9 +160,11 @@ const PatientProfile = () => {
         open={showLabScriptDialog} 
         onOpenChange={setShowLabScriptDialog}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-purple-50/30">
           <DialogHeader>
-            <DialogTitle>Create Lab Script</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Create Lab Script
+            </DialogTitle>
             <DialogDescription>
               Create a new lab script for {patientData.firstName} {patientData.lastName}
             </DialogDescription>

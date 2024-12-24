@@ -106,7 +106,7 @@ export const PatientHeader = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl">
+      <div className="flex items-center justify-between bg-gradient-to-br from-purple-50 via-blue-50 to-purple-50 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border border-purple-100/50">
         <div className="flex items-center gap-6">
           <div className="transform transition-transform duration-300 hover:scale-105">
             <PatientAvatar 

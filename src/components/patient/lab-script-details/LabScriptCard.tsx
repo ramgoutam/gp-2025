@@ -77,7 +77,7 @@ export const LabScriptCard = ({
   };
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group">
+    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-gradient-to-br from-white to-purple-50/30 animate-fade-in">
       <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div className="space-y-3">
@@ -85,7 +85,7 @@ export const LabScriptCard = ({
               {getScriptTitle()}
               <Badge 
                 variant="outline" 
-                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
+                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
               >
                 {getStatusText(script.status)}
               </Badge>

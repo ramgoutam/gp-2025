@@ -49,91 +49,97 @@ export const PatientTabs = ({
   };
 
   return (
-    <Tabs defaultValue="patient-information" className="w-full">
+    <Tabs defaultValue="patient-information" className="w-full animate-fade-in">
       <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
         <TabsTrigger
           value="patient-information"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Patient Information
         </TabsTrigger>
         <TabsTrigger
           value="treatment-status"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Treatment Status
         </TabsTrigger>
         <TabsTrigger
           value="appointment-history"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Appointment History
         </TabsTrigger>
         <TabsTrigger
           value="lab-scripts"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Lab Scripts
         </TabsTrigger>
         <TabsTrigger
           value="report-card"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Report Card
         </TabsTrigger>
         <TabsTrigger
           value="next-treatment"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Next Treatment
         </TabsTrigger>
         <TabsTrigger
           value="medical-record"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Medical Record
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="patient-information">
-        <PatientInformationContent {...patientData} />
-      </TabsContent>
+      <div className="animate-fade-in">
+        <TabsContent value="patient-information">
+          <PatientInformationContent {...patientData} />
+        </TabsContent>
 
-      <TabsContent value="treatment-status">
-        <TreatmentStatusContent 
-          labScripts={labScripts} 
-          patientData={patientData}
-        />
-      </TabsContent>
+        <TabsContent value="treatment-status">
+          <TreatmentStatusContent 
+            labScripts={labScripts} 
+            patientData={patientData}
+          />
+        </TabsContent>
 
-      <TabsContent value="appointment-history">
-        <div className="text-gray-600">Appointment history will go here</div>
-      </TabsContent>
+        <TabsContent value="appointment-history">
+          <div className="text-gray-600 p-6 bg-gradient-to-br from-white to-blue-50 rounded-lg shadow-sm border border-blue-100/50">
+            Appointment history will go here
+          </div>
+        </TabsContent>
 
-      <TabsContent value="lab-scripts">
-        <LabScriptsContent
-          labScripts={labScripts}
-          onCreateLabScript={handleCreateLabScript}
-          onEditLabScript={handleEditLabScript}
-          onDeleteLabScript={handleDeleteLabScript}
-          patientData={patientData}
-        />
-      </TabsContent>
+        <TabsContent value="lab-scripts">
+          <LabScriptsContent
+            labScripts={labScripts}
+            onCreateLabScript={handleCreateLabScript}
+            onEditLabScript={handleEditLabScript}
+            onDeleteLabScript={handleDeleteLabScript}
+            patientData={patientData}
+          />
+        </TabsContent>
 
-      <TabsContent value="report-card">
-        <ReportCardContent 
-          patientData={patientData} 
-          labScripts={labScripts}
-        />
-      </TabsContent>
+        <TabsContent value="report-card">
+          <ReportCardContent 
+            patientData={patientData} 
+            labScripts={labScripts}
+          />
+        </TabsContent>
 
-      <TabsContent value="next-treatment">
-        <div className="text-gray-600">Next treatment details will go here</div>
-      </TabsContent>
+        <TabsContent value="next-treatment">
+          <div className="text-gray-600 p-6 bg-gradient-to-br from-white to-blue-50 rounded-lg shadow-sm border border-blue-100/50">
+            Next treatment details will go here
+          </div>
+        </TabsContent>
 
-      <TabsContent value="medical-record">
-        <MedicalRecordContent />
-      </TabsContent>
+        <TabsContent value="medical-record">
+          <MedicalRecordContent />
+        </TabsContent>
+      </div>
     </Tabs>
   );
 };

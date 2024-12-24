@@ -93,17 +93,19 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[800px] w-full">
+      <DialogContent className="max-w-[800px] w-full bg-gradient-to-br from-white to-purple-50/30 animate-fade-in">
         <DialogHeader>
-          <DialogTitle>Lab Request Report</DialogTitle>
+          <DialogTitle className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            Lab Request Report
+          </DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[600px] pr-4">
           {isLoading ? (
-            <div className="space-y-4 p-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
+            <div className="space-y-4 p-4 animate-pulse">
+              <div className="h-12 w-full bg-gray-200 rounded-lg" />
+              <div className="h-24 w-full bg-gray-200 rounded-lg" />
+              <div className="h-24 w-full bg-gray-200 rounded-lg" />
+              <div className="h-24 w-full bg-gray-200 rounded-lg" />
             </div>
           ) : (
             <div className="space-y-6 p-4">
