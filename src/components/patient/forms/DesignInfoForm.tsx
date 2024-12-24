@@ -6,6 +6,9 @@ import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
 import { Button } from "@/components/ui/button";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
+import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
+import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
+import { ScrewSection } from "@/components/lab-script/ScrewSection";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -63,6 +66,29 @@ export const DesignInfoForm = ({
       <DesignDateSection
         value={designData.design_date}
         onChange={(value) => handleDesignDataChange('design_date', value)}
+      />
+
+      <ApplianceSection
+        value={designData.appliance_type}
+        onChange={(value) => handleDesignDataChange('appliance_type', value)}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <TreatmentSection
+          title="Upper"
+          treatment={designData.upper_treatment}
+          onTreatmentChange={(value) => handleDesignDataChange('upper_treatment', value)}
+        />
+        <TreatmentSection
+          title="Lower"
+          treatment={designData.lower_treatment}
+          onTreatmentChange={(value) => handleDesignDataChange('lower_treatment', value)}
+        />
+      </div>
+
+      <ScrewSection
+        value={designData.screw}
+        onChange={(value) => handleDesignDataChange('screw', value)}
       />
 
       <LibrarySection
