@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,8 +8,6 @@ export const useDesignForm = (
   onClose: () => void
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Initialize form data with existing values, prioritizing design_info if it exists
   const [designData, setDesignData] = useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
@@ -22,6 +20,45 @@ export const useDesignForm = (
     teeth_library: script.designInfo?.teeth_library || "",
     actions_taken: script.designInfo?.actions_taken || "",
   });
+
+  // Fetch latest design info data when form opens
+  useEffect(() => {
+    const fetchDesignInfo = async () => {
+      if (!script.id) return;
+
+      const { data: reportCard, error: reportCardError } = await supabase
+        .from('report_cards')
+        .select(`
+          *,
+          design_info:design_info_id(*)
+        `)
+        .eq('lab_script_id', script.id)
+        .maybeSingle();
+
+      if (reportCardError) {
+        console.error("Error fetching design info:", reportCardError);
+        return;
+      }
+
+      if (reportCard?.design_info) {
+        console.log("Fetched design info:", reportCard.design_info);
+        setDesignData({
+          design_date: reportCard.design_info.design_date || new Date().toISOString().split('T')[0],
+          appliance_type: reportCard.design_info.appliance_type || script.applianceType || "",
+          upper_treatment: reportCard.design_info.upper_treatment || script.upperTreatment || "None",
+          lower_treatment: reportCard.design_info.lower_treatment || script.lowerTreatment || "None",
+          upper_design_name: reportCard.design_info.upper_design_name || script.upperDesignName || "",
+          lower_design_name: reportCard.design_info.lower_design_name || script.lowerDesignName || "",
+          screw: reportCard.design_info.screw || script.screwType || "",
+          implant_library: reportCard.design_info.implant_library || "",
+          teeth_library: reportCard.design_info.teeth_library || "",
+          actions_taken: reportCard.design_info.actions_taken || "",
+        });
+      }
+    };
+
+    fetchDesignInfo();
+  }, [script.id]);
 
   console.log("Current design data:", designData);
 
@@ -36,7 +73,6 @@ export const useDesignForm = (
     try {
       setIsSubmitting(true);
       
-      // Get the report card for this lab script
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
@@ -88,7 +124,6 @@ export const useDesignForm = (
 
         if (createError) throw createError;
 
-        // Update report card with design_info_id and status
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
@@ -101,7 +136,6 @@ export const useDesignForm = (
         designInfo = newInfo;
       }
 
-      // Create updated script object with latest values
       const updatedScript: LabScript = {
         ...script,
         applianceType: designData.appliance_type,

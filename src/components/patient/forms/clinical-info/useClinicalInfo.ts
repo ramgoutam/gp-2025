@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +22,44 @@ export const useClinicalInfo = (
     shade: script.clinicalInfo?.shade || "",
   });
 
-  console.log("Initializing clinical info form with data:", formData);
+  // Fetch latest clinical info data when form opens
+  useEffect(() => {
+    const fetchClinicalInfo = async () => {
+      if (!script.id) return;
+
+      const { data: reportCard, error: reportCardError } = await supabase
+        .from('report_cards')
+        .select(`
+          *,
+          clinical_info:clinical_info_id(*)
+        `)
+        .eq('lab_script_id', script.id)
+        .maybeSingle();
+
+      if (reportCardError) {
+        console.error("Error fetching clinical info:", reportCardError);
+        return;
+      }
+
+      if (reportCard?.clinical_info) {
+        console.log("Fetched clinical info:", reportCard.clinical_info);
+        setFormData({
+          insertion_date: reportCard.clinical_info.insertion_date || null,
+          appliance_fit: reportCard.clinical_info.appliance_fit || "",
+          design_feedback: reportCard.clinical_info.design_feedback || "",
+          occlusion: reportCard.clinical_info.occlusion || "",
+          esthetics: reportCard.clinical_info.esthetics || "",
+          adjustments_made: reportCard.clinical_info.adjustments_made || "",
+          material: reportCard.clinical_info.material || "",
+          shade: reportCard.clinical_info.shade || "",
+        });
+      }
+    };
+
+    fetchClinicalInfo();
+  }, [script.id]);
+
+  console.log("Current clinical info data:", formData);
 
   const handleFieldChange = (field: string, value: string) => {
     if (field === 'insertion_date') {
