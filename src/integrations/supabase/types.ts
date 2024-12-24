@@ -123,31 +123,82 @@ export type Database = {
       }
       head_neck_examinations: {
         Row: {
+          airway_evaluation: string | null
+          chief_complaints: Json | null
+          clinical_observation: Json | null
           created_at: string
+          dental_classification: Json | null
+          evaluation_notes: string | null
           examination_date: string
+          extra_oral_examination: Json | null
+          functional_presentation: Json | null
+          guideline_questions: Json | null
           id: string
+          intra_oral_examination: Json | null
+          maxillary_sinuses_evaluation: string | null
+          medical_history: Json | null
           notes: string | null
+          patient_data: Json | null
           patient_id: string
+          radiographic_presentation: Json | null
+          skeletal_presentation: Json | null
           status: string | null
+          tactile_observation: Json | null
+          tomography_data: Json | null
           updated_at: string
+          vital_signs: Json | null
         }
         Insert: {
+          airway_evaluation?: string | null
+          chief_complaints?: Json | null
+          clinical_observation?: Json | null
           created_at?: string
+          dental_classification?: Json | null
+          evaluation_notes?: string | null
           examination_date?: string
+          extra_oral_examination?: Json | null
+          functional_presentation?: Json | null
+          guideline_questions?: Json | null
           id?: string
+          intra_oral_examination?: Json | null
+          maxillary_sinuses_evaluation?: string | null
+          medical_history?: Json | null
           notes?: string | null
+          patient_data?: Json | null
           patient_id: string
+          radiographic_presentation?: Json | null
+          skeletal_presentation?: Json | null
           status?: string | null
+          tactile_observation?: Json | null
+          tomography_data?: Json | null
           updated_at?: string
+          vital_signs?: Json | null
         }
         Update: {
+          airway_evaluation?: string | null
+          chief_complaints?: Json | null
+          clinical_observation?: Json | null
           created_at?: string
+          dental_classification?: Json | null
+          evaluation_notes?: string | null
           examination_date?: string
+          extra_oral_examination?: Json | null
+          functional_presentation?: Json | null
+          guideline_questions?: Json | null
           id?: string
+          intra_oral_examination?: Json | null
+          maxillary_sinuses_evaluation?: string | null
+          medical_history?: Json | null
           notes?: string | null
+          patient_data?: Json | null
           patient_id?: string
+          radiographic_presentation?: Json | null
+          skeletal_presentation?: Json | null
           status?: string | null
+          tactile_observation?: Json | null
+          tomography_data?: Json | null
           updated_at?: string
+          vital_signs?: Json | null
         }
         Relationships: [
           {
