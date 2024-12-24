@@ -36,7 +36,7 @@ const PatientProfile = () => {
       script.patientFirstName === patientData?.firstName && 
       script.patientLastName === patientData?.lastName
     );
-    console.log("Filtered unique scripts for patient:", patientScripts);
+    console.log("Filtered scripts for patient:", patientScripts.length);
     setLabScripts(patientScripts);
   }, [id, patientData]);
 
@@ -105,10 +105,6 @@ const PatientProfile = () => {
     setPatientData(updatedData);
   };
 
-  const handleDialogChange = (open: boolean) => {
-    setShowLabScriptDialog(open);
-  };
-
   if (!patientData) {
     return <div>Patient not found</div>;
   }
@@ -124,14 +120,14 @@ const PatientProfile = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 flex-1 flex flex-col overflow-hidden">
             <PatientHeader 
               patientData={patientData}
-              onCreateLabScript={() => handleDialogChange(true)}
+              onCreateLabScript={() => setShowLabScriptDialog(true)}
               onUpdatePatient={handleUpdatePatient}
             />
 
             <div className="flex-1 overflow-hidden">
               <PatientTabs
                 labScripts={labScripts}
-                onCreateLabScript={() => handleDialogChange(true)}
+                onCreateLabScript={() => setShowLabScriptDialog(true)}
                 onEditLabScript={handleEditLabScript}
                 onDeleteLabScript={handleDeleteLabScript}
                 patientData={patientData}
@@ -143,7 +139,7 @@ const PatientProfile = () => {
 
       <Dialog 
         open={showLabScriptDialog} 
-        onOpenChange={handleDialogChange}
+        onOpenChange={setShowLabScriptDialog}
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>

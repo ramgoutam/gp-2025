@@ -12,13 +12,17 @@ export const clearLabScripts = (): void => {
 };
 
 export const saveLabScript = (script: LabScript): boolean => {
-  console.log("Saving lab script:", script);
+  console.log("Attempting to save lab script:", script);
   const existingScripts = getLabScripts();
   
-  // Check if script with same ID already exists
-  const isDuplicate = existingScripts.some(existing => existing.id === script.id);
+  // Check for duplicates based on ID and request number
+  const isDuplicate = existingScripts.some(existing => 
+    existing.id === script.id || 
+    (existing.requestNumber && existing.requestNumber === script.requestNumber)
+  );
+  
   if (isDuplicate) {
-    console.log("Duplicate script ID detected - Not saving");
+    console.log("Duplicate script detected - Not saving");
     return false;
   }
   
@@ -37,7 +41,7 @@ export const updateLabScript = (updatedScript: LabScript): void => {
   console.log("Updating lab script:", updatedScript);
   const existingScripts = getLabScripts();
   
-  // Remove old version and duplicates by ID
+  // Remove old version by ID
   const filteredScripts = existingScripts.filter(script => script.id !== updatedScript.id);
   
   // Add the updated version
