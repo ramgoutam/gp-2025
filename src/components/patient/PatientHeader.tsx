@@ -58,7 +58,7 @@ export const PatientHeader = ({
       toast({
         title: "Success",
         description: "Patient information updated successfully",
-        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
+        className: "bg-success text-white",
       });
     } catch (error) {
       console.error("Error updating patient:", error);
@@ -66,7 +66,7 @@ export const PatientHeader = ({
         title: "Error",
         description: "Failed to update patient information",
         variant: "destructive",
-        className: "bg-gradient-to-r from-red-500 to-rose-500 text-white",
+        className: "bg-destructive text-white",
       });
     } finally {
       setIsUpdating(false);
@@ -86,7 +86,7 @@ export const PatientHeader = ({
       toast({
         title: "Success",
         description: "Patient deleted successfully",
-        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
+        className: "bg-success text-white",
       });
       
       navigate('/');
@@ -96,7 +96,7 @@ export const PatientHeader = ({
         title: "Error",
         description: "Failed to delete patient",
         variant: "destructive",
-        className: "bg-gradient-to-r from-red-500 to-rose-500 text-white",
+        className: "bg-destructive text-white",
       });
     } finally {
       setIsDeleting(false);
@@ -106,7 +106,7 @@ export const PatientHeader = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between bg-gradient-to-br from-purple-50 via-blue-50 to-purple-50 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border border-purple-100/50">
+      <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border border-gray-100">
         <div className="flex items-center gap-6">
           <div className="transform transition-transform duration-300 hover:scale-105">
             <PatientAvatar 
@@ -118,7 +118,7 @@ export const PatientHeader = ({
           
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-semibold text-primary">
                 {patientData.firstName} {patientData.lastName}
               </h1>
               <PatientActions 
@@ -149,7 +149,7 @@ export const PatientHeader = ({
       </div>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl bg-gradient-to-br from-white to-purple-50/30">
+        <DialogContent className="max-w-2xl bg-white">
           {isUpdating ? (
             <div className="flex flex-col items-center justify-center p-8 space-y-4">
               <Loader className="w-8 h-8 text-primary animate-spin" />
