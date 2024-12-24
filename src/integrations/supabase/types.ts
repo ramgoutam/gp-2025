@@ -20,7 +20,6 @@ export type Database = {
           insertion_date: string | null
           material: string | null
           occlusion: string | null
-          report_card_id: string
           shade: string | null
           updated_at: string
         }
@@ -34,7 +33,6 @@ export type Database = {
           insertion_date?: string | null
           material?: string | null
           occlusion?: string | null
-          report_card_id: string
           shade?: string | null
           updated_at?: string
         }
@@ -48,19 +46,10 @@ export type Database = {
           insertion_date?: string | null
           material?: string | null
           occlusion?: string | null
-          report_card_id?: string
           shade?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_info_report_card_id_fkey"
-            columns: ["report_card_id"]
-            isOneToOne: true
-            referencedRelation: "report_cards"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       design_info: {
         Row: {
@@ -71,7 +60,6 @@ export type Database = {
           id: string
           implant_library: string | null
           lower_treatment: string | null
-          report_card_id: string
           screw: string | null
           teeth_library: string | null
           updated_at: string
@@ -85,7 +73,6 @@ export type Database = {
           id?: string
           implant_library?: string | null
           lower_treatment?: string | null
-          report_card_id: string
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
@@ -99,21 +86,12 @@ export type Database = {
           id?: string
           implant_library?: string | null
           lower_treatment?: string | null
-          report_card_id?: string
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
           upper_treatment?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "design_info_report_card_id_fkey"
-            columns: ["report_card_id"]
-            isOneToOne: true
-            referencedRelation: "report_cards"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       lab_script_files: {
         Row: {
@@ -265,30 +243,47 @@ export type Database = {
       }
       report_cards: {
         Row: {
+          clinical_info_id: string | null
           created_at: string
+          design_info_id: string | null
           id: string
           lab_script_id: string | null
           patient_id: string
-          report_status: string | null
           updated_at: string
         }
         Insert: {
+          clinical_info_id?: string | null
           created_at?: string
+          design_info_id?: string | null
           id?: string
           lab_script_id?: string | null
           patient_id: string
-          report_status?: string | null
           updated_at?: string
         }
         Update: {
+          clinical_info_id?: string | null
           created_at?: string
+          design_info_id?: string | null
           id?: string
           lab_script_id?: string | null
           patient_id?: string
-          report_status?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "report_cards_clinical_info_id_fkey"
+            columns: ["clinical_info_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_cards_design_info_id_fkey"
+            columns: ["design_info_id"]
+            isOneToOne: false
+            referencedRelation: "design_info"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "report_cards_lab_script_id_fkey"
             columns: ["lab_script_id"]

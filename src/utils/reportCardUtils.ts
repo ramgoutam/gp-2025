@@ -36,37 +36,61 @@ export const saveReportCardState = async (
       throw fetchError;
     }
 
-    let reportCardOperation;
+    let reportCardId;
+
     if (existingReport) {
-      // Update existing report card
-      console.log("Updating existing report card:", existingReport.id);
-      reportCardOperation = supabase
-        .from('report_cards')
-        .update({
-          report_status: state.reportStatus,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingReport.id);
+      reportCardId = existingReport.id;
     } else {
       // Create new report card
-      console.log("Creating new report card for lab script:", labScriptId);
-      reportCardOperation = supabase
+      const { data: newReport, error: createError } = await supabase
         .from('report_cards')
         .insert({
           lab_script_id: labScriptId,
-          patient_id: labScript.patient_id,
-          report_status: state.reportStatus || 'pending'
-        });
+          patient_id: labScript.patient_id
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      reportCardId = newReport.id;
     }
 
-    const { data: savedData, error: saveError } = await reportCardOperation;
-    if (saveError) {
-      console.error("Error saving report card:", saveError);
-      throw saveError;
+    // Handle design info
+    if (state.designInfo) {
+      const { data: designInfo, error: designError } = await supabase
+        .from('design_info')
+        .insert(state.designInfo)
+        .select()
+        .single();
+
+      if (designError) throw designError;
+
+      // Update report card with design_info_id
+      await supabase
+        .from('report_cards')
+        .update({ design_info_id: designInfo.id })
+        .eq('id', reportCardId);
     }
 
-    console.log("Successfully saved report card state:", savedData);
-    return savedData;
+    // Handle clinical info
+    if (state.clinicalInfo) {
+      const { data: clinicalInfo, error: clinicalError } = await supabase
+        .from('clinical_info')
+        .insert(state.clinicalInfo)
+        .select()
+        .single();
+
+      if (clinicalError) throw clinicalError;
+
+      // Update report card with clinical_info_id
+      await supabase
+        .from('report_cards')
+        .update({ clinical_info_id: clinicalInfo.id })
+        .eq('id', reportCardId);
+    }
+
+    console.log("Successfully saved report card state");
+    return reportCardId;
   } catch (error) {
     console.error("Error in saveReportCardState:", error);
     throw error;
@@ -83,8 +107,8 @@ export const getReportCardState = async (
       .from('report_cards')
       .select(`
         *,
-        design_info (*),
-        clinical_info (*)
+        design_info:design_info_id (*),
+        clinical_info:clinical_info_id (*)
       `)
       .eq('lab_script_id', labScriptId)
       .maybeSingle();
@@ -102,9 +126,10 @@ export const getReportCardState = async (
     console.log("Successfully retrieved report card state:", reportCard);
     
     return {
-      reportStatus: reportCard.report_status || 'pending',
       isDesignInfoComplete: !!reportCard.design_info,
       isClinicalInfoComplete: !!reportCard.clinical_info,
+      designInfo: reportCard.design_info,
+      clinicalInfo: reportCard.clinical_info
     };
   } catch (error) {
     console.error("Error in getReportCardState:", error);
