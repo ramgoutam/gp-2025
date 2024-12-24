@@ -22,7 +22,7 @@ export const ActionButtons = ({
 }: ActionButtonsProps) => {
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
-  const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && script.status !== 'completed';
+  const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted;
 
   return (
     <div className="flex gap-3">

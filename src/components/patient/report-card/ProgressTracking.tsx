@@ -13,6 +13,10 @@ export const ProgressTracking = ({
   designInfoStatus,
   clinicalInfoStatus
 }: ProgressTrackingProps) => {
+  console.log("Progress tracking status:", { designInfoStatus, clinicalInfoStatus });
+
+  const isCompleted = designInfoStatus === 'completed' && clinicalInfoStatus === 'completed';
+
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -32,7 +36,7 @@ export const ProgressTracking = ({
     },
     { 
       label: "Completed", 
-      status: script.status === 'completed' 
+      status: isCompleted
         ? "completed" as const 
         : "upcoming" as const 
     }
