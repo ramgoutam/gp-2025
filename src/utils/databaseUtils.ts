@@ -5,13 +5,15 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
   console.log("Fetching lab scripts from database");
   const { data: scripts, error } = await supabase
     .from('lab_scripts')
-    .select('*');
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error("Error fetching lab scripts:", error);
     throw error;
   }
 
+  console.log("Retrieved lab scripts:", scripts);
   return scripts.map(mapDatabaseLabScript);
 };
 
@@ -21,7 +23,7 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   // Create a new object with only the fields that match our database schema
   const dbScript = {
     request_number: script.requestNumber,
-    patient_id: script.patientId,
+    patient_id: script.patientId || script.patient_id, // Handle both formats
     doctor_name: script.doctorName || "Default Doctor",
     clinic_name: script.clinicName || "Default Clinic",
     request_date: script.requestDate,
@@ -50,6 +52,7 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
     throw error;
   }
 
+  console.log("Successfully saved lab script:", data);
   return mapDatabaseLabScript(data);
 };
 
@@ -69,6 +72,7 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript> => 
     throw error;
   }
 
+  console.log("Successfully updated lab script:", data);
   return mapDatabaseLabScript(data);
 };
 
