@@ -34,6 +34,8 @@ export interface ReportCardState {
   reportStatus: string;
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
+  designInfo?: DesignInfo;
+  clinicalInfo?: ClinicalInfo;
 }
 
 export interface ReportCardData {

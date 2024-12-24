@@ -58,7 +58,9 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     try {
       const newState = {
         ...reportCardState,
-        reportStatus: 'completed'
+        reportStatus: 'completed',
+        clinicalInfo: reportCardState.clinicalInfo,
+        designInfo: reportCardState.designInfo
       };
       
       await saveReportCardState(script.id, newState);
