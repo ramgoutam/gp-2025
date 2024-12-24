@@ -21,6 +21,7 @@ export const PageHeader = () => {
         toast({
           title: "Success",
           description: "Patient added successfully",
+          className: "bg-primary text-white",
         });
         navigate(`/patient/${newPatient.id}`);
       }
@@ -50,8 +51,11 @@ export const PageHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
+    <div className="flex justify-between items-center bg-white p-6 rounded-lg shadow-md border border-gray-100 mb-6">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
+        <p className="text-gray-500">Manage and view all patient records</p>
+      </div>
       <div className="flex gap-4">
         <Button 
           variant="outline" 
@@ -59,12 +63,13 @@ export const PageHeader = () => {
             await supabase.auth.signOut();
             navigate("/login");
           }}
+          className="border-gray-200 hover:bg-gray-50 transition-colors duration-200"
         >
           Sign Out
         </Button>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
               <Plus className="h-4 w-4" />
               Add New Patient
             </Button>
