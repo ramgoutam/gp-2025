@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 
 interface StatusButtonProps {
-  status: LabScriptStatus;
-  onStatusChange: (newStatus: LabScriptStatus) => void;
+  status: LabScript['status'];
+  onStatusChange: (newStatus: LabScript['status']) => void;
 }
 
 export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
@@ -36,6 +36,38 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
       case 'in_progress':
         return [
           <Button
+            key="pause"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onStatusChange('paused');
+              toast({
+                title: "Status Updated",
+                description: "Design paused"
+              });
+            }}
+            className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200 mr-2"
+          >
+            <Pause className="h-4 w-4" />
+            Pause
+          </Button>,
+          <Button
+            key="hold"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onStatusChange('hold');
+              toast({
+                title: "Status Updated",
+                description: "Design put on hold"
+              });
+            }}
+            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200 mr-2"
+          >
+            <StopCircle className="h-4 w-4" />
+            Hold
+          </Button>,
+          <Button
             key="complete"
             variant="outline"
             size="sm"
@@ -49,7 +81,47 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
             className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
           >
             <CheckCircle className="h-4 w-4" />
-            Complete Design
+            Complete
+          </Button>
+        ];
+      
+      case 'paused':
+        return [
+          <Button
+            key="resume"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onStatusChange('in_progress');
+              toast({
+                title: "Status Updated",
+                description: "Design resumed"
+              });
+            }}
+            className="flex items-center gap-2 hover:bg-primary/5"
+          >
+            <PlayCircle className="h-4 w-4 text-primary" />
+            Resume
+          </Button>
+        ];
+
+      case 'hold':
+        return [
+          <Button
+            key="resume"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onStatusChange('in_progress');
+              toast({
+                title: "Status Updated",
+                description: "Design resumed from hold"
+              });
+            }}
+            className="flex items-center gap-2 hover:bg-primary/5"
+          >
+            <PlayCircle className="h-4 w-4 text-primary" />
+            Resume
           </Button>
         ];
       
