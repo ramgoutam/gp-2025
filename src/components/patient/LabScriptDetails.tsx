@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Maximize, Printer } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LabScript } from "./LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { LabScriptForm } from "../LabScriptForm";
 import { useState, useEffect } from "react";
 import { FilePreviewDialog } from "../lab-script/FilePreviewDialog";
@@ -201,3 +201,4 @@ export const LabScriptDetails = ({
     </>
   );
 };
+

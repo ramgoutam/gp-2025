@@ -1,7 +1,7 @@
 import React from "react";
 import { LabScriptsTab } from "@/components/patient/LabScriptsTab";
 import { useToast } from "@/components/ui/use-toast";
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 
 interface LabScriptsContentProps {
   labScripts: LabScript[];

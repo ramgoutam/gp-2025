@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript } from "../LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 
 interface StatusButtonProps {

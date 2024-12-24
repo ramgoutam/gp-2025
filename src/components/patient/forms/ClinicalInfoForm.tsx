@@ -4,8 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LabScript } from "../LabScriptsTab";
-
+import { LabScript } from "@/types/labScript";
 const FIT_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
 const DESIGN_FEEDBACK_OPTIONS = ["Neutral", "Positive", "Negative"];
 const OCCLUSION_OPTIONS = ["Perfect", "Slight Adjustment Needed", "Major Adjustment Needed"];

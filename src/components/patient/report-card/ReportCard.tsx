@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, Stethoscope, FileText } from "lucide-react";
-import { LabScript } from "../LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -252,3 +252,4 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     </>
   );
 };
+

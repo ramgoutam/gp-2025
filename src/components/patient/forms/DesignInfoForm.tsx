@@ -8,8 +8,7 @@ import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
-import { LabScript } from "../LabScriptsTab";
-
+import { LabScript } from "@/types/labScript";
 const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
 const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
 

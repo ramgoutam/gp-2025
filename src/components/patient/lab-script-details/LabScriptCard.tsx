@@ -5,8 +5,7 @@ import { format } from "date-fns";
 import { CardActions } from "./CardActions";
 import { StatusButton } from "./StatusButton";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { LabScript } from "../LabScriptsTab";
-
+import { LabScript } from "@/types/labScript";
 interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;

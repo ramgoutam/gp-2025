@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 
 interface HeaderSectionProps {
   script: LabScript;

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";

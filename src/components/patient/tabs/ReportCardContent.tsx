@@ -2,7 +2,7 @@ import React from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabReportForm } from "../lab-report/LabReportForm";
-import { LabScript } from "../LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { DesignInfoForm } from "../forms/DesignInfoForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";

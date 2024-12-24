@@ -4,8 +4,7 @@ import { LabScriptsContent } from "./tabs/LabScriptsContent";
 import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
-import { LabScript } from "./LabScriptsTab";
-
+import { LabScript } from "@/types/labScript";
 interface PatientTabsProps {
   labScripts: LabScript[];
   onCreateLabScript: () => void;

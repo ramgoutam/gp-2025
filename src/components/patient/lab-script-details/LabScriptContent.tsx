@@ -1,4 +1,4 @@
-import { LabScript } from "../LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { FileList } from "../../lab-script/FileList";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";

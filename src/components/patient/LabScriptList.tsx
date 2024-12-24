@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-import { LabScript } from "./LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
 
 interface LabScriptListProps {

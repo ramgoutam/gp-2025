@@ -1,4 +1,4 @@
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { getTreatments } from "@/utils/treatmentUtils";
 
 interface TreatmentsSectionProps {
