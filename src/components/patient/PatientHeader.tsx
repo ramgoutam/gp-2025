@@ -1,26 +1,17 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { PatientForm } from "@/components/PatientForm";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { PatientAvatar } from "./header/PatientAvatar";
+import { PatientActions } from "./header/PatientActions";
+import { DeletePatientDialog } from "./header/DeletePatientDialog";
 
 type PatientData = {
   id: number;
@@ -43,6 +34,7 @@ type PatientHeaderProps = {
 
 export const PatientHeader = ({ 
   patientData, 
+  onCreateLabScript,
   onUpdatePatient,
 }: PatientHeaderProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -81,11 +73,6 @@ export const PatientHeader = ({
     setIsDeleting(true);
     
     try {
-      // Delete patient from database
-      // Due to CASCADE DELETE, this will automatically delete:
-      // - All lab scripts
-      // - All lab script files records
-      // - All report cards
       const { error: deleteError } = await supabase
         .from('patients')
         .delete()
@@ -93,7 +80,6 @@ export const PatientHeader = ({
 
       if (deleteError) throw deleteError;
 
-      // Clean up files from storage
       const { data: files } = await supabase
         .from('lab_script_files')
         .select('file_path')
@@ -106,7 +92,6 @@ export const PatientHeader = ({
 
         if (storageError) {
           console.error('Error deleting files from storage:', storageError);
-          // Continue with navigation even if file deletion fails
         }
       }
 
@@ -132,43 +117,23 @@ export const PatientHeader = ({
     <>
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          {patientData.avatar ? (
-            <img
-              src={patientData.avatar}
-              alt={`${patientData.firstName} ${patientData.lastName}`}
-              className="w-16 h-16 rounded-full object-cover bg-gray-100"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl">
-              {patientData.firstName[0]}
-              {patientData.lastName[0]}
-            </div>
-          )}
+          <PatientAvatar
+            firstName={patientData.firstName}
+            lastName={patientData.lastName}
+            avatar={patientData.avatar}
+          />
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
               {patientData.firstName} {patientData.lastName}
             </h1>
             <p className="text-gray-500 flex items-center gap-2">
               {patientData.note}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2"
-                onClick={() => setShowEditDialog(true)}
-              >
-                <Edit className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-destructive hover:text-destructive"
-                onClick={() => setShowDeleteDialog(true)}
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                {isDeleting ? "Deleting..." : "Delete"}
-              </Button>
+              <PatientActions
+                onEdit={() => setShowEditDialog(true)}
+                onDelete={() => setShowDeleteDialog(true)}
+                onAddTreatment={onCreateLabScript || (() => {})}
+                isDeleting={isDeleting}
+              />
             </p>
           </div>
         </div>
@@ -194,27 +159,13 @@ export const PatientHeader = ({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete {patientData.firstName} {patientData.lastName}'s
-              profile and all associated data, including lab scripts, files, and report cards.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete} 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isDeleting}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeletePatientDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
+        patientName={`${patientData.firstName} ${patientData.lastName}`}
+      />
     </>
   );
 };
