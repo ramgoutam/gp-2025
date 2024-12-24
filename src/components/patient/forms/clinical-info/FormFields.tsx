@@ -1,14 +1,6 @@
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const FIT_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
-const DESIGN_FEEDBACK_OPTIONS = ["Neutral", "Positive", "Negative"];
-const OCCLUSION_OPTIONS = ["Perfect", "Slight Adjustment Needed", "Major Adjustment Needed"];
-const ESTHETICS_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
-const ADJUSTMENTS_OPTIONS = ["None", "Minor", "Major"];
-const MATERIAL_OPTIONS = ["PMMA", "Zirconia", "Metal", "Other"];
-const SHADE_OPTIONS = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2"];
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormFieldsProps {
   formData: {
@@ -22,54 +14,110 @@ interface FormFieldsProps {
     shade: string;
   };
   onFieldChange: (field: string, value: string) => void;
+  isSubmitting?: boolean;
 }
 
-export const FormFields = ({ formData, onFieldChange }: FormFieldsProps) => {
-  const renderSelect = (
-    label: string,
-    id: keyof typeof formData,
-    options: string[]
-  ) => (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Select
-        value={formData[id]}
-        onValueChange={(value) => onFieldChange(id, value)}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
-        </SelectTrigger>
-        <SelectContent className="bg-white z-[200]">
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-
+export const FormFields = ({ formData, onFieldChange, isSubmitting }: FormFieldsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-6">
-      <div className="space-y-2">
-        <Label htmlFor="insertion_date">Insertion Date</Label>
-        <input
-          id="insertion_date"
-          type="date"
-          value={formData.insertion_date}
-          onChange={(e) => onFieldChange("insertion_date", e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
+    <>
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="insertion_date" className="block text-sm font-medium text-gray-700">
+            Insertion Date
+          </label>
+          <Input
+            id="insertion_date"
+            type="date"
+            value={formData.insertion_date}
+            onChange={(e) => onFieldChange("insertion_date", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="appliance_fit" className="block text-sm font-medium text-gray-700">
+            Appliance Fit
+          </label>
+          <Textarea
+            id="appliance_fit"
+            value={formData.appliance_fit}
+            onChange={(e) => onFieldChange("appliance_fit", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="design_feedback" className="block text-sm font-medium text-gray-700">
+            Design Feedback
+          </label>
+          <Textarea
+            id="design_feedback"
+            value={formData.design_feedback}
+            onChange={(e) => onFieldChange("design_feedback", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="occlusion" className="block text-sm font-medium text-gray-700">
+            Occlusion
+          </label>
+          <Textarea
+            id="occlusion"
+            value={formData.occlusion}
+            onChange={(e) => onFieldChange("occlusion", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="esthetics" className="block text-sm font-medium text-gray-700">
+            Esthetics
+          </label>
+          <Textarea
+            id="esthetics"
+            value={formData.esthetics}
+            onChange={(e) => onFieldChange("esthetics", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="adjustments_made" className="block text-sm font-medium text-gray-700">
+            Adjustments Made
+          </label>
+          <Textarea
+            id="adjustments_made"
+            value={formData.adjustments_made}
+            onChange={(e) => onFieldChange("adjustments_made", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="material" className="block text-sm font-medium text-gray-700">
+            Material
+          </label>
+          <Input
+            id="material"
+            value={formData.material}
+            onChange={(e) => onFieldChange("material", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="shade" className="block text-sm font-medium text-gray-700">
+            Shade
+          </label>
+          <Input
+            id="shade"
+            value={formData.shade}
+            onChange={(e) => onFieldChange("shade", e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
       </div>
-      {renderSelect("Appliance Fit", "appliance_fit", FIT_OPTIONS)}
-      {renderSelect("Design Feedback", "design_feedback", DESIGN_FEEDBACK_OPTIONS)}
-      {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
-      {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
-      {renderSelect("Adjustments Made", "adjustments_made", ADJUSTMENTS_OPTIONS)}
-      {renderSelect("Material", "material", MATERIAL_OPTIONS)}
-      {renderSelect("Shade", "shade", SHADE_OPTIONS)}
-    </div>
+    </>
   );
 };

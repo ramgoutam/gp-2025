@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
@@ -9,85 +9,17 @@ export const useClinicalInfo = (
   onClose: () => void
 ) => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    insertion_date: new Date().toISOString().split('T')[0],
-    appliance_fit: "",
-    design_feedback: "",
-    occlusion: "",
-    esthetics: "",
-    adjustments_made: "",
-    material: "",
-    shade: "",
+    insertion_date: script.clinicalInfo?.insertion_date || new Date().toISOString().split('T')[0],
+    appliance_fit: script.clinicalInfo?.appliance_fit || "",
+    design_feedback: script.clinicalInfo?.design_feedback || "",
+    occlusion: script.clinicalInfo?.occlusion || "",
+    esthetics: script.clinicalInfo?.esthetics || "",
+    adjustments_made: script.clinicalInfo?.adjustments_made || "",
+    material: script.clinicalInfo?.material || "",
+    shade: script.clinicalInfo?.shade || "",
   });
-
-  // ... keep existing code (fetchExistingClinicalInfo useEffect)
-
-  useEffect(() => {
-    const fetchExistingClinicalInfo = async () => {
-      try {
-        console.log("Fetching clinical info for script:", script.id);
-        setIsLoading(true);
-        
-        const { data: reportCard, error: reportCardError } = await supabase
-          .from('report_cards')
-          .select('*')
-          .eq('lab_script_id', script.id)
-          .maybeSingle();
-
-        if (reportCardError) {
-          console.error("Error fetching report card:", reportCardError);
-          throw reportCardError;
-        }
-
-        if (!reportCard) {
-          console.error("No report card found for script:", script.id);
-          return;
-        }
-
-        if (!reportCard.clinical_info_id) {
-          console.log("No clinical info exists yet for this report card");
-          return;
-        }
-
-        const { data: clinicalInfo, error: clinicalError } = await supabase
-          .from('clinical_info')
-          .select('*')
-          .eq('id', reportCard.clinical_info_id)
-          .maybeSingle();
-
-        if (clinicalError) {
-          console.error("Error fetching clinical info:", clinicalError);
-          throw clinicalError;
-        }
-
-        if (clinicalInfo) {
-          console.log("Found existing clinical info:", clinicalInfo);
-          setFormData({
-            insertion_date: clinicalInfo.insertion_date || new Date().toISOString().split('T')[0],
-            appliance_fit: clinicalInfo.appliance_fit || "",
-            design_feedback: clinicalInfo.design_feedback || "",
-            occlusion: clinicalInfo.occlusion || "",
-            esthetics: clinicalInfo.esthetics || "",
-            adjustments_made: clinicalInfo.adjustments_made || "",
-            material: clinicalInfo.material || "",
-            shade: clinicalInfo.shade || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error in fetchExistingClinicalInfo:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load existing clinical information",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchExistingClinicalInfo();
-  }, [script.id]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -98,6 +30,8 @@ export const useClinicalInfo = (
     console.log("Submitting clinical info:", formData);
 
     try {
+      setIsSubmitting(true);
+      
       // Get the report card for this lab script
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
@@ -125,16 +59,11 @@ export const useClinicalInfo = (
           .update(formData)
           .eq('id', reportCard.clinical_info_id)
           .select()
-          .maybeSingle();
+          .single();
 
         if (updateError) {
           console.error("Error updating clinical info:", updateError);
           throw updateError;
-        }
-
-        if (!updatedInfo) {
-          console.error("Failed to update clinical info");
-          throw new Error("Failed to update clinical info");
         }
 
         clinicalInfo = updatedInfo;
@@ -148,16 +77,11 @@ export const useClinicalInfo = (
             report_card_id: reportCard.id
           })
           .select()
-          .maybeSingle();
+          .single();
 
         if (createError) {
           console.error("Error creating clinical info:", createError);
           throw createError;
-        }
-
-        if (!newInfo) {
-          console.error("Failed to create clinical info");
-          throw new Error("Failed to create clinical info");
         }
 
         // Update report card with clinical info id
@@ -198,6 +122,8 @@ export const useClinicalInfo = (
         description: "Failed to save clinical information",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -205,6 +131,6 @@ export const useClinicalInfo = (
     formData,
     handleFieldChange,
     handleSubmit,
-    isLoading
+    isSubmitting
   };
 };
