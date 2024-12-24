@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, AlertCircle, Stethoscope } from "lucide-react";
+import { LabScript } from "@/types/labScript";
 
 interface TreatmentStatusProps {
   labScripts: LabScript[];
@@ -15,10 +16,13 @@ interface TreatmentStatusProps {
 }
 
 export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) => {
+  console.log("Treatment status data:", patientData);
+
   if (!patientData?.treatment_type) {
     return (
       <Card className="p-6">
         <div className="text-center py-8">
+          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No treatment data available</p>
         </div>
       </Card>
@@ -59,7 +63,7 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
             variant="outline" 
             className={`${getStatusColor(patientData.treatment_type)} px-3 py-1`}
           >
-            {patientData.treatment_type?.replace('_', ' ')}
+            {patientData.treatment_type?.toUpperCase().replace('_', ' ')}
           </Badge>
         </div>
 
@@ -80,11 +84,11 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
               <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">Upper Treatment</p>
-                  <p>{patientData.upper_treatment || 'None specified'}</p>
+                  <p className="font-medium">{patientData.upper_treatment || 'None specified'}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">Lower Treatment</p>
-                  <p>{patientData.lower_treatment || 'None specified'}</p>
+                  <p className="font-medium">{patientData.lower_treatment || 'None specified'}</p>
                 </div>
               </div>
             </div>
