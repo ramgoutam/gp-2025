@@ -9,6 +9,7 @@ import { updateLabScript } from "@/utils/databaseUtils";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 type LabScriptsTabProps = {
   labScripts: LabScript[];
@@ -82,7 +83,6 @@ export const LabScriptsTab = ({
           })
         );
 
-        // Sort by request date (newest first)
         const sortedScripts = enrichedScripts.sort((a, b) => {
           const dateA = new Date(a.requestDate).getTime();
           const dateB = new Date(b.requestDate).getTime();
@@ -104,6 +104,63 @@ export const LabScriptsTab = ({
     };
 
     enrichLabScripts();
+
+    // Set up real-time subscription for report cards
+    const channel = supabase
+      .channel('report-cards-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'report_cards'
+        },
+        async (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log("Report card changed:", payload);
+          
+          // Re-fetch the updated report card data
+          if (payload.new && payload.new.lab_script_id) {
+            const { data: updatedReportCard, error } = await supabase
+              .from('report_cards')
+              .select(`
+                *,
+                design_info:design_info_id(*),
+                clinical_info:clinical_info_id(*)
+              `)
+              .eq('id', payload.new.id)
+              .single();
+
+            if (error) {
+              console.error("Error fetching updated report card:", error);
+              return;
+            }
+
+            // Update the enriched lab scripts with new data
+            setEnrichedLabScripts(prevScripts =>
+              prevScripts.map(script => {
+                if (script.id === updatedReportCard.lab_script_id) {
+                  return {
+                    ...script,
+                    designInfo: updatedReportCard.design_info,
+                    clinicalInfo: updatedReportCard.clinical_info,
+                    reportCard: {
+                      ...updatedReportCard,
+                      design_info: undefined,
+                      clinical_info: undefined
+                    }
+                  };
+                }
+                return script;
+              })
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [labScripts]);
 
   const handleRowClick = (script: LabScript) => {
