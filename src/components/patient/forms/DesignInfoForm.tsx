@@ -45,11 +45,16 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         .from('report_cards')
         .select('*')
         .eq('lab_script_id', script.id)
-        .single();
+        .maybeSingle();
 
       if (reportCardError) {
         console.error("Error fetching report card:", reportCardError);
         throw reportCardError;
+      }
+
+      if (!reportCard) {
+        console.error("No report card found for lab script:", script.id);
+        throw new Error("No report card found for this lab script");
       }
 
       let designInfo;
@@ -65,11 +70,16 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           })
           .eq('id', reportCard.design_info_id)
           .select()
-          .single();
+          .maybeSingle();
 
         if (updateError) {
           console.error("Error updating design info:", updateError);
           throw updateError;
+        }
+
+        if (!updatedDesignInfo) {
+          console.error("Failed to update design info");
+          throw new Error("Failed to update design info");
         }
 
         designInfo = updatedDesignInfo;
@@ -83,11 +93,16 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
             report_card_id: reportCard.id
           })
           .select()
-          .single();
+          .maybeSingle();
 
         if (createError) {
           console.error("Error creating design info:", createError);
           throw createError;
+        }
+
+        if (!newDesignInfo) {
+          console.error("Failed to create design info");
+          throw new Error("Failed to create design info");
         }
 
         // Update report card with design info id
