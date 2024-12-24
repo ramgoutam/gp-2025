@@ -28,7 +28,7 @@ export const DesignInfoForm = ({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [designData, setDesignData] = useState({
-    design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
+    design_date: script.designInfo?.design_date || "", // Changed to empty string as default
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
     upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
     lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
