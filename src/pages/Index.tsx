@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { createPatient, getPatients } from "@/utils/databaseUtils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Database } from '@/integrations/supabase/types';
+import { supabase } from "@/integrations/supabase/client";
 
 type Patient = Database['public']['Tables']['patients']['Row'];
 
@@ -24,6 +25,28 @@ const Index = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Check authentication
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          navigate("/login");
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   // Fetch patients using React Query
   const { data: patients = [], isLoading } = useQuery({
@@ -85,19 +108,6 @@ const Index = () => {
       .includes(searchQuery.toLowerCase())
   );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <main className="container mx-auto py-8 px-4">
-          <div className="flex justify-center items-center h-64">
-            <p className="text-gray-500">Loading patients...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -105,28 +115,39 @@ const Index = () => {
         <div className="flex flex-col gap-6">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add New Patient
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>New Patient Registration</DialogTitle>
-                </DialogHeader>
-                <PatientForm 
-                  onSubmitSuccess={handleAddPatient}
-                  onClose={() => {
-                    const closeButton = document.querySelector('[aria-label="Close"]');
-                    if (closeButton instanceof HTMLButtonElement) {
-                      closeButton.click();
-                    }
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate("/login");
+                }}
+              >
+                Sign Out
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add New Patient
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>New Patient Registration</DialogTitle>
+                  </DialogHeader>
+                  <PatientForm 
+                    onSubmitSuccess={handleAddPatient}
+                    onClose={() => {
+                      const closeButton = document.querySelector('[aria-label="Close"]');
+                      if (closeButton instanceof HTMLButtonElement) {
+                        closeButton.click();
+                      }
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           <div className="relative">
