@@ -37,7 +37,7 @@ export const PatientInformationContent = ({
     value: string;
   }) => (
     <div className="flex items-start space-x-4 p-4 rounded-lg bg-white border border-gray-100 hover:border-primary/20 transition-all duration-200 hover:shadow-sm">
-      <div className="p-2 rounded-lg bg-primary/5">
+      <div className="p-2 rounded-lg bg-primary/10">
         <Icon className="w-4 h-4 text-primary" />
       </div>
       <div className="space-y-1">
@@ -48,7 +48,7 @@ export const PatientInformationContent = ({
   );
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-white">
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <InfoItem 
           icon={User2}

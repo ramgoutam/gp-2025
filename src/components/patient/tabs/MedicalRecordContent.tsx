@@ -12,13 +12,13 @@ export const MedicalRecordContent = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg p-6 border">
+        <div className="bg-white rounded-lg p-6 border shadow-sm">
           <h3 className="font-semibold mb-4">Medical Records</h3>
           {/* Placeholder for future medical records content */}
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white rounded-lg p-6 border">
+          <div className="bg-white rounded-lg p-6 border shadow-sm">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="text-sm text-gray-500">MAR 03</div>

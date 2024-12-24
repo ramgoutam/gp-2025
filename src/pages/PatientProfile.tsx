@@ -129,14 +129,14 @@ const PatientProfile = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50 animate-fade-in">
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-50 animate-fade-in">
       <main className="flex-1 overflow-hidden">
         <div className="container mx-auto py-8 px-4 h-full flex flex-col">
           <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
             Patient list / Patient detail
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border border-purple-100/50">
+          <div className="bg-white rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border">
             <PatientHeader 
               patientData={patientData}
               onCreateLabScript={() => setShowLabScriptDialog(true)}
@@ -160,9 +160,9 @@ const PatientProfile = () => {
         open={showLabScriptDialog} 
         onOpenChange={setShowLabScriptDialog}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-purple-50/30">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            <DialogTitle className="text-primary">
               Create Lab Script
             </DialogTitle>
             <DialogDescription>
