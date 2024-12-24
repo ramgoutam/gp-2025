@@ -36,14 +36,16 @@ const Index = () => {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
     queryFn: getPatients,
-    onError: (error) => {
-      console.error('Error fetching patients:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load patients. Please try again.",
-        variant: "destructive",
-      });
-    },
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching patients:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load patients. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   });
 
   // Create patient mutation
@@ -67,15 +69,16 @@ const Index = () => {
     },
   });
 
-  const handleAddPatient = async (patientData: Omit<Patient, "id">) => {
-    // Transform the data to match the database column names
+  const handleAddPatient = async (formData: any) => {
+    // Transform the form data to match database column names
     const transformedData = {
-      first_name: patientData.firstName,
-      last_name: patientData.lastName,
-      email: patientData.email,
-      phone: patientData.phone,
-      sex: patientData.sex,
-      dob: patientData.dob,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      sex: formData.sex,
+      dob: formData.dob,
+      address: formData.address
     };
 
     createPatientMutation.mutate(transformedData);
