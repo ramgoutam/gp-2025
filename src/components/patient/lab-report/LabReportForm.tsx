@@ -82,11 +82,9 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
     try {
       // Save design info
       await saveReportCardState(labScriptId, {
-        reportStatus: 'in_progress',
         isDesignInfoComplete: true,
         isClinicalInfoComplete: true,
         designInfo: {
-          report_card_id: labScriptId,
           design_date: formData.designDate,
           appliance_type: formData.applianceType,
           upper_treatment: formData.upperTreatment,
@@ -97,7 +95,6 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           actions_taken: formData.actionsTaken,
         },
         clinicalInfo: {
-          report_card_id: labScriptId,
           insertion_date: formData.insertionDate,
           appliance_fit: formData.applianceFit,
           design_feedback: formData.designFeedback,

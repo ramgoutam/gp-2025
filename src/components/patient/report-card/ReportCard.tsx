@@ -27,7 +27,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [reportCardState, setReportCardState] = useState<ReportCardState>({
-    reportStatus: script.status,
     isDesignInfoComplete: false,
     isClinicalInfoComplete: false
   });
@@ -37,10 +36,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       try {
         const savedState = await getReportCardState(script.id);
         if (savedState) {
-          setReportCardState(prev => ({
-            ...savedState,
-            reportStatus: script.status
-          }));
+          setReportCardState(savedState);
         }
       } catch (error) {
         console.error("Error loading report card state:", error);
@@ -53,7 +49,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     };
 
     loadReportCardState();
-  }, [script.id, script.status]);
+  }, [script.id]);
 
   const handleCompleteReport = async () => {
     try {
@@ -70,7 +66,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
       const newState = {
         ...reportCardState,
-        reportStatus: 'completed',
         clinicalInfo: reportCardState.clinicalInfo ? {
           ...reportCardState.clinicalInfo,
           report_card_id: reportCard.id
