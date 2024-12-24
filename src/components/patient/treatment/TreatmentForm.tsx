@@ -17,7 +17,7 @@ const TREATMENT_OPTIONS = ["None", "Full Arch Fixed", "Denture", "Crown"];
 export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
-    arch: "",
+    treatmentType: "",
     shade: "",
     upperTreatment: "",
     lowerTreatment: "",
@@ -44,8 +44,8 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
     }
   };
 
-  const showUpperTreatment = formData.arch === "upper" || formData.arch === "dual";
-  const showLowerTreatment = formData.arch === "lower" || formData.arch === "dual";
+  const showUpperTreatment = formData.treatmentType === "upper" || formData.treatmentType === "dual";
+  const showLowerTreatment = formData.treatmentType === "lower" || formData.treatmentType === "dual";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -56,13 +56,13 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="arch">Arch</Label>
+              <Label htmlFor="treatmentType">Treatment Type</Label>
               <Select
-                value={formData.arch}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, arch: value }))}
+                value={formData.treatmentType}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, treatmentType: value }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select arch type" />
+                  <SelectValue placeholder="Select treatment type" />
                 </SelectTrigger>
                 <SelectContent className="bg-white z-[200]">
                   <SelectItem value="upper">Upper</SelectItem>
