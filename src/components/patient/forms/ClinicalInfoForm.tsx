@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -78,9 +78,9 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
         description: "Clinical information saved successfully",
       });
 
-      const updatedScript = {
+      const updatedScript: LabScript = {
         ...script,
-        status: 'completed'
+        status: "completed" as LabScriptStatus
       };
 
       onSave(updatedScript);

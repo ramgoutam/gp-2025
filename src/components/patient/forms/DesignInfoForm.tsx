@@ -8,7 +8,7 @@ import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 
 const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
@@ -74,9 +74,9 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         if (insertError) throw insertError;
       }
 
-      const updatedScript = {
+      const updatedScript: LabScript = {
         ...script,
-        status: 'in_progress',
+        status: "in_progress" as LabScriptStatus,
         designInfo: designData
       };
 
