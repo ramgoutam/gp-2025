@@ -25,7 +25,7 @@ export const saveReportCardState = async (
       updated_at: new Date().toISOString()
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error saving report card state:", error);
@@ -39,19 +39,23 @@ export const saveReportCardState = async (
 export const getReportCardState = async (labScriptId: string): Promise<ReportCardState | null> => {
   console.log("Fetching report card state for script:", labScriptId);
   
+  // Get the most recent report card for this lab script
   const { data, error } = await supabase
     .from('report_cards')
     .select('*')
     .eq('lab_script_id', labScriptId)
-    .single();
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   if (error) {
-    if (error.code === 'PGRST116') {
-      console.log("No report card found for script:", labScriptId);
-      return null;
-    }
     console.error("Error fetching report card state:", error);
     throw error;
+  }
+
+  if (!data) {
+    console.log("No report card found for script:", labScriptId);
+    return null;
   }
 
   console.log("Retrieved report card state:", data);
