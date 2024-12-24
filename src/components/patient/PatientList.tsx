@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, Tooth } from "lucide-react";
+import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, Smile } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPatients } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -122,7 +122,7 @@ export const PatientList = () => {
                 <div className="flex-shrink-0">
                   <div className="relative">
                     <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                      <Tooth className="w-7 h-7 text-primary/70" />
+                      <Smile className="w-7 h-7 text-primary/70" />
                     </div>
                     {patient.treatment_type && (
                       <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-primary/10 border-2 border-white">
