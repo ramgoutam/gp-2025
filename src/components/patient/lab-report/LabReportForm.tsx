@@ -406,4 +406,5 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
       </div>
       </form>
     </ScrollArea>
+  );
 };
