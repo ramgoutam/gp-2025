@@ -18,16 +18,26 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
   console.log("Saving lab script to database:", script);
   
-  // Add default values for required fields if not provided
-  const scriptWithDefaults = {
-    doctor_name: "Default Doctor", // You might want to get this from a context or user session
-    clinic_name: "Default Clinic", // You might want to get this from a context or user session
-    ...script
+  // Create a new object with only the fields that match our database schema
+  const dbScript = {
+    request_number: script.requestNumber,
+    patient_id: script.patientId,
+    doctor_name: script.doctorName || "Default Doctor",
+    clinic_name: script.clinicName || "Default Clinic",
+    request_date: script.requestDate,
+    due_date: script.dueDate,
+    status: script.status || "pending",
+    upper_treatment: script.upperTreatment,
+    lower_treatment: script.lowerTreatment,
+    upper_design_name: script.upperDesignName,
+    lower_design_name: script.lowerDesignName,
+    appliance_type: script.applianceType,
+    screw_type: script.screwType,
+    vdo_option: script.vdoOption,
+    specific_instructions: script.specificInstructions
   };
   
-  // Remove id and type-cast other fields
-  const { id, ...scriptWithoutId } = scriptWithDefaults as any;
-  const dbScript = mapLabScriptToDatabase(scriptWithoutId as LabScript);
+  console.log("Mapped database script:", dbScript);
   
   const { data, error } = await supabase
     .from('lab_scripts')
