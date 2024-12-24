@@ -15,7 +15,6 @@ interface ReportCardProps {
   onUpdateScript?: (script: LabScript) => void;
 }
 
-// Define types for the real-time payload
 interface ReportCardPayload {
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
@@ -64,7 +63,7 @@ export const ReportCard = ({
 
     // Subscribe to report card changes
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('report-card-changes')
       .on(
         'postgres_changes',
         {

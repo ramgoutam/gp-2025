@@ -41,7 +41,10 @@ export const DesignInfoForm = ({
       // Update report card status
       const { error: updateError } = await supabase
         .from('report_cards')
-        .update({ design_info_status: 'completed' })
+        .update({ 
+          design_info_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
         .eq('lab_script_id', scriptId);
 
       if (updateError) {
