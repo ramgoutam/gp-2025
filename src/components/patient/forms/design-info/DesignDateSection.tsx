@@ -16,6 +16,7 @@ export const DesignDateSection = ({ value, onChange }: DesignDateSectionProps) =
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        className="focus:ring-0 focus:ring-offset-0 focus:border-gray-300"
       />
     </div>
   );
