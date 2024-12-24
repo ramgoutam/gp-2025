@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
@@ -31,6 +31,52 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     actions_taken: script.designInfo?.actions_taken || "",
   });
 
+  useEffect(() => {
+    const fetchExistingDesignInfo = async () => {
+      try {
+        console.log("Fetching report card for script:", scriptId);
+        const { data: reportCard, error: reportCardError } = await supabase
+          .from('report_cards')
+          .select('*, design_info(*)')
+          .eq('lab_script_id', scriptId)
+          .maybeSingle();
+
+        if (reportCardError) {
+          console.error("Error fetching report card:", reportCardError);
+          throw reportCardError;
+        }
+
+        if (!reportCard) {
+          console.log("No report card found for script:", scriptId);
+          return;
+        }
+
+        if (reportCard.design_info) {
+          console.log("Found existing design info:", reportCard.design_info);
+          setDesignData({
+            design_date: reportCard.design_info.design_date || new Date().toISOString().split('T')[0],
+            appliance_type: reportCard.design_info.appliance_type || "",
+            upper_treatment: reportCard.design_info.upper_treatment || "None",
+            lower_treatment: reportCard.design_info.lower_treatment || "None",
+            screw: reportCard.design_info.screw || "",
+            implant_library: reportCard.design_info.implant_library || "",
+            teeth_library: reportCard.design_info.teeth_library || "",
+            actions_taken: reportCard.design_info.actions_taken || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error in fetchExistingDesignInfo:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch existing design information",
+          variant: "destructive"
+        });
+      }
+    };
+
+    fetchExistingDesignInfo();
+  }, [scriptId]);
+
   const handleDesignDataChange = (field: string, value: string) => {
     console.log(`Updating ${field} to:`, value);
     setDesignData(prev => ({ ...prev, [field]: value }));
@@ -40,11 +86,10 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     console.log("Saving design info for script:", scriptId, designData);
     
     try {
-      // Get the report card for this lab script
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
-        .eq('lab_script_id', script.id)
+        .eq('lab_script_id', scriptId)
         .maybeSingle();
 
       if (reportCardError) {
@@ -53,8 +98,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       }
 
       if (!reportCard) {
-        console.error("No report card found for lab script:", script.id);
-        throw new Error("No report card found for this lab script");
+        console.error("No report card found for script:", scriptId);
+        throw new Error("No report card found for this script");
       }
 
       let designInfo;
@@ -77,11 +122,6 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           throw updateError;
         }
 
-        if (!updatedDesignInfo) {
-          console.error("Failed to update design info");
-          throw new Error("Failed to update design info");
-        }
-
         designInfo = updatedDesignInfo;
       } else {
         // Create new design info
@@ -100,16 +140,11 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           throw createError;
         }
 
-        if (!newDesignInfo) {
-          console.error("Failed to create design info");
-          throw new Error("Failed to create design info");
-        }
-
         // Update report card with design info id
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
-            design_info_id: newDesignInfo.id,
+            design_info_id: newDesignInfo?.id,
             design_info_status: 'completed'
           })
           .eq('id', reportCard.id);
@@ -135,8 +170,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       onSave(updatedScript);
       
       toast({
-        title: script.designInfo ? "Design Info Updated" : "Design Info Saved",
-        description: `The design information has been successfully ${script.designInfo ? 'updated' : 'saved'}.`,
+        title: reportCard.design_info_id ? "Design Info Updated" : "Design Info Saved",
+        description: `The design information has been successfully ${reportCard.design_info_id ? 'updated' : 'saved'}.`,
       });
 
       onClose();
