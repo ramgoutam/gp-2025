@@ -15,8 +15,6 @@ interface TreatmentPreviewProps {
   upperAppliance?: string;
   lowerAppliance?: string;
   nightguard?: string;
-  shade?: string;
-  screw?: string;
   patientId?: string;
   onUpdate?: () => void;
   labScripts?: any[];
@@ -92,7 +90,7 @@ export const TreatmentPreviewCards = ({
 
   console.log("Latest completed script with report card:", latestCompletedScript);
 
-  // Get the latest design and clinical info
+  // Get the latest design and clinical info from the report card
   const latestDesignInfo = latestCompletedScript?.reportCard?.design_info;
   const latestClinicalInfo = latestCompletedScript?.reportCard?.clinical_info;
 
@@ -124,11 +122,9 @@ export const TreatmentPreviewCards = ({
         />
 
         <ApplianceCard
-          upperTreatment={upperAppliance}
-          lowerTreatment={lowerAppliance}
+          upperTreatment={latestDesignInfo?.upper_design_name || upperAppliance}
+          lowerTreatment={latestDesignInfo?.lower_design_name || lowerAppliance}
           nightguard={nightguard}
-          upperDesignName={latestDesignInfo?.upper_design_name}
-          lowerDesignName={latestDesignInfo?.lower_design_name}
         />
 
         <PreviewCard
