@@ -1,14 +1,12 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { DigitalDataSection } from "./lab-script/DigitalDataSection";
 import { TreatmentSection } from "./lab-script/TreatmentSection";
 import { ApplianceSection } from "./lab-script/ApplianceSection";
 import { ScrewSection } from "./lab-script/ScrewSection";
 import { VDOSection } from "./lab-script/VDOSection";
 import { DesignNameSection } from "./lab-script/DesignNameSection";
+import { FormHeader } from "./lab-script/FormHeader";
+import { FormFooter } from "./lab-script/FormFooter";
 import { useLabScriptSubmit } from "@/hooks/useLabScriptSubmit";
 
 type FileUpload = {
@@ -24,7 +22,7 @@ interface LabScriptFormProps {
     firstName: string;
     lastName: string;
   };
-  patientId?: string; // Add patientId to props
+  patientId?: string;
 }
 
 export const LabScriptForm = ({ 
@@ -32,7 +30,7 @@ export const LabScriptForm = ({
   initialData, 
   isEditing = false,
   patientData,
-  patientId // Destructure patientId from props
+  patientId
 }: LabScriptFormProps) => {
   const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
   const [formData, setFormData] = React.useState({
@@ -85,7 +83,7 @@ export const LabScriptForm = ({
 
     const submissionData = {
       ...formData,
-      patientId, // Include patientId in submission data
+      patientId,
       patientFirstName: patientData?.firstName || formData.firstName,
       patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -96,8 +94,13 @@ export const LabScriptForm = ({
       }, {} as Record<string, File[]>)
     };
 
-    console.log("Submitting form with data:", submissionData); // Add debug log
-    await handleSubmit(submissionData, initialData);
+    console.log("Submitting form with data:", submissionData);
+    try {
+      await handleSubmit(submissionData, initialData);
+    } catch (error) {
+      console.error("Form submission failed:", error);
+      // Error is already handled by useLabScriptSubmit
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -125,30 +128,11 @@ export const LabScriptForm = ({
 
   return (
     <form onSubmit={onFormSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="requestDate">Request Date</Label>
-          <Input
-            id="requestDate"
-            name="requestDate"
-            type="date"
-            value={formData.requestDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="dueDate">Due Date</Label>
-          <Input
-            id="dueDate"
-            name="dueDate"
-            type="date"
-            value={formData.dueDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-      </div>
+      <FormHeader
+        requestDate={formData.requestDate}
+        dueDate={formData.dueDate}
+        onChange={handleChange}
+      />
 
       <ApplianceSection
         value={formData.applianceType}
@@ -215,22 +199,12 @@ export const LabScriptForm = ({
         applianceType={formData.applianceType}
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="specificInstructions">Specific Instructions</Label>
-        <Textarea
-          id="specificInstructions"
-          name="specificInstructions"
-          value={formData.specificInstructions}
-          onChange={handleChange}
-          className="min-h-[100px]"
-        />
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Processing...' : isEditing ? 'Update' : 'Submit'} Lab Script
-        </Button>
-      </div>
+      <FormFooter
+        specificInstructions={formData.specificInstructions}
+        onChange={handleChange}
+        isSubmitting={isSubmitting}
+        isEditing={isEditing}
+      />
     </form>
   );
 };
