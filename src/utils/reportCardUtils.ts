@@ -5,8 +5,26 @@ export interface ReportCardState {
   reportStatus: string;
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
-  designInfo?: any;
-  clinicalInfo?: any;
+  designInfo?: {
+    designDate: string;
+    applianceType: string;
+    upperTreatment: string;
+    lowerTreatment: string;
+    screw: string;
+    implantLibrary: string;
+    teethLibrary: string;
+    actionsTaken: string;
+  };
+  clinicalInfo?: {
+    insertionDate: string;
+    applianceFit: string;
+    designFeedback: string;
+    occlusion: string;
+    esthetics: string;
+    adjustmentsMade: string;
+    material: string;
+    shade: string;
+  };
 }
 
 export const saveReportCardState = async (

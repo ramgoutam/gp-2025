@@ -8,10 +8,13 @@ import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { saveReportCardState } from "@/utils/reportCardUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface LabReportFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  labScriptId?: string;
   patientData?: {
     firstName: string;
     lastName: string;
@@ -28,7 +31,8 @@ const ADJUSTMENTS_OPTIONS = ["None", "Minor", "Major"];
 const MATERIAL_OPTIONS = ["Zirconia", "PMMA", "Titanium", "Other"];
 const SHADE_OPTIONS = ["A1", "A2", "A3", "A3.5", "A4", "B1", "B2", "B3", "B4"];
 
-export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportFormProps) => {
+export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: LabReportFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = React.useState({
     date: new Date().toISOString().split('T')[0],
     patientName: patientData ? `${patientData.firstName} ${patientData.lastName}` : "",
@@ -61,10 +65,62 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting lab report:", formData);
-    onSubmit(formData);
+
+    if (!labScriptId) {
+      console.error("No lab script ID provided");
+      toast({
+        title: "Error",
+        description: "Could not save report card - missing lab script ID",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Save design info
+      await saveReportCardState(labScriptId, {
+        reportStatus: 'in_progress',
+        isDesignInfoComplete: true,
+        isClinicalInfoComplete: true,
+        designInfo: {
+          designDate: formData.designDate,
+          applianceType: formData.applianceType,
+          upperTreatment: formData.upperTreatment,
+          lowerTreatment: formData.lowerTreatment,
+          screw: formData.screw,
+          implantLibrary: formData.implantLibrary,
+          teethLibrary: formData.teethLibrary,
+          actionsTaken: formData.actionsTaken,
+        },
+        clinicalInfo: {
+          insertionDate: formData.insertionDate,
+          applianceFit: formData.applianceFit,
+          designFeedback: formData.designFeedback,
+          occlusion: formData.occlusion,
+          esthetics: formData.esthetics,
+          adjustmentsMade: formData.adjustmentsMade,
+          material: formData.material,
+          shade: formData.shade,
+        }
+      });
+
+      toast({
+        title: "Report Created",
+        description: "The lab report has been successfully created.",
+      });
+
+      onSubmit(formData);
+    } catch (error) {
+      console.error("Error saving report card:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save report card. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -350,5 +406,4 @@ export const LabReportForm = ({ onSubmit, onCancel, patientData }: LabReportForm
       </div>
       </form>
     </ScrollArea>
-  );
 };

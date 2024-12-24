@@ -154,6 +154,7 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
           <LabReportForm
             onSubmit={handleSubmitReport}
             onCancel={() => setShowCreateDialog(false)}
+            labScriptId={selectedScript?.id}
             patientData={patientData}
           />
         </DialogContent>
