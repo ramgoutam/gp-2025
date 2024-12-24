@@ -11,7 +11,7 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
         id,
         design_info_status,
         clinical_info_status,
-        design_info:design_info (
+        design_info:design_info!report_cards_design_info_id_fkey (
           id,
           design_date,
           appliance_type,
@@ -19,7 +19,7 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
           lower_treatment,
           screw
         ),
-        clinical_info:clinical_info (
+        clinical_info:clinical_info!report_cards_clinical_info_id_fkey (
           id,
           insertion_date,
           appliance_fit,
