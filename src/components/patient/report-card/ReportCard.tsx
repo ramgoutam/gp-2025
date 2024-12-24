@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Calendar, User, FileCheck, ArrowRight, Clock, CheckCircle, Stethoscope, FileText } from "lucide-react";
+import { Settings, ArrowRight, CheckCircle, Stethoscope } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
-import { getReportCardState, saveReportCardState, ReportCardState } from './ReportCardState';
+import { saveReportCardState, getReportCardState, ReportCardState } from '@/utils/reportCardUtils';
 import { format } from "date-fns";
 
 interface ReportCardProps {
@@ -23,21 +23,58 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
-  const [state, setState] = useState<ReportCardState>(() => getReportCardState(script.id));
+  const [state, setState] = useState<ReportCardState>({
+    reportStatus: 'pending',
+    isDesignInfoComplete: false,
+    isClinicalInfoComplete: false
+  });
+
+  useEffect(() => {
+    const loadReportCardState = async () => {
+      try {
+        const savedState = await getReportCardState(script.id);
+        if (savedState) {
+          setState(savedState);
+        }
+      } catch (error) {
+        console.error("Error loading report card state:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load report card state",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadReportCardState();
+  }, [script.id]);
 
   // Sync state with script status and info completion
   useEffect(() => {
-    setState(prev => ({
-      ...prev,
-      reportStatus: script.status,
-      isDesignInfoComplete: !!script.designInfo,
-      isClinicalInfoComplete: !!script.clinicalInfo
-    }));
-  }, [script.status, script.designInfo, script.clinicalInfo]);
+    const updateState = async () => {
+      const newState = {
+        ...state,
+        reportStatus: script.status,
+        isDesignInfoComplete: !!script.designInfo,
+        isClinicalInfoComplete: !!script.clinicalInfo
+      };
 
-  useEffect(() => {
-    saveReportCardState(script.id, state);
-  }, [script.id, state]);
+      setState(newState);
+
+      try {
+        await saveReportCardState(script.id, newState);
+      } catch (error) {
+        console.error("Error saving report card state:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save report card state",
+          variant: "destructive"
+        });
+      }
+    };
+
+    updateState();
+  }, [script.status, script.designInfo, script.clinicalInfo]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -76,7 +113,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     }
   };
 
-  const handleCompleteReport = () => {
+  const handleCompleteReport = async () => {
     console.log("Completing report for script:", script.id);
     if (!script.designInfo || !script.clinicalInfo) {
       toast({
@@ -96,31 +133,29 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       onUpdateScript(updatedScript);
     }
     
-    setState(prev => ({
-      ...prev,
-      reportStatus: 'completed'
-    }));
-    
-    toast({
-      title: "Report Completed",
-      description: "The report has been marked as completed.",
-    });
-  };
-
-  const handleClinicalInfoSave = (updatedScript: LabScript) => {
-    console.log("Saving clinical info:", updatedScript);
-    if (onUpdateScript) {
-      onUpdateScript(updatedScript);
+    try {
+      await saveReportCardState(script.id, {
+        ...state,
+        reportStatus: 'completed'
+      });
+      
+      setState(prev => ({
+        ...prev,
+        reportStatus: 'completed'
+      }));
+      
+      toast({
+        title: "Report Completed",
+        description: "The report has been marked as completed.",
+      });
+    } catch (error) {
+      console.error("Error completing report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to complete report",
+        variant: "destructive"
+      });
     }
-    setState(prev => ({
-      ...prev,
-      isClinicalInfoComplete: true
-    }));
-    setShowClinicalInfo(false);
-    toast({
-      title: "Clinical Info Saved",
-      description: "The clinical information has been successfully saved.",
-    });
   };
 
   const getScriptTitle = () => {
@@ -260,7 +295,32 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
           <ClinicalInfoForm
             onClose={() => setShowClinicalInfo(false)}
             script={script}
-            onSave={handleClinicalInfoSave}
+            onSave={async (updatedScript) => {
+              try {
+                await saveReportCardState(script.id, {
+                  ...state,
+                  isClinicalInfoComplete: true,
+                  clinicalInfo: updatedScript.clinicalInfo
+                });
+                
+                if (onUpdateScript) {
+                  onUpdateScript(updatedScript);
+                }
+                
+                setShowClinicalInfo(false);
+                toast({
+                  title: "Clinical Info Saved",
+                  description: "The clinical information has been successfully saved.",
+                });
+              } catch (error) {
+                console.error("Error saving clinical info:", error);
+                toast({
+                  title: "Error",
+                  description: "Failed to save clinical information",
+                  variant: "destructive"
+                });
+              }
+            }}
           />
         </DialogContent>
       </Dialog>
