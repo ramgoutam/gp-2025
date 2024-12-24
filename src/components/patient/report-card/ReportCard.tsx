@@ -21,24 +21,19 @@ type ReportCardData = {
   clinical_info?: Record<string, any>;
 };
 
+interface ReportCardProps {
+  script: LabScript;
+  onDesignInfo: (script: { id: string }) => void;
+  onClinicalInfo: () => void;
+  onUpdateScript?: (script: LabScript) => void;
+}
+
 export const ReportCard = ({
   script,
   onDesignInfo,
   onClinicalInfo,
   onUpdateScript,
-}: {
-  script: {
-    id: string;
-    requestNumber?: string;
-    status: string;
-    requestDate: string;
-    designInfo?: Record<string, any>;
-    clinicalInfo?: Record<string, any>;
-  };
-  onDesignInfo: (script: { id: string }) => void;
-  onClinicalInfo: () => void;
-  onUpdateScript?: (script: { id: string }) => void;
-}) => {
+}: ReportCardProps) => {
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
   const [isCompleted, setIsCompleted] = useState(false);
@@ -63,8 +58,8 @@ export const ReportCard = ({
 
       if (reportCard) {
         console.log("Found report card:", reportCard);
-        setDesignInfoStatus(reportCard.design_info_status);
-        setClinicalInfoStatus(reportCard.clinical_info_status);
+        setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
+        setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
         setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
@@ -75,7 +70,6 @@ export const ReportCard = ({
   useEffect(() => {
     fetchReportCardStatus();
 
-    // Subscribe to report card changes
     const channel = supabase
       .channel('report-card-changes')
       .on(
@@ -91,7 +85,7 @@ export const ReportCard = ({
           if (payload.new && 'design_info_status' in payload.new) {
             setDesignInfoStatus(payload.new.design_info_status);
             setClinicalInfoStatus(payload.new.clinical_info_status);
-            fetchReportCardStatus(); // Refresh the entire report card data
+            fetchReportCardStatus();
           }
         }
       )
@@ -104,7 +98,11 @@ export const ReportCard = ({
 
   const handleComplete = async () => {
     if (onUpdateScript) {
-      onUpdateScript({ ...script, status: 'completed' });
+      const updatedScript: LabScript = {
+        ...script,
+        status: 'completed'
+      };
+      onUpdateScript(updatedScript);
       setIsCompleted(true);
     }
   };

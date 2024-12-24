@@ -61,7 +61,7 @@ export const DesignInfoForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <DesignDateSection
-        designDate={designData.design_date}
+        value={designData.design_date}
         onChange={(value) => handleDesignDataChange('design_date', value)}
       />
 
@@ -73,7 +73,7 @@ export const DesignInfoForm = ({
       />
 
       <ActionsTakenSection
-        actionsTaken={designData.actions_taken}
+        value={designData.actions_taken || ''}
         onChange={(value) => handleDesignDataChange('actions_taken', value)}
       />
 
