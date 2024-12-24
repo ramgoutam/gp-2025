@@ -44,33 +44,42 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     
     try {
       // First, check if a report card exists for this lab script
-      const { data: existingReport } = await supabase
+      const { data: existingReport, error: fetchError } = await supabase
         .from('report_cards')
         .select('*')
         .eq('lab_script_id', script.id)
         .single();
 
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw fetchError;
+      }
+
+      let reportCardOperation;
       if (existingReport) {
-        // Update existing report card without changing the status
-        const { error: updateError } = await supabase
+        // Update existing report card
+        console.log("Updating existing report card:", existingReport.id);
+        reportCardOperation = supabase
           .from('report_cards')
           .update({
-            design_info: designData
+            design_info: designData,
+            updated_at: new Date().toISOString()
           })
           .eq('id', existingReport.id);
-
-        if (updateError) throw updateError;
       } else {
         // Create new report card
-        const { error: insertError } = await supabase
+        console.log("Creating new report card for lab script:", script.id);
+        reportCardOperation = supabase
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            design_info: designData
+            patient_id: script.patient_id, // Add patient_id from the lab script
+            design_info: designData,
+            report_status: 'in_progress'
           });
-
-        if (insertError) throw insertError;
       }
+
+      const { error: saveError } = await reportCardOperation;
+      if (saveError) throw saveError;
 
       // Update the script with the new design info
       const updatedScript: LabScript = {

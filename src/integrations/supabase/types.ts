@@ -164,6 +164,7 @@ export type Database = {
           design_info: Json | null
           id: string
           lab_script_id: string | null
+          patient_id: string
           report_status: string | null
           updated_at: string
         }
@@ -173,6 +174,7 @@ export type Database = {
           design_info?: Json | null
           id?: string
           lab_script_id?: string | null
+          patient_id: string
           report_status?: string | null
           updated_at?: string
         }
@@ -182,6 +184,7 @@ export type Database = {
           design_info?: Json | null
           id?: string
           lab_script_id?: string | null
+          patient_id?: string
           report_status?: string | null
           updated_at?: string
         }
@@ -191,6 +194,13 @@ export type Database = {
             columns: ["lab_script_id"]
             isOneToOne: true
             referencedRelation: "lab_scripts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_cards_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
