@@ -30,7 +30,7 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
   }
 
   const getStatusIcon = (type: string) => {
-    switch (type) {
+    switch (type.toLowerCase()) {
       case 'upper':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'lower':
@@ -43,7 +43,7 @@ export const TreatmentStatusContent = ({ patientData }: TreatmentStatusProps) =>
   };
 
   const getStatusColor = (type: string) => {
-    switch (type) {
+    switch (type.toLowerCase()) {
       case 'upper':
       case 'lower':
         return 'bg-green-100 text-green-800 border-green-200';
