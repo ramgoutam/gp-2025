@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { ScriptTitle } from "./ScriptTitle";
 import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
@@ -8,7 +7,9 @@ import { LabScript } from "@/types/labScript";
 import { InfoStatus, ReportCardData } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { CheckCircle } from "lucide-react";
 
 interface ReportCardProps {
   script: LabScript;
@@ -58,10 +59,8 @@ export const ReportCard = ({
   };
 
   useEffect(() => {
-    // Initial fetch of report card status
     fetchReportCardStatus();
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel('report-card-changes')
       .on(
@@ -92,7 +91,6 @@ export const ReportCard = ({
   const handleComplete = async () => {
     console.log("Completing report card");
     try {
-      // Update report card status to completed
       const { error: updateError } = await supabase
         .from('report_cards')
         .update({ status: 'completed' })
@@ -118,6 +116,8 @@ export const ReportCard = ({
     }
   };
 
+  const showCompleteButton = designInfoStatus === 'completed' && clinicalInfoStatus === 'completed' && !isCompleted;
+
   return (
     <Card className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -125,15 +125,27 @@ export const ReportCard = ({
           <ScriptTitle script={script} />
           <StatusBadge status={script.status} />
         </div>
-        <ActionButtons
-          script={script}
-          onDesignInfo={onDesignInfo}
-          onClinicalInfo={onClinicalInfo}
-          onComplete={handleComplete}
-          designInfoStatus={designInfoStatus}
-          clinicalInfoStatus={clinicalInfoStatus}
-          isCompleted={isCompleted}
-        />
+        <div className="flex gap-3">
+          <ActionButtons
+            script={script}
+            onDesignInfo={onDesignInfo}
+            onClinicalInfo={onClinicalInfo}
+            designInfoStatus={designInfoStatus}
+            clinicalInfoStatus={clinicalInfoStatus}
+            isCompleted={isCompleted}
+          />
+          {showCompleteButton && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleComplete}
+              className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Complete Report Card
+            </Button>
+          )}
+        </div>
       </div>
 
       <ProgressTracking
