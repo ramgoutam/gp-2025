@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, Flask, FileCheck2, ScrollText } from "lucide-react";
+import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, UserRound } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPatients } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -105,7 +105,7 @@ export const PatientList = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPatients.map((patient: Patient) => (
           <Link
             key={patient.id}
@@ -115,27 +115,41 @@ export const PatientList = () => {
               firstName: patient.first_name,
               lastName: patient.last_name,
             }}}
-            className="block group transition-all duration-300 hover:-translate-y-1"
+            className="block group"
           >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg transition-transform duration-300 group-hover:scale-110">
-                  {patient.first_name[0]}
-                  {patient.last_name[0]}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/20 hover:-translate-y-1">
+              <div className="flex items-start space-x-5">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center text-primary font-semibold text-lg transition-transform duration-300 group-hover:scale-110">
+                      <UserRound className="w-7 h-7 text-primary/70" />
+                    </div>
+                    <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-success" />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary transition-colors duration-200">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary transition-colors duration-200 truncate">
                     {patient.first_name} {patient.last_name}
                   </h3>
-                  <div className="mt-2 space-y-1">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Mail className="h-4 w-4 mr-2 text-primary/60" />
-                      {patient.email}
+                  <div className="mt-3 space-y-2.5">
+                    <div className="flex items-center text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
+                      <Mail className="h-4 w-4 mr-2 text-primary/60 group-hover:text-primary transition-colors duration-200" />
+                      <span className="truncate">{patient.email}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Phone className="h-4 w-4 mr-2 text-primary/60" />
-                      {patient.phone}
+                    <div className="flex items-center text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
+                      <Phone className="h-4 w-4 mr-2 text-primary/60 group-hover:text-primary transition-colors duration-200" />
+                      <span>{patient.phone}</span>
                     </div>
+                  </div>
+                  <div className="mt-4 flex items-center space-x-2">
+                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      {patient.treatment_type || 'No treatment'}
+                    </span>
+                    {patient.surgery_date && (
+                      <span className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
+                        Surgery: {new Date(patient.surgery_date).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
