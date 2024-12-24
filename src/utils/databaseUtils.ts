@@ -6,28 +6,24 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
   const { data: scripts, error } = await supabase
     .from('lab_scripts')
     .select(`
-      *,
-      report_cards!report_cards_lab_script_id_fkey (
-        id,
-        design_info_status,
-        clinical_info_status,
-        design_info:design_info!report_cards_design_info_id_fkey (
-          id,
-          design_date,
-          appliance_type,
-          upper_treatment,
-          lower_treatment,
-          screw
-        ),
-        clinical_info:clinical_info!report_cards_clinical_info_id_fkey (
-          id,
-          insertion_date,
-          appliance_fit,
-          design_feedback,
-          occlusion,
-          esthetics
-        )
-      )
+      id,
+      request_number,
+      patient_id,
+      doctor_name,
+      clinic_name,
+      request_date,
+      due_date,
+      status,
+      upper_treatment,
+      lower_treatment,
+      upper_design_name,
+      lower_design_name,
+      appliance_type,
+      screw_type,
+      vdo_option,
+      specific_instructions,
+      created_at,
+      updated_at
     `)
     .order('created_at', { ascending: false });
 
