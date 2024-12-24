@@ -7,6 +7,8 @@ import { LabScriptHeader } from "./lab-script-details/LabScriptHeader";
 import { ProgressBar } from "./ProgressBar";
 import { updateLabScript } from "@/utils/databaseUtils";
 import { LabScript } from "@/types/labScript";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type LabScriptsTabProps = {
   labScripts: LabScript[];
@@ -28,6 +30,8 @@ export const LabScriptsTab = ({
 }: LabScriptsTabProps) => {
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
+  const { toast } = useToast();
+  const [scriptDetails, setScriptDetails] = React.useState<Record<string, any>>({});
 
   // Sort lab scripts by request date in descending order (newest first)
   const sortedLabScripts = React.useMemo(() => {
@@ -40,7 +44,47 @@ export const LabScriptsTab = ({
     });
   }, [labScripts]);
 
-  console.log("Sorted lab scripts:", sortedLabScripts);
+  // Preload all script details when the component mounts or lab scripts change
+  React.useEffect(() => {
+    const fetchScriptDetails = async () => {
+      try {
+        for (const script of sortedLabScripts) {
+          console.log("Preloading details for script:", script.id);
+          
+          const { data: reportCard, error: reportCardError } = await supabase
+            .from('report_cards')
+            .select('*, design_info(*), clinical_info(*)')
+            .eq('lab_script_id', script.id)
+            .maybeSingle();
+
+          if (reportCardError) {
+            console.error("Error fetching report card:", reportCardError);
+            continue;
+          }
+
+          if (reportCard) {
+            setScriptDetails(prev => ({
+              ...prev,
+              [script.id]: {
+                reportCard,
+                designInfo: reportCard.design_info,
+                clinicalInfo: reportCard.clinical_info
+              }
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error preloading script details:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load some script details",
+          variant: "destructive"
+        });
+      }
+    };
+
+    fetchScriptDetails();
+  }, [sortedLabScripts]);
 
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
@@ -115,7 +159,11 @@ export const LabScriptsTab = ({
               sortedLabScripts.map((script) => (
                 <LabScriptCard
                   key={script.id}
-                  script={script}
+                  script={{
+                    ...script,
+                    designInfo: scriptDetails[script.id]?.designInfo,
+                    clinicalInfo: scriptDetails[script.id]?.clinicalInfo
+                  }}
                   onClick={() => handleRowClick(script)}
                   onEdit={() => handleEditClick(script)}
                   onDelete={() => onDeleteLabScript(script)}
@@ -128,7 +176,11 @@ export const LabScriptsTab = ({
       </div>
 
       <LabScriptDetails
-        script={selectedScript}
+        script={selectedScript ? {
+          ...selectedScript,
+          designInfo: scriptDetails[selectedScript.id]?.designInfo,
+          clinicalInfo: scriptDetails[selectedScript.id]?.clinicalInfo
+        } : null}
         open={!!selectedScript}
         onOpenChange={(open) => {
           if (!open) {
