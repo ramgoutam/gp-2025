@@ -35,10 +35,11 @@ export const DesignInfoForm = ({
   } = useDesignForm(script, onSave, onClose);
 
   const handleSubmit = async () => {
+    console.log("Submitting design info form");
     const result = await handleSave(scriptId);
     
     if (result.success) {
-      // Update report card status
+      // Update report card status with updated_at timestamp to trigger realtime updates
       const { error: updateError } = await supabase
         .from('report_cards')
         .update({ 
@@ -57,6 +58,7 @@ export const DesignInfoForm = ({
         return;
       }
 
+      console.log("Design info form submitted successfully");
       toast({
         title: "Success",
         description: "Design information saved successfully",
