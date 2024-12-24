@@ -1,72 +1,39 @@
 import { ProgressBar } from "../ProgressBar";
 import { LabScript } from "@/types/labScript";
-import { DesignInfo, ClinicalInfo } from "@/types/reportCard";
+import { InfoStatus } from "@/types/reportCard";
 
 interface ProgressTrackingProps {
   script: LabScript;
-  designInfoStatus?: 'pending' | 'completed';
-  clinicalInfoStatus?: 'pending' | 'completed';
+  designInfoStatus: InfoStatus;
+  clinicalInfoStatus: InfoStatus;
 }
 
-const isDesignInfoComplete = (designInfo?: DesignInfo) => {
-  if (!designInfo) return false;
-  return !!(
-    designInfo.design_date &&
-    designInfo.appliance_type &&
-    designInfo.upper_treatment &&
-    designInfo.lower_treatment &&
-    designInfo.implant_library &&
-    designInfo.teeth_library
-  );
-};
-
-const isClinicalInfoComplete = (clinicalInfo?: ClinicalInfo) => {
-  if (!clinicalInfo) return false;
-  return !!(
-    clinicalInfo.insertion_date &&
-    clinicalInfo.appliance_fit &&
-    clinicalInfo.design_feedback &&
-    clinicalInfo.occlusion &&
-    clinicalInfo.esthetics &&
-    clinicalInfo.adjustments_made &&
-    clinicalInfo.material &&
-    clinicalInfo.shade
-  );
-};
-
 export const ProgressTracking = ({ 
-  script, 
-  designInfoStatus = 'pending', 
-  clinicalInfoStatus = 'pending' 
+  script,
+  designInfoStatus,
+  clinicalInfoStatus
 }: ProgressTrackingProps) => {
-  const designComplete = isDesignInfoComplete(script.designInfo);
-  const clinicalComplete = isClinicalInfoComplete(script.clinicalInfo);
-
   const progressSteps = [
     { 
       label: "Request Created", 
-      status: "completed" as const
+      status: "completed" as const 
     },
     { 
       label: "Design Info", 
-      status: designComplete
-        ? "completed" as const 
-        : "current" as const 
+      status: designInfoStatus === 'completed' ? "completed" as const : "current" as const 
     },
-    {
-      label: "Clinical Info",
-      status: clinicalComplete
+    { 
+      label: "Clinical Info", 
+      status: clinicalInfoStatus === 'completed'
         ? "completed" as const 
-        : designComplete
-        ? "current" as const 
-        : "upcoming" as const
+        : designInfoStatus === 'completed'
+          ? "current" as const 
+          : "upcoming" as const 
     },
     { 
       label: "Completed", 
-      status: (designComplete && clinicalComplete)
-        ? script.status === 'completed'
-          ? "completed" as const
-          : "current" as const
+      status: script.status === 'completed' 
+        ? "completed" as const 
         : "upcoming" as const 
     }
   ];
