@@ -42,13 +42,20 @@ export const LabScriptsTab = ({
           labScripts.map(async (script) => {
             console.log("Fetching report card data for script:", script.id);
             
-            // Fetch report card with all related data in a single query
             const { data: reportCardData, error: reportCardError } = await supabase
               .from('report_cards')
               .select(`
                 *,
-                design_info:design_info_id(id, design_date, appliance_type, upper_treatment, lower_treatment, screw, implant_library, teeth_library, actions_taken),
-                clinical_info:clinical_info_id(id, insertion_date, appliance_fit, design_feedback, occlusion, esthetics, adjustments_made, material, shade)
+                design_info:design_info_id(
+                  id, design_date, appliance_type, upper_treatment, 
+                  lower_treatment, screw, implant_library, teeth_library, 
+                  actions_taken, report_card_id, created_at, updated_at
+                ),
+                clinical_info:clinical_info_id(
+                  id, insertion_date, appliance_fit, design_feedback, 
+                  occlusion, esthetics, adjustments_made, material, 
+                  shade, report_card_id, created_at, updated_at
+                )
               `)
               .eq('lab_script_id', script.id)
               .maybeSingle();
