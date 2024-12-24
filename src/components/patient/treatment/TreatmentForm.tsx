@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Odontogram } from "../medical-record/Odontogram";
 
 interface TreatmentFormProps {
   isOpen: boolean;
@@ -12,7 +13,6 @@ interface TreatmentFormProps {
 }
 
 const SHADE_OPTIONS = ["A1", "A2", "A3", "A3.5", "A4", "B1", "B2", "B3", "B4"];
-
 const TREATMENT_OPTIONS = ["None", "Full Arch Fixed", "Denture", "Crown"];
 
 export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps) => {
@@ -50,7 +50,7 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add New Treatment</DialogTitle>
         </DialogHeader>
@@ -114,6 +114,11 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
                 </Select>
               </div>
             )}
+
+            <div className="border rounded-lg p-4">
+              <Label className="mb-2 block">Odontogram</Label>
+              <Odontogram />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="shade">Shade</Label>
