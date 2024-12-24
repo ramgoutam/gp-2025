@@ -23,7 +23,28 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
       vdo_option,
       specific_instructions,
       created_at,
-      updated_at
+      updated_at,
+      report_cards!lab_scripts_id_fkey (
+        id,
+        design_info_status,
+        clinical_info_status,
+        design_info:design_info_id (
+          id,
+          design_date,
+          appliance_type,
+          upper_treatment,
+          lower_treatment,
+          screw
+        ),
+        clinical_info:clinical_info_id (
+          id,
+          insertion_date,
+          appliance_fit,
+          design_feedback,
+          occlusion,
+          esthetics
+        )
+      )
     `)
     .order('created_at', { ascending: false });
 
