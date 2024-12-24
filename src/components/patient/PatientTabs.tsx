@@ -5,12 +5,14 @@ import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
 import { LabScript } from "@/types/labScript";
+
 interface PatientTabsProps {
   labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
   patientData: {
+    id: string;  // Added id property
     firstName: string;
     lastName: string;
     email: string;
