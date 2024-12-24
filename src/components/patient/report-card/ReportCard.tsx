@@ -10,7 +10,6 @@ import { ReportCardDialog } from "./ReportCardDialog";
 import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
 import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
-import { StatusBadge } from './StatusBadge';
 import { ScriptTitle } from './ScriptTitle';
 import { ProgressTracking } from './ProgressTracking';
 import { ActionButtons } from './ActionButtons';
@@ -94,7 +93,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <ScriptTitle script={script} />
-                <StatusBadge status={reportCardState.reportStatus} />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
