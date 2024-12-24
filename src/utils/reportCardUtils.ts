@@ -11,14 +11,16 @@ export const saveReportCardState = async (
   try {
     const { data, error } = await supabase
       .from('report_cards')
-      .upsert([{  // Wrap the object in an array
+      .upsert([{
         lab_script_id: labScriptId,
-        design_info: state.designInfo || null,
-        clinical_info: state.clinicalInfo || null,
+        design_info: state.designInfo as Json,
+        clinical_info: state.clinicalInfo as Json,
         report_status: state.reportStatus
-      }])
-      .select('*')
-      .single();
+      }], {
+        onConflict: 'lab_script_id'  // Specify the column to check for conflicts
+      })
+      .select()
+      .maybeSingle();  // Use maybeSingle instead of single to handle null cases
 
     if (error) {
       console.error("Error saving report card state:", error);
@@ -43,13 +45,9 @@ export const getReportCardState = async (
       .from('report_cards')
       .select('*')
       .eq('lab_script_id', labScriptId)
-      .single();
+      .maybeSingle();  // Use maybeSingle instead of single
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        console.log("No report card found for lab script:", labScriptId);
-        return null;
-      }
       console.error("Error fetching report card state:", error);
       throw error;
     }
