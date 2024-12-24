@@ -3,6 +3,7 @@ import { LabScript } from "@/types/labScript";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 interface ReportCardDialogProps {
   open: boolean;
@@ -11,6 +12,20 @@ interface ReportCardDialogProps {
 }
 
 export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialogProps) => {
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      pending: "bg-yellow-100 text-yellow-800",
+      in_progress: "bg-blue-100 text-blue-800",
+      completed: "bg-green-100 text-green-800",
+    };
+
+    return (
+      <Badge variant="secondary" className={styles[status] || styles.pending}>
+        {status?.replace("_", " ") || "pending"}
+      </Badge>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[800px] w-full">
@@ -29,7 +44,7 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Status</p>
-                  <p className="font-medium capitalize">{script.status.replace('_', ' ')}</p>
+                  {getStatusBadge(script.status)}
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Doctor Name</p>
@@ -65,6 +80,14 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   <p className="font-medium">{script.lowerTreatment || 'None'}</p>
                 </div>
                 <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Upper Design Name</p>
+                  <p className="font-medium">{script.upperDesignName || 'Not specified'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Lower Design Name</p>
+                  <p className="font-medium">{script.lowerDesignName || 'Not specified'}</p>
+                </div>
+                <div className="space-y-2">
                   <p className="text-sm text-gray-500">Appliance Type</p>
                   <p className="font-medium">{script.applianceType || 'Not specified'}</p>
                 </div>
@@ -72,6 +95,12 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   <p className="text-sm text-gray-500">Screw Type</p>
                   <p className="font-medium">{script.screwType || 'Not specified'}</p>
                 </div>
+                {script.vdoOption && (
+                  <div className="space-y-2 col-span-2">
+                    <p className="text-sm text-gray-500">VDO Option</p>
+                    <p className="font-medium">{script.vdoOption}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -87,20 +116,16 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                     <p className="font-medium">{format(new Date(script.designInfo.design_date), 'MMM dd, yyyy')}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-500">Upper Design Name</p>
-                    <p className="font-medium">{script.designInfo.upper_design_name || 'Not specified'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500">Lower Design Name</p>
-                    <p className="font-medium">{script.designInfo.lower_design_name || 'Not specified'}</p>
-                  </div>
-                  <div className="space-y-2">
                     <p className="text-sm text-gray-500">Implant Library</p>
                     <p className="font-medium">{script.designInfo.implant_library || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Teeth Library</p>
                     <p className="font-medium">{script.designInfo.teeth_library || 'Not specified'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Screw</p>
+                    <p className="font-medium">{script.designInfo.screw || 'Not specified'}</p>
                   </div>
                   <div className="col-span-2 space-y-2">
                     <p className="text-sm text-gray-500">Actions Taken</p>
@@ -119,7 +144,11 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Insertion Date</p>
-                    <p className="font-medium">{script.clinicalInfo.insertion_date ? format(new Date(script.clinicalInfo.insertion_date), 'MMM dd, yyyy') : 'Not specified'}</p>
+                    <p className="font-medium">
+                      {script.clinicalInfo.insertion_date 
+                        ? format(new Date(script.clinicalInfo.insertion_date), 'MMM dd, yyyy') 
+                        : 'Not specified'}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Appliance Fit</p>
