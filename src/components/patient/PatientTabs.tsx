@@ -12,7 +12,7 @@ interface PatientTabsProps {
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
   patientData: {
-    id: string;  // Added id property
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -99,6 +99,7 @@ export const PatientTabs = ({
           onCreateLabScript={handleCreateLabScript}
           onEditLabScript={handleEditLabScript}
           onDeleteLabScript={handleDeleteLabScript}
+          patientData={patientData}
         />
       </TabsContent>
 
