@@ -17,10 +17,10 @@ export const saveReportCardState = async (
         clinical_info: state.clinicalInfo as Json,
         report_status: state.reportStatus
       }], {
-        onConflict: 'lab_script_id'  // Specify the column to check for conflicts
+        onConflict: 'lab_script_id'
       })
       .select()
-      .maybeSingle();  // Use maybeSingle instead of single to handle null cases
+      .maybeSingle();
 
     if (error) {
       console.error("Error saving report card state:", error);
@@ -45,7 +45,7 @@ export const getReportCardState = async (
       .from('report_cards')
       .select('*')
       .eq('lab_script_id', labScriptId)
-      .maybeSingle();  // Use maybeSingle instead of single
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching report card state:", error);

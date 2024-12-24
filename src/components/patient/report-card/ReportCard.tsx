@@ -12,7 +12,6 @@ import { ReportCardDialog } from "./ReportCardDialog";
 import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
 import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ReportCardProps {
   script: LabScript;
@@ -26,7 +25,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [reportCardState, setReportCardState] = useState<ReportCardState>({
-    reportStatus: script.status, // Initialize with lab script status
+    reportStatus: script.status, 
     isDesignInfoComplete: false,
     isClinicalInfoComplete: false
   });
@@ -37,10 +36,9 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
       try {
         const savedState = await getReportCardState(script.id);
         if (savedState) {
-          // Merge the saved state with the current lab script status
           setReportCardState(prev => ({
             ...savedState,
-            reportStatus: script.status // Always use lab script status
+            reportStatus: script.status
           }));
         }
       } catch (error) {
@@ -56,33 +54,39 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     loadReportCardState();
   }, [script.id, script.status]);
 
-  // Update report card state when script status changes
-  useEffect(() => {
-    const updateState = async () => {
+  const handleSaveDesignInfo = async (updatedScript: LabScript) => {
+    console.log("Saving updated script:", updatedScript);
+    try {
+      // Update the local state immediately
       const newState = {
         ...reportCardState,
-        reportStatus: script.status,
-        isDesignInfoComplete: !!script.designInfo,
-        isClinicalInfoComplete: !!script.clinicalInfo
+        reportStatus: 'in_progress',
+        isDesignInfoComplete: true,
       };
-
+      
       setReportCardState(newState);
-
-      try {
-        await saveReportCardState(script.id, newState);
-        console.log("Successfully saved report card state:", newState);
-      } catch (error) {
-        console.error("Error saving report card state:", error);
-        toast({
-          title: "Error",
-          description: "Failed to save report card state",
-          variant: "destructive"
-        });
+      
+      // Save to backend
+      await saveReportCardState(script.id, newState);
+      
+      if (onUpdateScript) {
+        onUpdateScript(updatedScript);
       }
-    };
-
-    updateState();
-  }, [script.status, script.designInfo, script.clinicalInfo]);
+      
+      setShowDesignInfo(false);
+      toast({
+        title: "Design Info Saved",
+        description: "The design information has been successfully saved.",
+      });
+    } catch (error) {
+      console.error("Error saving design info:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save design information",
+        variant: "destructive"
+      });
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -118,51 +122,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
         return 'Completed';
       default:
         return status.replace('_', ' ');
-    }
-  };
-
-  const handleCompleteReport = async () => {
-    console.log("Completing report for script:", script.id);
-    if (!script.designInfo || !script.clinicalInfo) {
-      toast({
-        title: "Cannot Complete Report",
-        description: "Both design and clinical information must be completed first.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const updatedScript = {
-      ...script,
-      status: 'completed' as const
-    };
-    
-    if (onUpdateScript) {
-      onUpdateScript(updatedScript);
-    }
-    
-    try {
-      await saveReportCardState(script.id, {
-        ...reportCardState,
-        reportStatus: 'completed'
-      });
-      
-      setReportCardState(prev => ({
-        ...prev,
-        reportStatus: 'completed'
-      }));
-      
-      toast({
-        title: "Report Completed",
-        description: "The report has been marked as completed.",
-      });
-    } catch (error) {
-      console.error("Error completing report:", error);
-      toast({
-        title: "Error",
-        description: "Failed to complete report",
-        variant: "destructive"
-      });
     }
   };
 
@@ -219,9 +178,9 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 {getScriptTitle()}
                 <Badge 
                   variant="outline" 
-                  className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
+                  className={`${getStatusColor(reportCardState.reportStatus)} px-3 py-1 uppercase text-xs font-medium`}
                 >
-                  {getStatusText(script.status)}
+                  {getStatusText(reportCardState.reportStatus)}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
