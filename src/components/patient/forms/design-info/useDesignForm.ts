@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScript) => void, onClose: () => void) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [designData, setDesignData] = useState({
-    design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0], // Default to today
+    design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
     upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
     lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
