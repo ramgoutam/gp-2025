@@ -1,83 +1,58 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Auth error:", error);
-        toast({
-          title: "Authentication Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-      if (session) {
-        navigate("/");
-      }
-    };
-
-    checkUser();
-
-    // Listen for auth changes
+  React.useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session) => {
-        console.log("Auth event:", event);
-        if (session) {
-          navigate("/");
-        }
-        // Handle specific auth events
+        console.log("Auth state changed:", event, session);
         switch (event) {
-          case "USER_DELETED":
-            toast({
-              title: "Account Deleted",
-              description: "Your account has been successfully deleted.",
-            });
-            break;
           case "SIGNED_IN":
-            console.log("User signed in successfully");
+            if (session) {
+              navigate("/");
+            }
             break;
           case "SIGNED_OUT":
-            console.log("User signed out");
+            navigate("/login");
             break;
           case "USER_UPDATED":
             console.log("User updated");
             break;
+          case "USER_DELETED":
+            navigate("/login");
+            break;
           default:
-            console.log("Auth event:", event);
+            console.log("Unhandled auth event:", event);
         }
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-8">
-        <h1 className="text-2xl font-bold text-center mb-8">Welcome Back</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Please sign in to your account
+          </p>
+        </div>
         <Auth
           supabaseClient={supabase}
-          appearance={{ 
-            theme: ThemeSupa,
-            style: {
-              button: { background: 'rgb(59 130 246)', color: 'white' },
-              anchor: { color: 'rgb(59 130 246)' },
-            },
-          }}
-          theme="light"
-          providers={[]}
+          appearance={{ theme: ThemeSupa }}
+          providers={["google"]}
+          redirectTo={`${window.location.origin}/auth/callback`}
         />
       </div>
     </div>

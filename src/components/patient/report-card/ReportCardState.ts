@@ -1,6 +1,8 @@
+import { LabScriptStatus } from "@/types/labScript";
+
 // Utility to manage report card states
 export type ReportCardState = {
-  reportStatus: 'pending' | 'in_progress' | 'completed';
+  reportStatus: LabScriptStatus;
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
 };
