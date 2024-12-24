@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Odontogram } from "../medical-record/Odontogram";
 
 export const MedicalRecordContent = () => {
   return (
@@ -14,8 +13,8 @@ export const MedicalRecordContent = () => {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-white rounded-lg p-6 border">
-          <h3 className="font-semibold mb-4">Odontogram</h3>
-          <Odontogram />
+          <h3 className="font-semibold mb-4">Medical Records</h3>
+          {/* Placeholder for future medical records content */}
         </div>
 
         <div className="space-y-4">
