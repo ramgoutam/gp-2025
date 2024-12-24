@@ -34,7 +34,6 @@ export const LabScriptsTab = ({
   const [enrichedLabScripts, setEnrichedLabScripts] = useState<LabScript[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sort and enrich lab scripts with their report card data
   useEffect(() => {
     const enrichLabScripts = async () => {
       try {
@@ -43,12 +42,13 @@ export const LabScriptsTab = ({
           labScripts.map(async (script) => {
             console.log("Fetching report card data for script:", script.id);
             
-            const { data: reportCard, error: reportCardError } = await supabase
+            // Fetch report card with all related data in a single query
+            const { data: reportCardData, error: reportCardError } = await supabase
               .from('report_cards')
               .select(`
                 *,
-                design_info!report_cards_design_info_id_fkey (*),
-                clinical_info!report_cards_clinical_info_id_fkey (*)
+                design_info:design_info_id (*),
+                clinical_info:clinical_info_id (*)
               `)
               .eq('lab_script_id', script.id)
               .maybeSingle();
@@ -58,12 +58,16 @@ export const LabScriptsTab = ({
               return script;
             }
 
-            if (reportCard) {
+            if (reportCardData) {
               return {
                 ...script,
-                designInfo: reportCard.design_info,
-                clinicalInfo: reportCard.clinical_info,
-                reportCard
+                designInfo: reportCardData.design_info,
+                clinicalInfo: reportCardData.clinical_info,
+                reportCard: {
+                  ...reportCardData,
+                  design_info: undefined,
+                  clinical_info: undefined
+                }
               };
             }
 
