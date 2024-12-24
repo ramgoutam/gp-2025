@@ -46,11 +46,12 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
         }
 
         if (reportCard) {
-          // Ensure the status fields are of type InfoStatus
+          // Ensure all status fields are of type InfoStatus
           const typedReportCard: ReportCardData = {
             ...reportCard,
             design_info_status: reportCard.design_info_status as InfoStatus,
             clinical_info_status: reportCard.clinical_info_status as InfoStatus,
+            status: reportCard.status as InfoStatus,
           };
           console.log("Found report card:", typedReportCard);
           setReportData(typedReportCard);

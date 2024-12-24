@@ -51,7 +51,7 @@ export interface ReportCardData {
   clinical_info_id: string | null;
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
-  status: 'pending' | 'completed';
+  status: InfoStatus;
   design_info?: DesignInfo;
   clinical_info?: ClinicalInfo;
 }
