@@ -75,19 +75,19 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Design Date</p>
-                    <p className="font-medium">{script.designInfo.designDate}</p>
+                    <p className="font-medium">{script.designInfo.design_date}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Implant Library</p>
-                    <p className="font-medium">{script.designInfo.implantLibrary}</p>
+                    <p className="font-medium">{script.designInfo.implant_library}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Teeth Library</p>
-                    <p className="font-medium">{script.designInfo.teethLibrary}</p>
+                    <p className="font-medium">{script.designInfo.teeth_library}</p>
                   </div>
                   <div className="col-span-2 space-y-2">
                     <p className="text-sm text-gray-500">Actions Taken</p>
-                    <p className="font-medium whitespace-pre-wrap">{script.designInfo.actionsTaken}</p>
+                    <p className="font-medium whitespace-pre-wrap">{script.designInfo.actions_taken}</p>
                   </div>
                 </div>
               </div>
@@ -102,15 +102,15 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Insertion Date</p>
-                    <p className="font-medium">{script.clinicalInfo.insertionDate}</p>
+                    <p className="font-medium">{script.clinicalInfo.insertion_date}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Appliance Fit</p>
-                    <p className="font-medium">{script.clinicalInfo.applianceFit}</p>
+                    <p className="font-medium">{script.clinicalInfo.appliance_fit}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Design Feedback</p>
-                    <p className="font-medium">{script.clinicalInfo.designFeedback}</p>
+                    <p className="font-medium">{script.clinicalInfo.design_feedback}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Occlusion</p>
@@ -122,7 +122,7 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Adjustments Made</p>
-                    <p className="font-medium">{script.clinicalInfo.adjustmentsMade}</p>
+                    <p className="font-medium">{script.clinicalInfo.adjustments_made}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Material</p>

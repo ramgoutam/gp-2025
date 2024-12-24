@@ -25,12 +25,12 @@ interface ClinicalInfoFormProps {
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
-    insertionDate: new Date().toISOString().split('T')[0],
-    applianceFit: "",
-    designFeedback: "",
+    insertion_date: new Date().toISOString().split('T')[0],
+    appliance_fit: "",
+    design_feedback: "",
     occlusion: "",
     esthetics: "",
-    adjustmentsMade: "",
+    adjustments_made: "",
     material: "",
     shade: "",
   });
@@ -80,12 +80,12 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
         clinicalInfoOperation = supabase
           .from('clinical_info')
           .update({
-            insertion_date: formData.insertionDate,
-            appliance_fit: formData.applianceFit,
-            design_feedback: formData.designFeedback,
+            insertion_date: formData.insertion_date,
+            appliance_fit: formData.appliance_fit,
+            design_feedback: formData.design_feedback,
             occlusion: formData.occlusion,
             esthetics: formData.esthetics,
-            adjustments_made: formData.adjustmentsMade,
+            adjustments_made: formData.adjustments_made,
             material: formData.material,
             shade: formData.shade,
           })
@@ -96,12 +96,12 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
           .from('clinical_info')
           .insert({
             report_card_id: reportCardId,
-            insertion_date: formData.insertionDate,
-            appliance_fit: formData.applianceFit,
-            design_feedback: formData.designFeedback,
+            insertion_date: formData.insertion_date,
+            appliance_fit: formData.appliance_fit,
+            design_feedback: formData.design_feedback,
             occlusion: formData.occlusion,
             esthetics: formData.esthetics,
-            adjustments_made: formData.adjustmentsMade,
+            adjustments_made: formData.adjustments_made,
             material: formData.material,
             shade: formData.shade,
           });
@@ -112,7 +112,10 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
 
       const updatedScript: LabScript = {
         ...script,
-        clinicalInfo: formData
+        clinicalInfo: {
+          report_card_id: reportCardId,
+          ...formData
+        }
       };
 
       onSave(updatedScript);
@@ -164,20 +167,20 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="insertionDate">Insertion Date</Label>
+              <Label htmlFor="insertion_date">Insertion Date</Label>
               <Input
-                id="insertionDate"
+                id="insertion_date"
                 type="date"
-                value={formData.insertionDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, insertionDate: e.target.value }))}
+                value={formData.insertion_date}
+                onChange={(e) => setFormData(prev => ({ ...prev, insertion_date: e.target.value }))}
                 required
               />
             </div>
-            {renderSelect("Appliance Fit", "applianceFit", FIT_OPTIONS)}
-            {renderSelect("Design Feedback", "designFeedback", DESIGN_FEEDBACK_OPTIONS)}
+            {renderSelect("Appliance Fit", "appliance_fit", FIT_OPTIONS)}
+            {renderSelect("Design Feedback", "design_feedback", DESIGN_FEEDBACK_OPTIONS)}
             {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
             {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
-            {renderSelect("Adjustments Made", "adjustmentsMade", ADJUSTMENTS_OPTIONS)}
+            {renderSelect("Adjustments Made", "adjustments_made", ADJUSTMENTS_OPTIONS)}
             {renderSelect("Material", "material", MATERIAL_OPTIONS)}
             {renderSelect("Shade", "shade", SHADE_OPTIONS)}
           </div>

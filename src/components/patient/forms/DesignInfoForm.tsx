@@ -20,14 +20,14 @@ interface DesignInfoFormProps {
 export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfoFormProps) => {
   const { toast } = useToast();
   const [designData, setDesignData] = React.useState({
-    designDate: script.designInfo?.designDate || new Date().toISOString().split('T')[0],
-    applianceType: script.applianceType || "",
-    upperTreatment: script.upperTreatment || "None",
-    lowerTreatment: script.lowerTreatment || "None",
+    design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
+    appliance_type: script.applianceType || "",
+    upper_treatment: script.upperTreatment || "None",
+    lower_treatment: script.lowerTreatment || "None",
     screw: script.screwType || "",
-    implantLibrary: script.designInfo?.implantLibrary || "",
-    teethLibrary: script.designInfo?.teethLibrary || "",
-    actionsTaken: script.designInfo?.actionsTaken || "",
+    implant_library: script.designInfo?.implant_library || "",
+    teeth_library: script.designInfo?.teeth_library || "",
+    actions_taken: script.designInfo?.actions_taken || "",
   });
 
   const handleDesignDataChange = (field: string, value: string) => {
@@ -83,14 +83,14 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         designOperation = supabase
           .from('design_info')
           .update({
-            design_date: designData.designDate,
-            appliance_type: designData.applianceType,
-            upper_treatment: designData.upperTreatment,
-            lower_treatment: designData.lowerTreatment,
+            design_date: designData.design_date,
+            appliance_type: designData.appliance_type,
+            upper_treatment: designData.upper_treatment,
+            lower_treatment: designData.lower_treatment,
             screw: designData.screw,
-            implant_library: designData.implantLibrary,
-            teeth_library: designData.teethLibrary,
-            actions_taken: designData.actionsTaken,
+            implant_library: designData.implant_library,
+            teeth_library: designData.teeth_library,
+            actions_taken: designData.actions_taken,
           })
           .eq('id', existingDesign.id);
       } else {
@@ -99,14 +99,14 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           .from('design_info')
           .insert({
             report_card_id: reportCardId,
-            design_date: designData.designDate,
-            appliance_type: designData.applianceType,
-            upper_treatment: designData.upperTreatment,
-            lower_treatment: designData.lowerTreatment,
+            design_date: designData.design_date,
+            appliance_type: designData.appliance_type,
+            upper_treatment: designData.upper_treatment,
+            lower_treatment: designData.lower_treatment,
             screw: designData.screw,
-            implant_library: designData.implantLibrary,
-            teeth_library: designData.teethLibrary,
-            actions_taken: designData.actionsTaken,
+            implant_library: designData.implant_library,
+            teeth_library: designData.teeth_library,
+            actions_taken: designData.actions_taken,
           });
       }
 
@@ -116,7 +116,10 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       // Update the script with the new design info
       const updatedScript: LabScript = {
         ...script,
-        designInfo: designData
+        designInfo: {
+          report_card_id: reportCardId,
+          ...designData
+        }
       };
 
       onSave(updatedScript);
@@ -141,26 +144,26 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <DesignDateSection
-          value={designData.designDate}
-          onChange={(value) => handleDesignDataChange("designDate", value)}
+          value={designData.design_date}
+          onChange={(value) => handleDesignDataChange("design_date", value)}
         />
       </div>
 
       <ApplianceSection
-        value={designData.applianceType}
-        onChange={(value) => handleDesignDataChange("applianceType", value)}
+        value={designData.appliance_type}
+        onChange={(value) => handleDesignDataChange("appliance_type", value)}
       />
 
       <div className="grid grid-cols-2 gap-4">
         <TreatmentSection
           title="Upper"
-          treatment={designData.upperTreatment}
-          onTreatmentChange={(value) => handleDesignDataChange("upperTreatment", value)}
+          treatment={designData.upper_treatment}
+          onTreatmentChange={(value) => handleDesignDataChange("upper_treatment", value)}
         />
         <TreatmentSection
           title="Lower"
-          treatment={designData.lowerTreatment}
-          onTreatmentChange={(value) => handleDesignDataChange("lowerTreatment", value)}
+          treatment={designData.lower_treatment}
+          onTreatmentChange={(value) => handleDesignDataChange("lower_treatment", value)}
         />
       </div>
 
@@ -170,15 +173,15 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       />
 
       <LibrarySection
-        implantLibrary={designData.implantLibrary}
-        teethLibrary={designData.teethLibrary}
-        onImplantLibraryChange={(value) => handleDesignDataChange("implantLibrary", value)}
-        onTeethLibraryChange={(value) => handleDesignDataChange("teethLibrary", value)}
+        implantLibrary={designData.implant_library}
+        teethLibrary={designData.teeth_library}
+        onImplantLibraryChange={(value) => handleDesignDataChange("implant_library", value)}
+        onTeethLibraryChange={(value) => handleDesignDataChange("teeth_library", value)}
       />
 
       <ActionsTakenSection
-        value={designData.actionsTaken}
-        onChange={(value) => handleDesignDataChange("actionsTaken", value)}
+        value={designData.actions_taken}
+        onChange={(value) => handleDesignDataChange("actions_taken", value)}
       />
 
       <div className="flex justify-end space-x-2">

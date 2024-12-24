@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ScriptTitle } from './ScriptTitle';
 import { ProgressTracking } from './ProgressTracking';
 import { ActionButtons } from './ActionButtons';
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReportCardProps {
   script: LabScript;
