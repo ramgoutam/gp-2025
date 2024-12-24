@@ -20,8 +20,9 @@ export const ActionButtons = ({
   designInfoStatus = 'pending',
   clinicalInfoStatus = 'pending'
 }: ActionButtonsProps) => {
-  const isDesignInfoCompleted = designInfoStatus === 'completed' || !!script.designInfo;
-  const isClinicalInfoCompleted = clinicalInfoStatus === 'completed' || !!script.clinicalInfo;
+  const isDesignInfoCompleted = designInfoStatus === 'completed';
+  const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
+  const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && script.status !== 'completed';
 
   return (
     <div className="flex gap-3">
@@ -49,7 +50,7 @@ export const ActionButtons = ({
         {isClinicalInfoCompleted ? 'Edit Clinical Info' : 'Add Clinical Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
-      {script.designInfo && script.clinicalInfo && script.status !== 'completed' && (
+      {showCompleteButton && (
         <Button
           variant="outline"
           size="sm"

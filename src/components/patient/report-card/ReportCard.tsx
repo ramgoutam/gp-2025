@@ -24,37 +24,59 @@ export const ReportCard = ({
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
 
-  useEffect(() => {
-    const fetchReportCardStatus = async () => {
-      console.log("Fetching report card status for script:", script.id);
-      try {
-        const { data: reportCard, error } = await supabase
-          .from('report_cards')
-          .select(`
-            design_info_status,
-            clinical_info_status,
-            design_info:design_info_id(*),
-            clinical_info:clinical_info_id(*)
-          `)
-          .eq('lab_script_id', script.id)
-          .maybeSingle();
+  const fetchReportCardStatus = async () => {
+    console.log("Fetching report card status for script:", script.id);
+    try {
+      const { data: reportCard, error } = await supabase
+        .from('report_cards')
+        .select(`
+          design_info_status,
+          clinical_info_status,
+          design_info:design_info_id(*),
+          clinical_info:clinical_info_id(*)
+        `)
+        .eq('lab_script_id', script.id)
+        .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching report card:", error);
-          return;
-        }
-
-        if (reportCard) {
-          console.log("Found report card:", reportCard);
-          setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
-          setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        }
-      } catch (error) {
-        console.error("Error in fetchReportCardStatus:", error);
+      if (error) {
+        console.error("Error fetching report card:", error);
+        return;
       }
-    };
 
+      if (reportCard) {
+        console.log("Found report card:", reportCard);
+        setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
+        setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+      }
+    } catch (error) {
+      console.error("Error in fetchReportCardStatus:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchReportCardStatus();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('report_card_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'report_cards',
+          filter: `lab_script_id=eq.${script.id}`
+        },
+        () => {
+          console.log("Report card updated, fetching new status");
+          fetchReportCardStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [script.id]);
 
   const handleComplete = () => {
