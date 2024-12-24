@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
 import { getReportCardState, saveReportCardState, ReportCardState } from './ReportCardState';
+import { format } from "date-fns";
 
 interface ReportCardProps {
   script: LabScript;
