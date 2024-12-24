@@ -18,6 +18,7 @@ export const DesignDateSection = ({ value, onChange }: DesignDateSectionProps) =
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required
+        autoFocus={false}
       />
     </div>
   );
