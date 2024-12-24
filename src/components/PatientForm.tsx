@@ -14,7 +14,6 @@ interface PatientFormData {
   sex: string;
   dob: string;
   address: string;
-  surgeryDate?: string;
 }
 
 interface PatientFormProps {
@@ -33,7 +32,6 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     sex: "",
     dob: "",
     address: "",
-    surgeryDate: "",
   });
 
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
@@ -131,7 +129,6 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         sex: "",
         dob: "",
         address: "",
-        surgeryDate: "",
       });
     }
   };
@@ -183,14 +180,6 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         suggestions={suggestions}
         showSuggestions={showSuggestions}
         onSuggestionClick={handleSuggestionClick}
-      />
-
-      <FormField
-        id="surgeryDate"
-        label="Surgery Date"
-        type="date"
-        value={formData.surgeryDate || ""}
-        onChange={handleChange}
       />
 
       <SexField
