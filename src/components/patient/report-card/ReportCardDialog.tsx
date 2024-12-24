@@ -14,7 +14,7 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[800px] w-full">
         <DialogHeader>
-          <DialogTitle>Report Card Details</DialogTitle>
+          <DialogTitle>Lab Request Report</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-6 p-4">
@@ -31,12 +31,12 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   <p className="font-medium capitalize">{script.status.replace('_', ' ')}</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Patient Name</p>
-                  <p className="font-medium">{`${script.patientFirstName} ${script.patientLastName}`}</p>
-                </div>
-                <div className="space-y-2">
                   <p className="text-sm text-gray-500">Doctor Name</p>
                   <p className="font-medium">{script.doctorName}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Clinic Name</p>
+                  <p className="font-medium">{script.clinicName}</p>
                 </div>
               </div>
             </div>
@@ -49,11 +49,11 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Upper Treatment</p>
-                  <p className="font-medium">{script.upperTreatment}</p>
+                  <p className="font-medium">{script.upperTreatment || 'None'}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Lower Treatment</p>
-                  <p className="font-medium">{script.lowerTreatment}</p>
+                  <p className="font-medium">{script.lowerTreatment || 'None'}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Appliance Type</p>
@@ -79,15 +79,15 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Implant Library</p>
-                    <p className="font-medium">{script.designInfo.implant_library}</p>
+                    <p className="font-medium">{script.designInfo.implant_library || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Teeth Library</p>
-                    <p className="font-medium">{script.designInfo.teeth_library}</p>
+                    <p className="font-medium">{script.designInfo.teeth_library || 'Not specified'}</p>
                   </div>
                   <div className="col-span-2 space-y-2">
                     <p className="text-sm text-gray-500">Actions Taken</p>
-                    <p className="font-medium whitespace-pre-wrap">{script.designInfo.actions_taken}</p>
+                    <p className="font-medium whitespace-pre-wrap">{script.designInfo.actions_taken || 'None'}</p>
                   </div>
                 </div>
               </div>
@@ -102,35 +102,35 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Insertion Date</p>
-                    <p className="font-medium">{script.clinicalInfo.insertion_date}</p>
+                    <p className="font-medium">{script.clinicalInfo.insertion_date || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Appliance Fit</p>
-                    <p className="font-medium">{script.clinicalInfo.appliance_fit}</p>
+                    <p className="font-medium">{script.clinicalInfo.appliance_fit || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Design Feedback</p>
-                    <p className="font-medium">{script.clinicalInfo.design_feedback}</p>
+                    <p className="font-medium">{script.clinicalInfo.design_feedback || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Occlusion</p>
-                    <p className="font-medium">{script.clinicalInfo.occlusion}</p>
+                    <p className="font-medium">{script.clinicalInfo.occlusion || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Esthetics</p>
-                    <p className="font-medium">{script.clinicalInfo.esthetics}</p>
+                    <p className="font-medium">{script.clinicalInfo.esthetics || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Adjustments Made</p>
-                    <p className="font-medium">{script.clinicalInfo.adjustments_made}</p>
+                    <p className="font-medium">{script.clinicalInfo.adjustments_made || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Material</p>
-                    <p className="font-medium">{script.clinicalInfo.material}</p>
+                    <p className="font-medium">{script.clinicalInfo.material || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Shade</p>
-                    <p className="font-medium">{script.clinicalInfo.shade}</p>
+                    <p className="font-medium">{script.clinicalInfo.shade || 'Not specified'}</p>
                   </div>
                 </div>
               </div>

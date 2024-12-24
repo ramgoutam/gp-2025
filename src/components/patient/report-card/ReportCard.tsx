@@ -8,6 +8,9 @@ import { InfoStatus, ReportCardData } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
+import { ReportCardDialog } from "./ReportCardDialog";
 
 interface ReportCardProps {
   script: LabScript;
@@ -114,31 +117,59 @@ export const ReportCard = ({
     }
   };
 
-  return (
-    <Card className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <ScriptTitle script={script} />
-        </div>
-        <div className="flex gap-3">
-          <ActionButtons
-            script={script}
-            onDesignInfo={onDesignInfo}
-            onClinicalInfo={onClinicalInfo}
-            onComplete={handleComplete}
-            designInfoStatus={designInfoStatus}
-            clinicalInfoStatus={clinicalInfoStatus}
-            isCompleted={isCompleted}
-          />
-        </div>
-      </div>
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
-      <ProgressTracking
+  const handleViewReport = () => {
+    console.log("Opening report dialog for script:", script.id);
+    setShowReportDialog(true);
+  };
+
+  return (
+    <>
+      <Card className="p-6 space-y-6 relative">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <ScriptTitle script={script} />
+          </div>
+          <div className="flex gap-3">
+            <ActionButtons
+              script={script}
+              onDesignInfo={onDesignInfo}
+              onClinicalInfo={onClinicalInfo}
+              onComplete={handleComplete}
+              designInfoStatus={designInfoStatus}
+              clinicalInfoStatus={clinicalInfoStatus}
+              isCompleted={isCompleted}
+            />
+          </div>
+        </div>
+
+        <ProgressTracking
+          script={script}
+          designInfoStatus={designInfoStatus}
+          clinicalInfoStatus={clinicalInfoStatus}
+          isCompleted={isCompleted}
+        />
+
+        {isCompleted && (
+          <div className="absolute bottom-6 right-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleViewReport}
+              className="rounded-full hover:bg-primary/5"
+            >
+              <FileText className="h-5 w-5 text-primary" />
+            </Button>
+          </div>
+        )}
+      </Card>
+
+      <ReportCardDialog 
+        open={showReportDialog} 
+        onOpenChange={setShowReportDialog}
         script={script}
-        designInfoStatus={designInfoStatus}
-        clinicalInfoStatus={clinicalInfoStatus}
-        isCompleted={isCompleted}
       />
-    </Card>
+    </>
   );
 };
