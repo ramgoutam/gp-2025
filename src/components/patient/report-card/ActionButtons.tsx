@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Settings, ArrowRight, Stethoscope, CheckCircle } from "lucide-react";
+import { Settings, ArrowRight, Stethoscope, CheckCircle, PenTool } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 
@@ -20,6 +20,8 @@ export const ActionButtons = ({
   designInfoStatus = 'pending',
   clinicalInfoStatus = 'pending'
 }: ActionButtonsProps) => {
+  const isDesignInfoCompleted = designInfoStatus === 'completed';
+
   return (
     <div className="flex gap-3">
       <Button
@@ -28,8 +30,12 @@ export const ActionButtons = ({
         onClick={() => onDesignInfo(script)}
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
-        <Settings className="h-4 w-4" />
-        {designInfoStatus === 'completed' ? 'Edit Design Info' : 'Design Info'}
+        {isDesignInfoCompleted ? (
+          <PenTool className="h-4 w-4" />
+        ) : (
+          <Settings className="h-4 w-4" />
+        )}
+        {isDesignInfoCompleted ? 'Edit Design Info' : 'Design Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
       <Button
