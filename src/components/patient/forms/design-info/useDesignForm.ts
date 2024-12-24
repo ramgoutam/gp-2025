@@ -12,15 +12,20 @@ export const useDesignForm = (
   // Initialize form data with existing design info if available
   const [designData, setDesignData] = useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
-    appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
-    upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
-    lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
-    upper_design_name: script.designInfo?.upper_design_name || script.upperDesignName || "",
-    lower_design_name: script.designInfo?.lower_design_name || script.lowerDesignName || "",
-    screw: script.designInfo?.screw || script.screwType || "",
+    appliance_type: script.designInfo?.appliance_type || "",
+    upper_treatment: script.designInfo?.upper_treatment || "None",
+    lower_treatment: script.designInfo?.lower_treatment || "None",
+    upper_design_name: script.designInfo?.upper_design_name || "",
+    lower_design_name: script.designInfo?.lower_design_name || "",
+    screw: script.designInfo?.screw || "",
     implant_library: script.designInfo?.implant_library || "",
     teeth_library: script.designInfo?.teeth_library || "",
     actions_taken: script.designInfo?.actions_taken || "",
+  });
+
+  console.log("Initializing design form with data:", {
+    scriptDesignInfo: script.designInfo,
+    formData: designData
   });
 
   const handleDesignDataChange = (field: string, value: string) => {
@@ -89,7 +94,7 @@ export const useDesignForm = (
         designInfo: designInfo
       };
 
-      console.log("Successfully saved design info");
+      console.log("Successfully saved design info:", designInfo);
       return { success: true, updatedScript };
     } catch (error) {
       console.error("Error in saveDesignInfo:", error);
