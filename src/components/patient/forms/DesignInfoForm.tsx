@@ -38,6 +38,10 @@ export const DesignInfoForm = ({
     try {
       const result = await handleSave(scriptId);
       if (result.success) {
+        // Update the parent component with the new script data
+        if (result.updatedScript) {
+          onSave(result.updatedScript);
+        }
         toast({
           title: "Success",
           description: "Design information saved successfully",

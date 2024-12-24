@@ -60,11 +60,7 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
           .select()
           .single();
 
-        if (updateError) {
-          console.error("Error updating design info:", updateError);
-          throw updateError;
-        }
-
+        if (updateError) throw updateError;
         designInfo = updatedInfo;
       } else {
         console.log("Creating new design info");
@@ -77,12 +73,9 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
           .select()
           .single();
 
-        if (createError) {
-          console.error("Error creating design info:", createError);
-          throw createError;
-        }
+        if (createError) throw createError;
 
-        // Update report card with design_info_id
+        // Update report card with design_info_id and status
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
@@ -91,25 +84,20 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
           })
           .eq('id', reportCard.id);
 
-        if (updateError) {
-          console.error("Error updating report card:", updateError);
-          throw updateError;
-        }
-
+        if (updateError) throw updateError;
         designInfo = newInfo;
       }
 
+      // Create updated script object
       const updatedScript: LabScript = {
         ...script,
         designInfo: designInfo
       };
 
-      onSave(updatedScript);
-      onClose();
-      
-      return { success: true };
+      console.log("Successfully saved design info");
+      return { success: true, updatedScript };
     } catch (error) {
-      console.error("Error saving design info:", error);
+      console.error("Error in saveDesignInfo:", error);
       return { success: false, error };
     } finally {
       setIsSubmitting(false);
