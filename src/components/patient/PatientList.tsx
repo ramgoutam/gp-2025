@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, UserRound } from "lucide-react";
+import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, Tooth } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPatients } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -121,10 +121,16 @@ export const PatientList = () => {
               <div className="flex items-start space-x-5">
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center text-primary font-semibold text-lg transition-transform duration-300 group-hover:scale-110">
-                      <UserRound className="w-7 h-7 text-primary/70" />
+                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                      <Tooth className="w-7 h-7 text-primary/70" />
                     </div>
-                    <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-success" />
+                    {patient.treatment_type && (
+                      <span className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-primary/10 border-2 border-white">
+                        <span className="text-[10px] font-medium text-primary">
+                          {patient.treatment_type[0].toUpperCase()}
+                        </span>
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -142,11 +148,13 @@ export const PatientList = () => {
                     </div>
                   </div>
                   <div className="mt-4 flex items-center space-x-2">
-                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {patient.treatment_type || 'No treatment'}
-                    </span>
+                    {patient.treatment_type && (
+                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        {patient.treatment_type}
+                      </span>
+                    )}
                     {patient.surgery_date && (
-                      <span className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
+                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                         Surgery: {new Date(patient.surgery_date).toLocaleDateString()}
                       </span>
                     )}
