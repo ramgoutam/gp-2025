@@ -6,7 +6,7 @@ import { PatientHeader } from "@/components/patient/PatientHeader";
 import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
-import { getLabScripts, saveLabScript, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
+import { getLabScripts, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
 
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
@@ -47,20 +47,8 @@ const PatientProfile = () => {
 
   const handleLabScriptSubmit = async (formData: any) => {
     try {
-      console.log("Creating new lab script with data:", {
-        ...formData,
-        patientId: id,
-      });
-      
-      const newScript = await saveLabScript({
-        ...formData,
-        patientId: id,
-        doctor_name: formData.doctorName || "Default Doctor",
-        clinic_name: formData.clinicName || "Default Clinic",
-      });
-
-      console.log("Lab script created successfully:", newScript);
-      setLabScripts(prev => [newScript, ...prev]);
+      console.log("Lab script submitted successfully:", formData);
+      await loadScripts(); // Reload scripts after submission
       setShowLabScriptDialog(false);
       
       toast({
@@ -68,7 +56,7 @@ const PatientProfile = () => {
         description: "The lab script has been successfully created.",
       });
     } catch (error) {
-      console.error("Error creating lab script:", error);
+      console.error("Error handling lab script submission:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create lab script. Please try again.",
@@ -174,7 +162,7 @@ const PatientProfile = () => {
           <LabScriptForm 
             onSubmit={handleLabScriptSubmit} 
             patientData={patientData}
-            patientId={id} // Pass the patientId from URL params
+            patientId={id}
           />
         </DialogContent>
       </Dialog>

@@ -25,32 +25,28 @@ export const useLabScriptSubmit = (
         throw new Error("Patient ID is required to create a lab script");
       }
 
+      let savedScript;
       if (isEditing && initialData?.id) {
         console.log("Updating existing lab script:", initialData.id);
-        const updatedScript = await updateLabScript({
+        savedScript = await updateLabScript({
           ...formData,
           id: initialData.id
         });
-        
-        console.log("Lab script updated successfully:", updatedScript);
-        toast({
-          title: "Lab Script Updated",
-          description: "The lab script has been successfully updated.",
-        });
-        
-        onSubmit?.(updatedScript);
+        console.log("Lab script updated successfully:", savedScript);
       } else {
         console.log("Creating new lab script for patient:", formData.patientId);
-        const newScript = await saveLabScript(formData);
-        console.log("New lab script created successfully:", newScript);
-        
-        toast({
-          title: "Lab Script Created",
-          description: "The lab script has been successfully created.",
-        });
-        
-        onSubmit?.(newScript);
+        savedScript = await saveLabScript(formData);
+        console.log("Lab script created successfully:", savedScript);
       }
+
+      if (onSubmit) {
+        await onSubmit(savedScript);
+      }
+
+      toast({
+        title: isEditing ? "Lab Script Updated" : "Lab Script Created",
+        description: `The lab script has been successfully ${isEditing ? 'updated' : 'created'}.`,
+      });
     } catch (error) {
       console.error("Error in lab script submission:", error);
       toast({
