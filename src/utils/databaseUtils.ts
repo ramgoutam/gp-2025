@@ -14,13 +14,12 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
   }
 
   console.log("Retrieved lab scripts:", scripts);
-  return scripts.map(mapDatabaseLabScript);
+  return scripts.map(script => mapDatabaseLabScript(script as DatabaseLabScript));
 };
 
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
   console.log("Saving lab script to database:", script);
   
-  // Create a new object with only the fields that match our database schema
   const dbScript = {
     patient_id: script.patientId,
     doctor_name: script.doctorName || "Default Doctor",
@@ -52,7 +51,7 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   }
 
   console.log("Successfully saved lab script:", data);
-  return mapDatabaseLabScript(data);
+  return mapDatabaseLabScript(data as DatabaseLabScript);
 };
 
 export const updateLabScript = async (script: LabScript): Promise<LabScript> => {
@@ -72,7 +71,7 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript> => 
   }
 
   console.log("Successfully updated lab script:", data);
-  return mapDatabaseLabScript(data);
+  return mapDatabaseLabScript(data as DatabaseLabScript);
 };
 
 export const deleteLabScript = async (id: string): Promise<void> => {

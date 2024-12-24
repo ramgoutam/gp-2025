@@ -26,10 +26,7 @@ const PatientProfile = () => {
     try {
       console.log("Loading scripts for patient:", id);
       const allScripts = await getLabScripts();
-      // Filter scripts that match either patientId or patient_id
-      const patientScripts = allScripts.filter(script => 
-        (script.patientId === id || script.patient_id === id)
-      );
+      const patientScripts = allScripts.filter(script => script.patientId === id);
       console.log("Filtered scripts for patient:", patientScripts.length);
       setLabScripts(patientScripts);
     } catch (error) {

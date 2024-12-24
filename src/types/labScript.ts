@@ -1,3 +1,23 @@
+export type LabScriptStatus = "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
+
+export interface DesignInfo {
+  designDate: string;
+  implantLibrary?: string;
+  teethLibrary?: string;
+  actionsTaken?: string;
+}
+
+export interface ClinicalInfo {
+  insertionDate: string;
+  applianceFit?: string;
+  designFeedback?: string;
+  occlusion?: string;
+  esthetics?: string;
+  adjustmentsMade?: string;
+  material?: string;
+  shade?: string;
+}
+
 export interface LabScript {
   id: string;
   requestNumber?: string;
@@ -8,7 +28,7 @@ export interface LabScript {
   clinicName: string;
   requestDate: string;
   dueDate: string;
-  status: "pending" | "in_progress" | "completed";
+  status: LabScriptStatus;
   upperTreatment?: string;
   lowerTreatment?: string;
   upperDesignName?: string;
@@ -17,8 +37,9 @@ export interface LabScript {
   screwType?: string;
   vdoOption?: string;
   specificInstructions?: string;
-  designInfo?: any;
-  clinicalInfo?: any;
+  designInfo?: DesignInfo;
+  clinicalInfo?: ClinicalInfo;
+  fileUploads?: Record<string, File>;
   treatments?: {
     upper: string[];
     lower: string[];
@@ -33,7 +54,7 @@ export interface DatabaseLabScript {
   clinic_name: string;
   request_date: string;
   due_date: string;
-  status: "pending" | "in_progress" | "completed";
+  status: LabScriptStatus;
   upper_treatment?: string;
   lower_treatment?: string;
   upper_design_name?: string;
