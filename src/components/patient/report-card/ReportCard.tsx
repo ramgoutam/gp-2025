@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ScriptTitle } from "./ScriptTitle";
-import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
 import { LabScript } from "@/types/labScript";
@@ -120,7 +119,6 @@ export const ReportCard = ({
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <ScriptTitle script={script} />
-          <StatusBadge status={script.status} />
         </div>
         <div className="flex gap-3">
           <ActionButtons
