@@ -7,14 +7,24 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
-import { ReportCardState, ReportCardProps, InfoStatus } from '@/types/reportCard';
-import { format } from "date-fns";
 import { ScriptTitle } from './ScriptTitle';
 import { ProgressTracking } from './ProgressTracking';
 import { ActionButtons } from './ActionButtons';
-import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { saveReportCardState } from "@/utils/reportCardUtils";
+import { InfoStatus } from "@/types/reportCard";
 
-export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
+export const ReportCard = ({ 
+  script, 
+  onDesignInfo, 
+  onClinicalInfo, 
+  onUpdateScript 
+}: {
+  script: LabScript;
+  onDesignInfo: (script: LabScript) => void;
+  onClinicalInfo: (script: LabScript) => void;
+  onUpdateScript?: (script: LabScript) => void;
+}) => {
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
@@ -57,7 +67,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
 
   const handleCompleteReport = async () => {
     try {
-      // Get the report card ID first
       const { data: reportCard } = await supabase
         .from('report_cards')
         .select('id')
@@ -131,7 +140,7 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
             <ActionButtons 
               script={script}
               onDesignInfo={onDesignInfo}
-              onClinicalInfo={() => setShowClinicalInfo(true)}
+              onClinicalInfo={() => onClinicalInfo(script)}
               onComplete={handleCompleteReport}
               designInfoStatus={reportCardState.designInfoStatus}
               clinicalInfoStatus={reportCardState.clinicalInfoStatus}
@@ -158,46 +167,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
           </div>
         </div>
       </Card>
-
-      <Dialog open={showClinicalInfo} onOpenChange={setShowClinicalInfo}>
-        <DialogContent className="max-w-[800px] w-full">
-          <DialogHeader>
-            <DialogTitle>Clinical Information</DialogTitle>
-          </DialogHeader>
-          <ClinicalInfoForm
-            onClose={() => setShowClinicalInfo(false)}
-            script={script}
-            onSave={async (updatedScript) => {
-              try {
-                const newState = {
-                  ...reportCardState,
-                  isClinicalInfoComplete: true,
-                  clinicalInfoStatus: 'completed' as InfoStatus,
-                  clinicalInfo: updatedScript.clinicalInfo
-                };
-                setReportCardState(newState);
-                
-                if (onUpdateScript) {
-                  onUpdateScript(updatedScript);
-                }
-                
-                setShowClinicalInfo(false);
-                toast({
-                  title: "Clinical Info Saved",
-                  description: "The clinical information has been successfully saved.",
-                });
-              } catch (error) {
-                console.error("Error saving clinical info:", error);
-                toast({
-                  title: "Error",
-                  description: "Failed to save clinical information",
-                  variant: "destructive"
-                });
-              }
-            }}
-          />
-        </DialogContent>
-      </Dialog>
 
       <ReportCardDialog
         open={showReportCard}
