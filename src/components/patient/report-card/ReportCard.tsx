@@ -15,6 +15,16 @@ interface ReportCardProps {
   onUpdateScript?: (script: LabScript) => void;
 }
 
+// Define types for the real-time payload
+interface ReportCardPayload {
+  design_info_status: InfoStatus;
+  clinical_info_status: InfoStatus;
+}
+
+interface LabScriptPayload {
+  status: string;
+}
+
 export const ReportCard = ({
   script,
   onDesignInfo,
@@ -71,8 +81,9 @@ export const ReportCard = ({
         (payload) => {
           console.log("Report card updated, payload:", payload);
           if (payload.new) {
-            setDesignInfoStatus(payload.new.design_info_status as InfoStatus);
-            setClinicalInfoStatus(payload.new.clinical_info_status as InfoStatus);
+            const newData = payload.new as ReportCardPayload;
+            setDesignInfoStatus(newData.design_info_status);
+            setClinicalInfoStatus(newData.clinical_info_status);
           }
         }
       )
@@ -92,7 +103,8 @@ export const ReportCard = ({
         (payload) => {
           console.log("Lab script updated, payload:", payload);
           if (payload.new) {
-            setIsCompleted(payload.new.status === 'completed');
+            const newData = payload.new as LabScriptPayload;
+            setIsCompleted(newData.status === 'completed');
           }
         }
       )
