@@ -1,6 +1,8 @@
 import React from "react";
 import { FormField } from "./FormField";
 import { FIELD_OPTIONS } from "./fieldOptions";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface FormFieldsProps {
   formData: {
@@ -20,13 +22,16 @@ interface FormFieldsProps {
 export const FormFields = ({ formData, onFieldChange, isSubmitting }: FormFieldsProps) => {
   return (
     <div className="grid grid-cols-2 gap-6">
-      <FormField
-        label="Insertion Date"
-        type="date"
-        value={formData.insertion_date}
-        onChange={(value) => onFieldChange("insertion_date", value)}
-        disabled={isSubmitting}
-      />
+      <div className="space-y-2">
+        <Label htmlFor="insertion_date">Insertion Date</Label>
+        <Input
+          id="insertion_date"
+          type="date"
+          value={formData.insertion_date}
+          onChange={(e) => onFieldChange("insertion_date", e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
       
       <FormField
         label="Appliance Fit"
