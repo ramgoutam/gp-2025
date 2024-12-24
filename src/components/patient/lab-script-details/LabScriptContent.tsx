@@ -25,6 +25,14 @@ export const LabScriptContent = ({ script, handlePreview }: LabScriptContentProp
     );
   };
 
+  // Convert single files to arrays if needed
+  const normalizedFileUploads = script.fileUploads ? 
+    Object.entries(script.fileUploads).reduce((acc, [key, value]) => {
+      acc[key] = Array.isArray(value) ? value : [value];
+      return acc;
+    }, {} as Record<string, File[]>) : 
+    {};
+
   return (
     <div className="space-y-6 p-6">
       <HeaderSection script={script} />
@@ -46,7 +54,7 @@ export const LabScriptContent = ({ script, handlePreview }: LabScriptContentProp
           <div className="space-y-4">
             <h4 className="font-medium text-sm text-gray-500">Uploaded Files</h4>
             <FileList 
-              fileUploads={script.fileUploads}
+              fileUploads={normalizedFileUploads}
               onPreview={handlePreview}
             />
           </div>
