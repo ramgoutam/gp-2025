@@ -3,7 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 
 const Login = () => {
@@ -39,19 +39,19 @@ const Login = () => {
         }
         // Handle specific auth events
         switch (event) {
-          case 'USER_DELETED':
+          case "USER_DELETED":
             toast({
               title: "Account Deleted",
               description: "Your account has been successfully deleted.",
             });
             break;
-          case 'SIGNED_IN':
+          case "SIGNED_IN":
             console.log("User signed in successfully");
             break;
-          case 'SIGNED_OUT':
+          case "SIGNED_OUT":
             console.log("User signed out");
             break;
-          case 'USER_UPDATED':
+          case "USER_UPDATED":
             console.log("User updated");
             break;
           default:
