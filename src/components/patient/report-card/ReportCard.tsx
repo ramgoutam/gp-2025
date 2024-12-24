@@ -4,7 +4,7 @@ import { ScriptTitle } from "./ScriptTitle";
 import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
@@ -98,9 +98,9 @@ export const ReportCard = ({
 
   const handleComplete = async () => {
     if (onUpdateScript) {
-      const updatedScript = {
+      const updatedScript: LabScript = {
         ...script,
-        status: 'completed'
+        status: 'completed' as LabScriptStatus
       };
       onUpdateScript(updatedScript);
       setIsCompleted(true);
