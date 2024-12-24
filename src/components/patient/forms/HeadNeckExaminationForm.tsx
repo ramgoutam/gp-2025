@@ -18,7 +18,6 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     patient_id: patientId,
-    patient_data: {},
     vital_signs: {},
     medical_history: {},
     chief_complaints: {},

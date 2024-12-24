@@ -1,4 +1,4 @@
-import React from "react";
+import { ProgressBar } from "../../ProgressBar";
 
 interface FormStepsProps {
   currentStep: number;
@@ -7,43 +7,11 @@ interface FormStepsProps {
 
 export const FormSteps = ({ currentStep, totalSteps }: FormStepsProps) => {
   const steps = [
-    {
-      title: "Patient Information & Vital Signs",
-      description: "Basic patient details and vital measurements",
-    },
-    {
-      title: "Medical History",
-      description: "Past medical conditions and current medications",
-    },
-    {
-      title: "Clinical Examination",
-      description: "Extra-oral and intra-oral examination details",
-    },
-    {
-      title: "Observations & Analysis",
-      description: "Clinical observations and diagnostic findings",
-    },
+    { label: "Patient Information & Vital Signs", status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming" },
+    { label: "Medical History", status: currentStep === 1 ? "current" : currentStep > 1 ? "completed" : "upcoming" },
+    { label: "Clinical Examination", status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming" },
+    { label: "Observations & Analysis", status: currentStep === 3 ? "current" : currentStep > 3 ? "completed" : "upcoming" },
   ];
 
-  return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {steps[currentStep].title}
-        </h3>
-        <span className="text-sm text-gray-500">
-          Step {currentStep + 1} of {totalSteps}
-        </span>
-      </div>
-      <div className="relative">
-        <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-100">
-          <div
-            style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
-            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary transition-all duration-500"
-          />
-        </div>
-      </div>
-      <p className="text-sm text-gray-500">{steps[currentStep].description}</p>
-    </div>
-  );
+  return <ProgressBar steps={steps} />;
 };
