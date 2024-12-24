@@ -34,10 +34,13 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
   useEffect(() => {
     const fetchExistingDesignInfo = async () => {
       try {
-        console.log("Fetching report card for script:", scriptId);
+        console.log("Fetching design info for script:", scriptId);
         const { data: reportCard, error: reportCardError } = await supabase
           .from('report_cards')
-          .select('*, design_info(*)')
+          .select(`
+            *,
+            design_info (*)
+          `)
           .eq('lab_script_id', scriptId)
           .maybeSingle();
 
@@ -46,12 +49,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           throw reportCardError;
         }
 
-        if (!reportCard) {
-          console.log("No report card found for script:", scriptId);
-          return;
-        }
-
-        if (reportCard.design_info) {
+        if (reportCard?.design_info) {
           console.log("Found existing design info:", reportCard.design_info);
           setDesignData({
             design_date: reportCard.design_info.design_date || new Date().toISOString().split('T')[0],
@@ -63,6 +61,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
             teeth_library: reportCard.design_info.teeth_library || "",
             actions_taken: reportCard.design_info.actions_taken || "",
           });
+        } else {
+          console.log("No existing design info found, using default values");
         }
       } catch (error) {
         console.error("Error in fetchExistingDesignInfo:", error);
@@ -115,7 +115,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           })
           .eq('id', reportCard.design_info_id)
           .select()
-          .maybeSingle();
+          .single();
 
         if (updateError) {
           console.error("Error updating design info:", updateError);
@@ -133,7 +133,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
             report_card_id: reportCard.id
           })
           .select()
-          .maybeSingle();
+          .single();
 
         if (createError) {
           console.error("Error creating design info:", createError);
@@ -144,7 +144,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
-            design_info_id: newDesignInfo?.id,
+            design_info_id: newDesignInfo.id,
             design_info_status: 'completed'
           })
           .eq('id', reportCard.id);
