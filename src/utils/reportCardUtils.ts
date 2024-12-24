@@ -1,38 +1,42 @@
 import { supabase } from "@/integrations/supabase/client";
-import { ReportCardState } from "@/types/reportCard";
-import { DesignInfo, ClinicalInfo } from "@/types/labScript";
-import { Json } from "@/integrations/supabase/types";
+import { ReportCardState, DesignInfo, ClinicalInfo } from "@/types/reportCard";
 
 export const saveReportCardState = async (
   labScriptId: string,
   state: ReportCardState
 ) => {
+  console.log("Saving report card state:", { labScriptId, state });
+  
   try {
-    console.log("Saving report card state to database:", { labScriptId, state });
-
     const { data, error } = await supabase
       .from('report_cards')
       .upsert({
         lab_script_id: labScriptId,
-        design_info: state.designInfo as Json,
-        clinical_info: state.clinicalInfo as Json,
-        report_status: state.reportStatus,
-      }, {
-        onConflict: 'lab_script_id'
+        design_info: state.designInfo || null,
+        clinical_info: state.clinicalInfo || null,
+        report_status: state.reportStatus
       })
-      .select()
+      .select('*')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error saving report card state:", error);
+      throw error;
+    }
+
     console.log("Successfully saved report card state:", data);
     return data;
   } catch (error) {
-    console.error("Error saving report card state:", error);
+    console.error("Error in saveReportCardState:", error);
     throw error;
   }
 };
 
-export const getReportCardState = async (labScriptId: string): Promise<ReportCardState | null> => {
+export const getReportCardState = async (
+  labScriptId: string
+): Promise<ReportCardState | null> => {
+  console.log("Getting report card state for lab script:", labScriptId);
+  
   try {
     const { data, error } = await supabase
       .from('report_cards')
@@ -40,19 +44,34 @@ export const getReportCardState = async (labScriptId: string): Promise<ReportCar
       .eq('lab_script_id', labScriptId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.log("No report card found for lab script:", labScriptId);
+        return null;
+      }
+      console.error("Error fetching report card state:", error);
+      throw error;
+    }
 
-    if (!data) return null;
+    if (!data) {
+      console.log("No report card data found");
+      return null;
+    }
 
+    const designInfo = data.design_info as DesignInfo | null;
+    const clinicalInfo = data.clinical_info as ClinicalInfo | null;
+
+    console.log("Successfully retrieved report card state:", data);
+    
     return {
-      reportStatus: data.report_status,
-      isDesignInfoComplete: !!data.design_info,
-      isClinicalInfoComplete: !!data.clinical_info,
-      designInfo: data.design_info as DesignInfo,
-      clinicalInfo: data.clinical_info as ClinicalInfo,
+      reportStatus: data.report_status || 'pending',
+      isDesignInfoComplete: !!designInfo,
+      isClinicalInfoComplete: !!clinicalInfo,
+      designInfo,
+      clinicalInfo
     };
   } catch (error) {
-    console.error("Error getting report card state:", error);
+    console.error("Error in getReportCardState:", error);
     throw error;
   }
 };

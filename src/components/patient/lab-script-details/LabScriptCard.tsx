@@ -1,11 +1,11 @@
 import React from "react";
+import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { CardActions } from "./CardActions";
-import { StatusButton } from "./StatusButton";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { StatusButton } from "../report-card/StatusButton";
 import { LabScript } from "@/types/labScript";
+
 interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;
@@ -14,9 +14,13 @@ interface LabScriptCardProps {
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
 }
 
-export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChange }: LabScriptCardProps) => {
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
-
+export const LabScriptCard = ({
+  script,
+  onClick,
+  onEdit,
+  onDelete,
+  onStatusChange,
+}: LabScriptCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -54,19 +58,9 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
     }
   };
 
-  const handleStatusChange = (newStatus: LabScript['status']) => {
-    console.log("Handling status change:", script.id, newStatus);
-    onStatusChange(script, newStatus);
-  };
-
-  const getDesignNameDisplay = (designName: string | undefined) => {
-    if (!designName) return "Not specified";
-    return designName;
-  };
-
   const getScriptTitle = () => {
-    const upperDesign = getDesignNameDisplay(script.upperDesignName);
-    const lowerDesign = getDesignNameDisplay(script.lowerDesignName);
+    const upperDesign = script.upperDesignName || "Not specified";
+    const lowerDesign = script.lowerDesignName || "Not specified";
     return (
       <div className="flex items-center gap-2">
         <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
@@ -79,72 +73,48 @@ export const LabScriptCard = ({ script, onClick, onEdit, onDelete, onStatusChang
   };
 
   return (
-    <>
-      <Card className="p-6 border border-gray-100 group bg-white hover:shadow-md transition-all duration-200 hover:border-primary/20">
-        <div className="space-y-4">
-          <div className="flex justify-between items-start">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                {getScriptTitle()}
-                <Badge 
-                  variant="outline" 
-                  className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
-                >
-                  {getStatusText(script.status)}
-                </Badge>
+    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group">
+      <div className="space-y-6">
+        <div className="flex justify-between items-start">
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              {getScriptTitle()}
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium`}
+              >
+                {getStatusText(script.status)}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+              <div className="flex items-center space-x-2">
+                <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-2">
-                  <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>Doctor: {script.doctorName}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>Clinic: {script.clinicName}</span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Doctor: {script.doctorName}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Clinic: {script.clinicName}</span>
               </div>
             </div>
-            <CardActions 
+          </div>
+          <div className="flex gap-3">
+            <CardActions
               onEdit={onEdit}
               onView={onClick}
-              onDelete={() => setShowDeleteDialog(true)}
-            />
-          </div>
-          <div className="flex justify-end">
-            <StatusButton 
-              status={script.status} 
-              onStatusChange={handleStatusChange}
+              onDelete={onDelete}
             />
           </div>
         </div>
-      </Card>
-
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the lab script.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                onDelete();
-                setShowDeleteDialog(false);
-              }}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        
+        <StatusButton
+          status={script.status}
+          onStatusChange={(newStatus) => onStatusChange(script, newStatus)}
+        />
+      </div>
+    </Card>
   );
 };
