@@ -35,12 +35,11 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     const fetchExistingDesignInfo = async () => {
       try {
         console.log("Fetching design info for script:", scriptId);
+        
+        // First check if report card exists
         const { data: reportCard, error: reportCardError } = await supabase
           .from('report_cards')
-          .select(`
-            *,
-            design_info (*)
-          `)
+          .select('id, design_info_id')
           .eq('lab_script_id', scriptId)
           .maybeSingle();
 
@@ -49,20 +48,35 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           throw reportCardError;
         }
 
-        if (reportCard?.design_info) {
-          console.log("Found existing design info:", reportCard.design_info);
+        if (!reportCard?.design_info_id) {
+          console.log("No existing design info found");
+          return;
+        }
+
+        // Then fetch design info separately
+        const { data: designInfo, error: designInfoError } = await supabase
+          .from('design_info')
+          .select('*')
+          .eq('id', reportCard.design_info_id)
+          .maybeSingle();
+
+        if (designInfoError) {
+          console.error("Error fetching design info:", designInfoError);
+          throw designInfoError;
+        }
+
+        if (designInfo) {
+          console.log("Found existing design info:", designInfo);
           setDesignData({
-            design_date: reportCard.design_info.design_date || new Date().toISOString().split('T')[0],
-            appliance_type: reportCard.design_info.appliance_type || "",
-            upper_treatment: reportCard.design_info.upper_treatment || "None",
-            lower_treatment: reportCard.design_info.lower_treatment || "None",
-            screw: reportCard.design_info.screw || "",
-            implant_library: reportCard.design_info.implant_library || "",
-            teeth_library: reportCard.design_info.teeth_library || "",
-            actions_taken: reportCard.design_info.actions_taken || "",
+            design_date: designInfo.design_date || new Date().toISOString().split('T')[0],
+            appliance_type: designInfo.appliance_type || "",
+            upper_treatment: designInfo.upper_treatment || "None",
+            lower_treatment: designInfo.lower_treatment || "None",
+            screw: designInfo.screw || "",
+            implant_library: designInfo.implant_library || "",
+            teeth_library: designInfo.teeth_library || "",
+            actions_taken: designInfo.actions_taken || "",
           });
-        } else {
-          console.log("No existing design info found, using default values");
         }
       } catch (error) {
         console.error("Error in fetchExistingDesignInfo:", error);
@@ -75,7 +89,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     };
 
     fetchExistingDesignInfo();
-  }, [scriptId]);
+  }, [scriptId, toast]);
 
   const handleDesignDataChange = (field: string, value: string) => {
     console.log(`Updating ${field} to:`, value);
