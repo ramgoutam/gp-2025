@@ -12,8 +12,8 @@ export const saveReportCardState = async (
     .upsert({
       lab_script_id: labScriptId,
       report_status: state.reportStatus,
-      design_info: state.designInfo as any,
-      clinical_info: state.clinicalInfo as any,
+      design_info: state.designInfo as Json,
+      clinical_info: state.clinicalInfo as Json,
       updated_at: new Date().toISOString()
     })
     .select()
@@ -52,8 +52,8 @@ export const getReportCardState = async (labScriptId: string): Promise<ReportCar
   console.log("Retrieved report card state:", data);
   
   const reportCard = data as ReportCardData;
-  const designInfo = reportCard.design_info as DesignInfo | null;
-  const clinicalInfo = reportCard.clinical_info as ClinicalInfo | null;
+  const designInfo = reportCard.design_info as unknown as DesignInfo | null;
+  const clinicalInfo = reportCard.clinical_info as unknown as ClinicalInfo | null;
   
   return {
     reportStatus: reportCard.report_status || 'pending',
