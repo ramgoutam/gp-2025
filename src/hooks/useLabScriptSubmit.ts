@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 import { saveLabScript, updateLabScript } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
 

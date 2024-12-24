@@ -1,4 +1,4 @@
-import { LabScript } from "@/components/patient/LabScriptsTab";
+import { LabScript } from "@/types/labScript";
 
 export const getTreatments = (script: LabScript) => {
   if (script.treatments) {
