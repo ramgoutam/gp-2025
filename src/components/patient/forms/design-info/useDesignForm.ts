@@ -9,8 +9,6 @@ export const useDesignForm = (script: LabScript, onSave: (updatedScript: LabScri
     appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
     upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
     lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
-    upper_design_name: script.designInfo?.upper_design_name || script.upperDesignName || "",
-    lower_design_name: script.designInfo?.lower_design_name || script.lowerDesignName || "",
     screw: script.designInfo?.screw || script.screwType || "",
     implant_library: script.designInfo?.implant_library || "",
     teeth_library: script.designInfo?.teeth_library || "",
