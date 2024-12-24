@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, ArrowRight, CheckCircle, Stethoscope } from "lucide-react";
+import { Settings, ArrowRight, CheckCircle, Stethoscope, FileText } from "lucide-react"; // Added FileText import
 import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
