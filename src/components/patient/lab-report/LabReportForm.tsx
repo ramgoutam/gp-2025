@@ -10,6 +10,7 @@ import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { saveReportCardState } from "@/utils/reportCardUtils";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabReportFormProps {
   onSubmit: (data: any) => void;
@@ -80,7 +81,20 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
     }
 
     try {
-      // Save design info
+      // First, get the report card ID for this lab script
+      const { data: reportCard, error: reportCardError } = await supabase
+        .from('report_cards')
+        .select('id')
+        .eq('lab_script_id', labScriptId)
+        .single();
+
+      if (reportCardError || !reportCard) {
+        throw new Error('Could not find report card for lab script');
+      }
+
+      const reportCardId = reportCard.id;
+
+      // Save design info with report_card_id
       await saveReportCardState(labScriptId, {
         isDesignInfoComplete: true,
         isClinicalInfoComplete: true,
@@ -93,6 +107,7 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           implant_library: formData.implantLibrary,
           teeth_library: formData.teethLibrary,
           actions_taken: formData.actionsTaken,
+          report_card_id: reportCardId
         },
         clinicalInfo: {
           insertion_date: formData.insertionDate,
@@ -103,6 +118,7 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           adjustments_made: formData.adjustmentsMade,
           material: formData.material,
           shade: formData.shade,
+          report_card_id: reportCardId
         }
       });
 
