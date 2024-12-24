@@ -20,6 +20,9 @@ interface PatientTabsProps {
     phone: string;
     sex: string;
     dob: string;
+    treatment_type?: string;
+    upper_treatment?: string;
+    lower_treatment?: string;
   };
 }
 
@@ -97,7 +100,10 @@ export const PatientTabs = ({
       </TabsContent>
 
       <TabsContent value="treatment-status">
-        <TreatmentStatusContent labScripts={labScripts} />
+        <TreatmentStatusContent 
+          labScripts={labScripts} 
+          patientData={patientData}
+        />
       </TabsContent>
 
       <TabsContent value="appointment-history">
