@@ -2,26 +2,27 @@ import React from "react";
 
 interface ToothProps {
   number: number;
-  x: number;
-  y: number;
-  rotation?: number;
+  d: string;
+  transform?: string;
 }
 
-const Tooth: React.FC<ToothProps> = ({ number, x, y, rotation = 0 }) => {
+const Tooth: React.FC<ToothProps> = ({ number, d, transform }) => {
   return (
-    <g transform={`translate(${x}, ${y}) rotate(${rotation})`}>
+    <g transform={transform}>
       <path
-        d="M0,0 Q5,-5 10,0 Q15,-5 20,0 Q20,5 20,15 Q15,20 10,15 Q5,20 0,15 Q0,5 0,0 Z"
-        fill="#E5E7EB"
-        stroke="#9CA3AF"
+        d={d}
+        fill="white"
+        stroke="#374151"
         strokeWidth="1"
+        className="hover:fill-gray-100 transition-colors"
       />
       <text
-        x="10"
-        y="12"
+        x="0"
+        y="0"
         textAnchor="middle"
         fontSize="8"
         fill="#4B5563"
+        transform="translate(0, 2)"
       >
         {number}
       </text>
@@ -30,51 +31,84 @@ const Tooth: React.FC<ToothProps> = ({ number, x, y, rotation = 0 }) => {
 };
 
 export const Odontogram = () => {
-  // Define tooth positions in a curve
-  const upperTeeth = Array.from({ length: 16 }, (_, i) => {
-    const angle = (Math.PI * (i - 7.5)) / 16;
-    const radius = 100;
-    return {
-      number: i + 1,
-      x: 150 + radius * Math.sin(angle),
-      y: 100 - radius * Math.cos(angle),
-      rotation: (angle * 180) / Math.PI
-    };
-  });
+  // Define tooth shapes for different positions
+  const molarPath = "M -10,-7 C -8,-8 8,-8 10,-7 C 12,-6 12,6 10,7 C 8,8 -8,8 -10,7 C -12,6 -12,-6 -10,-7 Z";
+  const premolarPath = "M -8,-6 C -6,-7 6,-7 8,-6 C 10,-5 10,5 8,6 C 6,7 -6,7 -8,6 C -10,5 -10,-5 -8,-6 Z";
+  const anteriorPath = "M -6,-7 C -4,-8 4,-8 6,-7 C 8,-6 8,6 6,7 C 4,8 -4,8 -6,7 C -8,6 -8,-6 -6,-7 Z";
 
-  const lowerTeeth = Array.from({ length: 16 }, (_, i) => {
-    const angle = (Math.PI * (i + 8.5)) / 16;
-    const radius = 100;
-    return {
-      number: 32 - i,
-      x: 150 + radius * Math.sin(angle),
-      y: 100 - radius * Math.cos(angle),
-      rotation: (angle * 180) / Math.PI + 180
-    };
-  });
+  // Upper teeth positions (1-16)
+  const upperTeeth = [
+    { number: 1, type: 'molar', x: 40, y: 40 },
+    { number: 2, type: 'molar', x: 60, y: 45 },
+    { number: 3, type: 'premolar', x: 80, y: 50 },
+    { number: 4, type: 'premolar', x: 100, y: 55 },
+    { number: 5, type: 'premolar', x: 120, y: 60 },
+    { number: 6, type: 'anterior', x: 140, y: 65 },
+    { number: 7, type: 'anterior', x: 160, y: 67 },
+    { number: 8, type: 'anterior', x: 180, y: 68 },
+    { number: 9, type: 'anterior', x: 200, y: 68 },
+    { number: 10, type: 'anterior', x: 220, y: 67 },
+    { number: 11, type: 'anterior', x: 240, y: 65 },
+    { number: 12, type: 'premolar', x: 260, y: 60 },
+    { number: 13, type: 'premolar', x: 280, y: 55 },
+    { number: 14, type: 'premolar', x: 300, y: 50 },
+    { number: 15, type: 'molar', x: 320, y: 45 },
+    { number: 16, type: 'molar', x: 340, y: 40 }
+  ];
+
+  // Lower teeth positions (17-32)
+  const lowerTeeth = [
+    { number: 32, type: 'molar', x: 40, y: 160 },
+    { number: 31, type: 'molar', x: 60, y: 155 },
+    { number: 30, type: 'premolar', x: 80, y: 150 },
+    { number: 29, type: 'premolar', x: 100, y: 145 },
+    { number: 28, type: 'premolar', x: 120, y: 140 },
+    { number: 27, type: 'anterior', x: 140, y: 135 },
+    { number: 26, type: 'anterior', x: 160, y: 133 },
+    { number: 25, type: 'anterior', x: 180, y: 132 },
+    { number: 24, type: 'anterior', x: 200, y: 132 },
+    { number: 23, type: 'anterior', x: 220, y: 133 },
+    { number: 22, type: 'anterior', x: 240, y: 135 },
+    { number: 21, type: 'premolar', x: 260, y: 140 },
+    { number: 20, type: 'premolar', x: 280, y: 145 },
+    { number: 19, type: 'premolar', x: 300, y: 150 },
+    { number: 18, type: 'molar', x: 320, y: 155 },
+    { number: 17, type: 'molar', x: 340, y: 160 }
+  ];
+
+  const getToothPath = (type: string) => {
+    switch (type) {
+      case 'molar':
+        return molarPath;
+      case 'premolar':
+        return premolarPath;
+      case 'anterior':
+        return anteriorPath;
+      default:
+        return anteriorPath;
+    }
+  };
 
   return (
     <div className="w-full aspect-square max-w-md mx-auto">
       <svg
-        viewBox="0 0 300 200"
+        viewBox="0 0 380 200"
         className="w-full h-full"
       >
         {upperTeeth.map((tooth) => (
           <Tooth
             key={tooth.number}
             number={tooth.number}
-            x={tooth.x}
-            y={tooth.y}
-            rotation={tooth.rotation}
+            d={getToothPath(tooth.type)}
+            transform={`translate(${tooth.x}, ${tooth.y})`}
           />
         ))}
         {lowerTeeth.map((tooth) => (
           <Tooth
             key={tooth.number}
             number={tooth.number}
-            x={tooth.x}
-            y={tooth.y}
-            rotation={tooth.rotation}
+            d={getToothPath(tooth.type)}
+            transform={`translate(${tooth.x}, ${tooth.y})`}
           />
         ))}
       </svg>
