@@ -26,6 +26,17 @@ export interface ClinicalInfo {
   shade?: string;
 }
 
+export interface ReportCard {
+  id: string;
+  lab_script_id: string;
+  patient_id: string;
+  design_info?: DesignInfo;
+  clinical_info?: ClinicalInfo;
+  design_info_status: string;
+  clinical_info_status: string;
+  status: string;
+}
+
 export interface LabScript {
   id: string;
   requestNumber?: string;
@@ -47,6 +58,7 @@ export interface LabScript {
   specificInstructions?: string;
   designInfo?: DesignInfo;
   clinicalInfo?: ClinicalInfo;
+  reportCard?: ReportCard;
   fileUploads?: Record<string, File>;
   treatments?: {
     upper: string[];
