@@ -46,7 +46,7 @@ export const useClinicalInfo = (
         .from('clinical_info')
         .insert({
           ...formData,
-          report_card_id: reportCard.id
+          report_card_id: reportCard.id // Add report_card_id
         })
         .select()
         .single();

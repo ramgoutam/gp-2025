@@ -10,7 +10,7 @@ export interface DesignInfo {
   actions_taken?: string;
   created_at?: string;
   updated_at?: string;
-  report_card_id?: string;
+  report_card_id: string; // Changed to required
 }
 
 export interface ClinicalInfo {
@@ -25,7 +25,7 @@ export interface ClinicalInfo {
   shade?: string;
   created_at?: string;
   updated_at?: string;
-  report_card_id?: string;
+  report_card_id: string; // Changed to required
 }
 
 export type InfoStatus = 'pending' | 'completed';
@@ -52,8 +52,15 @@ export interface ReportCardData {
 }
 
 export interface ReportCardProps {
-  script: LabScript;
-  onDesignInfo: (script: LabScript) => void;
+  script: {
+    id: string;
+    requestNumber?: string;
+    status: string;
+    requestDate: string;
+    designInfo?: DesignInfo;
+    clinicalInfo?: ClinicalInfo;
+  };
+  onDesignInfo: (script: { id: string }) => void;
   onClinicalInfo: () => void;
-  onUpdateScript?: (script: LabScript) => void;
+  onUpdateScript?: (script: { id: string }) => void;
 }

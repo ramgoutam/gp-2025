@@ -56,7 +56,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         .from('design_info')
         .insert({
           ...designData,
-          report_card_id: reportCard.id
+          report_card_id: reportCard.id // Add report_card_id
         })
         .select()
         .single();
