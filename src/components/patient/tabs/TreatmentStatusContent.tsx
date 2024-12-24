@@ -71,6 +71,20 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
   // Get the latest lab script for preview data
   const latestScript = labScripts[0];
 
+  // Find the latest completed lab script with a completed report card
+  const latestCompletedScript = labScripts
+    ?.filter(script => 
+      script.status === 'completed' && 
+      script.reportCard?.status === 'completed' &&
+      script.reportCard?.design_info &&
+      script.reportCard?.clinical_info
+    )
+    .sort((a, b) => 
+      new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
+    )[0];
+
+  console.log("Latest completed script with report card:", latestCompletedScript);
+
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-white via-gray-50/50 to-gray-50">
@@ -96,8 +110,6 @@ export const TreatmentStatusContent = ({ patientData, labScripts }: TreatmentSta
             upperAppliance={localPatientData.upper_treatment}
             lowerAppliance={localPatientData.lower_treatment}
             nightguard={latestScript?.applianceType === "Nightguard" ? "Yes" : "No"}
-            shade={latestScript?.screwType}
-            screw={latestScript?.screwType}
             patientId={localPatientData.id}
             labScripts={labScripts}
             onUpdate={() => {
