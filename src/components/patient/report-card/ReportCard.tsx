@@ -19,6 +19,8 @@ interface ReportCardProps {
 type ReportCardData = {
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
+  design_info?: Record<string, any>;
+  clinical_info?: Record<string, any>;
 };
 
 export const ReportCard = ({
@@ -75,7 +77,7 @@ export const ReportCard = ({
         },
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
-          if (payload.new) {
+          if (payload.new && 'design_info_status' in payload.new) {
             setDesignInfoStatus(payload.new.design_info_status);
             setClinicalInfoStatus(payload.new.clinical_info_status);
             fetchReportCardStatus(); // Refresh the entire report card data
