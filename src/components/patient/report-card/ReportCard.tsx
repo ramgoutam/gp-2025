@@ -5,21 +5,9 @@ import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
 import { LabScript, LabScriptStatus } from "@/types/labScript";
-import { InfoStatus } from "@/types/reportCard";
+import { InfoStatus, ReportCardData } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-
-type ReportCardData = {
-  id: string;
-  lab_script_id: string | null;
-  patient_id: string;
-  design_info_id: string | null;
-  clinical_info_id: string | null;
-  design_info_status: InfoStatus;
-  clinical_info_status: InfoStatus;
-  created_at: string;
-  updated_at: string;
-};
 
 interface ReportCardProps {
   script: LabScript;
@@ -82,9 +70,9 @@ export const ReportCard = ({
         },
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
-          if (payload.new && 'design_info_status' in payload.new && 'clinical_info_status' in payload.new) {
-            setDesignInfoStatus(payload.new.design_info_status);
-            setClinicalInfoStatus(payload.new.clinical_info_status);
+          if (payload.new) {
+            setDesignInfoStatus(payload.new.design_info_status as InfoStatus);
+            setClinicalInfoStatus(payload.new.clinical_info_status as InfoStatus);
             fetchReportCardStatus();
           }
         }
@@ -95,6 +83,10 @@ export const ReportCard = ({
       supabase.removeChannel(channel);
     };
   }, [script.id]);
+
+  useEffect(() => {
+    setIsCompleted(script.status === 'completed');
+  }, [script.status]);
 
   const handleComplete = async () => {
     if (onUpdateScript) {
