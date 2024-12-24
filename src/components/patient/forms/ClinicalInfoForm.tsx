@@ -58,7 +58,8 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
           .insert({
             lab_script_id: script.id,
             patient_id: script.patientId,
-            report_status: 'in_progress'
+            clinical_info_status: 'completed',
+            design_info_status: existingReport?.design_info_status || 'pending'
           })
           .select()
           .single();
@@ -109,6 +110,14 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
 
       const { error: saveError } = await clinicalInfoOperation;
       if (saveError) throw saveError;
+
+      // Update report card status
+      const { error: updateError } = await supabase
+        .from('report_cards')
+        .update({ clinical_info_status: 'completed' })
+        .eq('id', reportCardId);
+
+      if (updateError) throw updateError;
 
       const updatedScript: LabScript = {
         ...script,
