@@ -47,8 +47,8 @@ export const LabScriptsTab = ({
               .from('report_cards')
               .select(`
                 *,
-                design_info:design_info_id (*),
-                clinical_info:clinical_info_id (*)
+                design_info:design_info_id(id, design_date, appliance_type, upper_treatment, lower_treatment, screw, implant_library, teeth_library, actions_taken),
+                clinical_info:clinical_info_id(id, insertion_date, appliance_fit, design_feedback, occlusion, esthetics, adjustments_made, material, shade)
               `)
               .eq('lab_script_id', script.id)
               .maybeSingle();
@@ -82,7 +82,7 @@ export const LabScriptsTab = ({
           return dateB - dateA;
         });
 
-        console.log("Enriched and sorted scripts:", sortedScripts);
+        console.log("Sorted report card scripts:", sortedScripts);
         setEnrichedLabScripts(sortedScripts);
       } catch (error) {
         console.error("Error enriching lab scripts:", error);
