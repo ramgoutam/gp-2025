@@ -7,6 +7,7 @@ import { ProgressTracking } from "./ProgressTracking";
 import { LabScript } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 interface ReportCardProps {
   script: LabScript;
@@ -14,6 +15,11 @@ interface ReportCardProps {
   onClinicalInfo: () => void;
   onUpdateScript?: (script: LabScript) => void;
 }
+
+type ReportCardData = {
+  design_info_status: InfoStatus;
+  clinical_info_status: InfoStatus;
+};
 
 export const ReportCard = ({
   script,
@@ -67,11 +73,11 @@ export const ReportCard = ({
           table: 'report_cards',
           filter: `lab_script_id=eq.${script.id}`
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
           if (payload.new) {
-            setDesignInfoStatus(payload.new.design_info_status as InfoStatus);
-            setClinicalInfoStatus(payload.new.clinical_info_status as InfoStatus);
+            setDesignInfoStatus(payload.new.design_info_status);
+            setClinicalInfoStatus(payload.new.clinical_info_status);
             fetchReportCardStatus(); // Refresh the entire report card data
           }
         }
