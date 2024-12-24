@@ -53,7 +53,11 @@ export const LabScriptsTab = ({
           
           const { data: reportCard, error: reportCardError } = await supabase
             .from('report_cards')
-            .select('*, design_info(*), clinical_info(*)')
+            .select(`
+              *,
+              design_info!report_cards_design_info_id_fkey (*),
+              clinical_info!report_cards_clinical_info_id_fkey (*)
+            `)
             .eq('lab_script_id', script.id)
             .maybeSingle();
 
