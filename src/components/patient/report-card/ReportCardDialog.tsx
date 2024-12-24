@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { LabScript } from "@/types/labScript";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 interface ReportCardDialogProps {
   open: boolean;
@@ -37,6 +38,14 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">Clinic Name</p>
                   <p className="font-medium">{script.clinicName}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Request Date</p>
+                  <p className="font-medium">{format(new Date(script.requestDate), 'MMM dd, yyyy')}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500">Due Date</p>
+                  <p className="font-medium">{format(new Date(script.dueDate), 'MMM dd, yyyy')}</p>
                 </div>
               </div>
             </div>
@@ -75,7 +84,15 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Design Date</p>
-                    <p className="font-medium">{script.designInfo.design_date}</p>
+                    <p className="font-medium">{format(new Date(script.designInfo.design_date), 'MMM dd, yyyy')}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Upper Design Name</p>
+                    <p className="font-medium">{script.designInfo.upper_design_name || 'Not specified'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Lower Design Name</p>
+                    <p className="font-medium">{script.designInfo.lower_design_name || 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Implant Library</p>
@@ -102,7 +119,7 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Insertion Date</p>
-                    <p className="font-medium">{script.clinicalInfo.insertion_date || 'Not specified'}</p>
+                    <p className="font-medium">{script.clinicalInfo.insertion_date ? format(new Date(script.clinicalInfo.insertion_date), 'MMM dd, yyyy') : 'Not specified'}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500">Appliance Fit</p>

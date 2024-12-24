@@ -157,9 +157,9 @@ export const ReportCard = ({
               variant="ghost"
               size="icon"
               onClick={handleViewReport}
-              className="rounded-full hover:bg-primary/5"
+              className="rounded-full hover:bg-primary/5 w-12 h-12"
             >
-              <FileText className="h-5 w-5 text-primary" />
+              <FileText className="h-8 w-8 text-primary" />
             </Button>
           </div>
         )}
