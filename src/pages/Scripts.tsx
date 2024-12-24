@@ -21,6 +21,7 @@ const Scripts = () => {
     try {
       console.log("Loading scripts in Scripts page");
       const scripts = await getLabScripts();
+      console.log("Loaded scripts:", scripts);
       setLabScripts(scripts);
     } catch (error) {
       console.error("Error loading scripts:", error);

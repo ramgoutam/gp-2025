@@ -22,8 +22,7 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   
   // Create a new object with only the fields that match our database schema
   const dbScript = {
-    request_number: script.requestNumber,
-    patient_id: script.patientId || script.patient_id, // Handle both formats
+    patient_id: script.patientId,
     doctor_name: script.doctorName || "Default Doctor",
     clinic_name: script.clinicName || "Default Clinic",
     request_date: script.requestDate,
