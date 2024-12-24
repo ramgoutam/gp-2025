@@ -18,6 +18,8 @@ interface TreatmentPreviewProps {
   patientId?: string;
   onUpdate?: () => void;
   labScripts?: any[];
+  shade?: string;  // Added missing prop
+  screw?: string;  // Added missing prop
 }
 
 export const TreatmentPreviewCards = ({
@@ -29,7 +31,9 @@ export const TreatmentPreviewCards = ({
   nightguard,
   patientId,
   onUpdate,
-  labScripts = []
+  labScripts = [],
+  shade,
+  screw,
 }: TreatmentPreviewProps) => {
   const [showDateDialog, setShowDateDialog] = useState(false);
   const [newSurgeryDate, setNewSurgeryDate] = useState(surgeryDate || "");
