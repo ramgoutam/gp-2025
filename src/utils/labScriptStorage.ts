@@ -31,7 +31,10 @@ export const saveLabScript = (script: LabScript): boolean => {
     requestNumber: script.requestNumber || generateRequestNumber()
   };
 
-  const newScripts = [...existingScripts, scriptToSave];
+  // Replace any existing script with the same ID instead of adding a new one
+  const filteredScripts = existingScripts.filter(existing => existing.id !== script.id);
+  const newScripts = [...filteredScripts, scriptToSave];
+  
   localStorage.setItem('labScripts', JSON.stringify(newScripts));
   console.log("Lab script saved successfully");
   return true;
