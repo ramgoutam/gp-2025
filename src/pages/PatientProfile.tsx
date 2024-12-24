@@ -56,7 +56,8 @@ const PatientProfile = () => {
         clinic_name: formData.clinicName,
       });
 
-      await loadScripts();
+      // Update the local state directly instead of reloading
+      setLabScripts(prev => [newScript, ...prev]);
       setShowLabScriptDialog(false);
       
       toast({
@@ -76,8 +77,12 @@ const PatientProfile = () => {
   const handleEditLabScript = async (updatedScript: LabScript) => {
     try {
       console.log("Updating lab script:", updatedScript);
-      await updateLabScript(updatedScript);
-      await loadScripts();
+      const savedScript = await updateLabScript(updatedScript);
+      
+      // Update local state directly instead of reloading
+      setLabScripts(prev => 
+        prev.map(script => script.id === savedScript.id ? savedScript : script)
+      );
       
       toast({
         title: "Lab Script Updated",
@@ -97,7 +102,9 @@ const PatientProfile = () => {
     try {
       console.log("Deleting script:", scriptToDelete);
       await deleteLabScript(scriptToDelete.id);
-      await loadScripts();
+      
+      // Update local state directly instead of reloading
+      setLabScripts(prev => prev.filter(script => script.id !== scriptToDelete.id));
       
       toast({
         title: "Lab Script Deleted",
