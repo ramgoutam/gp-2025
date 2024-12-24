@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,17 +25,15 @@ interface ClinicalInfoFormProps {
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
-    insertionDate: "",
-    applianceFit: "",
-    designFeedback: "",
-    occlusion: "",
-    esthetics: "",
-    adjustmentsMade: "",
-    material: "",
-    shade: "",
+    insertionDate: script.clinicalInfo?.insertionDate || new Date().toISOString().split('T')[0],
+    applianceFit: script.clinicalInfo?.applianceFit || "",
+    designFeedback: script.clinicalInfo?.designFeedback || "",
+    occlusion: script.clinicalInfo?.occlusion || "",
+    esthetics: script.clinicalInfo?.esthetics || "",
+    adjustmentsMade: script.clinicalInfo?.adjustmentsMade || "",
+    material: script.clinicalInfo?.material || "",
+    shade: script.clinicalInfo?.shade || "",
   });
-
-  console.log("Rendering ClinicalInfoForm with script:", script);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +120,7 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
   return (
     <div className="w-full">
       <ScrollArea className="h-full pr-4">
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="insertionDate">Insertion Date</Label>
@@ -135,15 +133,15 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
               />
             </div>
             {renderSelect("Appliance Fit", "applianceFit", FIT_OPTIONS)}
-            {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
-            {renderSelect("Adjustments Made", "adjustmentsMade", ADJUSTMENTS_OPTIONS)}
-            {renderSelect("Shade", "shade", SHADE_OPTIONS)}
             {renderSelect("Design Feedback", "designFeedback", DESIGN_FEEDBACK_OPTIONS)}
+            {renderSelect("Occlusion", "occlusion", OCCLUSION_OPTIONS)}
             {renderSelect("Esthetics", "esthetics", ESTHETICS_OPTIONS)}
+            {renderSelect("Adjustments Made", "adjustmentsMade", ADJUSTMENTS_OPTIONS)}
             {renderSelect("Material", "material", MATERIAL_OPTIONS)}
+            {renderSelect("Shade", "shade", SHADE_OPTIONS)}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 sticky bottom-0 bg-white">
+          <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
