@@ -5,10 +5,11 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/PatientForm";
 import { DeletePatientDialog } from "./header/DeletePatientDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { PatientActions } from "./header/PatientActions";
 import { TreatmentStatus } from "./header/TreatmentStatus";
+import { Loader } from "lucide-react";
 
 interface PatientHeaderProps {
   patientData: any;
@@ -24,10 +25,12 @@ export const PatientHeader = ({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleEditPatient = async (updatedData: any) => {
+    setIsUpdating(true);
     try {
       const { data, error } = await supabase
         .from('patients')
@@ -55,6 +58,7 @@ export const PatientHeader = ({
       toast({
         title: "Success",
         description: "Patient information updated successfully",
+        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
       });
     } catch (error) {
       console.error("Error updating patient:", error);
@@ -62,7 +66,10 @@ export const PatientHeader = ({
         title: "Error",
         description: "Failed to update patient information",
         variant: "destructive",
+        className: "bg-gradient-to-r from-red-500 to-rose-500 text-white",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -79,6 +86,7 @@ export const PatientHeader = ({
       toast({
         title: "Success",
         description: "Patient deleted successfully",
+        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
       });
       
       navigate('/');
@@ -88,6 +96,7 @@ export const PatientHeader = ({
         title: "Error",
         description: "Failed to delete patient",
         variant: "destructive",
+        className: "bg-gradient-to-r from-red-500 to-rose-500 text-white",
       });
     } finally {
       setIsDeleting(false);
@@ -97,17 +106,19 @@ export const PatientHeader = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl">
         <div className="flex items-center gap-6">
-          <PatientAvatar 
-            firstName={patientData.firstName} 
-            lastName={patientData.lastName}
-            avatar={patientData.avatar}
-          />
+          <div className="transform transition-transform duration-300 hover:scale-105">
+            <PatientAvatar 
+              firstName={patientData.firstName} 
+              lastName={patientData.lastName}
+              avatar={patientData.avatar}
+            />
+          </div>
           
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold">
+              <h1 className="text-2xl font-semibold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                 {patientData.firstName} {patientData.lastName}
               </h1>
               <PatientActions 
@@ -138,20 +149,27 @@ export const PatientHeader = ({
       </div>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
-          <PatientForm
-            initialData={{
-              firstName: patientData.firstName,
-              lastName: patientData.lastName,
-              email: patientData.email,
-              phone: patientData.phone,
-              sex: patientData.sex,
-              dob: patientData.dob,
-              address: patientData.address,
-            }}
-            onSubmitSuccess={handleEditPatient}
-            onClose={() => setShowEditDialog(false)}
-          />
+        <DialogContent className="max-w-2xl bg-gradient-to-br from-white to-purple-50/30">
+          {isUpdating ? (
+            <div className="flex flex-col items-center justify-center p-8 space-y-4">
+              <Loader className="w-8 h-8 text-primary animate-spin" />
+              <p className="text-gray-600">Updating patient information...</p>
+            </div>
+          ) : (
+            <PatientForm
+              initialData={{
+                firstName: patientData.firstName,
+                lastName: patientData.lastName,
+                email: patientData.email,
+                phone: patientData.phone,
+                sex: patientData.sex,
+                dob: patientData.dob,
+                address: patientData.address,
+              }}
+              onSubmitSuccess={handleEditPatient}
+              onClose={() => setShowEditDialog(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

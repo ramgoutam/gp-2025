@@ -15,11 +15,11 @@ export const TreatmentStatus = ({
     switch (type?.toLowerCase()) {
       case 'upper':
       case 'lower':
-        return 'bg-primary/5 text-primary border-primary/20 shadow-sm shadow-primary/5';
+        return 'bg-gradient-to-r from-primary/20 to-blue-500/20 text-primary border-primary/20 shadow-lg shadow-primary/5';
       case 'dual':
-        return 'bg-secondary/10 text-secondary border-secondary/20 shadow-sm shadow-secondary/5';
+        return 'bg-gradient-to-r from-secondary/20 to-teal-500/20 text-secondary border-secondary/20 shadow-lg shadow-secondary/5';
       default:
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm shadow-yellow-100';
+        return 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border-yellow-200 shadow-lg shadow-yellow-100/50';
     }
   };
 
@@ -33,7 +33,7 @@ export const TreatmentStatus = ({
           variant="outline" 
           className={`${getStatusColor(treatmentType)} 
             px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-300 
-            hover:scale-105 uppercase tracking-wide`}
+            hover:scale-105 uppercase tracking-wide animate-fade-in`}
         >
           {treatmentType?.replace('_', ' ')}
         </Badge>
@@ -41,20 +41,24 @@ export const TreatmentStatus = ({
 
       <div className="flex gap-6">
         {upperTreatment && (
-          <div>
+          <div className="animate-fade-in">
             <p className="text-sm font-medium text-gray-500 mb-1">Upper Treatment</p>
-            <div className="p-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-100 
-              hover:border-primary/20 hover:shadow-md transition-all duration-300 group min-w-[180px]">
-              <p className="font-medium text-gray-900">{upperTreatment}</p>
+            <div className="p-2.5 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 
+              hover:border-primary/20 hover:shadow-lg transition-all duration-300 group min-w-[180px]">
+              <p className="font-medium bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                {upperTreatment}
+              </p>
             </div>
           </div>
         )}
         {lowerTreatment && (
-          <div>
+          <div className="animate-fade-in">
             <p className="text-sm font-medium text-gray-500 mb-1">Lower Treatment</p>
-            <div className="p-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-100 
-              hover:border-primary/20 hover:shadow-md transition-all duration-300 group min-w-[180px]">
-              <p className="font-medium text-gray-900">{lowerTreatment}</p>
+            <div className="p-2.5 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 
+              hover:border-primary/20 hover:shadow-lg transition-all duration-300 group min-w-[180px]">
+              <p className="font-medium bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                {lowerTreatment}
+              </p>
             </div>
           </div>
         )}

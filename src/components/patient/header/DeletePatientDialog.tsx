@@ -1,22 +1,21 @@
-import React from "react";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
 
-type DeletePatientDialogProps = {
+interface DeletePatientDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isDeleting: boolean;
   patientName: string;
-};
+}
 
 export const DeletePatientDialog = ({
   isOpen,
@@ -27,23 +26,38 @@ export const DeletePatientDialog = ({
 }: DeletePatientDialogProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-gradient-to-br from-white to-red-50/30">
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete {patientName}'s
-            profile and all associated data, including lab scripts, files, and report cards.
+          <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+            Delete Patient
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-gray-500">
+            Are you sure you want to delete {patientName}? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            disabled={isDeleting}
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="hover:bg-gray-100 transition-colors duration-300"
           >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white transition-all duration-300"
+          >
+            {isDeleting ? (
+              <div className="flex items-center gap-2">
+                <Loader className="w-4 h-4 animate-spin" />
+                <span>Deleting...</span>
+              </div>
+            ) : (
+              "Delete"
+            )}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

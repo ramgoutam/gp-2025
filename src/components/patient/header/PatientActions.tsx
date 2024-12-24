@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2 } from "lucide-react";
 
@@ -14,19 +13,17 @@ export const PatientActions = ({ onEdit, onDelete }: PatientActionsProps) => {
         variant="ghost"
         size="sm"
         onClick={onEdit}
-        className="text-gray-500 hover:text-primary transition-all duration-300 hover:scale-105"
+        className="text-gray-500 hover:text-primary hover:bg-primary/10 transition-colors duration-300"
       >
-        <Edit2 className="h-4 w-4" />
-        <span className="ml-1.5">Edit</span>
+        <Edit2 className="w-4 h-4" />
       </Button>
       <Button
         variant="ghost"
         size="sm"
         onClick={onDelete}
-        className="text-gray-500 hover:text-destructive transition-all duration-300 hover:scale-105"
+        className="text-gray-500 hover:text-destructive hover:bg-destructive/10 transition-colors duration-300"
       >
-        <Trash2 className="h-4 w-4" />
-        <span className="ml-1.5">Delete</span>
+        <Trash2 className="w-4 h-4" />
       </Button>
     </div>
   );
