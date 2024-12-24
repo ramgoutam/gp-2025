@@ -13,7 +13,7 @@ export const useClinicalInfo = (
   
   // Initialize form data with existing clinical info if available
   const [formData, setFormData] = useState({
-    insertion_date: script.clinicalInfo?.insertion_date || "",
+    insertion_date: script.clinicalInfo?.insertion_date || null,
     appliance_fit: script.clinicalInfo?.appliance_fit || "",
     design_feedback: script.clinicalInfo?.design_feedback || "",
     occlusion: script.clinicalInfo?.occlusion || "",
@@ -24,7 +24,12 @@ export const useClinicalInfo = (
   });
 
   const handleFieldChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // Handle date field specially - convert empty string to null
+    if (field === 'insertion_date') {
+      setFormData(prev => ({ ...prev, [field]: value || null }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,12 +58,18 @@ export const useClinicalInfo = (
 
       let clinicalInfo;
 
+      // Prepare data for submission - ensure date is null if empty
+      const submissionData = {
+        ...formData,
+        insertion_date: formData.insertion_date || null
+      };
+
       // If clinical info already exists, update it
       if (reportCard.clinical_info_id) {
         console.log("Updating existing clinical info:", reportCard.clinical_info_id);
         const { data: updatedInfo, error: updateError } = await supabase
           .from('clinical_info')
-          .update(formData)
+          .update(submissionData)
           .eq('id', reportCard.clinical_info_id)
           .select()
           .single();
@@ -75,7 +86,7 @@ export const useClinicalInfo = (
         const { data: newInfo, error: createError } = await supabase
           .from('clinical_info')
           .insert({
-            ...formData,
+            ...submissionData,
             report_card_id: reportCard.id
           })
           .select()
