@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CardActions } from "./CardActions";
+import { StatusButton } from "./StatusButton";
 import { LabScript } from "@/types/labScript";
 
 interface LabScriptCardProps {
@@ -71,6 +72,10 @@ export const LabScriptCard = ({
     );
   };
 
+  const handleStatusChange = (newStatus: LabScript['status']) => {
+    onStatusChange(script, newStatus);
+  };
+
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group">
       <div className="space-y-6">
@@ -100,11 +105,15 @@ export const LabScriptCard = ({
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
             <CardActions
               onEdit={onEdit}
               onView={onClick}
               onDelete={onDelete}
+            />
+            <StatusButton 
+              status={script.status} 
+              onStatusChange={handleStatusChange}
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
+import { Play, Pause, StopCircle, PlayCircle, CheckCircle } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,6 +86,7 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
         ];
       
       case 'paused':
+      case 'hold':
         return [
           <Button
             key="resume"
@@ -104,43 +105,12 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
             Resume
           </Button>
         ];
-
-      case 'hold':
-        return [
-          <Button
-            key="resume"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onStatusChange('in_progress');
-              toast({
-                title: "Status Updated",
-                description: "Design resumed from hold"
-              });
-            }}
-            className="flex items-center gap-2 hover:bg-primary/5"
-          >
-            <PlayCircle className="h-4 w-4 text-primary" />
-            Resume
-          </Button>
-        ];
       
       case 'completed':
         return null;
       
       default:
-        return [
-          <Button
-            key="default"
-            variant="outline"
-            size="sm"
-            disabled
-            className="flex items-center gap-2"
-          >
-            <AlertCircle className="h-4 w-4" />
-            Pending
-          </Button>
-        ];
+        return null;
     }
   };
 
