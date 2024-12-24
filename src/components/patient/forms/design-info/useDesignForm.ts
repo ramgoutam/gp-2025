@@ -9,22 +9,28 @@ export const useDesignForm = (
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Initialize form data with existing design info if available
+  // Initialize form data with lab script values if no design info exists
   const [designData, setDesignData] = useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
-    appliance_type: script.designInfo?.appliance_type || "",
-    upper_treatment: script.designInfo?.upper_treatment || "None",
-    lower_treatment: script.designInfo?.lower_treatment || "None",
-    upper_design_name: script.designInfo?.upper_design_name || "",
-    lower_design_name: script.designInfo?.lower_design_name || "",
-    screw: script.designInfo?.screw || "",
+    appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
+    upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "None",
+    lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "None",
+    upper_design_name: script.designInfo?.upper_design_name || script.upperDesignName || "",
+    lower_design_name: script.designInfo?.lower_design_name || script.lowerDesignName || "",
+    screw: script.designInfo?.screw || script.screwType || "",
     implant_library: script.designInfo?.implant_library || "",
     teeth_library: script.designInfo?.teeth_library || "",
     actions_taken: script.designInfo?.actions_taken || "",
   });
 
   console.log("Initializing design form with data:", {
-    scriptDesignInfo: script.designInfo,
+    scriptData: {
+      applianceType: script.applianceType,
+      upperTreatment: script.upperTreatment,
+      lowerTreatment: script.lowerTreatment,
+      screwType: script.screwType,
+    },
+    designInfo: script.designInfo,
     formData: designData
   });
 
@@ -50,6 +56,22 @@ export const useDesignForm = (
       if (!reportCard) throw new Error("No report card found for this lab script");
 
       let designInfo;
+
+      // Also update the lab script with the latest values
+      const { error: labScriptError } = await supabase
+        .from('lab_scripts')
+        .update({
+          appliance_type: designData.appliance_type,
+          upper_treatment: designData.upper_treatment,
+          lower_treatment: designData.lower_treatment,
+          upper_design_name: designData.upper_design_name,
+          lower_design_name: designData.lower_design_name,
+          screw_type: designData.screw,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', scriptId);
+
+      if (labScriptError) throw labScriptError;
 
       if (reportCard.design_info_id) {
         console.log("Updating existing design info:", reportCard.design_info_id);
@@ -88,9 +110,15 @@ export const useDesignForm = (
         designInfo = newInfo;
       }
 
-      // Create updated script object
+      // Create updated script object with latest values
       const updatedScript: LabScript = {
         ...script,
+        applianceType: designData.appliance_type,
+        upperTreatment: designData.upper_treatment,
+        lowerTreatment: designData.lower_treatment,
+        upperDesignName: designData.upper_design_name,
+        lowerDesignName: designData.lower_design_name,
+        screwType: designData.screw,
         designInfo: designInfo
       };
 

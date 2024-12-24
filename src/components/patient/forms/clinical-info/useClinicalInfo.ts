@@ -22,7 +22,7 @@ export const useClinicalInfo = (
     shade: script.clinicalInfo?.shade || "",
   });
 
-  console.log("Initializing clinical info form with data:", formData); // Debug log
+  console.log("Initializing clinical info form with data:", formData);
 
   const handleFieldChange = (field: string, value: string) => {
     if (field === 'insertion_date') {
@@ -30,7 +30,7 @@ export const useClinicalInfo = (
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
-    console.log(`Field ${field} changed to:`, value); // Debug log
+    console.log(`Field ${field} changed to:`, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
