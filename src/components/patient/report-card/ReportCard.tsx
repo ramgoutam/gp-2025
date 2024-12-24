@@ -50,7 +50,7 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        setIsCompleted(script.status === 'completed');
+        setIsCompleted(reportCard.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -78,6 +78,7 @@ export const ReportCard = ({
             const newData = payload.new as ReportCardData;
             setDesignInfoStatus(newData.design_info_status);
             setClinicalInfoStatus(newData.clinical_info_status);
+            setIsCompleted(newData.status === 'completed');
           }
         }
       )
@@ -91,14 +92,14 @@ export const ReportCard = ({
   const handleComplete = async () => {
     console.log("Completing report card");
     try {
-      // Update lab script status to completed
-      const updatedScript: LabScript = {
-        ...script,
-        status: 'completed' as LabScriptStatus
-      };
+      // Update report card status to completed
+      const { error: updateError } = await supabase
+        .from('report_cards')
+        .update({ status: 'completed' })
+        .eq('lab_script_id', script.id);
 
-      if (onUpdateScript) {
-        onUpdateScript(updatedScript);
+      if (updateError) {
+        throw updateError;
       }
 
       setIsCompleted(true);
