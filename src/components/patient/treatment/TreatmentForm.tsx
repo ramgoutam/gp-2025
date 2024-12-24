@@ -73,25 +73,6 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="shade">Shade</Label>
-              <Select
-                value={formData.shade}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, shade: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select shade" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-[200]">
-                  {SHADE_OPTIONS.map((shade) => (
-                    <SelectItem key={shade} value={shade}>
-                      {shade}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {showUpperTreatment && (
               <div className="space-y-2">
                 <Label htmlFor="upperTreatment">Upper Treatment</Label>
@@ -133,6 +114,25 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
                 </Select>
               </div>
             )}
+
+            <div className="space-y-2">
+              <Label htmlFor="shade">Shade</Label>
+              <Select
+                value={formData.shade}
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, shade: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select shade" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-[200]">
+                  {SHADE_OPTIONS.map((shade) => (
+                    <SelectItem key={shade} value={shade}>
+                      {shade}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-2">
