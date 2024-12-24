@@ -1,40 +1,32 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
-export interface PatientActionsProps {
+interface PatientActionsProps {
   onEdit: () => void;
   onDelete: () => void;
-  onAddTreatment: () => void;
-  isDeleting: boolean;
 }
 
-export const PatientActions = ({ 
-  onEdit, 
-  onDelete, 
-  onAddTreatment,
-  isDeleting 
-}: PatientActionsProps) => {
+export const PatientActions = ({ onEdit, onDelete }: PatientActionsProps) => {
   return (
     <div className="flex items-center gap-2">
       <Button
         variant="ghost"
         size="sm"
-        className="text-gray-600 hover:text-gray-900"
         onClick={onEdit}
+        className="text-gray-500 hover:text-primary transition-all duration-300 hover:scale-105"
       >
-        <Edit className="h-4 w-4 mr-1" />
-        Edit
+        <Edit2 className="h-4 w-4" />
+        <span className="ml-1.5">Edit</span>
       </Button>
       <Button
         variant="ghost"
         size="sm"
-        className="text-red-600 hover:text-red-700"
         onClick={onDelete}
-        disabled={isDeleting}
+        className="text-gray-500 hover:text-destructive transition-all duration-300 hover:scale-105"
       >
-        <Trash2 className="h-4 w-4 mr-1" />
-        Delete
+        <Trash2 className="h-4 w-4" />
+        <span className="ml-1.5">Delete</span>
       </Button>
     </div>
   );
