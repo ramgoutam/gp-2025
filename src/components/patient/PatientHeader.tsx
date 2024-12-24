@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { PatientActions } from "./header/PatientActions";
 import { PatientAvatar } from "./header/PatientAvatar";
 import { TreatmentButton } from "./treatment/TreatmentButton";
@@ -54,15 +52,6 @@ export const PatientHeader = ({
             onUpdatePatient(patientData);
           }}
         />
-        <Button
-          onClick={onCreateLabScript}
-          variant="default"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Create Lab Script
-        </Button>
         <PatientActions 
           onEdit={handleEditPatient}
           onDelete={handleDeletePatient}
