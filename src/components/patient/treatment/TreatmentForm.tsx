@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 interface TreatmentFormProps {
@@ -11,6 +10,8 @@ interface TreatmentFormProps {
   onClose: () => void;
   patientId: string;
 }
+
+const SHADE_OPTIONS = ["A1", "A2", "A3", "A3.5", "A4", "B1", "B2", "B3", "B4"];
 
 export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps) => {
   const { toast } = useToast();
@@ -68,12 +69,21 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
 
             <div className="space-y-2">
               <Label htmlFor="shade">Shade</Label>
-              <Input
-                id="shade"
+              <Select
                 value={formData.shade}
-                onChange={(e) => setFormData((prev) => ({ ...prev, shade: e.target.value }))}
-                placeholder="Enter shade"
-              />
+                onValueChange={(value) => setFormData((prev) => ({ ...prev, shade: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select shade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SHADE_OPTIONS.map((shade) => (
+                    <SelectItem key={shade} value={shade}>
+                      {shade}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
