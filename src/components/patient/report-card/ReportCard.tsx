@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { ScriptTitle } from "./ScriptTitle";
 import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
@@ -130,6 +131,7 @@ export const ReportCard = ({
             script={script}
             onDesignInfo={onDesignInfo}
             onClinicalInfo={onClinicalInfo}
+            onComplete={handleComplete}
             designInfoStatus={designInfoStatus}
             clinicalInfoStatus={clinicalInfoStatus}
             isCompleted={isCompleted}
