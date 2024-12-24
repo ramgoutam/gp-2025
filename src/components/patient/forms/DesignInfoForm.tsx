@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScript } from "@/types/labScript";
@@ -6,11 +6,11 @@ import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { DesignDateSection } from "./design-info/DesignDateSection";
 import { LibrarySection } from "./design-info/LibrarySection";
 import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
 import { PenTool } from "lucide-react";
+import { useDesignForm } from "./design-info/useDesignForm";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -26,130 +26,27 @@ export const DesignInfoForm = ({
   onSave 
 }: DesignInfoFormProps) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Initialize with current date if no existing date
-  const today = new Date().toISOString().split('T')[0];
-  const [designData, setDesignData] = useState({
-    design_date: script.designInfo?.design_date || today,
-    appliance_type: script.designInfo?.appliance_type || script.applianceType || "",
-    upper_treatment: script.designInfo?.upper_treatment || script.upperTreatment || "",
-    lower_treatment: script.designInfo?.lower_treatment || script.lowerTreatment || "",
-    screw: script.designInfo?.screw || script.screwType || "",
-    implant_library: script.designInfo?.implant_library || "",
-    teeth_library: script.designInfo?.teeth_library || "",
-    actions_taken: script.designInfo?.actions_taken || "",
-  });
+  const { 
+    designData, 
+    isSubmitting, 
+    handleDesignDataChange, 
+    handleSave 
+  } = useDesignForm(script, onSave, onClose);
 
-  const handleDesignDataChange = (field: string, value: string) => {
-    console.log(`Updating ${field} to:`, value);
-    setDesignData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = async () => {
-    console.log("Saving design info for script:", scriptId, designData);
+  const handleSubmit = async () => {
+    const result = await handleSave(scriptId);
     
-    try {
-      setIsSubmitting(true);
-      
-      // Get the report card for this lab script
-      const { data: reportCard, error: reportCardError } = await supabase
-        .from('report_cards')
-        .select('*')
-        .eq('lab_script_id', scriptId)
-        .maybeSingle();
-
-      if (reportCardError) {
-        console.error("Error fetching report card:", reportCardError);
-        throw reportCardError;
-      }
-
-      if (!reportCard) {
-        console.error("No report card found");
-        throw new Error("No report card found for this lab script");
-      }
-
-      // Ensure design_date is never empty
-      const dataToSave = {
-        ...designData,
-        design_date: designData.design_date || today
-      };
-
-      let designInfo;
-
-      // If design info already exists, update it
-      if (reportCard.design_info_id) {
-        console.log("Updating existing design info:", reportCard.design_info_id);
-        const { data: updatedInfo, error: updateError } = await supabase
-          .from('design_info')
-          .update(dataToSave)
-          .eq('id', reportCard.design_info_id)
-          .select()
-          .single();
-
-        if (updateError) {
-          console.error("Error updating design info:", updateError);
-          throw updateError;
-        }
-
-        designInfo = updatedInfo;
-      } else {
-        // Create new design info
-        console.log("Creating new design info");
-        const { data: newInfo, error: createError } = await supabase
-          .from('design_info')
-          .insert({
-            ...dataToSave,
-            report_card_id: reportCard.id
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error("Error creating design info:", createError);
-          throw createError;
-        }
-
-        // Update report card with design info id
-        const { error: updateError } = await supabase
-          .from('report_cards')
-          .update({ 
-            design_info_id: newInfo.id,
-            design_info_status: 'completed'
-          })
-          .eq('id', reportCard.id);
-
-        if (updateError) {
-          console.error("Error updating report card:", updateError);
-          throw updateError;
-        }
-
-        designInfo = newInfo;
-      }
-
-      // Update the script with the new design info
-      const updatedScript: LabScript = {
-        ...script,
-        designInfo: designInfo
-      };
-
-      onSave(updatedScript);
-      
+    if (result.success) {
       toast({
         title: "Success",
         description: "Design information saved successfully",
       });
-
-      onClose();
-    } catch (error) {
-      console.error("Error saving design info:", error);
+    } else {
       toast({
         title: "Error",
         description: "Failed to save design information",
         variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -204,7 +101,7 @@ export const DesignInfoForm = ({
           Cancel
         </Button>
         <Button 
-          onClick={handleSave} 
+          onClick={handleSubmit} 
           className="flex items-center gap-2"
           disabled={isSubmitting}
         >
