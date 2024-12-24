@@ -4,6 +4,7 @@ import { LabScriptsContent } from "./tabs/LabScriptsContent";
 import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
+import { TreatmentStatusContent } from "./tabs/TreatmentStatusContent";
 import { LabScript } from "@/types/labScript";
 
 interface PatientTabsProps {
@@ -54,6 +55,12 @@ export const PatientTabs = ({
           Patient Information
         </TabsTrigger>
         <TabsTrigger
+          value="treatment-status"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
+        >
+          Treatment Status
+        </TabsTrigger>
+        <TabsTrigger
           value="appointment-history"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none"
         >
@@ -87,6 +94,10 @@ export const PatientTabs = ({
 
       <TabsContent value="patient-information">
         <PatientInformationContent {...patientData} />
+      </TabsContent>
+
+      <TabsContent value="treatment-status">
+        <TreatmentStatusContent labScripts={labScripts} />
       </TabsContent>
 
       <TabsContent value="appointment-history">
