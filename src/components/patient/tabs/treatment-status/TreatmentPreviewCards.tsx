@@ -29,8 +29,6 @@ export const TreatmentPreviewCards = ({
   upperAppliance,
   lowerAppliance,
   nightguard,
-  shade,
-  screw,
   patientId,
   onUpdate,
   labScripts = []
@@ -84,11 +82,19 @@ export const TreatmentPreviewCards = ({
   const latestCompletedScript = labScripts
     ?.filter(script => 
       script.status === 'completed' && 
-      script.reportCard?.status === 'completed'
+      script.reportCard?.status === 'completed' &&
+      script.reportCard?.design_info &&
+      script.reportCard?.clinical_info
     )
     .sort((a, b) => 
       new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
     )[0];
+
+  console.log("Latest completed script with report card:", latestCompletedScript);
+
+  // Get the latest design and clinical info
+  const latestDesignInfo = latestCompletedScript?.reportCard?.design_info;
+  const latestClinicalInfo = latestCompletedScript?.reportCard?.clinical_info;
 
   return (
     <>
@@ -121,20 +127,20 @@ export const TreatmentPreviewCards = ({
           upperTreatment={upperAppliance}
           lowerTreatment={lowerAppliance}
           nightguard={nightguard}
-          upperDesignName={latestCompletedScript?.upperDesignName}
-          lowerDesignName={latestCompletedScript?.lowerDesignName}
+          upperDesignName={latestDesignInfo?.upper_design_name}
+          lowerDesignName={latestDesignInfo?.lower_design_name}
         />
 
         <PreviewCard
           icon={Droplet}
           title="Shade"
-          value={shade}
+          value={latestClinicalInfo?.shade || "Not specified"}
           className="bg-gradient-to-br from-white to-gray-50"
         />
         <PreviewCard
           icon={Wrench}
           title="Screw"
-          value={screw}
+          value={latestDesignInfo?.screw || "Not specified"}
           className="bg-gradient-to-br from-white to-gray-50"
         />
       </div>
