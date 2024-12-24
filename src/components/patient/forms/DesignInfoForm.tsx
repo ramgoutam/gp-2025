@@ -9,6 +9,8 @@ import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
+import { supabase } from "@/integrations/supabase/client";
+
 const IMPLANT_LIBRARIES = ["Nobel Biocare", "Straumann", "Zimmer Biomet", "Dentsply Sirona"];
 const TEETH_LIBRARIES = ["Premium", "Standard", "Economy"];
 
@@ -37,32 +39,63 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     setDesignData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Saving design info for script:", scriptId, designData);
     
-    const updatedScript: LabScript = {
-      ...script,
-      applianceType: designData.applianceType,
-      upperTreatment: designData.upperTreatment,
-      lowerTreatment: designData.lowerTreatment,
-      screwType: designData.screw,
-      status: 'in_progress',
-      designInfo: {
-        designDate: designData.designDate,
-        implantLibrary: designData.implantLibrary,
-        teethLibrary: designData.teethLibrary,
-        actionsTaken: designData.actionsTaken,
-      },
-    };
+    try {
+      // First, check if a report card exists for this lab script
+      const { data: existingReport } = await supabase
+        .from('report_cards')
+        .select('*')
+        .eq('lab_script_id', script.id)
+        .single();
 
-    onSave(updatedScript);
-    
-    toast({
-      title: "Design Info Saved",
-      description: "The design information has been successfully saved.",
-    });
+      if (existingReport) {
+        // Update existing report card
+        const { error: updateError } = await supabase
+          .from('report_cards')
+          .update({
+            design_info: designData,
+            report_status: 'in_progress'
+          })
+          .eq('id', existingReport.id);
 
-    onClose();
+        if (updateError) throw updateError;
+      } else {
+        // Create new report card
+        const { error: insertError } = await supabase
+          .from('report_cards')
+          .insert({
+            lab_script_id: script.id,
+            design_info: designData,
+            report_status: 'in_progress'
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      const updatedScript = {
+        ...script,
+        status: 'in_progress',
+        designInfo: designData
+      };
+
+      onSave(updatedScript);
+      
+      toast({
+        title: "Design Info Saved",
+        description: "The design information has been successfully saved.",
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Error saving design info:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save design information",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

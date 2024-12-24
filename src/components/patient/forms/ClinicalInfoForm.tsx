@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScript } from "@/types/labScript";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
 const FIT_OPTIONS = ["Excellent", "Good", "Fair", "Poor"];
 const DESIGN_FEEDBACK_OPTIONS = ["Neutral", "Positive", "Negative"];
 const OCCLUSION_OPTIONS = ["Perfect", "Slight Adjustment Needed", "Major Adjustment Needed"];
@@ -20,6 +23,7 @@ interface ClinicalInfoFormProps {
 }
 
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = React.useState({
     insertionDate: "",
     applianceFit: "",
@@ -33,19 +37,62 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
 
   console.log("Rendering ClinicalInfoForm with script:", script);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting clinical info:", formData);
 
-    const updatedScript: LabScript = {
-      ...script,
-      clinicalInfo: {
-        ...formData,
-      },
-    };
+    try {
+      // First, check if a report card exists for this lab script
+      const { data: existingReport } = await supabase
+        .from('report_cards')
+        .select('*')
+        .eq('lab_script_id', script.id)
+        .single();
 
-    onSave(updatedScript);
-    onClose();
+      if (existingReport) {
+        // Update existing report card
+        const { error: updateError } = await supabase
+          .from('report_cards')
+          .update({
+            clinical_info: formData,
+            report_status: 'completed'
+          })
+          .eq('id', existingReport.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new report card
+        const { error: insertError } = await supabase
+          .from('report_cards')
+          .insert({
+            lab_script_id: script.id,
+            clinical_info: formData,
+            report_status: 'completed'
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Clinical information saved successfully",
+      });
+
+      const updatedScript = {
+        ...script,
+        status: 'completed'
+      };
+
+      onSave(updatedScript);
+      onClose();
+    } catch (error) {
+      console.error("Error saving clinical info:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save clinical information",
+        variant: "destructive"
+      });
+    }
   };
 
   const renderSelect = (
