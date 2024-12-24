@@ -21,10 +21,6 @@ interface ReportCardPayload {
   clinical_info_status: InfoStatus;
 }
 
-interface LabScriptPayload {
-  status: string;
-}
-
 export const ReportCard = ({
   script,
   onDesignInfo,
@@ -57,7 +53,6 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -89,30 +84,8 @@ export const ReportCard = ({
       )
       .subscribe();
 
-    // Subscribe to lab script changes
-    const scriptChannel = supabase
-      .channel('lab-script-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'lab_scripts',
-          filter: `id=eq.${script.id}`
-        },
-        (payload) => {
-          console.log("Lab script updated, payload:", payload);
-          if (payload.new) {
-            const newData = payload.new as LabScriptPayload;
-            setIsCompleted(newData.status === 'completed');
-          }
-        }
-      )
-      .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(scriptChannel);
     };
   }, [script.id]);
 
