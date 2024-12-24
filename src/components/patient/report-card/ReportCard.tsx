@@ -8,9 +8,7 @@ import { LabScript } from "@/types/labScript";
 import { InfoStatus, ReportCardData } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle } from "lucide-react";
 
 interface ReportCardProps {
   script: LabScript;
@@ -117,8 +115,6 @@ export const ReportCard = ({
     }
   };
 
-  const showCompleteButton = designInfoStatus === 'completed' && clinicalInfoStatus === 'completed' && !isCompleted;
-
   return (
     <Card className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -136,17 +132,6 @@ export const ReportCard = ({
             clinicalInfoStatus={clinicalInfoStatus}
             isCompleted={isCompleted}
           />
-          {showCompleteButton && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleComplete}
-              className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
-            >
-              <CheckCircle className="h-4 w-4" />
-              Complete Report Card
-            </Button>
-          )}
         </div>
       </div>
 
