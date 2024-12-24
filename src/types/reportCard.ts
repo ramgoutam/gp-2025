@@ -1,6 +1,3 @@
-import { Json } from "@/integrations/supabase/types";
-import { LabScript } from "./labScript";
-
 export interface DesignInfo {
   id?: string;
   design_date: string;
