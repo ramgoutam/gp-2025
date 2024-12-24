@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Mail, Phone, Calendar, MapPin, User2 } from "lucide-react";
+import { Mail, Phone, Calendar, MapPin, User2, Stethoscope } from "lucide-react";
 
 type PatientInformationProps = {
   firstName: string;
@@ -10,6 +10,9 @@ type PatientInformationProps = {
   sex: string;
   dob: string;
   address?: string;
+  treatmentType?: string;
+  upperTreatment?: string;
+  lowerTreatment?: string;
 };
 
 export const PatientInformationContent = ({
@@ -20,6 +23,9 @@ export const PatientInformationContent = ({
   sex,
   dob,
   address,
+  treatmentType,
+  upperTreatment,
+  lowerTreatment,
 }: PatientInformationProps) => {
   const InfoItem = ({ 
     icon: Icon, 
@@ -85,6 +91,31 @@ export const PatientInformationContent = ({
               label="Address" 
               value={address}
             />
+          </div>
+        )}
+        {treatmentType && (
+          <div className="col-span-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <InfoItem 
+                icon={Stethoscope}
+                label="Treatment Type" 
+                value={treatmentType.charAt(0).toUpperCase() + treatmentType.slice(1)}
+              />
+              {upperTreatment && (
+                <InfoItem 
+                  icon={Stethoscope}
+                  label="Upper Treatment" 
+                  value={upperTreatment}
+                />
+              )}
+              {lowerTreatment && (
+                <InfoItem 
+                  icon={Stethoscope}
+                  label="Lower Treatment" 
+                  value={lowerTreatment}
+                />
+              )}
+            </div>
           </div>
         )}
       </div>
