@@ -17,7 +17,10 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
 
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
   console.log("Saving lab script to database:", script);
-  const dbScript = mapLabScriptToDatabase(script as LabScript);
+  
+  // Remove id from the script object to let the database generate it
+  const { id, ...scriptWithoutId } = script as any;
+  const dbScript = mapLabScriptToDatabase(scriptWithoutId as LabScript);
   
   const { data, error } = await supabase
     .from('lab_scripts')
