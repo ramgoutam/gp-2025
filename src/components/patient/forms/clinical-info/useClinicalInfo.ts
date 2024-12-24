@@ -11,7 +11,6 @@ export const useClinicalInfo = (
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Initialize form data with existing clinical info if available
   const [formData, setFormData] = useState({
     insertion_date: script.clinicalInfo?.insertion_date || null,
     appliance_fit: script.clinicalInfo?.appliance_fit || "",
@@ -23,13 +22,15 @@ export const useClinicalInfo = (
     shade: script.clinicalInfo?.shade || "",
   });
 
+  console.log("Initializing clinical info form with data:", formData); // Debug log
+
   const handleFieldChange = (field: string, value: string) => {
-    // Handle date field specially - convert empty string to null
     if (field === 'insertion_date') {
       setFormData(prev => ({ ...prev, [field]: value || null }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+    console.log(`Field ${field} changed to:`, value); // Debug log
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +40,6 @@ export const useClinicalInfo = (
     try {
       setIsSubmitting(true);
       
-      // Get the report card for this lab script
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
@@ -58,13 +58,11 @@ export const useClinicalInfo = (
 
       let clinicalInfo;
 
-      // Prepare data for submission - ensure date is null if empty
       const submissionData = {
         ...formData,
         insertion_date: formData.insertion_date || null
       };
 
-      // If clinical info already exists, update it
       if (reportCard.clinical_info_id) {
         console.log("Updating existing clinical info:", reportCard.clinical_info_id);
         const { data: updatedInfo, error: updateError } = await supabase
@@ -81,7 +79,6 @@ export const useClinicalInfo = (
 
         clinicalInfo = updatedInfo;
       } else {
-        // Create new clinical info
         console.log("Creating new clinical info");
         const { data: newInfo, error: createError } = await supabase
           .from('clinical_info')
@@ -97,7 +94,6 @@ export const useClinicalInfo = (
           throw createError;
         }
 
-        // Update report card with clinical info id
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({ 
@@ -114,7 +110,6 @@ export const useClinicalInfo = (
         clinicalInfo = newInfo;
       }
 
-      // Update the script with the new clinical info
       const updatedScript: LabScript = {
         ...script,
         clinicalInfo: clinicalInfo

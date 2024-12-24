@@ -18,13 +18,15 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
   const { formData, handleFieldChange, handleSubmit: submitForm, isSubmitting } = useClinicalInfo(script, onSave, onClose);
   const { toast } = useToast();
 
+  console.log("Current clinical info data:", formData); // Debug log
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting clinical info form with data:", formData);
     
     try {
       await submitForm(e);
       
-      // Update report card status with updated_at timestamp
       const { error: updateError } = await supabase
         .from('report_cards')
         .update({ 
