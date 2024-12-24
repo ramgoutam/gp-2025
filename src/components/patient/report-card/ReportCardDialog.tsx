@@ -9,7 +9,7 @@ import { DesignInformation } from "./sections/DesignInformation";
 import { ClinicalInformation } from "./sections/ClinicalInformation";
 import { SpecificInstructions } from "./sections/SpecificInstructions";
 import { supabase } from "@/integrations/supabase/client";
-import { ReportCardData } from "@/types/reportCard";
+import { ReportCardData, InfoStatus } from "@/types/reportCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ReportCardDialogProps {
@@ -45,8 +45,16 @@ export const ReportCardDialog = ({ open, onOpenChange, script }: ReportCardDialo
           return;
         }
 
-        console.log("Found report card:", reportCard);
-        setReportData(reportCard);
+        if (reportCard) {
+          // Ensure the status fields are of type InfoStatus
+          const typedReportCard: ReportCardData = {
+            ...reportCard,
+            design_info_status: reportCard.design_info_status as InfoStatus,
+            clinical_info_status: reportCard.clinical_info_status as InfoStatus,
+          };
+          console.log("Found report card:", typedReportCard);
+          setReportData(typedReportCard);
+        }
       } catch (error) {
         console.error("Error in fetchReportData:", error);
       } finally {

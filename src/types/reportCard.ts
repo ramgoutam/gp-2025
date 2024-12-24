@@ -1,3 +1,5 @@
+export type InfoStatus = 'pending' | 'completed';
+
 export interface DesignInfo {
   id?: string;
   design_date: string;
@@ -17,7 +19,7 @@ export interface DesignInfo {
 
 export interface ClinicalInfo {
   id?: string;
-  insertion_date?: string;
+  insertion_date: string | null;  // Made optional by allowing null
   appliance_fit?: string;
   design_feedback?: string;
   occlusion?: string;
@@ -29,8 +31,6 @@ export interface ClinicalInfo {
   updated_at?: string;
   report_card_id: string;
 }
-
-export type InfoStatus = 'pending' | 'completed';
 
 export interface ReportCardState {
   isDesignInfoComplete: boolean;
