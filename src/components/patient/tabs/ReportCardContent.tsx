@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { LabReportForm } from "../lab-report/LabReportForm";
 import { LabScript } from "@/types/labScript";
 import { DesignInfoForm } from "../forms/DesignInfoForm";
+import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
@@ -14,7 +15,7 @@ interface ReportCardContentProps {
   patientData?: {
     firstName: string;
     lastName: string;
-    id: string; // Added id to match LabReportForm requirements
+    id: string;
   };
   labScripts?: LabScript[];
 }
@@ -59,10 +60,6 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
     console.log("Opening clinical info for script:", script.id);
     setSelectedScript(script);
     setShowClinicalInfo(true);
-    toast({
-      title: "Clinical Info",
-      description: "Clinical information feature coming soon.",
-    });
   };
 
   const handleUpdateScript = (updatedScript: LabScript) => {
@@ -81,15 +78,16 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
         script.id === updatedScript.id ? updatedScript : script
       )
     );
+  };
 
-    const savedScripts = localStorage.getItem('labScripts');
-    if (savedScripts) {
-      const allScripts = JSON.parse(savedScripts);
-      const updatedScripts = allScripts.map((script: LabScript) =>
+  const handleSaveClinicalInfo = (updatedScript: LabScript) => {
+    console.log("Saving clinical info:", updatedScript);
+    setLocalLabScripts(prevScripts =>
+      prevScripts.map(script =>
         script.id === updatedScript.id ? updatedScript : script
-      );
-      localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    }
+      )
+    );
+    setShowClinicalInfo(false);
   };
 
   return (
@@ -148,6 +146,24 @@ export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardCo
               scriptId={selectedScript.id}
               script={selectedScript}
               onSave={handleSaveDesignInfo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showClinicalInfo} onOpenChange={setShowClinicalInfo}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Clinical Information</DialogTitle>
+            <DialogDescription>
+              Clinical details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedScript && (
+            <ClinicalInfoForm
+              onClose={() => setShowClinicalInfo(false)}
+              script={selectedScript}
+              onSave={handleSaveClinicalInfo}
             />
           )}
         </DialogContent>
