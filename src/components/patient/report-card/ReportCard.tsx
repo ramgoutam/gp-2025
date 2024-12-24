@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, ArrowRight, CheckCircle, Stethoscope, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { LabScript } from "@/types/labScript";
-import { ProgressBar } from "../ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
@@ -13,6 +12,8 @@ import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
 import { StatusBadge } from './StatusBadge';
 import { ScriptTitle } from './ScriptTitle';
+import { ProgressTracking } from './ProgressTracking';
+import { ActionButtons } from './ActionButtons';
 
 interface ReportCardProps {
   script: LabScript;
@@ -85,35 +86,6 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     }
   };
 
-  const progressSteps = [
-    { 
-      label: "Request Created", 
-      status: "completed" as const
-    },
-    { 
-      label: "Design Info", 
-      status: script.designInfo 
-        ? "completed" as const 
-        : "current" as const 
-    },
-    {
-      label: "Clinical Info",
-      status: script.clinicalInfo 
-        ? "completed" as const 
-        : script.designInfo
-        ? "current" as const 
-        : "upcoming" as const
-    },
-    { 
-      label: "Completed", 
-      status: (script.designInfo && script.clinicalInfo)
-        ? script.status === 'completed'
-          ? "completed" as const
-          : "current" as const
-        : "upcoming" as const 
-    }
-  ];
-
   return (
     <>
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-white">
@@ -139,45 +111,15 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
                 </div>
               </div>
             </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  onDesignInfo(script);
-                }}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Settings className="h-4 w-4" />
-                Design Info
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowClinicalInfo(true)}
-                className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-              >
-                <Stethoscope className="h-4 w-4" />
-                Clinical Info
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
-              {script.designInfo && script.clinicalInfo && script.status !== 'completed' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCompleteReport}
-                  className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 group-hover:border-green-300 transition-all duration-300"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Complete Report
-                  <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                </Button>
-              )}
-            </div>
+            <ActionButtons 
+              script={script}
+              onDesignInfo={onDesignInfo}
+              onClinicalInfo={() => setShowClinicalInfo(true)}
+              onComplete={handleCompleteReport}
+            />
           </div>
           
-          <ProgressBar steps={progressSteps} />
+          <ProgressTracking script={script} />
           
           <div className="space-y-4">
             <Button
