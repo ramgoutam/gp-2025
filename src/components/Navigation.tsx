@@ -1,22 +1,20 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Users, ClipboardList, FileText, Calendar } from "lucide-react";
+import { LayoutDashboard, Users } from "lucide-react";
 
 export const Navigation = () => {
   const location = useLocation();
 
   const links = [
-    { to: "/", label: "Patients", icon: Users },
-    { to: "/scripts", label: "Lab Scripts", icon: ClipboardList },
-    { to: "/reports", label: "Reports", icon: FileText },
-    { to: "/calendar", label: "Calendar", icon: Calendar },
+    { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/patients", label: "Patients", icon: Users },
   ];
 
   return (
     <nav className="bg-white shadow-sm">
       <div className="container mx-auto">
         <div className="flex items-center space-x-8 h-16">
-          <div className="text-primary font-bold text-xl">DentalTracker</div>
+          <div className="text-primary font-bold text-xl">NYDI</div>
           <div className="flex space-x-4">
             {links.map(({ to, label, icon: Icon }) => (
               <Link
