@@ -1,6 +1,5 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface FormFieldProps {
   label: string;
@@ -18,10 +18,20 @@ interface FormFieldProps {
   disabled?: boolean;
 }
 
-export const FormField = ({ label, type, value, onChange, options = [], disabled }: FormFieldProps) => {
+export const FormField = ({ 
+  label, 
+  type, 
+  value, 
+  onChange, 
+  options = [], 
+  disabled 
+}: FormFieldProps) => {
   return (
     <div className="space-y-2">
-      <Label htmlFor={label.toLowerCase().replace(/\s+/g, '_')} className="block text-sm font-medium text-gray-700">
+      <Label 
+        htmlFor={label.toLowerCase().replace(/\s+/g, '_')} 
+        className="block text-sm font-medium text-gray-700"
+      >
         {label}
       </Label>
       {type === "date" ? (
@@ -38,12 +48,20 @@ export const FormField = ({ label, type, value, onChange, options = [], disabled
           onValueChange={onChange}
           disabled={disabled}
         >
-          <SelectTrigger>
+          <SelectTrigger 
+            className="bg-white border-gray-300 focus:ring-2 focus:ring-primary z-50"
+          >
             <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent 
+            className="bg-white border border-gray-200 shadow-lg z-[100]"
+          >
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem 
+                key={option.value} 
+                value={option.value}
+                className="hover:bg-gray-100 focus:bg-gray-100"
+              >
                 {option.label}
               </SelectItem>
             ))}
