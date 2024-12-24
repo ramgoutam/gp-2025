@@ -9,6 +9,7 @@ export const useClinicalInfo = (
   onClose: () => void
 ) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     insertion_date: new Date().toISOString().split('T')[0],
     appliance_fit: "",
@@ -20,13 +21,14 @@ export const useClinicalInfo = (
     shade: "",
   });
 
-  // Fetch existing clinical info when component mounts
+  // ... keep existing code (fetchExistingClinicalInfo useEffect)
+
   useEffect(() => {
     const fetchExistingClinicalInfo = async () => {
       try {
         console.log("Fetching clinical info for script:", script.id);
+        setIsLoading(true);
         
-        // First get the report card
         const { data: reportCard, error: reportCardError } = await supabase
           .from('report_cards')
           .select('*')
@@ -48,7 +50,6 @@ export const useClinicalInfo = (
           return;
         }
 
-        // Then get the clinical info
         const { data: clinicalInfo, error: clinicalError } = await supabase
           .from('clinical_info')
           .select('*')
@@ -80,6 +81,8 @@ export const useClinicalInfo = (
           description: "Failed to load existing clinical information",
           variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -201,6 +204,7 @@ export const useClinicalInfo = (
   return {
     formData,
     handleFieldChange,
-    handleSubmit
+    handleSubmit,
+    isLoading
   };
 };

@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScript } from "@/types/labScript";
 import { FormFields } from "./clinical-info/FormFields";
 import { useClinicalInfo } from "./clinical-info/useClinicalInfo";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ClinicalInfoFormProps {
   onClose: () => void;
@@ -12,7 +13,22 @@ interface ClinicalInfoFormProps {
 }
 
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
-  const { formData, handleFieldChange, handleSubmit } = useClinicalInfo(script, onSave, onClose);
+  const { formData, handleFieldChange, handleSubmit, isLoading } = useClinicalInfo(script, onSave, onClose);
+
+  if (isLoading) {
+    return (
+      <div className="w-full space-y-6">
+        <Skeleton className="h-10 w-1/3" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <div className="flex justify-end space-x-2">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

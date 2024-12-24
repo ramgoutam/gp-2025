@@ -10,6 +10,7 @@ import { DesignDateSection } from "./design-info/DesignDateSection";
 import { LibrarySection } from "./design-info/LibrarySection";
 import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
 import { PenTool } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -20,6 +21,7 @@ interface DesignInfoFormProps {
 
 export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfoFormProps) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = React.useState(true);
   const [designData, setDesignData] = React.useState({
     design_date: script.designInfo?.design_date || new Date().toISOString().split('T')[0],
     appliance_type: script.applianceType || "",
@@ -35,6 +37,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
     const fetchExistingDesignInfo = async () => {
       try {
         console.log("Fetching design info for script:", scriptId);
+        setIsLoading(true);
         
         // First check if report card exists
         const { data: reportCard, error: reportCardError } = await supabase
@@ -50,6 +53,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
 
         if (!reportCard?.design_info_id) {
           console.log("No existing design info found");
+          setIsLoading(false);
           return;
         }
 
@@ -85,6 +89,8 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           description: "Failed to fetch existing design information",
           variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -198,6 +204,22 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-1/3" />
+        <Skeleton className="h-32 w-full" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
