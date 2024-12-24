@@ -13,9 +13,11 @@ export const DesignDateSection = ({ value, onChange }: DesignDateSectionProps) =
       <Label htmlFor="designDate">Design Date</Label>
       <Input
         id="designDate"
+        name="designDate"
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        required
       />
     </div>
   );
