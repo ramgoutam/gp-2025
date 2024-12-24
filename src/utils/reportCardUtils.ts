@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 import { ReportCardState, DesignInfo, ClinicalInfo, ReportCardData } from "@/types/reportCard";
 
 export const saveReportCardState = async (
