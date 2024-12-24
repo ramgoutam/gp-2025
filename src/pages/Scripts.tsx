@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
-import { saveLabScript, updateLabScript, getLabScripts } from "@/utils/labScriptStorage";
+import { saveLabScript, updateLabScript, deleteLabScript, getLabScripts } from "@/utils/databaseUtils";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -17,68 +17,86 @@ const Scripts = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
-  const loadScripts = () => {
-    console.log("Loading scripts in Scripts page");
-    const scripts = getLabScripts();
-    setLabScripts(scripts);
+  const loadScripts = async () => {
+    try {
+      console.log("Loading scripts in Scripts page");
+      const scripts = await getLabScripts();
+      setLabScripts(scripts);
+    } catch (error) {
+      console.error("Error loading scripts:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load lab scripts. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   useEffect(() => {
     loadScripts();
   }, []);
 
-  const handleNewScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script:", formData);
-    const newScript: LabScript = {
-      ...formData,
-      id: Date.now().toString(),
-      status: "pending"
-    };
+  const handleNewScriptSubmit = async (formData: any) => {
+    try {
+      console.log("Creating new lab script:", formData);
+      await saveLabScript(formData);
+      await loadScripts();
+      setShowNewScriptDialog(false);
 
-    const saved = saveLabScript(newScript);
-    if (!saved) {
+      toast({
+        title: "Lab Script Created",
+        description: "The lab script has been successfully created.",
+      });
+    } catch (error) {
+      console.error("Error creating lab script:", error);
       toast({
         title: "Error",
-        description: "A similar lab script already exists. Please check the details and try again.",
+        description: "Failed to create lab script. Please try again.",
         variant: "destructive"
       });
-      return;
     }
-
-    loadScripts();
-    setShowNewScriptDialog(false);
-
-    toast({
-      title: "Lab Script Created",
-      description: "The lab script has been successfully created.",
-    });
   };
 
-  const handleScriptEdit = (updatedScript: LabScript) => {
-    console.log("Editing script:", updatedScript);
-    updateLabScript(updatedScript);
-    loadScripts();
-    setSelectedScript(null);
-    setIsEditing(false);
+  const handleScriptEdit = async (updatedScript: LabScript) => {
+    try {
+      console.log("Editing script:", updatedScript);
+      await updateLabScript(updatedScript);
+      await loadScripts();
+      setSelectedScript(null);
+      setIsEditing(false);
 
-    toast({
-      title: "Lab Script Updated",
-      description: "The lab script has been successfully updated.",
-    });
+      toast({
+        title: "Lab Script Updated",
+        description: "The lab script has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error updating lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleScriptDelete = (scriptToDelete: LabScript) => {
-    console.log("Deleting script:", scriptToDelete);
-    const existingScripts = getLabScripts();
-    const updatedScripts = existingScripts.filter(script => script.id !== scriptToDelete.id);
-    
-    localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    loadScripts();
+  const handleScriptDelete = async (scriptToDelete: LabScript) => {
+    try {
+      console.log("Deleting script:", scriptToDelete);
+      await deleteLabScript(scriptToDelete.id);
+      await loadScripts();
 
-    toast({
-      title: "Lab Script Deleted",
-      description: "The lab script has been successfully deleted.",
-    });
+      toast({
+        title: "Lab Script Deleted",
+        description: "The lab script has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

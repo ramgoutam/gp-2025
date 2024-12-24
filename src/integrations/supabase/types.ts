@@ -9,6 +9,115 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      lab_script_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_type: string
+          id: string
+          lab_script_id: string | null
+          upload_type: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_type: string
+          id?: string
+          lab_script_id?: string | null
+          upload_type: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          lab_script_id?: string | null
+          upload_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_script_files_lab_script_id_fkey"
+            columns: ["lab_script_id"]
+            isOneToOne: false
+            referencedRelation: "lab_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_scripts: {
+        Row: {
+          appliance_type: string | null
+          clinic_name: string
+          created_at: string
+          doctor_name: string
+          due_date: string
+          id: string
+          lower_design_name: string | null
+          lower_treatment: string | null
+          patient_id: string | null
+          request_date: string
+          request_number: string | null
+          screw_type: string | null
+          specific_instructions: string | null
+          status: string
+          updated_at: string
+          upper_design_name: string | null
+          upper_treatment: string | null
+          vdo_option: string | null
+        }
+        Insert: {
+          appliance_type?: string | null
+          clinic_name: string
+          created_at?: string
+          doctor_name: string
+          due_date: string
+          id?: string
+          lower_design_name?: string | null
+          lower_treatment?: string | null
+          patient_id?: string | null
+          request_date: string
+          request_number?: string | null
+          screw_type?: string | null
+          specific_instructions?: string | null
+          status?: string
+          updated_at?: string
+          upper_design_name?: string | null
+          upper_treatment?: string | null
+          vdo_option?: string | null
+        }
+        Update: {
+          appliance_type?: string | null
+          clinic_name?: string
+          created_at?: string
+          doctor_name?: string
+          due_date?: string
+          id?: string
+          lower_design_name?: string | null
+          lower_treatment?: string | null
+          patient_id?: string | null
+          request_date?: string
+          request_number?: string | null
+          screw_type?: string | null
+          specific_instructions?: string | null
+          status?: string
+          updated_at?: string
+          upper_design_name?: string | null
+          upper_treatment?: string | null
+          vdo_option?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_scripts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address: string | null
@@ -47,6 +156,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      report_cards: {
+        Row: {
+          clinical_info: Json | null
+          created_at: string
+          design_info: Json | null
+          id: string
+          lab_script_id: string | null
+          report_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          clinical_info?: Json | null
+          created_at?: string
+          design_info?: Json | null
+          id?: string
+          lab_script_id?: string | null
+          report_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          clinical_info?: Json | null
+          created_at?: string
+          design_info?: Json | null
+          id?: string
+          lab_script_id?: string | null
+          report_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_cards_lab_script_id_fkey"
+            columns: ["lab_script_id"]
+            isOneToOne: false
+            referencedRelation: "lab_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

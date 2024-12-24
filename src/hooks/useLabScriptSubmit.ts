@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LabScript } from "@/components/patient/LabScriptsTab";
-import { saveLabScript, updateLabScript } from "@/utils/labScriptStorage";
+import { saveLabScript, updateLabScript } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useLabScriptSubmit = (
@@ -20,36 +20,35 @@ export const useLabScriptSubmit = (
     console.log("Processing lab script submission:", formData);
 
     try {
-      const scriptId = isEditing ? initialData?.id : `${Date.now()}`;
-      const submissionData = {
-        ...formData,
-        id: scriptId,
-        status: "pending"
-      };
-
-      if (isEditing) {
-        updateLabScript(submissionData);
+      if (isEditing && initialData?.id) {
+        const updatedScript = await updateLabScript({
+          ...formData,
+          id: initialData.id
+        });
+        
         toast({
           title: "Lab Script Updated",
           description: "The lab script has been successfully updated.",
         });
-        onSubmit?.(submissionData);
+        
+        onSubmit?.(updatedScript);
       } else {
-        const saved = saveLabScript(submissionData);
-        if (!saved) {
-          toast({
-            title: "Error",
-            description: "A similar lab script already exists. Please check the details and try again.",
-            variant: "destructive"
-          });
-          return;
-        }
+        const newScript = await saveLabScript(formData);
+        
         toast({
           title: "Lab Script Created",
           description: "The lab script has been successfully created.",
         });
-        onSubmit?.(submissionData);
+        
+        onSubmit?.(newScript);
       }
+    } catch (error) {
+      console.error("Error saving lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save lab script. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
