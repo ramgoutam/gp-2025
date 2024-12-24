@@ -11,7 +11,7 @@ export const useClinicalInfo = (
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    insertion_date: script.clinicalInfo?.insertion_date || new Date().toISOString().split('T')[0],
+    insertion_date: script.clinicalInfo?.insertion_date || "", // Changed to empty string
     appliance_fit: script.clinicalInfo?.appliance_fit || "",
     design_feedback: script.clinicalInfo?.design_feedback || "",
     occlusion: script.clinicalInfo?.occlusion || "",
