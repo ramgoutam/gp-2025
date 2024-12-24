@@ -50,103 +50,107 @@ export const TreatmentForm = ({ isOpen, onClose, patientId }: TreatmentFormProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[900px]">
         <DialogHeader>
           <DialogTitle>Add New Treatment</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="arch">Arch</Label>
-              <Select
-                value={formData.arch}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, arch: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select arch type" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-[200]">
-                  <SelectItem value="upper">Upper</SelectItem>
-                  <SelectItem value="lower">Lower</SelectItem>
-                  <SelectItem value="dual">Dual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {showUpperTreatment && (
+        <div className="grid grid-cols-2 gap-8">
+          {/* Left Column - Form Fields */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="upperTreatment">Upper Treatment</Label>
+                <Label htmlFor="arch">Arch</Label>
                 <Select
-                  value={formData.upperTreatment}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, upperTreatment: value }))}
+                  value={formData.arch}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, arch: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select upper treatment" />
+                    <SelectValue placeholder="Select arch type" />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-[200]">
-                    {TREATMENT_OPTIONS.map((treatment) => (
-                      <SelectItem key={treatment} value={treatment}>
-                        {treatment}
+                    <SelectItem value="upper">Upper</SelectItem>
+                    <SelectItem value="lower">Lower</SelectItem>
+                    <SelectItem value="dual">Dual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {showUpperTreatment && (
+                <div className="space-y-2">
+                  <Label htmlFor="upperTreatment">Upper Treatment</Label>
+                  <Select
+                    value={formData.upperTreatment}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, upperTreatment: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select upper treatment" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white z-[200]">
+                      {TREATMENT_OPTIONS.map((treatment) => (
+                        <SelectItem key={treatment} value={treatment}>
+                          {treatment}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {showLowerTreatment && (
+                <div className="space-y-2">
+                  <Label htmlFor="lowerTreatment">Lower Treatment</Label>
+                  <Select
+                    value={formData.lowerTreatment}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, lowerTreatment: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select lower treatment" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white z-[200]">
+                      {TREATMENT_OPTIONS.map((treatment) => (
+                        <SelectItem key={treatment} value={treatment}>
+                          {treatment}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="shade">Shade</Label>
+                <Select
+                  value={formData.shade}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, shade: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select shade" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-[200]">
+                    {SHADE_OPTIONS.map((shade) => (
+                      <SelectItem key={shade} value={shade}>
+                        {shade}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
-
-            {showLowerTreatment && (
-              <div className="space-y-2">
-                <Label htmlFor="lowerTreatment">Lower Treatment</Label>
-                <Select
-                  value={formData.lowerTreatment}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, lowerTreatment: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select lower treatment" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-[200]">
-                    {TREATMENT_OPTIONS.map((treatment) => (
-                      <SelectItem key={treatment} value={treatment}>
-                        {treatment}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <div className="border rounded-lg p-4">
-              <Label className="mb-2 block">Odontogram</Label>
-              <Odontogram />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="shade">Shade</Label>
-              <Select
-                value={formData.shade}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, shade: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select shade" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-[200]">
-                  {SHADE_OPTIONS.map((shade) => (
-                    <SelectItem key={shade} value={shade}>
-                      {shade}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit">Add Treatment</Button>
             </div>
-          </div>
+          </form>
 
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">Add Treatment</Button>
+          {/* Right Column - Odontogram */}
+          <div className="border rounded-lg p-4">
+            <Label className="mb-2 block">Odontogram</Label>
+            <Odontogram />
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
