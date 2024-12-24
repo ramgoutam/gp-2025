@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { ActionButtons } from "./ActionButtons";
 import { ScriptTitle } from "./ScriptTitle";
 import { StatusBadge } from "./StatusBadge";
+import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
 import { LabScript } from "@/types/labScript";
-import { supabase } from "@/integrations/supabase/client";
 import { InfoStatus } from "@/types/reportCard";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReportCardProps {
   script: LabScript;
@@ -31,8 +31,7 @@ export const ReportCard = ({
       const { data: reportCard, error } = await supabase
         .from('report_cards')
         .select(`
-          design_info_status,
-          clinical_info_status,
+          *,
           design_info:design_info_id(*),
           clinical_info:clinical_info_id(*)
         `)
@@ -48,7 +47,7 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        setIsCompleted(reportCard.design_info_status === 'completed' && reportCard.clinical_info_status === 'completed');
+        setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -58,9 +57,9 @@ export const ReportCard = ({
   useEffect(() => {
     fetchReportCardStatus();
 
-    // Subscribe to real-time updates
+    // Subscribe to report card changes
     const channel = supabase
-      .channel('report_card_changes')
+      .channel('schema-db-changes')
       .on(
         'postgres_changes',
         {
@@ -94,14 +93,14 @@ export const ReportCard = ({
 
   return (
     <Card className="p-6 space-y-6">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
           <ScriptTitle script={script} />
           <StatusBadge status={script.status} />
         </div>
         <ActionButtons
           script={script}
-          onDesignInfo={() => onDesignInfo(script)}
+          onDesignInfo={onDesignInfo}
           onClinicalInfo={onClinicalInfo}
           onComplete={handleComplete}
           designInfoStatus={designInfoStatus}
@@ -110,7 +109,7 @@ export const ReportCard = ({
         />
       </div>
 
-      <ProgressTracking 
+      <ProgressTracking
         script={script}
         designInfoStatus={designInfoStatus}
         clinicalInfoStatus={clinicalInfoStatus}
