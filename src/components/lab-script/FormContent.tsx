@@ -8,7 +8,7 @@ import { FormFooter } from "./FormFooter";
 
 interface FormContentProps {
   formData: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange: (field: string, value: string) => void;
   isSubmitting: boolean;
   isEditing: boolean;
