@@ -11,14 +11,14 @@ import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 type ReportCardData = {
   id: string;
-  lab_script_id: string;
+  lab_script_id: string | null;
   patient_id: string;
   design_info_id: string | null;
   clinical_info_id: string | null;
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
-  design_info?: Record<string, any>;
-  clinical_info?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
 };
 
 interface ReportCardProps {
@@ -82,7 +82,7 @@ export const ReportCard = ({
         },
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
-          if (payload.new) {
+          if (payload.new && 'design_info_status' in payload.new && 'clinical_info_status' in payload.new) {
             setDesignInfoStatus(payload.new.design_info_status);
             setClinicalInfoStatus(payload.new.clinical_info_status);
             fetchReportCardStatus();
@@ -98,7 +98,7 @@ export const ReportCard = ({
 
   const handleComplete = async () => {
     if (onUpdateScript) {
-      const updatedScript: LabScript = {
+      const updatedScript = {
         ...script,
         status: 'completed'
       };
