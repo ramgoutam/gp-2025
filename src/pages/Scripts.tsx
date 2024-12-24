@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { Button } from "@/components/ui/button";
@@ -21,18 +20,7 @@ const Scripts = () => {
   const loadScripts = () => {
     console.log("Loading scripts in Scripts page");
     const scripts = getLabScripts();
-    
-    // Ensure uniqueness by ID using a Map
-    const scriptsMap = new Map<string, LabScript>();
-    scripts.forEach(script => {
-      if (script.id) {
-        scriptsMap.set(script.id, script);
-      }
-    });
-    
-    const uniqueScripts = Array.from(scriptsMap.values());
-    console.log("Loaded unique scripts:", uniqueScripts);
-    setLabScripts(uniqueScripts);
+    setLabScripts(scripts);
   };
 
   useEffect(() => {
@@ -57,7 +45,7 @@ const Scripts = () => {
       return;
     }
 
-    loadScripts(); // Reload scripts to ensure we have the latest data
+    loadScripts();
     setShowNewScriptDialog(false);
 
     toast({
@@ -69,7 +57,7 @@ const Scripts = () => {
   const handleScriptEdit = (updatedScript: LabScript) => {
     console.log("Editing script:", updatedScript);
     updateLabScript(updatedScript);
-    loadScripts(); // Reload scripts to ensure we have the latest data
+    loadScripts();
     setSelectedScript(null);
     setIsEditing(false);
 
@@ -85,7 +73,7 @@ const Scripts = () => {
     const updatedScripts = existingScripts.filter(script => script.id !== scriptToDelete.id);
     
     localStorage.setItem('labScripts', JSON.stringify(updatedScripts));
-    loadScripts(); // Reload scripts to ensure we have the latest data
+    loadScripts();
 
     toast({
       title: "Lab Script Deleted",
@@ -94,63 +82,60 @@ const Scripts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <main className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Lab Scripts</h1>
-          <Button 
-            onClick={() => setShowNewScriptDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            New Script
-          </Button>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <ScrollArea className="h-[500px]">
-            <LabScriptList 
-              labScripts={labScripts}
-              onRowClick={(script) => {
-                setSelectedScript(script);
-                setIsEditing(false);
-              }}
-              onEditClick={(script) => {
-                setSelectedScript(script);
-                setIsEditing(true);
-              }}
-              onDeleteClick={handleScriptDelete}
-            />
-          </ScrollArea>
-        </div>
-
-        <Dialog 
-          open={showNewScriptDialog} 
-          onOpenChange={setShowNewScriptDialog}
+    <main className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Lab Scripts</h1>
+        <Button 
+          onClick={() => setShowNewScriptDialog(true)}
+          className="flex items-center gap-2"
         >
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create Lab Script</DialogTitle>
-            </DialogHeader>
-            <LabScriptForm onSubmit={handleNewScriptSubmit} />
-          </DialogContent>
-        </Dialog>
+          <Plus className="h-4 w-4" />
+          New Script
+        </Button>
+      </div>
 
-        <LabScriptDetails
-          script={selectedScript}
-          open={!!selectedScript}
-          onOpenChange={(open) => {
-            if (!open) {
-              setSelectedScript(null);
+      <div className="bg-white p-6 rounded-lg shadow">
+        <ScrollArea className="h-[500px]">
+          <LabScriptList 
+            labScripts={labScripts}
+            onRowClick={(script) => {
+              setSelectedScript(script);
               setIsEditing(false);
-            }
-          }}
-          onEdit={handleScriptEdit}
-          isEditing={isEditing}
-        />
-      </main>
-    </div>
+            }}
+            onEditClick={(script) => {
+              setSelectedScript(script);
+              setIsEditing(true);
+            }}
+            onDeleteClick={handleScriptDelete}
+          />
+        </ScrollArea>
+      </div>
+
+      <Dialog 
+        open={showNewScriptDialog} 
+        onOpenChange={setShowNewScriptDialog}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create Lab Script</DialogTitle>
+          </DialogHeader>
+          <LabScriptForm onSubmit={handleNewScriptSubmit} />
+        </DialogContent>
+      </Dialog>
+
+      <LabScriptDetails
+        script={selectedScript}
+        open={!!selectedScript}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedScript(null);
+            setIsEditing(false);
+          }
+        }}
+        onEdit={handleScriptEdit}
+        isEditing={isEditing}
+      />
+    </main>
   );
 };
 

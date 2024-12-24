@@ -8,7 +8,6 @@ const generateRequestNumber = (): string => {
 
 const hasDesignNameConflict = (newScript: LabScript, existingScripts: LabScript[]): boolean => {
   return existingScripts.some(existingScript => {
-    // Only check if the design names match
     const upperNameConflict = newScript.upperDesignName && 
       newScript.upperDesignName === existingScript.upperDesignName;
     const lowerNameConflict = newScript.lowerDesignName && 
@@ -55,7 +54,7 @@ export const updateLabScript = (updatedScript: LabScript): void => {
   console.log("Updating lab script:", updatedScript);
   const existingScripts = getLabScripts();
   
-  // Remove duplicates and old version by ID
+  // Remove old version by ID
   const filteredScripts = existingScripts.filter(script => script.id !== updatedScript.id);
   
   // Add the updated version
