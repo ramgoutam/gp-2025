@@ -5,6 +5,7 @@ import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
 import { TreatmentStatusContent } from "./tabs/TreatmentStatusContent";
+import { MedicalFormsContent } from "./tabs/MedicalFormsContent";
 import { LabScript } from "@/types/labScript";
 
 interface PatientTabsProps {
@@ -93,6 +94,12 @@ export const PatientTabs = ({
         >
           Medical Record
         </TabsTrigger>
+        <TabsTrigger
+          value="medical-forms"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Medical Forms
+        </TabsTrigger>
       </TabsList>
 
       <div className="animate-fade-in">
@@ -108,7 +115,7 @@ export const PatientTabs = ({
         </TabsContent>
 
         <TabsContent value="appointment-history">
-          <div className="text-gray-600 p-6 bg-gradient-to-br from-white to-blue-50 rounded-lg shadow-sm border border-blue-100/50">
+          <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
             Appointment history will go here
           </div>
         </TabsContent>
@@ -131,13 +138,17 @@ export const PatientTabs = ({
         </TabsContent>
 
         <TabsContent value="next-treatment">
-          <div className="text-gray-600 p-6 bg-gradient-to-br from-white to-blue-50 rounded-lg shadow-sm border border-blue-100/50">
+          <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
             Next treatment details will go here
           </div>
         </TabsContent>
 
         <TabsContent value="medical-record">
           <MedicalRecordContent />
+        </TabsContent>
+
+        <TabsContent value="medical-forms">
+          <MedicalFormsContent />
         </TabsContent>
       </div>
     </Tabs>
