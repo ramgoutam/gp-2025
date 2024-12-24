@@ -27,7 +27,7 @@ const PatientProfile = () => {
       console.log("Loading scripts for patient:", id);
       const allScripts = await getLabScripts();
       const patientScripts = allScripts.filter(script => 
-        script.patient_id === id
+        script.patientId === id
       );
       console.log("Filtered scripts for patient:", patientScripts.length);
       setLabScripts(patientScripts);

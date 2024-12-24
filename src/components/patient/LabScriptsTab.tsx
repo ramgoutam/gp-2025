@@ -33,9 +33,9 @@ export const LabScriptsTab = ({
   const sortedLabScripts = React.useMemo(() => {
     console.log("Sorting lab scripts by date...");
     return [...labScripts].sort((a, b) => {
-      const dateA = new Date(a.request_date).getTime();
-      const dateB = new Date(b.request_date).getTime();
-      console.log(`Comparing dates: ${a.request_date} vs ${b.request_date}`);
+      const dateA = new Date(a.requestDate).getTime();
+      const dateB = new Date(b.requestDate).getTime();
+      console.log(`Comparing dates: ${a.requestDate} vs ${b.requestDate}`);
       return dateB - dateA; // Descending order
     });
   }, [labScripts]);
