@@ -1,5 +1,3 @@
-import { LabScript } from "./labScript";
-
 export interface DesignInfo {
   id?: string;
   design_date: string;
@@ -12,6 +10,7 @@ export interface DesignInfo {
   actions_taken?: string;
   created_at?: string;
   updated_at?: string;
+  report_card_id?: string;
 }
 
 export interface ClinicalInfo {
