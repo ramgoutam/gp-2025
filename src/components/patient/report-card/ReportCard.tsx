@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Settings, ArrowRight, CheckCircle, Stethoscope, FileText } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "../ProgressBar";
@@ -12,6 +11,8 @@ import { ReportCardDialog } from "./ReportCardDialog";
 import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
 import { ReportCardState } from '@/types/reportCard';
 import { format } from "date-fns";
+import { StatusBadge } from './StatusBadge';
+import { ScriptTitle } from './ScriptTitle';
 
 interface ReportCardProps {
   script: LabScript;
@@ -25,12 +26,11 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [reportCardState, setReportCardState] = useState<ReportCardState>({
-    reportStatus: script.status, 
+    reportStatus: script.status,
     isDesignInfoComplete: false,
     isClinicalInfoComplete: false
   });
 
-  // Sync report card state with lab script status
   useEffect(() => {
     const loadReportCardState = async () => {
       try {
@@ -54,89 +54,35 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
     loadReportCardState();
   }, [script.id, script.status]);
 
-  const handleSaveDesignInfo = async (updatedScript: LabScript) => {
-    console.log("Saving updated script:", updatedScript);
+  const handleCompleteReport = async () => {
     try {
-      // Update the local state immediately
       const newState = {
         ...reportCardState,
-        reportStatus: 'in_progress',
-        isDesignInfoComplete: true,
+        reportStatus: 'completed'
       };
       
+      await saveReportCardState(script.id, newState);
       setReportCardState(newState);
       
-      // Save to backend
-      await saveReportCardState(script.id, newState);
-      
       if (onUpdateScript) {
-        onUpdateScript(updatedScript);
+        onUpdateScript({
+          ...script,
+          status: 'completed'
+        });
       }
       
-      setShowDesignInfo(false);
       toast({
-        title: "Design Info Saved",
-        description: "The design information has been successfully saved.",
+        title: "Report Completed",
+        description: "The report has been marked as completed.",
       });
     } catch (error) {
-      console.error("Error saving design info:", error);
+      console.error("Error completing report:", error);
       toast({
         title: "Error",
-        description: "Failed to save design information",
+        description: "Failed to complete report",
         variant: "destructive"
       });
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'processing':
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'paused':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'hold':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'processing':
-        return 'Processing';
-      case 'in_progress':
-        return 'In Progress';
-      case 'paused':
-        return 'Paused';
-      case 'hold':
-        return 'On Hold';
-      case 'completed':
-        return 'Completed';
-      default:
-        return status.replace('_', ' ');
-    }
-  };
-
-  const getScriptTitle = () => {
-    const upperDesign = script.upperDesignName || "Not specified";
-    const lowerDesign = script.lowerDesignName || "Not specified";
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
-        <span className="text-sm text-gray-500">|</span>
-        <span className="text-sm text-gray-600">Upper: {upperDesign}</span>
-        <span className="text-sm text-gray-500">|</span>
-        <span className="text-sm text-gray-600">Lower: {lowerDesign}</span>
-      </div>
-    );
   };
 
   const progressSteps = [
@@ -175,13 +121,8 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
           <div className="flex justify-between items-start">
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                {getScriptTitle()}
-                <Badge 
-                  variant="outline" 
-                  className={`${getStatusColor(reportCardState.reportStatus)} px-3 py-1 uppercase text-xs font-medium`}
-                >
-                  {getStatusText(reportCardState.reportStatus)}
-                </Badge>
+                <ScriptTitle script={script} />
+                <StatusBadge status={reportCardState.reportStatus} />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
