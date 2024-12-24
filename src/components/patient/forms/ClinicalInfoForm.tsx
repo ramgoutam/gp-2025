@@ -25,14 +25,14 @@ interface ClinicalInfoFormProps {
 export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState({
-    insertionDate: script.clinicalInfo?.insertionDate || new Date().toISOString().split('T')[0],
-    applianceFit: script.clinicalInfo?.applianceFit || "",
-    designFeedback: script.clinicalInfo?.designFeedback || "",
-    occlusion: script.clinicalInfo?.occlusion || "",
-    esthetics: script.clinicalInfo?.esthetics || "",
-    adjustmentsMade: script.clinicalInfo?.adjustmentsMade || "",
-    material: script.clinicalInfo?.material || "",
-    shade: script.clinicalInfo?.shade || "",
+    insertionDate: new Date().toISOString().split('T')[0],
+    applianceFit: "",
+    designFeedback: "",
+    occlusion: "",
+    esthetics: "",
+    adjustmentsMade: "",
+    material: "",
+    shade: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,31 +45,70 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
         .from('report_cards')
         .select('*')
         .eq('lab_script_id', script.id)
-        .single();
+        .maybeSingle();
 
+      let reportCardId;
+      
       if (existingReport) {
-        // Update existing report card without changing the status
-        const { error: updateError } = await supabase
-          .from('report_cards')
-          .update({
-            clinical_info: formData
-          })
-          .eq('id', existingReport.id);
-
-        if (updateError) throw updateError;
+        reportCardId = existingReport.id;
       } else {
         // Create new report card
-        const { error: insertError } = await supabase
+        const { data: newReport, error: createError } = await supabase
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            patient_id: script.patientId, // Add patient_id from script
-            clinical_info: formData,
+            patient_id: script.patientId,
             report_status: 'in_progress'
-          });
+          })
+          .select()
+          .single();
 
-        if (insertError) throw insertError;
+        if (createError) throw createError;
+        reportCardId = newReport.id;
       }
+
+      // Now handle the clinical info
+      const { data: existingClinicalInfo } = await supabase
+        .from('clinical_info')
+        .select('*')
+        .eq('report_card_id', reportCardId)
+        .maybeSingle();
+
+      let clinicalInfoOperation;
+      if (existingClinicalInfo) {
+        // Update existing clinical info
+        clinicalInfoOperation = supabase
+          .from('clinical_info')
+          .update({
+            insertion_date: formData.insertionDate,
+            appliance_fit: formData.applianceFit,
+            design_feedback: formData.designFeedback,
+            occlusion: formData.occlusion,
+            esthetics: formData.esthetics,
+            adjustments_made: formData.adjustmentsMade,
+            material: formData.material,
+            shade: formData.shade,
+          })
+          .eq('id', existingClinicalInfo.id);
+      } else {
+        // Create new clinical info
+        clinicalInfoOperation = supabase
+          .from('clinical_info')
+          .insert({
+            report_card_id: reportCardId,
+            insertion_date: formData.insertionDate,
+            appliance_fit: formData.applianceFit,
+            design_feedback: formData.designFeedback,
+            occlusion: formData.occlusion,
+            esthetics: formData.esthetics,
+            adjustments_made: formData.adjustmentsMade,
+            material: formData.material,
+            shade: formData.shade,
+          });
+      }
+
+      const { error: saveError } = await clinicalInfoOperation;
+      if (saveError) throw saveError;
 
       const updatedScript: LabScript = {
         ...script,
