@@ -50,12 +50,11 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
         .single();
 
       if (existingReport) {
-        // Update existing report card
+        // Update existing report card without changing the status
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({
-            clinical_info: formData,
-            report_status: 'completed'
+            clinical_info: formData
           })
           .eq('id', existingReport.id);
 
@@ -66,24 +65,24 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            clinical_info: formData,
-            report_status: 'completed'
+            clinical_info: formData
           });
 
         if (insertError) throw insertError;
       }
 
+      const updatedScript: LabScript = {
+        ...script,
+        clinicalInfo: formData
+      };
+
+      onSave(updatedScript);
+      
       toast({
         title: "Success",
         description: "Clinical information saved successfully",
       });
 
-      const updatedScript: LabScript = {
-        ...script,
-        status: "completed" as LabScriptStatus
-      };
-
-      onSave(updatedScript);
       onClose();
     } catch (error) {
       console.error("Error saving clinical info:", error);

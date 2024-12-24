@@ -51,12 +51,11 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         .single();
 
       if (existingReport) {
-        // Update existing report card
+        // Update existing report card without changing the status
         const { error: updateError } = await supabase
           .from('report_cards')
           .update({
-            design_info: designData,
-            report_status: 'in_progress'
+            design_info: designData
           })
           .eq('id', existingReport.id);
 
@@ -67,8 +66,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            design_info: designData,
-            report_status: 'in_progress'
+            design_info: designData
           });
 
         if (insertError) throw insertError;
@@ -76,7 +74,6 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
 
       const updatedScript: LabScript = {
         ...script,
-        status: "in_progress" as LabScriptStatus,
         designInfo: designData
       };
 
