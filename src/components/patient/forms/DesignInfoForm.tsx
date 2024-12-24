@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DesignDateSection } from "./design-info/DesignDateSection";
 import { LibrarySection } from "./design-info/LibrarySection";
 import { ActionsTakenSection } from "./design-info/ActionsTakenSection";
+import { PenTool } from "lucide-react";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -56,7 +57,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         .from('design_info')
         .insert({
           ...designData,
-          report_card_id: reportCard.id // Add report_card_id
+          report_card_id: reportCard.id
         })
         .select()
         .single();
@@ -83,7 +84,11 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
       // Update the script with the new design info
       const updatedScript: LabScript = {
         ...script,
-        designInfo: designInfo
+        designInfo: designInfo,
+        applianceType: designData.appliance_type,
+        upperTreatment: designData.upper_treatment,
+        lowerTreatment: designData.lower_treatment,
+        screwType: designData.screw
       };
 
       onSave(updatedScript);
@@ -152,8 +157,9 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSave}>
-          Save Changes
+        <Button onClick={handleSave} className="flex items-center gap-2">
+          <PenTool className="h-4 w-4" />
+          {script.designInfo ? 'Update Design Info' : 'Save Design Info'}
         </Button>
       </div>
     </div>
