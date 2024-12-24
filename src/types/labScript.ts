@@ -1,0 +1,20 @@
+export type LabScript = {
+  id: string;
+  request_number?: string;
+  patient_id?: string;
+  doctor_name: string;
+  clinic_name: string;
+  request_date: string;
+  due_date: string;
+  status: "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
+  upper_treatment?: string;
+  lower_treatment?: string;
+  upper_design_name?: string;
+  lower_design_name?: string;
+  appliance_type?: string;
+  screw_type?: string;
+  vdo_option?: string;
+  specific_instructions?: string;
+  created_at?: string;
+  updated_at?: string;
+};

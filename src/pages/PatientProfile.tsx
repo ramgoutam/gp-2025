@@ -5,8 +5,8 @@ import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
-import { LabScript } from "@/components/patient/LabScriptsTab";
-import { getLabScripts, saveLabScript, updateLabScript } from "@/utils/labScriptStorage";
+import { LabScript } from "@/types/labScript";
+import { getLabScripts, saveLabScript, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
 
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
@@ -15,89 +15,104 @@ const PatientProfile = () => {
   const { id } = useParams();
   const { toast } = useToast();
 
-  // Initialize patient data from route state or fetch from localStorage
   const [patientData, setPatientData] = useState(() => {
     if (state?.patientData) {
       return state.patientData;
     }
-    const savedPatients = localStorage.getItem('patients');
-    if (savedPatients) {
-      const patients = JSON.parse(savedPatients);
-      return patients.find((p: any) => p.id.toString() === id);
-    }
     return null;
   });
 
-  // Load and filter lab scripts for this patient
-  useEffect(() => {
-    console.log("Loading scripts for patient:", id);
-    const allScripts = getLabScripts();
-    const patientScripts = allScripts.filter(script => 
-      script.patientFirstName === patientData?.firstName && 
-      script.patientLastName === patientData?.lastName
-    );
-    console.log("Filtered scripts for patient:", patientScripts.length);
-    setLabScripts(patientScripts);
-  }, [id, patientData]);
-
-  const handleLabScriptSubmit = (formData: any) => {
-    console.log("Creating new lab script with data:", formData);
-    
-    const newScript = {
-      ...formData,
-      id: Date.now().toString(),
-      patientFirstName: patientData.firstName,
-      patientLastName: patientData.lastName,
-      status: "pending",
-      requestNumber: `REQ-${Date.now()}`
-    };
-
-    if (saveLabScript(newScript)) {
-      setLabScripts(prevScripts => [...prevScripts, newScript]);
-      setShowLabScriptDialog(false);
-      
-      toast({
-        title: "Lab Script Created",
-        description: "The lab script has been successfully created and added to the patient profile.",
-      });
-    } else {
+  const loadScripts = async () => {
+    try {
+      console.log("Loading scripts for patient:", id);
+      const allScripts = await getLabScripts();
+      const patientScripts = allScripts.filter(script => 
+        script.patient_id === id
+      );
+      console.log("Filtered scripts for patient:", patientScripts.length);
+      setLabScripts(patientScripts);
+    } catch (error) {
+      console.error("Error loading scripts:", error);
       toast({
         title: "Error",
-        description: "Failed to create lab script. A duplicate may exist.",
+        description: "Failed to load lab scripts. Please try again.",
         variant: "destructive"
       });
     }
   };
 
-  const handleEditLabScript = (updatedScript: LabScript) => {
-    console.log("Updating lab script:", updatedScript);
-    updateLabScript(updatedScript);
-    
-    setLabScripts(prevScripts => {
-      const filtered = prevScripts.filter(script => script.id !== updatedScript.id);
-      return [...filtered, updatedScript];
-    });
-    
-    toast({
-      title: "Lab Script Updated",
-      description: "The lab script has been successfully updated.",
-    });
+  useEffect(() => {
+    if (id) {
+      loadScripts();
+    }
+  }, [id]);
+
+  const handleLabScriptSubmit = async (formData: any) => {
+    try {
+      console.log("Creating new lab script with data:", formData);
+      
+      const newScript = await saveLabScript({
+        ...formData,
+        patient_id: id,
+        doctor_name: formData.doctorName,
+        clinic_name: formData.clinicName,
+      });
+
+      await loadScripts();
+      setShowLabScriptDialog(false);
+      
+      toast({
+        title: "Lab Script Created",
+        description: "The lab script has been successfully created.",
+      });
+    } catch (error) {
+      console.error("Error creating lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDeleteLabScript = (scriptToDelete: LabScript) => {
-    console.log("Deleting script:", scriptToDelete);
-    
-    const allScripts = getLabScripts().filter(script => script.id !== scriptToDelete.id);
-    localStorage.setItem('labScripts', JSON.stringify(allScripts));
-    
-    setLabScripts(prevScripts => 
-      prevScripts.filter(script => script.id !== scriptToDelete.id)
-    );
-    
-    toast({
-      title: "Lab Script Deleted",
-      description: "The lab script has been successfully deleted.",
-    });
+  const handleEditLabScript = async (updatedScript: LabScript) => {
+    try {
+      console.log("Updating lab script:", updatedScript);
+      await updateLabScript(updatedScript);
+      await loadScripts();
+      
+      toast({
+        title: "Lab Script Updated",
+        description: "The lab script has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error updating lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteLabScript = async (scriptToDelete: LabScript) => {
+    try {
+      console.log("Deleting script:", scriptToDelete);
+      await deleteLabScript(scriptToDelete.id);
+      await loadScripts();
+      
+      toast({
+        title: "Lab Script Deleted",
+        description: "The lab script has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleUpdatePatient = (updatedData: typeof patientData) => {

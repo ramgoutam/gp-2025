@@ -1,10 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
+type Patient = Database['public']['Tables']['patients']['Row'];
+type PatientInsert = Database['public']['Tables']['patients']['Insert'];
 type LabScript = Database['public']['Tables']['lab_scripts']['Row'];
 type LabScriptInsert = Database['public']['Tables']['lab_scripts']['Insert'];
-type ReportCard = Database['public']['Tables']['report_cards']['Row'];
-type ReportCardInsert = Database['public']['Tables']['report_cards']['Insert'];
 
 export const generateRequestNumber = (): string => {
   const timestamp = Date.now();
@@ -12,7 +12,38 @@ export const generateRequestNumber = (): string => {
   return `LAB-${timestamp}-${random}`;
 };
 
-export const saveLabScript = async (script: LabScriptInsert): Promise<LabScript | null> => {
+export const createPatient = async (patient: PatientInsert): Promise<Patient> => {
+  console.log('Creating patient:', patient);
+  const { data, error } = await supabase
+    .from('patients')
+    .insert([patient])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating patient:', error);
+    throw error;
+  }
+
+  return data;
+};
+
+export const getPatients = async (): Promise<Patient[]> => {
+  console.log('Fetching all patients');
+  const { data, error } = await supabase
+    .from('patients')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching patients:', error);
+    throw error;
+  }
+
+  return data || [];
+};
+
+export const saveLabScript = async (script: LabScriptInsert): Promise<LabScript> => {
   console.log('Saving lab script:', script);
   const { data, error } = await supabase
     .from('lab_scripts')
@@ -31,7 +62,7 @@ export const saveLabScript = async (script: LabScriptInsert): Promise<LabScript 
   return data;
 };
 
-export const updateLabScript = async (script: LabScript): Promise<LabScript | null> => {
+export const updateLabScript = async (script: Partial<LabScript> & { id: string }): Promise<LabScript> => {
   console.log('Updating lab script:', script);
   const { data, error } = await supabase
     .from('lab_scripts')
@@ -48,21 +79,6 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript | nu
   return data;
 };
 
-export const getLabScripts = async (): Promise<LabScript[]> => {
-  console.log('Fetching lab scripts');
-  const { data, error } = await supabase
-    .from('lab_scripts')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching lab scripts:', error);
-    throw error;
-  }
-
-  return data || [];
-};
-
 export const deleteLabScript = async (id: string): Promise<void> => {
   console.log('Deleting lab script:', id);
   const { error } = await supabase
@@ -76,35 +92,17 @@ export const deleteLabScript = async (id: string): Promise<void> => {
   }
 };
 
-export const saveReportCard = async (reportCard: ReportCardInsert): Promise<ReportCard | null> => {
-  console.log('Saving report card:', reportCard);
+export const getLabScripts = async (): Promise<LabScript[]> => {
+  console.log('Fetching lab scripts');
   const { data, error } = await supabase
-    .from('report_cards')
-    .insert([reportCard])
-    .select()
-    .single();
+    .from('lab_scripts')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error saving report card:', error);
+    console.error('Error fetching lab scripts:', error);
     throw error;
   }
 
-  return data;
-};
-
-export const updateReportCard = async (reportCard: ReportCard): Promise<ReportCard | null> => {
-  console.log('Updating report card:', reportCard);
-  const { data, error } = await supabase
-    .from('report_cards')
-    .update(reportCard)
-    .eq('id', reportCard.id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error updating report card:', error);
-    throw error;
-  }
-
-  return data;
+  return data || [];
 };
