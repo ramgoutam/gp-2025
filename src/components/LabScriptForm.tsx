@@ -24,13 +24,15 @@ interface LabScriptFormProps {
     firstName: string;
     lastName: string;
   };
+  patientId?: string; // Add patientId to props
 }
 
 export const LabScriptForm = ({ 
   onSubmit, 
   initialData, 
   isEditing = false,
-  patientData 
+  patientData,
+  patientId // Destructure patientId from props
 }: LabScriptFormProps) => {
   const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
   const [formData, setFormData] = React.useState({
@@ -83,6 +85,7 @@ export const LabScriptForm = ({
 
     const submissionData = {
       ...formData,
+      patientId, // Include patientId in submission data
       patientFirstName: patientData?.firstName || formData.firstName,
       patientLastName: patientData?.lastName || formData.lastName,
       fileUploads: Object.entries(fileUploads).reduce((acc, [key, upload]) => {
@@ -93,6 +96,7 @@ export const LabScriptForm = ({
       }, {} as Record<string, File[]>)
     };
 
+    console.log("Submitting form with data:", submissionData); // Add debug log
     await handleSubmit(submissionData, initialData);
   };
 

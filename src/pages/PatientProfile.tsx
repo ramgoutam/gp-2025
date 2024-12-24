@@ -171,7 +171,11 @@ const PatientProfile = () => {
               Create a new lab script for {patientData.firstName} {patientData.lastName}
             </DialogDescription>
           </DialogHeader>
-          <LabScriptForm onSubmit={handleLabScriptSubmit} patientData={patientData} />
+          <LabScriptForm 
+            onSubmit={handleLabScriptSubmit} 
+            patientData={patientData}
+            patientId={id} // Pass the patientId from URL params
+          />
         </DialogContent>
       </Dialog>
     </div>

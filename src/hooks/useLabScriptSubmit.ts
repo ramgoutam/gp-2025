@@ -20,6 +20,11 @@ export const useLabScriptSubmit = (
     console.log("Processing lab script submission with data:", formData);
 
     try {
+      if (!formData.patientId) {
+        console.error("Missing patientId in form data:", formData);
+        throw new Error("Patient ID is required to create a lab script");
+      }
+
       if (isEditing && initialData?.id) {
         console.log("Updating existing lab script:", initialData.id);
         const updatedScript = await updateLabScript({
@@ -35,11 +40,7 @@ export const useLabScriptSubmit = (
         
         onSubmit?.(updatedScript);
       } else {
-        console.log("Creating new lab script with patient ID:", formData.patientId);
-        if (!formData.patientId) {
-          throw new Error("Patient ID is required to create a lab script");
-        }
-        
+        console.log("Creating new lab script for patient:", formData.patientId);
         const newScript = await saveLabScript(formData);
         console.log("New lab script created successfully:", newScript);
         
@@ -57,7 +58,7 @@ export const useLabScriptSubmit = (
         description: error instanceof Error ? error.message : "Failed to save lab script. Please try again.",
         variant: "destructive"
       });
-      throw error; // Re-throw to be handled by the component
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
