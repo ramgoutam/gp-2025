@@ -1,31 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { LabScript } from "@/types/labScript";
-
-export interface ReportCardState {
-  reportStatus: string;
-  isDesignInfoComplete: boolean;
-  isClinicalInfoComplete: boolean;
-  designInfo?: {
-    designDate: string;
-    applianceType: string;
-    upperTreatment: string;
-    lowerTreatment: string;
-    screw: string;
-    implantLibrary: string;
-    teethLibrary: string;
-    actionsTaken: string;
-  };
-  clinicalInfo?: {
-    insertionDate: string;
-    applianceFit: string;
-    designFeedback: string;
-    occlusion: string;
-    esthetics: string;
-    adjustmentsMade: string;
-    material: string;
-    shade: string;
-  };
-}
+import { ReportCardState, DesignInfo, ClinicalInfo } from "@/types/reportCard";
 
 export const saveReportCardState = async (
   labScriptId: string, 
@@ -38,8 +12,8 @@ export const saveReportCardState = async (
     .upsert({
       lab_script_id: labScriptId,
       report_status: state.reportStatus,
-      design_info: state.designInfo || null,
-      clinical_info: state.clinicalInfo || null,
+      design_info: state.designInfo,
+      clinical_info: state.clinicalInfo,
       updated_at: new Date().toISOString()
     })
     .select()
@@ -57,7 +31,6 @@ export const saveReportCardState = async (
 export const getReportCardState = async (labScriptId: string): Promise<ReportCardState | null> => {
   console.log("Fetching report card state for script:", labScriptId);
   
-  // Get the most recent report card for this lab script
   const { data, error } = await supabase
     .from('report_cards')
     .select('*')
@@ -78,11 +51,32 @@ export const getReportCardState = async (labScriptId: string): Promise<ReportCar
 
   console.log("Retrieved report card state:", data);
   
+  const designInfo = data.design_info as DesignInfo;
+  const clinicalInfo = data.clinical_info as ClinicalInfo;
+  
   return {
     reportStatus: data.report_status,
-    isDesignInfoComplete: !!data.design_info,
-    isClinicalInfoComplete: !!data.clinical_info,
-    designInfo: data.design_info,
-    clinicalInfo: data.clinical_info
+    isDesignInfoComplete: !!designInfo,
+    isClinicalInfoComplete: !!clinicalInfo,
+    designInfo: designInfo || {
+      designDate: "",
+      applianceType: "",
+      upperTreatment: "",
+      lowerTreatment: "",
+      screw: "",
+      implantLibrary: "",
+      teethLibrary: "",
+      actionsTaken: ""
+    },
+    clinicalInfo: clinicalInfo || {
+      insertionDate: "",
+      applianceFit: "",
+      designFeedback: "",
+      occlusion: "",
+      esthetics: "",
+      adjustmentsMade: "",
+      material: "",
+      shade: ""
+    }
   };
 };
