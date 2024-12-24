@@ -9,14 +9,12 @@ import { InfoStatus } from "@/types/reportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
-interface ReportCardProps {
-  script: LabScript;
-  onDesignInfo: (script: LabScript) => void;
-  onClinicalInfo: () => void;
-  onUpdateScript?: (script: LabScript) => void;
-}
-
 type ReportCardData = {
+  id: string;
+  lab_script_id: string;
+  patient_id: string;
+  design_info_id: string | null;
+  clinical_info_id: string | null;
   design_info_status: InfoStatus;
   clinical_info_status: InfoStatus;
   design_info?: Record<string, any>;
@@ -28,7 +26,19 @@ export const ReportCard = ({
   onDesignInfo,
   onClinicalInfo,
   onUpdateScript,
-}: ReportCardProps) => {
+}: {
+  script: {
+    id: string;
+    requestNumber?: string;
+    status: string;
+    requestDate: string;
+    designInfo?: Record<string, any>;
+    clinicalInfo?: Record<string, any>;
+  };
+  onDesignInfo: (script: { id: string }) => void;
+  onClinicalInfo: () => void;
+  onUpdateScript?: (script: { id: string }) => void;
+}) => {
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
   const [isCompleted, setIsCompleted] = useState(false);
@@ -40,8 +50,8 @@ export const ReportCard = ({
         .from('report_cards')
         .select(`
           *,
-          design_info:design_info_id(*),
-          clinical_info:clinical_info_id(*)
+          design_info(*),
+          clinical_info(*)
         `)
         .eq('lab_script_id', script.id)
         .maybeSingle();
@@ -53,8 +63,9 @@ export const ReportCard = ({
 
       if (reportCard) {
         console.log("Found report card:", reportCard);
-        setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
-        setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+        setDesignInfoStatus(reportCard.design_info_status);
+        setClinicalInfoStatus(reportCard.clinical_info_status);
+        setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -93,11 +104,7 @@ export const ReportCard = ({
 
   const handleComplete = async () => {
     if (onUpdateScript) {
-      const updatedScript = {
-        ...script,
-        status: 'completed' as const
-      };
-      onUpdateScript(updatedScript);
+      onUpdateScript({ ...script, status: 'completed' });
       setIsCompleted(true);
     }
   };
