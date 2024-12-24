@@ -40,7 +40,7 @@ export const ProgressTracking = ({
         ? "completed" as const
         : (designInfoStatus === 'completed' && clinicalInfoStatus === 'completed')
           ? "current" as const
-          : "upcoming" as const
+          : "upcoming" as const 
     }
   ];
 

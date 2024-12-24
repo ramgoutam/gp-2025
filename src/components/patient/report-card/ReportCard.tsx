@@ -33,8 +33,8 @@ export const ReportCard = ({
         .from('report_cards')
         .select(`
           *,
-          design_info(*),
-          clinical_info(*)
+          design_info:design_info_id(*),
+          clinical_info:clinical_info_id(*)
         `)
         .eq('lab_script_id', script.id)
         .maybeSingle();
@@ -48,7 +48,6 @@ export const ReportCard = ({
         console.log("Found report card:", reportCard);
         setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
         setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        setIsCompleted(script.status === 'completed');
       }
     } catch (error) {
       console.error("Error in fetchReportCardStatus:", error);
@@ -56,8 +55,10 @@ export const ReportCard = ({
   };
 
   useEffect(() => {
+    // Initial fetch of report card status
     fetchReportCardStatus();
 
+    // Subscribe to real-time updates
     const channel = supabase
       .channel('report-card-changes')
       .on(
@@ -71,9 +72,9 @@ export const ReportCard = ({
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
           if (payload.new) {
-            setDesignInfoStatus(payload.new.design_info_status as InfoStatus);
-            setClinicalInfoStatus(payload.new.clinical_info_status as InfoStatus);
-            fetchReportCardStatus();
+            const newData = payload.new as ReportCardData;
+            setDesignInfoStatus(newData.design_info_status);
+            setClinicalInfoStatus(newData.clinical_info_status);
           }
         }
       )
