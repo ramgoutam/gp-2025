@@ -1,10 +1,10 @@
 import React from "react";
 
-type PatientAvatarProps = {
+export interface PatientAvatarProps {
   firstName: string;
   lastName: string;
   avatar?: string;
-};
+}
 
 export const PatientAvatar = ({ firstName, lastName, avatar }: PatientAvatarProps) => {
   return avatar ? (

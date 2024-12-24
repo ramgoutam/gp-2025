@@ -1,13 +1,13 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
-type PatientActionsProps = {
+export interface PatientActionsProps {
   onEdit: () => void;
   onDelete: () => void;
   onAddTreatment: () => void;
   isDeleting: boolean;
-};
+}
 
 export const PatientActions = ({ 
   onEdit, 

@@ -18,7 +18,11 @@ export const PatientHeader = ({
   return (
     <div className="flex items-center justify-between pb-6 border-b">
       <div className="flex items-center gap-4">
-        <PatientAvatar patient={patientData} />
+        <PatientAvatar 
+          firstName={patientData.firstName} 
+          lastName={patientData.lastName}
+          avatar={patientData.avatar}
+        />
         <div>
           <h1 className="text-2xl font-semibold">
             {patientData.firstName} {patientData.lastName}
@@ -44,7 +48,12 @@ export const PatientHeader = ({
           <Plus className="h-4 w-4" />
           Create Lab Script
         </Button>
-        <PatientActions patient={patientData} onUpdatePatient={onUpdatePatient} />
+        <PatientActions 
+          onEdit={() => {}} 
+          onDelete={() => {}} 
+          onAddTreatment={() => {}}
+          isDeleting={false}
+        />
       </div>
     </div>
   );
