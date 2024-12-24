@@ -10,6 +10,7 @@ import { ScrewSection } from "@/components/lab-script/ScrewSection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { saveReportCardState } from "@/utils/reportCardUtils";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabReportFormProps {
   onSubmit: (data: any) => void;
@@ -18,6 +19,7 @@ interface LabReportFormProps {
   patientData?: {
     firstName: string;
     lastName: string;
+    id: string; // Added patient ID
   };
 }
 
@@ -80,7 +82,21 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
     }
 
     try {
-      // Save design info
+      // First, create the report card to get its ID
+      const { data: reportCard, error: reportCardError } = await supabase
+        .from('report_cards')
+        .insert({
+          lab_script_id: labScriptId,
+          patient_id: patientData?.id,
+          design_info_status: 'pending',
+          clinical_info_status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (reportCardError) throw reportCardError;
+
+      // Now we can use the report_card_id when saving the state
       await saveReportCardState(labScriptId, {
         isDesignInfoComplete: true,
         isClinicalInfoComplete: true,
@@ -93,6 +109,7 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           implant_library: formData.implantLibrary,
           teeth_library: formData.teethLibrary,
           actions_taken: formData.actionsTaken,
+          report_card_id: reportCard.id
         },
         clinicalInfo: {
           insertion_date: formData.insertionDate,
@@ -103,6 +120,7 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           adjustments_made: formData.adjustmentsMade,
           material: formData.material,
           shade: formData.shade,
+          report_card_id: reportCard.id
         }
       });
 
