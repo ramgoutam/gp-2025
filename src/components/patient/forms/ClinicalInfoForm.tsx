@@ -24,10 +24,13 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
     try {
       await submitForm(e);
       
-      // Update report card status
+      // Update report card status with updated_at timestamp
       const { error: updateError } = await supabase
         .from('report_cards')
-        .update({ clinical_info_status: 'completed' })
+        .update({ 
+          clinical_info_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
         .eq('lab_script_id', script.id);
 
       if (updateError) {
