@@ -9,14 +9,24 @@ export const saveReportCardState = async (
   console.log("Saving report card state:", { labScriptId, state });
   
   try {
+    // First get the patient_id from the lab script
+    const { data: labScript, error: labScriptError } = await supabase
+      .from('lab_scripts')
+      .select('patient_id')
+      .eq('id', labScriptId)
+      .single();
+
+    if (labScriptError) throw labScriptError;
+
     const { data, error } = await supabase
       .from('report_cards')
-      .upsert([{
+      .upsert({
         lab_script_id: labScriptId,
+        patient_id: labScript.patient_id,
         design_info: state.designInfo as Json,
         clinical_info: state.clinicalInfo as Json,
         report_status: state.reportStatus
-      }], {
+      }, {
         onConflict: 'lab_script_id'
       })
       .select()

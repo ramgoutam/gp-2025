@@ -72,7 +72,7 @@ export const DesignInfoForm = ({ onClose, scriptId, script, onSave }: DesignInfo
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            patient_id: script.patient_id, // Add patient_id from the lab script
+            patient_id: script.patientId, // Use patientId from script
             design_info: designData,
             report_status: 'in_progress'
           });

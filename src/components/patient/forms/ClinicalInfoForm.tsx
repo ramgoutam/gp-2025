@@ -63,7 +63,9 @@ export const ClinicalInfoForm = ({ onClose, script, onSave }: ClinicalInfoFormPr
           .from('report_cards')
           .insert({
             lab_script_id: script.id,
-            clinical_info: formData
+            patient_id: script.patientId, // Add patient_id from script
+            clinical_info: formData,
+            report_status: 'in_progress'
           });
 
         if (insertError) throw insertError;
