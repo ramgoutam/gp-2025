@@ -42,8 +42,7 @@ export const DesignInfoForm = ({
           title: "Success",
           description: "Design information saved successfully",
         });
-        // Force a page refresh after successful save
-        window.location.reload();
+        onClose();
       } else {
         toast({
           title: "Error",
