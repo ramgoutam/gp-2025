@@ -20,6 +20,12 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
   console.log("Saving lab script to database:", script);
   
+  // Validate patient ID exists
+  if (!script.patientId) {
+    console.error("Cannot create lab script without patient ID");
+    throw new Error("Patient ID is required to create a lab script");
+  }
+
   const dbScript = {
     patient_id: script.patientId,
     doctor_name: script.doctorName || "Default Doctor",
