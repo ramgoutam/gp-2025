@@ -5,7 +5,26 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
   console.log("Fetching lab scripts from database");
   const { data: scripts, error } = await supabase
     .from('lab_scripts')
-    .select('*')
+    .select(`
+      id,
+      request_number,
+      patient_id,
+      doctor_name,
+      clinic_name,
+      request_date,
+      due_date,
+      status,
+      upper_treatment,
+      lower_treatment,
+      upper_design_name,
+      lower_design_name,
+      appliance_type,
+      screw_type,
+      vdo_option,
+      specific_instructions,
+      created_at,
+      updated_at
+    `)
     .order('created_at', { ascending: false });
 
   if (error) {

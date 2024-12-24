@@ -20,6 +20,7 @@ export type Database = {
           insertion_date: string | null
           material: string | null
           occlusion: string | null
+          report_card_id: string | null
           shade: string | null
           updated_at: string
         }
@@ -33,6 +34,7 @@ export type Database = {
           insertion_date?: string | null
           material?: string | null
           occlusion?: string | null
+          report_card_id?: string | null
           shade?: string | null
           updated_at?: string
         }
@@ -46,10 +48,19 @@ export type Database = {
           insertion_date?: string | null
           material?: string | null
           occlusion?: string | null
+          report_card_id?: string | null
           shade?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clinical_info_report_card_id_fkey"
+            columns: ["report_card_id"]
+            isOneToOne: false
+            referencedRelation: "report_cards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       design_info: {
         Row: {
@@ -60,6 +71,7 @@ export type Database = {
           id: string
           implant_library: string | null
           lower_treatment: string | null
+          report_card_id: string | null
           screw: string | null
           teeth_library: string | null
           updated_at: string
@@ -73,6 +85,7 @@ export type Database = {
           id?: string
           implant_library?: string | null
           lower_treatment?: string | null
+          report_card_id?: string | null
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
@@ -86,12 +99,21 @@ export type Database = {
           id?: string
           implant_library?: string | null
           lower_treatment?: string | null
+          report_card_id?: string | null
           screw?: string | null
           teeth_library?: string | null
           updated_at?: string
           upper_treatment?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "design_info_report_card_id_fkey"
+            columns: ["report_card_id"]
+            isOneToOne: false
+            referencedRelation: "report_cards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lab_script_files: {
         Row: {
