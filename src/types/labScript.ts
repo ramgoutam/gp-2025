@@ -22,6 +22,7 @@ export interface LabScript {
   id: string;
   requestNumber?: string;
   patientId?: string;
+  patient_id?: string; // Add this to support both formats
   patientFirstName?: string;
   patientLastName?: string;
   doctorName: string;
@@ -74,6 +75,7 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     id: dbScript.id,
     requestNumber: dbScript.request_number,
     patientId: dbScript.patient_id,
+    patient_id: dbScript.patient_id, // Map both formats
     doctorName: dbScript.doctor_name,
     clinicName: dbScript.clinic_name,
     requestDate: dbScript.request_date,
@@ -96,7 +98,7 @@ export const mapLabScriptToDatabase = (script: LabScript): DatabaseLabScript => 
   return {
     id: script.id,
     request_number: script.requestNumber,
-    patient_id: script.patientId,
+    patient_id: script.patientId || script.patient_id, // Use either format
     doctor_name: script.doctorName,
     clinic_name: script.clinicName,
     request_date: script.requestDate,
