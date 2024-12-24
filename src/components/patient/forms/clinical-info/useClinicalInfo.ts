@@ -68,9 +68,14 @@ export const useClinicalInfo = (
       }
 
       // Now handle the clinical info
+      const clinicalInfoData = {
+        ...formData,
+        report_card_id: reportCardId
+      };
+
       const { data: clinicalInfo, error: saveError } = await supabase
         .from('clinical_info')
-        .insert(formData)
+        .insert(clinicalInfoData)
         .select()
         .single();
 

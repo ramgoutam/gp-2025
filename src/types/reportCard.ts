@@ -26,6 +26,7 @@ export interface ClinicalInfo {
   shade?: string;
   created_at?: string;
   updated_at?: string;
+  report_card_id?: string;
 }
 
 export type InfoStatus = 'pending' | 'completed';
