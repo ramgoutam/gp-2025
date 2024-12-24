@@ -14,9 +14,10 @@ export const saveReportCardState = async (
       .from('lab_scripts')
       .select('patient_id')
       .eq('id', labScriptId)
-      .single();
+      .maybeSingle();
 
     if (labScriptError) throw labScriptError;
+    if (!labScript) throw new Error('Lab script not found');
 
     const { data, error } = await supabase
       .from('report_cards')
