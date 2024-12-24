@@ -4,15 +4,14 @@ import { Button } from "@/components/ui/button";
 import { FileText, ArrowRight } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
 import { ScriptTitle } from './ScriptTitle';
 import { ProgressTracking } from './ProgressTracking';
 import { ActionButtons } from './ActionButtons';
 import { format } from "date-fns";
 import { saveReportCardState } from "@/utils/reportCardUtils";
-import { InfoStatus } from "@/types/reportCard";
+import { InfoStatus, ReportCardState } from "@/types/reportCard";
+import { supabase } from "@/integrations/supabase/client";
 
 export const ReportCard = ({ 
   script, 
@@ -26,7 +25,6 @@ export const ReportCard = ({
   onUpdateScript?: (script: LabScript) => void;
 }) => {
   const { toast } = useToast();
-  const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [reportCardState, setReportCardState] = useState<ReportCardState>({
     isDesignInfoComplete: false,
@@ -38,11 +36,13 @@ export const ReportCard = ({
   useEffect(() => {
     const loadReportCardState = async () => {
       try {
-        const { data: reportCard } = await supabase
+        const { data: reportCard, error } = await supabase
           .from('report_cards')
           .select('*')
           .eq('lab_script_id', script.id)
-          .single();
+          .maybeSingle();
+
+        if (error) throw error;
 
         if (reportCard) {
           setReportCardState({
@@ -67,15 +67,14 @@ export const ReportCard = ({
 
   const handleCompleteReport = async () => {
     try {
-      const { data: reportCard } = await supabase
+      const { data: reportCard, error: fetchError } = await supabase
         .from('report_cards')
         .select('id')
         .eq('lab_script_id', script.id)
-        .single();
+        .maybeSingle();
 
-      if (!reportCard) {
-        throw new Error('Report card not found');
-      }
+      if (fetchError) throw fetchError;
+      if (!reportCard) throw new Error('Report card not found');
 
       const newState = {
         ...reportCardState,

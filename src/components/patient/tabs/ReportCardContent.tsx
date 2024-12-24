@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReportCardHeader } from "../report-card/ReportCardHeader";
 import { ReportCard } from "../report-card/ReportCard";
 import { EmptyState } from "../report-card/EmptyState";
+import { useState, useEffect } from "react";
 
 interface ReportCardContentProps {
   patientData?: {
@@ -19,13 +20,13 @@ interface ReportCardContentProps {
 
 export const ReportCardContent = ({ patientData, labScripts = [] }: ReportCardContentProps) => {
   const { toast } = useToast();
-  const [showCreateDialog, setShowCreateDialog] = React.useState(false);
-  const [showDesignInfo, setShowDesignInfo] = React.useState(false);
-  const [showClinicalInfo, setShowClinicalInfo] = React.useState(false);
-  const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
-  const [localLabScripts, setLocalLabScripts] = React.useState<LabScript[]>(labScripts);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showDesignInfo, setShowDesignInfo] = useState(false);
+  const [showClinicalInfo, setShowClinicalInfo] = useState(false);
+  const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
+  const [localLabScripts, setLocalLabScripts] = useState<LabScript[]>(labScripts);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const sortedScripts = [...labScripts].sort((a, b) => 
       new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
     );
