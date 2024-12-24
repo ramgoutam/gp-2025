@@ -3,9 +3,11 @@ import { LabScript } from "@/types/labScript";
 
 interface ProgressTrackingProps {
   script: LabScript;
+  designInfoStatus?: 'pending' | 'completed';
+  clinicalInfoStatus?: 'pending' | 'completed';
 }
 
-export const ProgressTracking = ({ script }: ProgressTrackingProps) => {
+export const ProgressTracking = ({ script, designInfoStatus = 'pending', clinicalInfoStatus = 'pending' }: ProgressTrackingProps) => {
   const progressSteps = [
     { 
       label: "Request Created", 
@@ -13,21 +15,21 @@ export const ProgressTracking = ({ script }: ProgressTrackingProps) => {
     },
     { 
       label: "Design Info", 
-      status: script.designInfo 
+      status: designInfoStatus === 'completed'
         ? "completed" as const 
         : "current" as const 
     },
     {
       label: "Clinical Info",
-      status: script.clinicalInfo 
+      status: clinicalInfoStatus === 'completed'
         ? "completed" as const 
-        : script.designInfo
+        : designInfoStatus === 'completed'
         ? "current" as const 
         : "upcoming" as const
     },
     { 
       label: "Completed", 
-      status: (script.designInfo && script.clinicalInfo)
+      status: (designInfoStatus === 'completed' && clinicalInfoStatus === 'completed')
         ? script.status === 'completed'
           ? "completed" as const
           : "current" as const

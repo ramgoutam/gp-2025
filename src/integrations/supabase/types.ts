@@ -244,8 +244,10 @@ export type Database = {
       report_cards: {
         Row: {
           clinical_info_id: string | null
+          clinical_info_status: string
           created_at: string
           design_info_id: string | null
+          design_info_status: string
           id: string
           lab_script_id: string | null
           patient_id: string
@@ -253,8 +255,10 @@ export type Database = {
         }
         Insert: {
           clinical_info_id?: string | null
+          clinical_info_status?: string
           created_at?: string
           design_info_id?: string | null
+          design_info_status?: string
           id?: string
           lab_script_id?: string | null
           patient_id: string
@@ -262,8 +266,10 @@ export type Database = {
         }
         Update: {
           clinical_info_id?: string | null
+          clinical_info_status?: string
           created_at?: string
           design_info_id?: string | null
+          design_info_status?: string
           id?: string
           lab_script_id?: string | null
           patient_id?: string

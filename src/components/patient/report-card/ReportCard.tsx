@@ -15,28 +15,33 @@ import { ProgressTracking } from './ProgressTracking';
 import { ActionButtons } from './ActionButtons';
 import { supabase } from "@/integrations/supabase/client";
 
-interface ReportCardProps {
-  script: LabScript;
-  onDesignInfo: (script: LabScript) => void;
-  onClinicalInfo: (script: LabScript) => void;
-  onUpdateScript?: (updatedScript: LabScript) => void;
-}
-
 export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScript }: ReportCardProps) => {
   const { toast } = useToast();
   const [showClinicalInfo, setShowClinicalInfo] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
   const [reportCardState, setReportCardState] = useState<ReportCardState>({
     isDesignInfoComplete: false,
-    isClinicalInfoComplete: false
+    isClinicalInfoComplete: false,
+    designInfoStatus: 'pending',
+    clinicalInfoStatus: 'pending'
   });
 
   useEffect(() => {
     const loadReportCardState = async () => {
       try {
-        const savedState = await getReportCardState(script.id);
-        if (savedState) {
-          setReportCardState(savedState);
+        const { data: reportCard } = await supabase
+          .from('report_cards')
+          .select('*')
+          .eq('lab_script_id', script.id)
+          .single();
+
+        if (reportCard) {
+          setReportCardState({
+            isDesignInfoComplete: !!reportCard.design_info_id,
+            isClinicalInfoComplete: !!reportCard.clinical_info_id,
+            designInfoStatus: reportCard.design_info_status,
+            clinicalInfoStatus: reportCard.clinical_info_status
+          });
         }
       } catch (error) {
         console.error("Error loading report card state:", error);
@@ -129,10 +134,16 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
               onDesignInfo={onDesignInfo}
               onClinicalInfo={() => setShowClinicalInfo(true)}
               onComplete={handleCompleteReport}
+              designInfoStatus={reportCardState.designInfoStatus}
+              clinicalInfoStatus={reportCardState.clinicalInfoStatus}
             />
           </div>
           
-          <ProgressTracking script={script} />
+          <ProgressTracking 
+            script={script} 
+            designInfoStatus={reportCardState.designInfoStatus}
+            clinicalInfoStatus={reportCardState.clinicalInfoStatus}
+          />
           
           <div className="space-y-4">
             <Button

@@ -33,6 +33,8 @@ export interface ReportCardState {
   isClinicalInfoComplete: boolean;
   designInfo?: DesignInfo;
   clinicalInfo?: ClinicalInfo;
+  designInfoStatus?: 'pending' | 'completed';
+  clinicalInfoStatus?: 'pending' | 'completed';
 }
 
 export interface ReportCardData {
@@ -43,4 +45,6 @@ export interface ReportCardData {
   patient_id: string;
   design_info_id: string | null;
   clinical_info_id: string | null;
+  design_info_status: 'pending' | 'completed';
+  clinical_info_status: 'pending' | 'completed';
 }
