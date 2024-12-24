@@ -1,16 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { validateGoogleApiKey, getPlaceSuggestions, PlaceSuggestion } from "@/utils/googlePlaces";
+import { FormField } from "@/components/patient/form/FormField";
+import { AddressField } from "@/components/patient/form/AddressField";
+import { SexField } from "@/components/patient/form/SexField";
 
 interface PatientFormData {
   firstName: string;
@@ -44,9 +38,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
 
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
   const [googleApiKey, setGoogleApiKey] = useState<string>("");
-  const [isValidatingKey, setIsValidatingKey] = useState(false);
 
   useEffect(() => {
     const key = localStorage.getItem('GOOGLE_MAPS_API_KEY');
@@ -61,27 +53,13 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     }
   }, [initialData]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const validateAndSetKey = async (key: string) => {
-    setIsValidatingKey(true);
     try {
       const isValid = await validateGoogleApiKey(key);
       if (isValid) {
         localStorage.setItem('GOOGLE_MAPS_API_KEY', key);
         setGoogleApiKey(key);
         return true;
-      } else {
-        throw new Error('Invalid key');
       }
     } catch (error) {
       console.error('Key validation failed:', error);
@@ -92,19 +70,15 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
       });
       localStorage.removeItem('GOOGLE_MAPS_API_KEY');
       return false;
-    } finally {
-      setIsValidatingKey(false);
     }
   };
 
   const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, address: value }));
 
     if (!googleApiKey && value.length > 2) {
-      const key = prompt(
-        "Please enter your Google Maps API key with Places API enabled"
-      );
+      const key = prompt("Please enter your Google Maps API key with Places API enabled");
       if (key) {
         const isValid = await validateAndSetKey(key);
         if (!isValid) return;
@@ -141,7 +115,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     console.log("Patient data:", formData);
     
     onSubmitSuccess?.(formData);
-    onClose?.(); // Close the dialog after successful submission
+    onClose?.();
     
     if (!onSubmitSuccess) {
       toast({
@@ -157,6 +131,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         sex: "",
         dob: "",
         address: "",
+        surgeryDate: "",
       });
     }
   };
@@ -167,121 +142,70 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="firstName">First Name</Label>
-        <Input
-          id="firstName"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+      <FormField
+        id="firstName"
+        label="First Name"
+        value={formData.firstName}
+        onChange={handleChange}
+        required
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="lastName">Last Name</Label>
-        <Input
-          id="lastName"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <FormField
+        id="lastName"
+        label="Last Name"
+        value={formData.lastName}
+        onChange={handleChange}
+        required
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <FormField
+        id="phone"
+        label="Phone"
+        type="tel"
+        value={formData.phone}
+        onChange={handleChange}
+        required
+      />
 
-      <div className="space-y-2 relative">
-        <Label htmlFor="address">Address</Label>
-        <Input
-          id="address"
-          name="address"
-          value={formData.address}
-          onChange={handleAddressChange}
-          placeholder="Start typing to search address..."
-          required
-          autoComplete="off"
-        />
-        {showSuggestions && suggestions.length > 0 && (
-          <div 
-            ref={suggestionsRef}
-            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
-          >
-            {suggestions.map((suggestion) => (
-              <div
-                key={suggestion.place_id}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                onClick={() => handleSuggestionClick(suggestion)}
-              >
-                {suggestion.description}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <AddressField
+        value={formData.address}
+        onChange={handleAddressChange}
+        suggestions={suggestions}
+        showSuggestions={showSuggestions}
+        onSuggestionClick={handleSuggestionClick}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="surgeryDate">Surgery Date</Label>
-        <Input
-          id="surgeryDate"
-          name="surgeryDate"
-          type="date"
-          value={formData.surgeryDate}
-          onChange={handleChange}
-        />
-      </div>
+      <FormField
+        id="surgeryDate"
+        label="Surgery Date"
+        type="date"
+        value={formData.surgeryDate || ""}
+        onChange={handleChange}
+      />
 
-      <div className="space-y-2 relative">
-        <Label htmlFor="sex">Sex</Label>
-        <Select
-          value={formData.sex}
-          onValueChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select sex" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="male">Male</SelectItem>
-            <SelectItem value="female">Female</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SexField
+        value={formData.sex}
+        onChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="dob">Date of Birth</Label>
-        <Input
-          id="dob"
-          name="dob"
-          type="date"
-          value={formData.dob}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      <FormField
+        id="dob"
+        label="Date of Birth"
+        type="date"
+        value={formData.dob}
+        onChange={handleChange}
+        required
+      />
 
       <Button type="submit" className="w-full">
         {initialData ? "Update Patient Information" : "Create"}

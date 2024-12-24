@@ -242,6 +242,7 @@ export type Database = {
           lower_treatment: string | null
           phone: string
           sex: string
+          surgery_date: string | null
           treatment_type: string | null
           updated_at: string
           upper_treatment: string | null
@@ -257,6 +258,7 @@ export type Database = {
           lower_treatment?: string | null
           phone: string
           sex: string
+          surgery_date?: string | null
           treatment_type?: string | null
           updated_at?: string
           upper_treatment?: string | null
@@ -272,6 +274,7 @@ export type Database = {
           lower_treatment?: string | null
           phone?: string
           sex?: string
+          surgery_date?: string | null
           treatment_type?: string | null
           updated_at?: string
           upper_treatment?: string | null
