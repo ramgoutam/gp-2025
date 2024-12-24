@@ -27,6 +27,8 @@ export const useClinicalInfo = (
     const fetchClinicalInfo = async () => {
       if (!script.id) return;
 
+      console.log("Fetching clinical info for script:", script.id);
+
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select(`
@@ -42,7 +44,7 @@ export const useClinicalInfo = (
       }
 
       if (reportCard?.clinical_info) {
-        console.log("Fetched clinical info:", reportCard.clinical_info);
+        console.log("Found clinical info:", reportCard.clinical_info);
         setFormData({
           insertion_date: reportCard.clinical_info.insertion_date || null,
           appliance_fit: reportCard.clinical_info.appliance_fit || "",
@@ -62,12 +64,8 @@ export const useClinicalInfo = (
   console.log("Current clinical info data:", formData);
 
   const handleFieldChange = (field: string, value: string) => {
-    if (field === 'insertion_date') {
-      setFormData(prev => ({ ...prev, [field]: value || null }));
-    } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
-    }
-    console.log(`Field ${field} changed to:`, value);
+    console.log(`Updating ${field} to:`, value);
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +95,8 @@ export const useClinicalInfo = (
 
       const submissionData = {
         ...formData,
-        insertion_date: formData.insertion_date || null
+        insertion_date: formData.insertion_date || null,
+        report_card_id: reportCard.id
       };
 
       if (reportCard.clinical_info_id) {
@@ -119,10 +118,7 @@ export const useClinicalInfo = (
         console.log("Creating new clinical info");
         const { data: newInfo, error: createError } = await supabase
           .from('clinical_info')
-          .insert({
-            ...submissionData,
-            report_card_id: reportCard.id
-          })
+          .insert(submissionData)
           .select()
           .single();
 

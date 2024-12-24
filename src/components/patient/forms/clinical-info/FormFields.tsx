@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 
 interface FormFieldsProps {
   formData: {
-    insertion_date: string;
+    insertion_date: string | null;
     appliance_fit: string;
     design_feedback: string;
     occlusion: string;
@@ -27,7 +27,7 @@ export const FormFields = ({ formData, onFieldChange, isSubmitting }: FormFields
         <Input
           id="insertion_date"
           type="date"
-          value={formData.insertion_date}
+          value={formData.insertion_date || ""}
           onChange={(e) => onFieldChange("insertion_date", e.target.value)}
           disabled={isSubmitting}
         />
