@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CardActions } from "./CardActions";
-import { StatusButton } from "../report-card/StatusButton";
 import { LabScript } from "@/types/labScript";
 
 interface LabScriptCardProps {
@@ -109,11 +108,6 @@ export const LabScriptCard = ({
             />
           </div>
         </div>
-        
-        <StatusButton
-          status={script.status}
-          onStatusChange={(newStatus) => onStatusChange(script, newStatus)}
-        />
       </div>
     </Card>
   );
