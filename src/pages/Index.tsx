@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PatientForm } from "@/components/PatientForm";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Mail, Phone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { createPatient, getPatients } from "@/utils/databaseUtils";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Patient {
-  id: number;
-  firstName: string;
-  lastName: string;
+  id: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   sex: string;
@@ -27,55 +29,76 @@ interface Patient {
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [patients, setPatients] = useState<Patient[]>(() => {
-    const savedPatients = localStorage.getItem('patients');
-    return savedPatients ? JSON.parse(savedPatients) : [
-      {
-        id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        email: "john@example.com",
-        phone: "123-456-7890",
-        sex: "male",
-        dob: "1990-01-01",
-      },
-      {
-        id: 2,
-        firstName: "Jane",
-        lastName: "Smith",
-        email: "jane@example.com",
-        phone: "098-765-4321",
-        sex: "female",
-        dob: "1985-05-15",
-      },
-    ];
-  });
-
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleAddPatient = (patientData: Omit<Patient, "id">) => {
-    const newPatient = {
-      ...patientData,
-      id: Date.now(),
-    };
-    const updatedPatients = [...patients, newPatient];
-    setPatients(updatedPatients);
-    localStorage.setItem('patients', JSON.stringify(updatedPatients));
-    
-    toast({
-      title: "Success",
-      description: "Patient added successfully",
-    });
+  // Fetch patients using React Query
+  const { data: patients = [], isLoading } = useQuery({
+    queryKey: ['patients'],
+    queryFn: getPatients,
+    onError: (error) => {
+      console.error('Error fetching patients:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load patients. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
-    // Navigate to the new patient's profile
-    navigate(`/patient/${newPatient.id}`);
+  // Create patient mutation
+  const createPatientMutation = useMutation({
+    mutationFn: createPatient,
+    onSuccess: (newPatient) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      toast({
+        title: "Success",
+        description: "Patient added successfully",
+      });
+      navigate(`/patient/${newPatient.id}`);
+    },
+    onError: (error) => {
+      console.error('Error creating patient:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create patient. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddPatient = async (patientData: Omit<Patient, "id">) => {
+    // Transform the data to match the database column names
+    const transformedData = {
+      first_name: patientData.firstName,
+      last_name: patientData.lastName,
+      email: patientData.email,
+      phone: patientData.phone,
+      sex: patientData.sex,
+      dob: patientData.dob,
+    };
+
+    createPatientMutation.mutate(transformedData);
   };
 
-  const filteredPatients = patients.filter((patient) =>
-    `${patient.firstName} ${patient.lastName}`
+  const filteredPatients = patients.filter((patient: Patient) =>
+    `${patient.first_name} ${patient.last_name}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <main className="container mx-auto py-8 px-4">
+          <div className="flex justify-center items-center h-64">
+            <p className="text-gray-500">Loading patients...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,22 +142,26 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPatients.map((patient) => (
+            {filteredPatients.map((patient: Patient) => (
               <Link
                 key={patient.id}
                 to={`/patient/${patient.id}`}
-                state={{ patientData: patient }}
+                state={{ patientData: {
+                  ...patient,
+                  firstName: patient.first_name,
+                  lastName: patient.last_name,
+                }}}
                 className="block group"
               >
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-primary/20">
                   <div className="flex items-start gap-4">
                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg">
-                      {patient.firstName[0]}
-                      {patient.lastName[0]}
+                      {patient.first_name[0]}
+                      {patient.last_name[0]}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary">
-                        {patient.firstName} {patient.lastName}
+                        {patient.first_name} {patient.last_name}
                       </h3>
                       <div className="mt-2 space-y-1">
                         <div className="flex items-center text-sm text-gray-500">
