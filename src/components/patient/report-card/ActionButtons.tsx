@@ -1,14 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowRight, Stethoscope, CheckCircle } from "lucide-react";
 import { LabScript } from "@/types/labScript";
+import { InfoStatus } from "@/types/reportCard";
 
 interface ActionButtonsProps {
   script: LabScript;
   onDesignInfo: (script: LabScript) => void;
   onClinicalInfo: () => void;
   onComplete: () => void;
-  designInfoStatus?: 'pending' | 'completed';
-  clinicalInfoStatus?: 'pending' | 'completed';
+  designInfoStatus?: InfoStatus;
+  clinicalInfoStatus?: InfoStatus;
 }
 
 export const ActionButtons = ({ 

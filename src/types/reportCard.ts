@@ -1,4 +1,5 @@
 import { Json } from "@/integrations/supabase/types";
+import { LabScript } from "./labScript";
 
 export interface DesignInfo {
   id?: string;
@@ -28,13 +29,15 @@ export interface ClinicalInfo {
   updated_at?: string;
 }
 
+export type InfoStatus = 'pending' | 'completed';
+
 export interface ReportCardState {
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
   designInfo?: DesignInfo;
   clinicalInfo?: ClinicalInfo;
-  designInfoStatus?: 'pending' | 'completed';
-  clinicalInfoStatus?: 'pending' | 'completed';
+  designInfoStatus?: InfoStatus;
+  clinicalInfoStatus?: InfoStatus;
 }
 
 export interface ReportCardData {
@@ -45,6 +48,13 @@ export interface ReportCardData {
   patient_id: string;
   design_info_id: string | null;
   clinical_info_id: string | null;
-  design_info_status: 'pending' | 'completed';
-  clinical_info_status: 'pending' | 'completed';
+  design_info_status: InfoStatus;
+  clinical_info_status: InfoStatus;
+}
+
+export interface ReportCardProps {
+  script: LabScript;
+  onDesignInfo: (script: LabScript) => void;
+  onClinicalInfo: () => void;
+  onUpdateScript?: (script: LabScript) => void;
 }

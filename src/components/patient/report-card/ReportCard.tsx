@@ -7,8 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ClinicalInfoForm } from "../forms/ClinicalInfoForm";
 import { ReportCardDialog } from "./ReportCardDialog";
-import { saveReportCardState, getReportCardState } from '@/utils/reportCardUtils';
-import { ReportCardState } from '@/types/reportCard';
+import { ReportCardState, ReportCardProps, InfoStatus } from '@/types/reportCard';
 import { format } from "date-fns";
 import { ScriptTitle } from './ScriptTitle';
 import { ProgressTracking } from './ProgressTracking';
@@ -39,8 +38,8 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
           setReportCardState({
             isDesignInfoComplete: !!reportCard.design_info_id,
             isClinicalInfoComplete: !!reportCard.clinical_info_id,
-            designInfoStatus: reportCard.design_info_status,
-            clinicalInfoStatus: reportCard.clinical_info_status
+            designInfoStatus: reportCard.design_info_status as InfoStatus,
+            clinicalInfoStatus: reportCard.clinical_info_status as InfoStatus
           });
         }
       } catch (error) {
@@ -170,11 +169,13 @@ export const ReportCard = ({ script, onDesignInfo, onClinicalInfo, onUpdateScrip
             script={script}
             onSave={async (updatedScript) => {
               try {
-                await saveReportCardState(script.id, {
+                const newState = {
                   ...reportCardState,
                   isClinicalInfoComplete: true,
+                  clinicalInfoStatus: 'completed' as InfoStatus,
                   clinicalInfo: updatedScript.clinicalInfo
-                });
+                };
+                setReportCardState(newState);
                 
                 if (onUpdateScript) {
                   onUpdateScript(updatedScript);
