@@ -36,9 +36,9 @@ export const MedicalFormCard = ({
       </div>
       <div className="flex gap-2">
         <Button 
-          variant={showDelete ? "outline" : "default"}
+          variant="outline"
           onClick={onAction}
-          className="text-sm gap-2"
+          className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
           disabled={isDisabled}
         >
           <FileText className="w-4 h-4" />
@@ -48,10 +48,9 @@ export const MedicalFormCard = ({
           <Button
             variant="outline"
             onClick={onDelete}
-            className="text-sm gap-2 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
+            className="w-9 h-9 p-0 flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/30"
           >
-            <Trash2 className="w-4 h-4" />
-            Delete
+            <Trash2 className="w-4 h-4 text-destructive" />
           </Button>
         )}
       </div>
