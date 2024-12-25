@@ -73,6 +73,7 @@ export const LabScriptCard = ({
   };
 
   const handleStatusChange = (newStatus: LabScript['status']) => {
+    console.log("Handling status change in LabScriptCard:", script.id, newStatus);
     onStatusChange(script, newStatus);
   };
 
@@ -112,6 +113,7 @@ export const LabScriptCard = ({
               onDelete={onDelete}
             />
             <StatusButton 
+              script={script}
               status={script.status} 
               onStatusChange={handleStatusChange}
             />

@@ -4,18 +4,18 @@ import { LabScript } from "@/types/labScript";
 import { useStatusUpdater } from "./StatusUpdater";
 
 interface StatusButtonProps {
-  status: LabScript['status'];
   script: LabScript;
-  onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
+  status: LabScript['status'];
+  onStatusChange: (newStatus: LabScript['status']) => void;
 }
 
-export const StatusButton = ({ status, script, onStatusChange }: StatusButtonProps) => {
+export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
   const { updateStatus, isUpdating } = useStatusUpdater();
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
-    const updatedScript = await updateStatus(script, newStatus);
-    if (updatedScript) {
-      onStatusChange(script, newStatus);
+    const success = await updateStatus(newStatus);
+    if (success) {
+      onStatusChange(newStatus);
     }
   };
 
