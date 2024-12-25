@@ -9,14 +9,43 @@ import { Link } from "react-router-dom";
 import { User, LayoutGrid, List } from "lucide-react";
 import { PatientAvatar } from "./header/PatientAvatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "./table/DataTable";
 import { columns } from "./table/columns";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const PatientList = () => {
   const { toast } = useToast();
   const { searchQuery } = usePatientStore();
   const [viewMode, setViewMode] = useState<'card' | 'list'>('list');
+  const queryClient = useQueryClient();
+
+  // Set up real-time subscription
+  useEffect(() => {
+    console.log('Setting up real-time subscription for patients');
+    const channel = supabase
+      .channel('patient-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'patients'
+        },
+        (payload) => {
+          console.log('Received real-time update:', payload);
+          // Invalidate and refetch patients data
+          queryClient.invalidateQueries({ queryKey: ['patients'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
