@@ -22,25 +22,25 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
   const diagrams = {
     mallampati: [
       {
-        src: getPublicUrl('mallampati-1.png.png'),
+        src: getPublicUrl('mallampati-1.png'),
         alt: "Mallampati Score Class I",
         value: "class_1",
         description: "Soft palate, uvula, fauces, pillars visible"
       },
       {
-        src: getPublicUrl('mallampati-2.png.png'),
+        src: getPublicUrl('mallampati-2.png'),
         alt: "Mallampati Score Class II",
         value: "class_2",
         description: "Soft palate, uvula, fauces visible"
       },
       {
-        src: getPublicUrl('mallampati-3.png.png'),
+        src: getPublicUrl('mallampati-3.png'),
         alt: "Mallampati Score Class III",
         value: "class_3",
         description: "Soft palate, base of uvula visible"
       },
       {
-        src: getPublicUrl('mallampati-4.png.png'),
+        src: getPublicUrl('mallampati-4.png'),
         alt: "Mallampati Score Class IV",
         value: "class_4",
         description: "Only hard palate visible"
@@ -48,25 +48,25 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
     ],
     malocclusion: [
       {
-        src: getPublicUrl('malocclusion-normal.png.png'),
+        src: getPublicUrl('malocclusion-normal.png'),
         alt: "Normal Bite",
         value: "normal",
         description: "Normal occlusion"
       },
       {
-        src: getPublicUrl('malocclusion-Cross.png.png'),
+        src: getPublicUrl('malocclusion-cross.png'),
         alt: "Cross Bite",
         value: "cross_bite",
         description: "Cross bite"
       },
       {
-        src: getPublicUrl('malocclusion-Open.png.png'),
+        src: getPublicUrl('malocclusion-open.png'),
         alt: "Open Bite",
         value: "open_bite",
         description: "Open bite"
       },
       {
-        src: getPublicUrl('malocclusion-deep.png.png'),
+        src: getPublicUrl('malocclusion-deep.png'),
         alt: "Deep Bite",
         value: "deep_bite",
         description: "Deep bite"
