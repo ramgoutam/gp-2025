@@ -46,23 +46,19 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
-                  ? activeStep === index 
-                    ? "bg-primary border-primary text-white" // Active completed step shows number
-                    : "bg-primary border-primary text-white" // Completed step shows checkmark
+                  ? "bg-primary border-primary text-white"
                   : step.status === "current"
                   ? "bg-white border-2 border-primary text-primary"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
-              {step.status === "completed" && activeStep !== index ? (
+              {step.status === "completed" ? (
                 <Check className="h-4 w-4 text-white" />
               ) : (
                 <span
                   className={`text-sm font-medium ${
                     step.status === "current"
                       ? "text-primary"
-                      : step.status === "completed" && activeStep === index
-                      ? "text-white"
                       : "text-gray-400"
                   }`}
                 >

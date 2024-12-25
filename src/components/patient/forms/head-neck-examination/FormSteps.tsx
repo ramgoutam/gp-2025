@@ -29,12 +29,20 @@ export const FormSteps = ({
 
   // Helper function to determine step status
   const getStepStatus = (stepIndex: number): "completed" | "current" | "upcoming" => {
+    // First check if the step is marked as completed
     if (completedSteps.includes(stepIndex)) {
       return "completed";
     }
     
+    // Then check if it's the current step
     if (currentStep === stepIndex) {
       return "current";
+    }
+
+    // Check if the step has data filled
+    const stepData = getStepData(stepIndex);
+    if (stepData && hasFilledFields(stepData)) {
+      return "completed";
     }
     
     return "upcoming";
@@ -89,7 +97,11 @@ export const FormSteps = ({
 
   const handleStepClick = (stepIndex: number) => {
     console.log("Step clicked:", stepIndex);
-    onStepChange?.(stepIndex);
+    // Only allow clicking on completed steps or the current step
+    const status = getStepStatus(stepIndex);
+    if (status === "completed" || status === "current") {
+      onStepChange?.(stepIndex);
+    }
   };
 
   const steps = [
@@ -136,5 +148,5 @@ export const FormSteps = ({
   ];
 
   console.log("Progress bar steps:", steps);
-  return <ProgressBar steps={steps} onStepClick={handleStepClick} />;
+  return <ProgressBar steps={steps} onStepClick={handleStepClick} activeStep={currentStep} />;
 };
