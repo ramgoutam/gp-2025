@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Trash2, Eye } from "lucide-react";
+import { FileText, Trash2, Eye, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -17,10 +17,12 @@ interface MedicalFormCardProps {
   onDelete?: () => void;
   onAction: () => void;
   onView?: () => void;
+  onDownload?: () => void;
   actionLabel: string;
   isDisabled?: boolean;
   showDelete?: boolean;
   showView?: boolean;
+  showDownload?: boolean;
 }
 
 export const MedicalFormCard = ({
@@ -30,10 +32,12 @@ export const MedicalFormCard = ({
   onDelete,
   onAction,
   onView,
+  onDownload,
   actionLabel,
   isDisabled = false,
   showDelete = false,
   showView = false,
+  showDownload = false,
 }: MedicalFormCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -55,6 +59,16 @@ export const MedicalFormCard = ({
           </div>
         </div>
         <div className="flex gap-2">
+          {showDownload && (
+            <Button
+              variant="outline"
+              onClick={onDownload}
+              className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </Button>
+          )}
           <Button 
             variant="outline"
             onClick={onAction}

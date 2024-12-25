@@ -281,8 +281,10 @@ export const MedicalFormsContent = () => {
             actionLabel={existingExamination ? "Edit" : "Fill Form"}
             showDelete={!!existingExamination}
             showView={!!existingExamination}
+            showDownload={!!existingExamination}
             onDelete={handleDeleteExamination}
             onView={() => setShowExaminationSummary(true)}
+            onDownload={handleDownloadExamination}
           />
 
           <MedicalFormCard
