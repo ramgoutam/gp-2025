@@ -17,11 +17,12 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     { id: "head_pain", label: "Head Pain" },
     { id: "jaw_pain", label: "Jaw Pain (R68.84)", code: "R68.84" },
     { id: "oral_infection", label: "Oral Infection (ICD K04.7)", code: "K04.7" },
+    { id: "gastrointestinal_issues", label: "Gastro-intestional Issues/Difficulty Swallowing (R13.11)", code: "R13.11" },
   ];
 
   const symptoms = [
     { id: "swelling_inflammation", label: "Swelling/Inflammation" },
-    { id: "digestive_problems", label: "Digestive Problems or Gastro-intestional Issues/Difficulty Swallowing (R13.11)", code: "R13.11" },
+    { id: "digestive_problems", label: "Digestive Problems" },
     { id: "limited_diet", label: "Limited Diet/Soft Diet" },
     { id: "difficulty_chewing", label: "Difficulty Chewing" },
     { id: "pain_when_chewing", label: "Pain When Chewing" },
