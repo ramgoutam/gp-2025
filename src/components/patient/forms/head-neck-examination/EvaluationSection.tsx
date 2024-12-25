@@ -19,6 +19,12 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     "Focal Intra-osseous Pathology",
     "Diffused Intra-osseous Pathology"
   ];
+  const airwayOptions = [
+    "Adequate airway patency",
+    "Mild airway constriction",
+    "Moderately compromised airway",
+    "Severely compromised airway"
+  ];
 
   const handleTextChange = (field: string) => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     console.log(`Updating ${field}:`, e.target.value);
@@ -31,7 +37,6 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
   const handleSelectionChange = (side: 'left' | 'right', option: string) => {
     console.log(`Updating ${side} maxillary sinus:`, option);
     
-    // Parse current selections
     let currentSelections: string[] = [];
     try {
       const parsedSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side] || '[]');
@@ -41,14 +46,12 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
       currentSelections = [];
     }
     
-    // Toggle selection
     const updatedSelections = currentSelections.includes(option)
       ? currentSelections.filter(item => item !== option)
       : [...currentSelections, option];
 
     console.log(`Updated selections for ${side}:`, updatedSelections);
     
-    // Update form data
     setFormData({
       ...formData,
       maxillary_sinuses_evaluation: {
@@ -61,7 +64,6 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
   const handleEvaluationChange = (option: string) => {
     console.log(`Updating evaluation notes:`, option);
     
-    // Parse current selections
     let currentSelections: string[] = [];
     try {
       const parsedSelections = JSON.parse(formData.evaluation_notes || '[]');
@@ -71,17 +73,23 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
       currentSelections = [];
     }
     
-    // Toggle selection
     const updatedSelections = currentSelections.includes(option)
       ? currentSelections.filter(item => item !== option)
       : [...currentSelections, option];
 
     console.log(`Updated evaluation selections:`, updatedSelections);
     
-    // Update form data
     setFormData({
       ...formData,
       evaluation_notes: JSON.stringify(updatedSelections)
+    });
+  };
+
+  const handleAirwayChange = (option: string) => {
+    console.log(`Updating airway evaluation:`, option);
+    setFormData({
+      ...formData,
+      airway_evaluation: option
     });
   };
 
@@ -173,13 +181,19 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           <Label htmlFor="airway_evaluation" className="text-xl font-bold text-primary">
             AIRWAY EVALUATION
           </Label>
-          <textarea
-            id="airway_evaluation"
-            value={formData.airway_evaluation || ""}
-            onChange={handleTextChange("airway_evaluation")}
-            className="mt-2 min-h-[100px] w-full border rounded p-2"
-            placeholder="Enter airway evaluation..."
-          />
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {airwayOptions.map((option) => (
+              <Button
+                key={option}
+                type="button"
+                variant={formData.airway_evaluation === option ? "default" : "outline"}
+                onClick={() => handleAirwayChange(option)}
+                className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
