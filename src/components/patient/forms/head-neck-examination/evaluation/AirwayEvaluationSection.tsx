@@ -71,12 +71,7 @@ export const AirwayEvaluationSection = ({ formData, setFormData }: AirwayEvaluat
         </div>
       </div>
 
-      <div>
-        <Label className="text-xl font-bold text-primary mb-4">
-          AIRWAY EVALUATION IMAGE
-        </Label>
-        <AirwayImageUpload formData={formData} setFormData={setFormData} />
-      </div>
+      <AirwayImageUpload formData={formData} setFormData={setFormData} />
     </div>
   );
 };
