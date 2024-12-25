@@ -5,11 +5,9 @@ import { LabScriptCard } from "./lab-script-details/LabScriptCard";
 import { EmptyState } from "./report-card/EmptyState";
 import { LabScriptHeader } from "./lab-script-details/LabScriptHeader";
 import { ProgressBar } from "./ProgressBar";
-import { updateLabScript } from "@/utils/databaseUtils";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type LabScriptsTabProps = {
@@ -24,42 +22,31 @@ type LabScriptsTabProps = {
 };
 
 export const LabScriptsTab = ({ 
-  labScripts, 
+  labScripts: initialLabScripts, 
   onCreateLabScript, 
   onEditLabScript,
   onDeleteLabScript,
   patientData 
 }: LabScriptsTabProps) => {
-  const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  // Query for enriched lab scripts with millisecond refresh
+  // Query for enriched lab scripts with real-time updates
   const { data: enrichedLabScripts = [] } = useQuery({
-    queryKey: ['enrichedLabScripts', labScripts],
+    queryKey: ['enrichedLabScripts', initialLabScripts],
     queryFn: async () => {
       try {
-        console.log("Fetching enriched lab scripts data");
+        console.log("Enriching lab scripts data");
         const enrichedScripts = await Promise.all(
-          labScripts.map(async (script) => {
-            console.log("Fetching report card data for script:", script.id);
-            
+          initialLabScripts.map(async (script) => {
             const { data: reportCardData, error: reportCardError } = await supabase
               .from('report_cards')
               .select(`
                 *,
-                design_info:design_info_id(
-                  id, design_date, appliance_type, upper_treatment, 
-                  lower_treatment, screw, implant_library, teeth_library, 
-                  actions_taken, report_card_id, created_at, updated_at
-                ),
-                clinical_info:clinical_info_id(
-                  id, insertion_date, appliance_fit, design_feedback, 
-                  occlusion, esthetics, adjustments_made, material, 
-                  shade, report_card_id, created_at, updated_at
-                )
+                design_info:design_info_id(*),
+                clinical_info:clinical_info_id(*)
               `)
               .eq('lab_script_id', script.id)
               .maybeSingle();
@@ -69,31 +56,22 @@ export const LabScriptsTab = ({
               return script;
             }
 
-            if (reportCardData) {
-              return {
-                ...script,
-                designInfo: reportCardData.design_info,
-                clinicalInfo: reportCardData.clinical_info,
-                reportCard: {
-                  ...reportCardData,
-                  design_info: undefined,
-                  clinical_info: undefined
-                }
-              };
-            }
-
-            return script;
+            return {
+              ...script,
+              designInfo: reportCardData?.design_info,
+              clinicalInfo: reportCardData?.clinical_info,
+              reportCard: reportCardData ? {
+                ...reportCardData,
+                design_info: undefined,
+                clinical_info: undefined
+              } : undefined
+            };
           })
         );
 
-        const sortedScripts = enrichedScripts.sort((a, b) => {
-          const dateA = new Date(a.requestDate).getTime();
-          const dateB = new Date(b.requestDate).getTime();
-          return dateB - dateA;
+        return enrichedScripts.sort((a, b) => {
+          return new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime();
         });
-
-        console.log("Sorted and enriched scripts:", sortedScripts);
-        return sortedScripts;
       } catch (error) {
         console.error("Error enriching lab scripts:", error);
         toast({
@@ -101,26 +79,33 @@ export const LabScriptsTab = ({
           description: "Failed to load some script details",
           variant: "destructive"
         });
-        return [];
+        return initialLabScripts;
       }
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1000, // Refetch every second for other updates
   });
 
+  // Set up real-time subscription for lab script status updates
   useEffect(() => {
-    // Set up real-time subscription for report cards
     const channel = supabase
-      .channel('report-cards-changes')
+      .channel('lab-scripts-status')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'report_cards'
+          table: 'lab_scripts',
+          filter: `id=in.(${initialLabScripts.map(s => `'${s.id}'`).join(',')})`
         },
-        (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log("Report card changed:", payload);
-          queryClient.invalidateQueries({ queryKey: ['enrichedLabScripts'] });
+        (payload) => {
+          console.log("Lab script updated:", payload);
+          // Update the specific script in the cache
+          queryClient.setQueryData(['enrichedLabScripts', initialLabScripts], (old: any) => {
+            if (!old) return old;
+            return old.map((script: LabScript) => 
+              script.id === payload.new.id ? { ...script, ...payload.new } : script
+            );
+          });
         }
       )
       .subscribe();
@@ -128,7 +113,7 @@ export const LabScriptsTab = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [initialLabScripts, queryClient]);
 
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
@@ -143,17 +128,15 @@ export const LabScriptsTab = ({
   };
 
   const handleScriptEdit = (updatedScript: LabScript) => {
-    console.log("Handling script edit in LabScriptsTab:", updatedScript);
+    console.log("Handling script edit:", updatedScript);
     onEditLabScript(updatedScript);
     setSelectedScript(null);
     setIsEditing(false);
   };
 
-  const handleStatusChange = async (script: LabScript, newStatus: LabScript['status']) => {
-    console.log("Handling status change:", script.id, newStatus);
-    const updatedScript = { ...script, status: newStatus };
-    onEditLabScript(updatedScript);
-    await updateLabScript(updatedScript);
+  const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
+    console.log("Status changed for script:", script.id, newStatus);
+    // The UI will be updated through the real-time subscription
   };
 
   const patientName = patientData 
@@ -161,10 +144,7 @@ export const LabScriptsTab = ({
     : "Patient";
 
   const progressSteps = [
-    { 
-      label: "Request Created", 
-      status: "completed" as const 
-    },
+    { label: "Request Created", status: "completed" as const },
     { 
       label: "Design Info", 
       status: selectedScript?.designInfo ? "completed" as const : "current" as const 
