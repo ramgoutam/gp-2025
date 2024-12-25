@@ -43,6 +43,10 @@ export const FormSteps = ({ currentStep }: FormStepsProps) => {
     { 
       label: "Tactile & Radiographic", 
       status: currentStep === 7 ? "current" : currentStep > 7 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Evaluation", 
+      status: currentStep === 8 ? "current" : currentStep > 8 ? "completed" : "upcoming"
     }
   ];
 
