@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CardActions } from "./CardActions";
 import { StatusButton } from "./StatusButton";
-import { LabScript } from "@/types/labScript";
+import { LabScript, DatabaseLabScript, mapDatabaseLabScript } from "@/types/labScript";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,7 +39,8 @@ export const LabScriptCard = ({
         return script;
       }
 
-      return data || script;
+      // Map the database response to our LabScript type
+      return data ? mapDatabaseLabScript(data as DatabaseLabScript) : script;
     },
     refetchInterval: 1, // Refetch every millisecond
     initialData: script,
@@ -101,6 +102,15 @@ export const LabScriptCard = ({
     onStatusChange(updatedScript, newStatus);
   };
 
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy");
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error);
+      return "Invalid date";
+    }
+  };
+
   return (
     <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-gradient-to-br from-white to-purple-50/30 animate-fade-in">
       <div className="space-y-6">
@@ -117,10 +127,10 @@ export const LabScriptCard = ({
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <span>Created: {format(new Date(updatedScript.requestDate), "MMM dd, yyyy")}</span>
+                <span>Created: {formatDate(updatedScript.requestDate)}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span>Due: {format(new Date(updatedScript.dueDate), "MMM dd, yyyy")}</span>
+                <span>Due: {formatDate(updatedScript.dueDate)}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span>Doctor: {updatedScript.doctorName}</span>
