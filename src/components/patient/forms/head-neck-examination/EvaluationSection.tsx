@@ -21,7 +21,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
       <div className="space-y-4">
         <div>
           <Label htmlFor="evaluation_notes" className="text-base font-semibold">
-            EVALUATION
+            Radiographic Examination
           </Label>
           <Textarea
             id="evaluation_notes"
