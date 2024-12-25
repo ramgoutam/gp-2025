@@ -38,7 +38,14 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
+    console.log("Form submission triggered");
+    
+    if (currentStep !== totalSteps - 1) {
+      console.log("Not on final step, preventing submission");
+      return; // Only allow submission on the final step
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -67,6 +74,16 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
     }
   };
 
+  const handleNextStep = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission on next button click
+    handleNext();
+  };
+
+  const handlePreviousStep = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission on previous button click
+    handlePrevious();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
       <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
@@ -81,7 +98,7 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
         <Button
           type="button"
           variant="outline"
-          onClick={handlePrevious}
+          onClick={handlePreviousStep}
           disabled={currentStep === 0}
           className="flex items-center gap-2"
         >
@@ -100,7 +117,7 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
         ) : (
           <Button
             type="button"
-            onClick={handleNext}
+            onClick={handleNextStep}
             className="flex items-center gap-2"
           >
             Next
