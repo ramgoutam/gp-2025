@@ -73,17 +73,17 @@ export const TactileRadiographicSection = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="text-lg font-semibold">Tactile Observation</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {tactileOptions.map((option) => (
             <Button
               key={option.id}
               variant={formData.tactile_observation?.[option.id] ? "default" : "outline"}
               onClick={() => handleTactileChange(option.id)}
               className={cn(
-                "w-full min-h-[64px] justify-start text-left font-normal p-3 whitespace-normal break-words",
+                "h-auto min-h-[48px] justify-start text-left text-sm font-normal p-2 whitespace-normal break-words",
                 formData.tactile_observation?.[option.id] && "bg-primary text-primary-foreground"
               )}
             >
@@ -93,16 +93,16 @@ export const TactileRadiographicSection = ({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="text-lg font-semibold">Radiographic Presentation</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {radiographicOptions.map((option) => (
             <Button
               key={option.id}
               variant={formData.radiographic_presentation?.[option.id] ? "default" : "outline"}
               onClick={() => handleRadiographicChange(option.id)}
               className={cn(
-                "w-full min-h-[64px] justify-start text-left font-normal p-3 whitespace-normal break-words",
+                "h-auto min-h-[48px] justify-start text-left text-sm font-normal p-2 whitespace-normal break-words",
                 formData.radiographic_presentation?.[option.id] && "bg-primary text-primary-foreground"
               )}
             >
@@ -112,13 +112,13 @@ export const TactileRadiographicSection = ({
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
           <Button
             variant={formData.tomography_data?.completed ? "default" : "outline"}
             onClick={handleTomographyChange}
             className={cn(
-              "min-h-[64px] justify-start text-left font-normal p-3 whitespace-normal break-words",
+              "h-auto min-h-[48px] justify-start text-left text-sm font-normal p-2 whitespace-normal break-words",
               formData.tomography_data?.completed && "bg-primary text-primary-foreground"
             )}
           >
@@ -130,7 +130,7 @@ export const TactileRadiographicSection = ({
               type="date"
               value={formData.tomography_data?.service_date || ""}
               onChange={handleDateChange}
-              className="w-full px-3 py-2 border rounded-md"
+              className="w-full px-2 py-1.5 text-sm border rounded-md"
             />
           </div>
         </div>
