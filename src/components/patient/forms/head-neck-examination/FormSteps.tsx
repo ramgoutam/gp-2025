@@ -1,27 +1,58 @@
 import { ProgressBar } from "../../ProgressBar";
 
+interface Step {
+  label: string;
+  status: "completed" | "current" | "upcoming";
+}
+
 interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
-  stepsStatus: ("completed" | "current" | "upcoming")[];
 }
 
-export const FormSteps = ({ currentStep, stepsStatus }: FormStepsProps) => {
-  const steps = [
-    { label: "Patient Information & Vital Signs", status: stepsStatus[0] },
-    { label: "Medical History", status: stepsStatus[1] },
-    { label: "Chief Complaints", status: stepsStatus[2] },
-    { label: "Extra-Oral Examination", status: stepsStatus[3] },
-    { label: "Intra-Oral Examination", status: stepsStatus[4] },
-    { label: "Dental Classification", status: stepsStatus[5] },
-    { label: "Functional Presentation", status: stepsStatus[6] },
-    { label: "Tactile & Radiographic", status: stepsStatus[7] },
-    { label: "Evaluation", status: stepsStatus[8] },
-    { label: "Guideline Questions", status: stepsStatus[9] }
-  ].map(step => ({
-    ...step,
-    status: step.status as "completed" | "current" | "upcoming"
-  }));
+export const FormSteps = ({ currentStep }: FormStepsProps) => {
+  const steps: Step[] = [
+    { 
+      label: "Patient Information & Vital Signs", 
+      status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Medical History", 
+      status: currentStep === 1 ? "current" : currentStep > 1 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Chief Complaints", 
+      status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Extra-Oral Examination", 
+      status: currentStep === 3 ? "current" : currentStep > 3 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Intra-Oral Examination", 
+      status: currentStep === 4 ? "current" : currentStep > 4 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Dental Classification", 
+      status: currentStep === 5 ? "current" : currentStep > 5 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Functional Presentation", 
+      status: currentStep === 6 ? "current" : currentStep > 6 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Tactile & Radiographic", 
+      status: currentStep === 7 ? "current" : currentStep > 7 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Evaluation", 
+      status: currentStep === 8 ? "current" : currentStep > 8 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Guideline Questions", 
+      status: currentStep === 9 ? "current" : currentStep > 9 ? "completed" : "upcoming"
+    }
+  ];
 
   return <ProgressBar steps={steps} />;
 };

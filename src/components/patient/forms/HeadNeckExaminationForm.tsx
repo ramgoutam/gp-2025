@@ -39,7 +39,7 @@ export const HeadNeckExaminationForm = ({
     status: "draft"
   });
 
-  const { currentStep, handleNext, handlePrevious, totalSteps, stepsStatus } = useFormSteps(formData);
+  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps(formData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -164,11 +164,7 @@ export const HeadNeckExaminationForm = ({
       </div>
       
       <div className="p-6 space-y-6">
-        <FormSteps 
-          currentStep={currentStep} 
-          totalSteps={totalSteps} 
-          stepsStatus={stepsStatus}
-        />
+        <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
         
         <FormContent 
           currentStep={currentStep} 

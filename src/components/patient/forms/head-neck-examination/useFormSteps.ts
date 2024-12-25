@@ -8,8 +8,23 @@ export const useFormSteps = (formData?: any) => {
   useEffect(() => {
     if (formData) {
       console.log("Calculating initial step based on form data:", formData);
-      // Always start from the first step when editing
-      setCurrentStep(0);
+      let lastCompletedStep = 0;
+
+      // Check each section in order to find the last completed step
+      if (formData.vital_signs && Object.keys(formData.vital_signs).length > 0) lastCompletedStep = 1;
+      if (formData.medical_history && Object.keys(formData.medical_history).length > 0) lastCompletedStep = 2;
+      if (formData.chief_complaints && Object.keys(formData.chief_complaints).length > 0) lastCompletedStep = 3;
+      if (formData.extra_oral_examination && Object.keys(formData.extra_oral_examination).length > 0) lastCompletedStep = 4;
+      if (formData.intra_oral_examination && Object.keys(formData.intra_oral_examination).length > 0) lastCompletedStep = 5;
+      if (formData.dental_classification && Object.keys(formData.dental_classification).length > 0) lastCompletedStep = 6;
+      if (formData.functional_presentation && Object.keys(formData.functional_presentation).length > 0) lastCompletedStep = 7;
+      if ((formData.tactile_observation && Object.keys(formData.tactile_observation).length > 0) || 
+          (formData.radiographic_presentation && Object.keys(formData.radiographic_presentation).length > 0)) lastCompletedStep = 8;
+      if (formData.evaluation_notes || formData.maxillary_sinuses_evaluation || formData.airway_evaluation) lastCompletedStep = 9;
+      if (formData.guideline_questions && Object.keys(formData.guideline_questions).length > 0) lastCompletedStep = 10;
+
+      console.log("Setting initial step to:", lastCompletedStep);
+      setCurrentStep(lastCompletedStep);
     }
   }, [formData]);
 
@@ -27,42 +42,10 @@ export const useFormSteps = (formData?: any) => {
     }
   };
 
-  // Calculate completion status for progress bar
-  const getStepsStatus = () => {
-    const steps = [];
-    
-    // Define the checks for each step
-    const stepChecks = [
-      { data: formData?.vital_signs, key: 'vital_signs' },
-      { data: formData?.medical_history, key: 'medical_history' },
-      { data: formData?.chief_complaints, key: 'chief_complaints' },
-      { data: formData?.extra_oral_examination, key: 'extra_oral_examination' },
-      { data: formData?.intra_oral_examination, key: 'intra_oral_examination' },
-      { data: formData?.dental_classification, key: 'dental_classification' },
-      { data: formData?.functional_presentation, key: 'functional_presentation' },
-      { data: formData?.tactile_observation || formData?.radiographic_presentation, key: 'tactile_radiographic' },
-      { data: formData?.evaluation_notes || formData?.maxillary_sinuses_evaluation || formData?.airway_evaluation, key: 'evaluation' },
-      { data: formData?.guideline_questions, key: 'guideline_questions' }
-    ];
-
-    stepChecks.forEach((check, index) => {
-      const isCompleted = check.data && 
-        (typeof check.data === 'object' ? Object.keys(check.data).length > 0 : Boolean(check.data));
-      
-      const status = isCompleted ? "completed" : 
-        index === currentStep ? "current" : "upcoming";
-      
-      steps.push(status);
-    });
-
-    return steps;
-  };
-
   return {
     currentStep,
     handleNext,
     handlePrevious,
     totalSteps,
-    stepsStatus: getStepsStatus()
   };
 };
