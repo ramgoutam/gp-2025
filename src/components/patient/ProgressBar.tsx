@@ -46,15 +46,17 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               />
             )}
           </div>
-          <span
-            className={`text-xs font-medium mt-2 text-center ${
-              step.status === "completed" || step.status === "current"
-                ? "text-gray-900"
-                : "text-gray-400"
-            }`}
-          >
-            {step.label}
-          </span>
+          <div className="w-8 mt-2">
+            <span
+              className={`text-xs font-medium text-center block ${
+                step.status === "completed" || step.status === "current"
+                  ? "text-gray-900"
+                  : "text-gray-400"
+              }`}
+            >
+              {step.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>
