@@ -2,19 +2,8 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { validateGoogleApiKey, getPlaceSuggestions, PlaceSuggestion } from "@/utils/googlePlaces";
-import { FormField } from "@/components/patient/form/FormField";
-import { AddressField } from "@/components/patient/form/AddressField";
-import { SexField } from "@/components/patient/form/SexField";
-
-interface PatientFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  sex: string;
-  dob: string;
-  address: string;
-}
+import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
+import { PatientFormData } from "@/types/patient";
 
 interface PatientFormProps {
   initialData?: PatientFormData;
@@ -29,6 +18,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     lastName: "",
     email: "",
     phone: "",
+    emergencyPhone: "",
     sex: "",
     dob: "",
     address: "",
@@ -126,6 +116,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         lastName: "",
         email: "",
         phone: "",
+        emergencyPhone: "",
         sex: "",
         dob: "",
         address: "",
@@ -140,60 +131,14 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
-      <FormField
-        id="firstName"
-        label="First Name"
-        value={formData.firstName}
-        onChange={handleChange}
-        required
-      />
-
-      <FormField
-        id="lastName"
-        label="Last Name"
-        value={formData.lastName}
-        onChange={handleChange}
-        required
-      />
-
-      <FormField
-        id="email"
-        label="Email"
-        type="email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-
-      <FormField
-        id="phone"
-        label="Phone"
-        type="tel"
-        value={formData.phone}
-        onChange={handleChange}
-        required
-      />
-
-      <AddressField
-        value={formData.address}
-        onChange={handleAddressChange}
+      <PatientFormFields
+        formData={formData}
+        handleChange={handleChange}
+        handleAddressChange={handleAddressChange}
         suggestions={suggestions}
         showSuggestions={showSuggestions}
         onSuggestionClick={handleSuggestionClick}
-      />
-
-      <SexField
-        value={formData.sex}
-        onChange={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
-      />
-
-      <FormField
-        id="dob"
-        label="Date of Birth"
-        type="date"
-        value={formData.dob}
-        onChange={handleChange}
-        required
+        setSex={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
       />
 
       <Button type="submit" className="w-full">

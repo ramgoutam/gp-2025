@@ -39,6 +39,7 @@ export const PatientHeader = ({
           last_name: updatedData.lastName,
           email: updatedData.email,
           phone: updatedData.phone,
+          emergency_phone: updatedData.emergencyPhone,
           sex: updatedData.sex,
           dob: updatedData.dob,
           address: updatedData.address,
