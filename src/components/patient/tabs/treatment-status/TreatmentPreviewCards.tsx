@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PreviewCard } from "./PreviewCard";
 import { ApplianceCard } from "./ApplianceCard";
+import { PatientUpdateData } from "@/types/patient";
 
 interface TreatmentPreviewProps {
   surgeryDate?: string;
@@ -41,9 +42,13 @@ export const TreatmentPreviewCards = ({
     
     setIsUpdating(true);
     try {
+      const updateData: PatientUpdateData = {
+        surgery_date: newSurgeryDate
+      };
+
       const { error } = await supabase
         .from('patients')
-        .update({ surgery_date: newSurgeryDate })
+        .update(updateData)
         .eq('id', patientId);
 
       if (error) throw error;
