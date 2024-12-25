@@ -53,7 +53,7 @@ export const MedicalFormsContent = () => {
         if (Object.keys(data.intra_oral_examination || {}).length > 0) completed.push(4);
         if (Object.keys(data.dental_classification || {}).length > 0) completed.push(5);
         if (Object.keys(data.functional_presentation || {}).length > 0) completed.push(6);
-        if (Object.keys(data.tactile_observation || {}).length > 0 || 
+        if (Object.keys(data.tactile_observation || {}) || 
             Object.keys(data.radiographic_presentation || {}).length > 0) completed.push(7);
         if (data.evaluation_notes || data.maxillary_sinuses_evaluation || 
             data.airway_evaluation) completed.push(8);
@@ -111,6 +111,37 @@ export const MedicalFormsContent = () => {
     }
   };
 
+  const handleDownloadExamination = () => {
+    if (!existingExamination) return;
+    
+    // Convert formData to a formatted string
+    const formattedData = JSON.stringify(existingExamination, null, 2);
+    
+    // Create a blob with the data
+    const blob = new Blob([formattedData], { type: 'application/json' });
+    
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create a temporary anchor element
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `head-neck-examination-${patientId}.json`;
+    
+    // Trigger the download
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: "Examination data downloaded successfully.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
@@ -127,8 +158,10 @@ export const MedicalFormsContent = () => {
             actionLabel={existingExamination ? "Edit" : "Fill Form"}
             showDelete={!!existingExamination}
             showView={!!existingExamination}
+            showDownload={!!existingExamination}
             onDelete={handleDeleteExamination}
             onView={() => setShowExaminationSummary(true)}
+            onDownload={handleDownloadExamination}
           />
 
           <MedicalFormCard
