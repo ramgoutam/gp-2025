@@ -17,11 +17,11 @@ export const FormSteps = ({ currentStep, totalSteps }: FormStepsProps) => {
       status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming" 
     },
     { 
-      label: "Chief Complaints", 
+      label: "Medical History", 
       status: currentStep === 1 ? "current" : currentStep > 1 ? "completed" : "upcoming" 
     },
     { 
-      label: "Medical History", 
+      label: "Chief Complaints", 
       status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming" 
     },
     { 
