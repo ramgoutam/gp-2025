@@ -5,17 +5,11 @@ import { PatientUpdateData } from '@/types/patient';
 
 interface TreatmentFormProps {
   patientId: string;
-  onSuccess?: () => void;
+  onSuccess: () => void;
   onClose: () => void;
-  onSubmitSuccess?: () => void;
 }
 
-export const TreatmentForm: React.FC<TreatmentFormProps> = ({ 
-  patientId, 
-  onSuccess, 
-  onClose,
-  onSubmitSuccess 
-}) => {
+export const TreatmentForm: React.FC<TreatmentFormProps> = ({ patientId, onSuccess, onClose }) => {
   const { toast } = useToast();
   const [treatmentType, setTreatmentType] = useState('');
   const [upperTreatment, setUpperTreatment] = useState('');
@@ -39,8 +33,7 @@ export const TreatmentForm: React.FC<TreatmentFormProps> = ({
 
       if (error) throw error;
 
-      onSuccess?.();
-      onSubmitSuccess?.();
+      onSuccess();
       onClose();
       
       toast({
