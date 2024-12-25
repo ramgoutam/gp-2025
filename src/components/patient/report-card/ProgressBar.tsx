@@ -23,7 +23,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
                 step.status === "completed"
                   ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "border-2 border-primary bg-white"
+                  ? "bg-green-500 border-2 border-green-500 text-white"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
@@ -32,7 +32,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               ) : (
                 <span
                   className={`text-sm font-medium ${
-                    step.status === "current" ? "text-primary" : "text-gray-400"
+                    step.status === "current" ? "text-white" : "text-gray-400"
                   }`}
                 >
                   {index + 1}
