@@ -37,7 +37,7 @@ export const HeadNeckExaminationForm = ({
     radiographic_presentation: {},
     tomography_data: {},
     evaluation_notes: "",
-    maxillary_sinuses_evaluation: "",
+    maxillary_sinuses_evaluation: {},
     airway_evaluation: "",
     guideline_questions: {},
     status: "draft"
@@ -152,38 +152,9 @@ export const HeadNeckExaminationForm = ({
     }
   };
 
-  const handleDownload = () => {
-    // Convert formData to a formatted string
-    const formattedData = JSON.stringify(formData, null, 2);
-    
-    // Create a blob with the data
-    const blob = new Blob([formattedData], { type: 'application/json' });
-    
-    // Create a URL for the blob
-    const url = window.URL.createObjectURL(blob);
-    
-    // Create a temporary anchor element
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `head-neck-examination-${patientId}.json`;
-    
-    // Trigger the download
-    document.body.appendChild(a);
-    a.click();
-    
-    // Clean up
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    toast({
-      title: "Success",
-      description: "Examination data downloaded successfully.",
-    });
-  };
-
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white rounded-lg shadow-sm border border-gray-100">
-      <FormHeader onDownload={handleDownload} />
+      <FormHeader />
       
       <div className="p-6 space-y-6 flex-1 overflow-y-auto">
         <FormSteps 
