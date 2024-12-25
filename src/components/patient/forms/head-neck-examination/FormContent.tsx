@@ -21,9 +21,9 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
       case 2:
         return <ChiefComplaintsSection formData={formData} setFormData={setFormData} />;
       case 3:
-        return <IntraOralSection formData={formData} setFormData={setFormData} />;
-      case 4:
         return <ExtraOralSection formData={formData} setFormData={setFormData} />;
+      case 4:
+        return <IntraOralSection formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }
