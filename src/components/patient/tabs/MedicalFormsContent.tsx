@@ -13,31 +13,30 @@ export const MedicalFormsContent = () => {
   const [existingExamination, setExistingExamination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchExistingExamination = async () => {
+    if (!patientId) return;
+
+    try {
+      console.log("Fetching existing examination for patient:", patientId);
+      const { data, error } = await supabase
+        .from('head_neck_examinations')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+      
+      console.log("Existing examination data:", data);
+      setExistingExamination(data?.[0] || null);
+    } catch (error) {
+      console.error("Error fetching examination:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchExistingExamination = async () => {
-      if (!patientId) return;
-
-      try {
-        console.log("Fetching existing examination for patient:", patientId);
-        const { data, error } = await supabase
-          .from('head_neck_examinations')
-          .select('*')
-          .eq('patient_id', patientId)
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (error) throw error;
-        
-        console.log("Existing examination data:", data);
-        // Set the most recent examination if exists
-        setExistingExamination(data?.[0] || null);
-      } catch (error) {
-        console.error("Error fetching examination:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchExistingExamination();
   }, [patientId]);
 
@@ -49,7 +48,7 @@ export const MedicalFormsContent = () => {
     console.log("Form submitted successfully");
     setShowHeadNeckForm(false);
     // Refresh the examination data
-    window.location.reload();
+    fetchExistingExamination();
   };
 
   return (
