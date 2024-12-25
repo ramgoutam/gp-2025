@@ -18,7 +18,6 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
     }));
   };
 
-  // Calculate BMI whenever height or weight changes
   useEffect(() => {
     const heightInInches = parseFloat(formData.vital_signs?.height || "0");
     const weightInPounds = parseFloat(formData.vital_signs?.weight || "0");
@@ -30,7 +29,6 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
     }
   }, [formData.vital_signs?.height, formData.vital_signs?.weight]);
 
-  // Handle blood pressure changes
   const handleBPChange = (type: 'systolic' | 'diastolic', value: string) => {
     const currentBP = formData.vital_signs?.blood_pressure || '/';
     const [systolic, diastolic] = currentBP.split('/');
@@ -71,7 +69,7 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="bmi">BMI (kg/m²)</Label>
+          <Label htmlFor="bmi">BMI (lbs/in²)</Label>
           <Input
             id="bmi"
             type="text"
