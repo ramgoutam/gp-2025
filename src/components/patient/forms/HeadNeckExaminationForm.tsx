@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { FormSteps } from "./head-neck-examination/FormSteps";
 import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
@@ -54,11 +54,11 @@ export const HeadNeckExaminationForm = ({
     }
   }, [existingData, patientId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, shouldClose: boolean = false) => {
     e.preventDefault();
     console.log("Form submission triggered");
     
-    if (currentStep !== totalSteps - 1) {
+    if (!shouldClose && currentStep !== totalSteps - 1) {
       console.log("Not on final step, preventing submission");
       return;
     }
@@ -103,7 +103,11 @@ export const HeadNeckExaminationForm = ({
         description: `Examination form has been ${existingExam ? 'updated' : 'saved'} successfully.`,
       });
 
-      if (onSuccess) onSuccess();
+      if (shouldClose && onSuccess) {
+        onSuccess();
+      } else if (!shouldClose) {
+        handleNext();
+      }
     } catch (error) {
       console.error("Error saving examination form:", error);
       toast({
@@ -118,7 +122,7 @@ export const HeadNeckExaminationForm = ({
 
   const handleNextStep = (e: React.MouseEvent) => {
     e.preventDefault();
-    handleNext();
+    handleSubmit(e as any);
   };
 
   const handlePreviousStep = (e: React.MouseEvent) => {
@@ -127,7 +131,7 @@ export const HeadNeckExaminationForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
+    <form onSubmit={(e) => handleSubmit(e, true)} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="flex items-center justify-end px-4 py-3 border-b border-gray-100 gap-2">
         <Button
           type="button"
@@ -142,14 +146,17 @@ export const HeadNeckExaminationForm = ({
         </Button>
 
         {currentStep === totalSteps - 1 ? (
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            {isSubmitting ? "Saving..." : "Save Examination"}
-          </Button>
+          <>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Save className="w-4 h-4" />
+              {isSubmitting ? "Saving..." : "Save & Submit"}
+            </Button>
+          </>
         ) : (
           <Button
             type="button"
@@ -157,7 +164,7 @@ export const HeadNeckExaminationForm = ({
             size="sm"
             className="flex items-center gap-1"
           >
-            Next
+            Save & Next
             <ChevronRight className="w-4 h-4" />
           </Button>
         )}
