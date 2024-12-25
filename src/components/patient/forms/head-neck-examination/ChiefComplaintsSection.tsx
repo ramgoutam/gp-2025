@@ -17,6 +17,12 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     { id: "head_pain", label: "Head Pain" },
     { id: "jaw_pain", label: "Jaw Pain (R68.84)", code: "R68.84" },
     { id: "oral_infection", label: "Oral Infection (ICD K04.7)", code: "K04.7" },
+    { id: "tmj_pain", label: "TMJ Pain" },
+    { id: "neck_pain", label: "Neck Pain" },
+    { id: "facial_pain", label: "Facial Pain" },
+    { id: "ear_pain", label: "Ear Pain" },
+    { id: "tooth_pain", label: "Tooth Pain" },
+    { id: "muscle_pain", label: "Muscle Pain" },
   ];
 
   const symptoms = [
@@ -24,6 +30,15 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     { id: "limited_diet", label: "Limited Diet/Soft Diet" },
     { id: "difficulty_chewing", label: "Difficulty Chewing" },
     { id: "pain_when_chewing", label: "Pain When Chewing" },
+    { id: "jaw_clicking", label: "Jaw Clicking/Popping" },
+    { id: "jaw_locking", label: "Jaw Locking" },
+    { id: "limited_opening", label: "Limited Mouth Opening" },
+    { id: "teeth_grinding", label: "Teeth Grinding/Clenching" },
+    { id: "difficulty_speaking", label: "Difficulty Speaking" },
+    { id: "difficulty_swallowing", label: "Difficulty Swallowing" },
+    { id: "ear_congestion", label: "Ear Congestion/Fullness" },
+    { id: "dizziness", label: "Dizziness" },
+    { id: "tinnitus", label: "Tinnitus (Ringing in Ears)" },
   ];
 
   const handleComplaintChange = (complaintId: string) => {
@@ -74,7 +89,7 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     <div className="space-y-6 animate-fade-in">
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Chief Complaint: Please select all that apply to patient</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {complaints.map((complaint) => (
             <SelectionButton
               key={complaint.id}
@@ -96,6 +111,7 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
               value={formData.chief_complaints?.duration_months || ""}
               onChange={(e) => handleDurationChange('months', e.target.value)}
               className="w-20"
+              min="0"
             />
             <Label>months</Label>
           </div>
@@ -105,6 +121,7 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
               value={formData.chief_complaints?.duration_years || ""}
               onChange={(e) => handleDurationChange('years', e.target.value)}
               className="w-20"
+              min="0"
             />
             <Label>years</Label>
           </div>
@@ -113,7 +130,7 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
 
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Associated Symptoms:</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {symptoms.map((symptom) => (
             <SelectionButton
               key={symptom.id}
