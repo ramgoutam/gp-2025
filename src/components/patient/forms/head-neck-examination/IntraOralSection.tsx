@@ -20,6 +20,20 @@ export const IntraOralSection = ({ formData, setFormData }: IntraOralSectionProp
     }));
   };
 
+  const handleDentureChange = (dentureId: string) => {
+    console.log(`Toggling denture option: ${dentureId}`);
+    setFormData((prev: any) => ({
+      ...prev,
+      intra_oral_examination: {
+        ...prev.intra_oral_examination,
+        dentures: {
+          ...prev.intra_oral_examination?.dentures,
+          [dentureId]: !prev.intra_oral_examination?.dentures?.[dentureId]
+        }
+      }
+    }));
+  };
+
   const getPublicUrl = (filename: string) => {
     const { data } = supabase.storage
       .from('medical_diagrams')
@@ -93,7 +107,7 @@ export const IntraOralSection = ({ formData, setFormData }: IntraOralSectionProp
                 key={denture.id}
                 type="button"
                 variant={isSelected ? "default" : "outline"}
-                onClick={() => handleOptionChange(`dentures.${denture.id}`, !isSelected)}
+                onClick={() => handleDentureChange(denture.id)}
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   isSelected && "bg-primary text-primary-foreground"
