@@ -15,7 +15,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
   console.log("Progress bar steps:", steps, "Active step:", activeStep);
 
   const handleStepClick = (index: number, status: Step["status"]) => {
-    // Only allow clicking on completed steps or the next available step
+    // Only allow clicking on completed steps or the current step
     if (status === "completed" || status === "current") {
       console.log("Navigating to step:", index);
       onStepClick?.(index);
@@ -37,7 +37,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
             {index > 0 && (
               <div
                 className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
-                  step.status === "completed" || steps[index - 1].status === "completed"
+                  step.status === "completed"
                     ? "bg-primary"
                     : "bg-gray-200"
                 }`}
@@ -50,7 +50,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
                     ? "bg-primary border-primary text-white" // Active completed step shows number
                     : "bg-primary border-primary text-white" // Completed step shows checkmark
                   : step.status === "current"
-                  ? "bg-primary border-2 border-primary text-white"
+                  ? "bg-white border-2 border-primary text-primary"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
@@ -59,7 +59,9 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
               ) : (
                 <span
                   className={`text-sm font-medium ${
-                    step.status === "current" || (step.status === "completed" && activeStep === index)
+                    step.status === "current"
+                      ? "text-primary"
+                      : step.status === "completed" && activeStep === index
                       ? "text-white"
                       : "text-gray-400"
                   }`}
