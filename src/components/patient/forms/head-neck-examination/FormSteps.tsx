@@ -8,51 +8,60 @@ interface Step {
 interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
+  completedSteps?: { [key: number]: boolean };
 }
 
-export const FormSteps = ({ currentStep }: FormStepsProps) => {
+export const FormSteps = ({ currentStep, totalSteps, completedSteps = {} }: FormStepsProps) => {
+  console.log("Form steps - Current step:", currentStep, "Completed steps:", completedSteps);
+  
   const steps: Step[] = [
     { 
       label: "Patient Information & Vital Signs", 
-      status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming"
+      status: getStepStatus(0)
     },
     { 
       label: "Medical History", 
-      status: currentStep === 1 ? "current" : currentStep > 1 ? "completed" : "upcoming"
+      status: getStepStatus(1)
     },
     { 
       label: "Chief Complaints", 
-      status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming"
+      status: getStepStatus(2)
     },
     { 
       label: "Extra-Oral Examination", 
-      status: currentStep === 3 ? "current" : currentStep > 3 ? "completed" : "upcoming"
+      status: getStepStatus(3)
     },
     { 
       label: "Intra-Oral Examination", 
-      status: currentStep === 4 ? "current" : currentStep > 4 ? "completed" : "upcoming"
+      status: getStepStatus(4)
     },
     { 
       label: "Dental Classification", 
-      status: currentStep === 5 ? "current" : currentStep > 5 ? "completed" : "upcoming"
+      status: getStepStatus(5)
     },
     { 
       label: "Functional Presentation", 
-      status: currentStep === 6 ? "current" : currentStep > 6 ? "completed" : "upcoming"
+      status: getStepStatus(6)
     },
     { 
       label: "Tactile & Radiographic", 
-      status: currentStep === 7 ? "current" : currentStep > 7 ? "completed" : "upcoming"
+      status: getStepStatus(7)
     },
     { 
       label: "Evaluation", 
-      status: currentStep === 8 ? "current" : currentStep > 8 ? "completed" : "upcoming"
+      status: getStepStatus(8)
     },
     { 
       label: "Guideline Questions", 
-      status: currentStep === 9 ? "current" : currentStep > 9 ? "completed" : "upcoming"
+      status: getStepStatus(9)
     }
   ];
+
+  function getStepStatus(step: number): "completed" | "current" | "upcoming" {
+    if (completedSteps[step]) return "completed";
+    if (step === currentStep) return "current";
+    return "upcoming";
+  }
 
   return <ProgressBar steps={steps} />;
 };

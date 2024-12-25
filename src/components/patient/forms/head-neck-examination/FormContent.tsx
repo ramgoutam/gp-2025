@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ChiefComplaintsSection } from "./ChiefComplaintsSection";
 import { VitalSignsSection } from "./VitalSignsSection";
 import { MedicalHistorySection } from "./MedicalHistorySection";
@@ -9,14 +9,29 @@ import { FunctionalPresentationSection } from "./FunctionalPresentationSection";
 import { TactileRadiographicSection } from "./TactileRadiographicSection";
 import { EvaluationSection } from "./EvaluationSection";
 import { GuidelineQuestionsSection } from "./GuidelineQuestionsSection";
+import { Loader2 } from "lucide-react";
 
 interface FormContentProps {
   currentStep: number;
   formData: any;
   setFormData: (data: any) => void;
+  isLoading?: boolean;
 }
 
-export const FormContent = ({ currentStep, formData, setFormData }: FormContentProps) => {
+export const FormContent = ({ 
+  currentStep, 
+  formData, 
+  setFormData,
+  isLoading = false
+}: FormContentProps) => {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
