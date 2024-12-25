@@ -1,5 +1,4 @@
 import { ProgressBar } from "../../ProgressBar";
-import { useFormSteps } from "./useFormSteps";
 
 interface FormStepsProps {
   currentStep: number;
@@ -20,6 +19,9 @@ export const FormSteps = ({
     if (!obj) return false;
     return Object.keys(obj).some(key => {
       const value = obj[key];
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
       if (typeof value === 'object') {
         return hasFilledFields(value);
       }
