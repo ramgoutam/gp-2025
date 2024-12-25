@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { FileDown, Pencil, Trash2 } from "lucide-react";
 
 interface PatientActionsProps {
   onEdit: () => void;
@@ -7,23 +7,36 @@ interface PatientActionsProps {
 }
 
 export const PatientActions = ({ onEdit, onDelete }: PatientActionsProps) => {
+  const handleDownload = () => {
+    console.log("Download patient information");
+    // TODO: Implement download functionality
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Button
         variant="ghost"
-        size="sm"
-        onClick={onEdit}
-        className="text-gray-500 hover:text-primary hover:bg-primary/10 transition-colors duration-300"
+        size="icon"
+        onClick={handleDownload}
+        className="h-8 w-8 text-gray-500 hover:text-primary hover:bg-primary/10"
       >
-        <Edit2 className="w-4 h-4" />
+        <FileDown className="h-4 w-4" />
       </Button>
       <Button
         variant="ghost"
-        size="sm"
-        onClick={onDelete}
-        className="text-gray-500 hover:text-destructive hover:bg-destructive/10 transition-colors duration-300"
+        size="icon"
+        onClick={onEdit}
+        className="h-8 w-8 text-gray-500 hover:text-primary hover:bg-primary/10"
       >
-        <Trash2 className="w-4 h-4" />
+        <Pencil className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onDelete}
+        className="h-8 w-8 text-gray-500 hover:text-destructive hover:bg-destructive/10"
+      >
+        <Trash2 className="h-4 w-4" />
       </Button>
     </div>
   );
