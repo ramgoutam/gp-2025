@@ -1,26 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import { getPatients } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { usePatientStore } from "@/stores/patientStore";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { columns } from "./table/columns";
-import { TablePagination } from "./table/TablePagination";
 import { LoadingState } from "./table/LoadingState";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { User } from "lucide-react";
+import { PatientAvatar } from "./header/PatientAvatar";
 
 export const PatientList = () => {
   const { toast } = useToast();
@@ -41,21 +28,13 @@ export const PatientList = () => {
     }
   });
 
-  const table = useReactTable({
-    data: patients,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
-    state: {
-      globalFilter: searchQuery,
-    },
+  const filteredPatients = patients.filter(patient => {
+    const searchTerm = searchQuery?.toLowerCase() || '';
+    return (
+      patient.first_name?.toLowerCase().includes(searchTerm) ||
+      patient.last_name?.toLowerCase().includes(searchTerm) ||
+      patient.email?.toLowerCase().includes(searchTerm)
+    );
   });
 
   if (isLoading) {
@@ -63,52 +42,80 @@ export const PatientList = () => {
   }
 
   return (
-    <div className="space-y-6 p-4">
-      <div className="rounded-lg border bg-white shadow-sm">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50/50"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No patients found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredPatients.length > 0 ? (
+          filteredPatients.map((patient) => (
+            <Card key={patient.id} className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-4">
+                <PatientAvatar
+                  firstName={patient.first_name}
+                  lastName={patient.last_name}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium truncate">
+                      {patient.first_name} {patient.last_name}
+                    </h3>
+                    {patient.treatment_type && (
+                      <Badge variant="outline" className="ml-2">
+                        {patient.treatment_type}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-3">
+                    <div className="flex items-center space-x-1">
+                      {patient.upper_treatment && (
+                        <span className="truncate">
+                          Upper: {patient.upper_treatment}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {patient.lower_treatment && (
+                        <span className="truncate">
+                          Lower: {patient.lower_treatment}
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-      <TablePagination table={table} />
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant={patient.upper_treatment || patient.lower_treatment ? "default" : "secondary"}
+                      className={patient.upper_treatment || patient.lower_treatment ? "bg-green-500 hover:bg-green-600" : ""}
+                    >
+                      {patient.upper_treatment || patient.lower_treatment ? "In Treatment" : "Not Started"}
+                    </Badge>
+                    
+                    <Link 
+                      to={`/patient/${patient.id}`}
+                      state={{ patientData: {
+                        ...patient,
+                        firstName: patient.first_name,
+                        lastName: patient.last_name,
+                      }}}
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium 
+                        ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 
+                        focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none 
+                        disabled:opacity-50 border border-input bg-background hover:bg-accent 
+                        hover:text-accent-foreground h-8 px-3 py-2"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      View
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-gray-500">No patients found.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
