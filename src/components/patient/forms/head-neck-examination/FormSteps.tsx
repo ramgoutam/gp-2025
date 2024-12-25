@@ -1,17 +1,12 @@
 import { ProgressBar } from "../../ProgressBar";
 
-interface Step {
-  label: string;
-  status: "current" | "completed" | "upcoming";
-}
-
 interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
 }
 
-export const FormSteps = ({ currentStep, totalSteps }: FormStepsProps) => {
-  const steps: Step[] = [
+export const FormSteps = ({ currentStep }: FormStepsProps) => {
+  const steps = [
     { 
       label: "Patient Information & Vital Signs", 
       status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming" 
@@ -32,6 +27,10 @@ export const FormSteps = ({ currentStep, totalSteps }: FormStepsProps) => {
       label: "Intra-Oral Examination", 
       status: currentStep === 4 ? "current" : currentStep > 4 ? "completed" : "upcoming" 
     },
+    { 
+      label: "Dental Classification", 
+      status: currentStep === 5 ? "current" : currentStep > 5 ? "completed" : "upcoming" 
+    }
   ];
 
   return <ProgressBar steps={steps} />;
