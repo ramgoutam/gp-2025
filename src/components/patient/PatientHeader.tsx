@@ -163,6 +163,7 @@ export const PatientHeader = ({
                 lastName: patientData.lastName,
                 email: patientData.email,
                 phone: patientData.phone,
+                emergencyPhone: patientData.emergency_phone || "",
                 sex: patientData.sex,
                 dob: patientData.dob,
                 address: patientData.address,
