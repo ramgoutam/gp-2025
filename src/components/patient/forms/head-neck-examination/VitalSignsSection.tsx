@@ -71,7 +71,7 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="bmi">BMI</Label>
+          <Label htmlFor="bmi">BMI (kg/m²)</Label>
           <Input
             id="bmi"
             type="text"
