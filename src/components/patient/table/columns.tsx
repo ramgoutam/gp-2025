@@ -1,13 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, Phone, ArrowUpDown, ChevronDown } from "lucide-react";
+import { Mail, Phone, ArrowUpDown, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import type { Database } from '@/integrations/supabase/types';
 import { PatientAvatar } from "../header/PatientAvatar";
@@ -143,33 +137,45 @@ export const columns: ColumnDef<Patient>[] = [
     },
   },
   {
+    id: "status",
+    header: "Treatment Status",
+    cell: ({ row }) => {
+      const hasUpperTreatment = Boolean(row.original.upper_treatment);
+      const hasLowerTreatment = Boolean(row.original.lower_treatment);
+      
+      if (!hasUpperTreatment && !hasLowerTreatment) {
+        return (
+          <Badge variant="secondary">
+            Not Started
+          </Badge>
+        );
+      }
+      
+      return (
+        <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+          In Treatment
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const patient = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Link 
-                to={`/patient/${patient.id}`}
-                state={{ patientData: {
-                  ...patient,
-                  firstName: patient.first_name,
-                  lastName: patient.last_name,
-                }}}
-                className="w-full"
-              >
-                View Profile
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+        <Link 
+          to={`/patient/${patient.id}`}
+          state={{ patientData: {
+            ...patient,
+            firstName: patient.first_name,
+            lastName: patient.last_name,
+          }}}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+        >
+          <User className="h-4 w-4 mr-2" />
+          View Profile
+        </Link>
+      );
     },
   },
 ];
