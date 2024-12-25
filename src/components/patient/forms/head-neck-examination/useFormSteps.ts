@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const useFormSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {

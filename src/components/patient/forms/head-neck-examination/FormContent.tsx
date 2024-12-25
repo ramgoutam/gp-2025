@@ -7,6 +7,7 @@ import { DiagramSection } from "./DiagramSection";
 import { IntraOralSection } from "./IntraOralSection";
 import { VitalSignsSection } from "./VitalSignsSection";
 import { MedicalHistorySection } from "./MedicalHistorySection";
+import { ChiefComplaintsSection } from "./ChiefComplaintsSection";
 
 interface FormContentProps {
   currentStep: number;
@@ -34,6 +35,9 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
         );
 
       case 1:
+        return <ChiefComplaintsSection formData={formData} setFormData={setFormData} />;
+
+      case 2:
         return (
           <div className="space-y-6">
             <IntraOralSection formData={formData} setFormData={setFormData} />
@@ -56,7 +60,7 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <div className="space-y-4">
@@ -91,7 +95,7 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
           </div>
         );
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <div className="space-y-2">
