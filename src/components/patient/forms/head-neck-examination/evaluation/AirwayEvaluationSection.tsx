@@ -1,6 +1,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { AirwayImageUpload } from "./AirwayImageUpload";
 
 interface AirwayEvaluationSectionProps {
   formData: any;
@@ -50,22 +51,31 @@ export const AirwayEvaluationSection = ({ formData, setFormData }: AirwayEvaluat
   };
 
   return (
-    <div>
-      <Label htmlFor="airway_evaluation" className="text-xl font-bold text-primary">
-        AIRWAY EVALUATION
-      </Label>
-      <div className="grid grid-cols-2 gap-4 mt-2">
-        {airwayOptions.map((option) => (
-          <Button
-            key={option}
-            type="button"
-            variant={isAirwaySelected(option) ? "default" : "outline"}
-            onClick={() => handleAirwayChange(option)}
-            className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
-          >
-            {option}
-          </Button>
-        ))}
+    <div className="space-y-6">
+      <div>
+        <Label htmlFor="airway_evaluation" className="text-xl font-bold text-primary">
+          AIRWAY EVALUATION
+        </Label>
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          {airwayOptions.map((option) => (
+            <Button
+              key={option}
+              type="button"
+              variant={isAirwaySelected(option) ? "default" : "outline"}
+              onClick={() => handleAirwayChange(option)}
+              className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
+            >
+              {option}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xl font-bold text-primary mb-4">
+          AIRWAY EVALUATION IMAGE
+        </Label>
+        <AirwayImageUpload formData={formData} setFormData={setFormData} />
       </div>
     </div>
   );

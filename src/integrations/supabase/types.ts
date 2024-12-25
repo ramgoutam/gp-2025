@@ -124,6 +124,7 @@ export type Database = {
       head_neck_examinations: {
         Row: {
           airway_evaluation: string | null
+          airway_image_url: string | null
           chief_complaints: Json | null
           clinical_observation: Json | null
           created_at: string
@@ -150,6 +151,7 @@ export type Database = {
         }
         Insert: {
           airway_evaluation?: string | null
+          airway_image_url?: string | null
           chief_complaints?: Json | null
           clinical_observation?: Json | null
           created_at?: string
@@ -176,6 +178,7 @@ export type Database = {
         }
         Update: {
           airway_evaluation?: string | null
+          airway_image_url?: string | null
           chief_complaints?: Json | null
           clinical_observation?: Json | null
           created_at?: string
