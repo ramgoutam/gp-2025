@@ -1,6 +1,6 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface MedicalHistorySectionProps {
@@ -46,37 +46,53 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
   };
 
   const toggleCondition = (condition: string) => {
-    const currentConditions = formData.medical_history?.conditions || [];
-    const updatedConditions = currentConditions.includes(condition)
-      ? currentConditions.filter((c: string) => c !== condition)
-      : [...currentConditions, condition];
-    
-    updateMedicalHistory("conditions", updatedConditions);
+    const currentValue = formData.medical_history?.conditions?.[condition] === "true";
+    updateMedicalHistory("conditions", {
+      ...(formData.medical_history?.conditions || {}),
+      [condition]: currentValue ? "false" : "true"
+    });
   };
 
   const toggleAllergy = (allergy: string) => {
-    const currentAllergies = formData.medical_history?.allergies || [];
-    const updatedAllergies = currentAllergies.includes(allergy)
-      ? currentAllergies.filter((a: string) => a !== allergy)
-      : [...currentAllergies, allergy];
-    
-    updateMedicalHistory("allergies", updatedAllergies);
+    const currentValue = formData.medical_history?.allergies?.[allergy] === "true";
+    updateMedicalHistory("allergies", {
+      ...(formData.medical_history?.allergies || {}),
+      [allergy]: currentValue ? "false" : "true"
+    });
   };
 
+  const SelectionButton = ({ 
+    selected, 
+    onClick, 
+    children 
+  }: { 
+    selected: boolean; 
+    onClick: () => void; 
+    children: React.ReactNode 
+  }) => (
+    <Button
+      type="button"
+      variant={selected ? "default" : "outline"}
+      onClick={onClick}
+      className="h-auto py-2 px-4 text-sm font-medium transition-all w-full justify-start"
+    >
+      {children}
+    </Button>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Medical History</h3>
         <div className="grid grid-cols-2 gap-4">
           {medicalConditions.map((condition) => (
-            <div key={condition} className="flex items-center space-x-2">
-              <Checkbox
-                id={condition}
-                checked={(formData.medical_history?.conditions || []).includes(condition)}
-                onCheckedChange={() => toggleCondition(condition)}
-              />
-              <Label htmlFor={condition}>{condition}</Label>
-            </div>
+            <SelectionButton
+              key={condition}
+              selected={formData.medical_history?.conditions?.[condition] === "true"}
+              onClick={() => toggleCondition(condition)}
+            >
+              {condition}
+            </SelectionButton>
           ))}
         </div>
       </div>
@@ -85,14 +101,13 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
         <h3 className="text-lg font-semibold">Allergies</h3>
         <div className="grid grid-cols-2 gap-4">
           {allergyTypes.map((allergy) => (
-            <div key={allergy} className="flex items-center space-x-2">
-              <Checkbox
-                id={allergy}
-                checked={(formData.medical_history?.allergies || []).includes(allergy)}
-                onCheckedChange={() => toggleAllergy(allergy)}
-              />
-              <Label htmlFor={allergy}>{allergy}</Label>
-            </div>
+            <SelectionButton
+              key={allergy}
+              selected={formData.medical_history?.allergies?.[allergy] === "true"}
+              onClick={() => toggleAllergy(allergy)}
+            >
+              {allergy}
+            </SelectionButton>
           ))}
         </div>
       </div>
@@ -102,16 +117,15 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
         <RadioGroup
           value={formData.medical_history?.covid19_vaccinated || ""}
           onValueChange={(value) => updateMedicalHistory("covid19_vaccinated", value)}
+          className="flex items-center space-x-6"
         >
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="covid-yes" />
-              <Label htmlFor="covid-yes">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="covid-no" />
-              <Label htmlFor="covid-no">No</Label>
-            </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="yes" id="covid-yes" />
+            <Label htmlFor="covid-yes">Yes</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="no" id="covid-no" />
+            <Label htmlFor="covid-no">No</Label>
           </div>
         </RadioGroup>
       </div>
