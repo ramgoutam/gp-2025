@@ -1,7 +1,8 @@
 import React from "react";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 
 interface GuidelineQuestionsSectionProps {
   formData: any;
@@ -99,11 +100,28 @@ export const GuidelineQuestionsSection = ({
               <Label className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 {question.text}
               </Label>
-              <Switch
-                checked={formData.guideline_questions?.[question.id] || false}
-                onCheckedChange={(checked) => handleOptionChange(question.id, checked)}
-                className="data-[state=checked]:bg-primary"
-              />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={formData.guideline_questions?.[question.id] ? "default" : "outline"}
+                  onClick={() => handleOptionChange(question.id, true)}
+                  className="w-20 gap-2"
+                >
+                  <Check className="h-4 w-4" />
+                  Yes
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={formData.guideline_questions?.[question.id] === false ? "destructive" : "outline"}
+                  onClick={() => handleOptionChange(question.id, false)}
+                  className="w-20 gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  No
+                </Button>
+              </div>
             </div>
           </Card>
         ))}
