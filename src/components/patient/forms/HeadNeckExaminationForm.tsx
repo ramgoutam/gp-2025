@@ -86,14 +86,16 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center justify-end p-6 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <h2 className="text-lg font-semibold">Edit Head and Neck Examination</h2>
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={handlePreviousStep}
             disabled={currentStep === 0}
-            className="flex items-center gap-2"
+            size="sm"
+            className="flex items-center gap-1"
           >
             <ChevronLeft className="w-4 h-4" />
             Previous
@@ -103,7 +105,8 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2"
+              size="sm"
+              className="flex items-center gap-1"
             >
               {isSubmitting ? "Saving..." : "Save Examination"}
             </Button>
@@ -111,7 +114,8 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
             <Button
               type="button"
               onClick={handleNextStep}
-              className="flex items-center gap-2"
+              size="sm"
+              className="flex items-center gap-1"
             >
               Next
               <ChevronRight className="w-4 h-4" />
