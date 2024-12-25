@@ -6,6 +6,7 @@ import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
 import { FormHeader } from "./head-neck-examination/FormHeader";
 import { FormFooterNav } from "./head-neck-examination/FormFooterNav";
+import { Json } from "@/integrations/supabase/types";
 
 interface HeadNeckExaminationFormProps {
   patientId: string;
@@ -24,23 +25,26 @@ export const HeadNeckExaminationForm = ({
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     patient_id: patientId,
-    vital_signs: {},
-    medical_history: {},
-    chief_complaints: {},
-    extra_oral_examination: {},
-    intra_oral_examination: {},
-    dental_classification: {},
-    skeletal_presentation: {},
-    functional_presentation: {},
-    clinical_observation: {},
-    tactile_observation: {},
-    radiographic_presentation: {},
-    tomography_data: {},
+    vital_signs: {} as Json,
+    medical_history: {} as Json,
+    chief_complaints: {} as Json,
+    extra_oral_examination: {} as Json,
+    intra_oral_examination: {} as Json,
+    dental_classification: {} as Json,
+    skeletal_presentation: {} as Json,
+    functional_presentation: {} as Json,
+    clinical_observation: {} as Json,
+    tactile_observation: {} as Json,
+    radiographic_presentation: {} as Json,
+    tomography_data: {} as Json,
     evaluation_notes: "",
-    maxillary_sinuses_evaluation: {},
+    maxillary_sinuses_evaluation: {
+      left: "",
+      right: ""
+    } as unknown as string, // This will be stringified when saving
     airway_evaluation: "",
-    guideline_questions: {},
-    status: "draft"
+    guideline_questions: {} as Json,
+    status: "draft" as const
   });
 
   useEffect(() => {
@@ -49,7 +53,13 @@ export const HeadNeckExaminationForm = ({
       setFormData(prevData => ({
         ...prevData,
         ...existingData,
-        patient_id: patientId
+        patient_id: patientId,
+        // Parse maxillary_sinuses_evaluation if it's a string
+        maxillary_sinuses_evaluation: existingData.maxillary_sinuses_evaluation 
+          ? typeof existingData.maxillary_sinuses_evaluation === 'string'
+            ? JSON.parse(existingData.maxillary_sinuses_evaluation)
+            : existingData.maxillary_sinuses_evaluation
+          : { left: "", right: "" }
       }));
     }
   }, [existingData, patientId]);
@@ -65,13 +75,19 @@ export const HeadNeckExaminationForm = ({
 
       if (fetchError) throw fetchError;
 
+      // Prepare the data for saving
+      const dataToSave = {
+        ...formData,
+        maxillary_sinuses_evaluation: JSON.stringify(formData.maxillary_sinuses_evaluation)
+      };
+
       let result;
       
       if (existingExam) {
         console.log("Updating existing examination:", existingExam.id);
         result = await supabase
           .from('head_neck_examinations')
-          .update(formData)
+          .update(dataToSave)
           .eq('id', existingExam.id)
           .select()
           .single();
@@ -79,7 +95,7 @@ export const HeadNeckExaminationForm = ({
         console.log("Creating new examination");
         result = await supabase
           .from('head_neck_examinations')
-          .insert([formData])
+          .insert([dataToSave])
           .select()
           .single();
       }
