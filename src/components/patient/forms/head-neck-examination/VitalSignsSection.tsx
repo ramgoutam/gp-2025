@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface VitalSignsSectionProps {
   formData: any;
@@ -115,11 +114,13 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="temperature">Temperature (°C)</Label>
+          <Label htmlFor="temperature">Temperature (°F)</Label>
           <Input
             id="temperature"
             type="number"
             step="0.1"
+            min="95"
+            max="108"
             value={formData.vital_signs?.temperature || ""}
             onChange={(e) => updateVitalSigns("temperature", e.target.value)}
           />
