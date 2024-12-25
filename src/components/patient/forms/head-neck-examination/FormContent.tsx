@@ -2,8 +2,9 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DiagramSection } from "./DiagramSection";
+import { IntraOralSection } from "./IntraOralSection";
 
 interface FormContentProps {
   currentStep: number;
@@ -24,7 +25,7 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="height">Height (cm)</Label>
@@ -62,14 +63,15 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pulse">Pulse (bpm)</Label>
+                <Label htmlFor="temperature">Temperature (°C)</Label>
                 <Input
-                  id="pulse"
+                  id="temperature"
                   type="number"
-                  value={formData.vital_signs?.pulse || ""}
+                  step="0.1"
+                  value={formData.vital_signs?.temperature || ""}
                   onChange={(e) => handleInputChange("vital_signs", {
                     ...formData.vital_signs,
-                    pulse: e.target.value
+                    temperature: e.target.value
                   })}
                 />
               </div>
@@ -80,44 +82,23 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
       case 1:
         return (
           <div className="space-y-6">
-            <div className="space-y-4">
-              <Label>Medical Conditions</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  "Diabetes",
-                  "Hypertension",
-                  "Heart Disease",
-                  "Respiratory Issues",
-                  "Allergies",
-                  "Bleeding Disorders",
-                ].map((condition) => (
-                  <div key={condition} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={condition}
-                      checked={formData.medical_history?.[condition] || false}
-                      onChange={(e) => handleInputChange("medical_history", {
-                        ...formData.medical_history,
-                        [condition]: e.target.checked
-                      })}
-                    />
-                    <Label htmlFor={condition}>{condition}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="medications">Current Medications</Label>
-              <Textarea
-                id="medications"
-                value={formData.medical_history?.medications || ""}
-                onChange={(e) => handleInputChange("medical_history", {
-                  ...formData.medical_history,
-                  medications: e.target.value
-                })}
-              />
-            </div>
+            <IntraOralSection formData={formData} setFormData={setFormData} />
+            <DiagramSection
+              type="mallampati"
+              value={formData.intra_oral_examination?.mallampati_score || ""}
+              onChange={(value) => handleInputChange("intra_oral_examination", {
+                ...formData.intra_oral_examination,
+                mallampati_score: value
+              })}
+            />
+            <DiagramSection
+              type="malocclusion"
+              value={formData.intra_oral_examination?.malocclusion || ""}
+              onChange={(value) => handleInputChange("intra_oral_examination", {
+                ...formData.intra_oral_examination,
+                malocclusion: value
+              })}
+            />
           </div>
         );
 
@@ -125,75 +106,32 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
         return (
           <div className="space-y-6">
             <div className="space-y-4">
-              <Label>Extra-oral Examination</Label>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Facial Symmetry</Label>
-                  <RadioGroup
-                    value={formData.extra_oral_examination?.facial_symmetry || ""}
-                    onValueChange={(value) => handleInputChange("extra_oral_examination", {
-                      ...formData.extra_oral_examination,
-                      facial_symmetry: value
-                    })}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="symmetric" id="symmetric" />
-                        <Label htmlFor="symmetric">Symmetric</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="asymmetric" id="asymmetric" />
-                        <Label htmlFor="asymmetric">Asymmetric</Label>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>TMJ Examination</Label>
-                  <Select
-                    value={formData.extra_oral_examination?.tmj_examination || ""}
-                    onValueChange={(value) => handleInputChange("extra_oral_examination", {
-                      ...formData.extra_oral_examination,
-                      tmj_examination: value
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select TMJ condition" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="clicking">Clicking</SelectItem>
-                      <SelectItem value="pain">Pain</SelectItem>
-                      <SelectItem value="limited_opening">Limited Opening</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <Label>Intra-oral Examination</Label>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Oral Hygiene</Label>
-                  <Select
-                    value={formData.intra_oral_examination?.oral_hygiene || ""}
-                    onValueChange={(value) => handleInputChange("intra_oral_examination", {
-                      ...formData.intra_oral_examination,
-                      oral_hygiene: value
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select oral hygiene status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="good">Good</SelectItem>
-                      <SelectItem value="fair">Fair</SelectItem>
-                      <SelectItem value="poor">Poor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <Label>Clinical Observations</Label>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  "minimal_atrophy_mandible",
+                  "minimal_atrophy_maxilla",
+                  "moderate_atrophy_mandible",
+                  "moderate_atrophy_maxilla",
+                  "severe_atrophy_mandible",
+                  "severe_atrophy_maxilla"
+                ].map((condition) => (
+                  <div key={condition} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={condition}
+                      checked={formData.clinical_observation?.[condition] || false}
+                      onCheckedChange={(checked) => handleInputChange("clinical_observation", {
+                        ...formData.clinical_observation,
+                        [condition]: checked
+                      })}
+                    />
+                    <Label htmlFor={condition}>
+                      {condition.split("_").map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(" ")}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -213,21 +151,21 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="airway_evaluation">Airway Evaluation</Label>
-              <Textarea
-                id="airway_evaluation"
-                value={formData.airway_evaluation || ""}
-                onChange={(e) => handleInputChange("airway_evaluation", e.target.value)}
-                className="min-h-[100px]"
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="maxillary_sinuses_evaluation">Maxillary Sinuses Evaluation</Label>
               <Textarea
                 id="maxillary_sinuses_evaluation"
                 value={formData.maxillary_sinuses_evaluation || ""}
                 onChange={(e) => handleInputChange("maxillary_sinuses_evaluation", e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="airway_evaluation">Airway Evaluation</Label>
+              <Textarea
+                id="airway_evaluation"
+                value={formData.airway_evaluation || ""}
+                onChange={(e) => handleInputChange("airway_evaluation", e.target.value)}
                 className="min-h-[100px]"
               />
             </div>
