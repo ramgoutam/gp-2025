@@ -85,9 +85,8 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Edit Head and Neck Examination</h2>
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between p-6 border-b border-gray-100">
         <div className="flex items-center gap-4">
           <Button
             type="button"
@@ -121,13 +120,15 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
         </div>
       </div>
       
-      <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
-      
-      <FormContent 
-        currentStep={currentStep} 
-        formData={formData}
-        setFormData={setFormData}
-      />
+      <div className="p-6 space-y-6">
+        <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
+        
+        <FormContent 
+          currentStep={currentStep} 
+          formData={formData}
+          setFormData={setFormData}
+        />
+      </div>
     </form>
   );
 };
