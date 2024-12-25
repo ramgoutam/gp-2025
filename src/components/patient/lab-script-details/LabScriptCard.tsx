@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CardActions } from "./CardActions";
 import { StatusButton } from "./StatusButton";
 import { LabScript } from "@/types/labScript";
 
@@ -21,68 +21,105 @@ export const LabScriptCard = ({
   onDelete,
   onStatusChange,
 }: LabScriptCardProps) => {
-  console.log("Rendering lab script card:", script);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'processing':
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'hold':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'completed':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'processing':
+        return 'Processing';
+      case 'in_progress':
+        return 'In Progress';
+      case 'paused':
+        return 'Paused';
+      case 'hold':
+        return 'On Hold';
+      case 'completed':
+        return 'Completed';
+      default:
+        return status.replace('_', ' ');
+    }
+  };
+
+  const getScriptTitle = () => {
+    const upperDesign = script.upperDesignName || "Not specified";
+    const lowerDesign = script.lowerDesignName || "Not specified";
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
+        <span className="text-sm text-gray-500">|</span>
+        <span className="text-sm text-gray-600">Upper: {upperDesign}</span>
+        <span className="text-sm text-gray-500">|</span>
+        <span className="text-sm text-gray-600">Lower: {lowerDesign}</span>
+      </div>
+    );
+  };
+
+  const handleStatusChange = (newStatus: LabScript['status']) => {
+    console.log("Handling status change in LabScriptCard:", script.id, newStatus);
+    onStatusChange(script, newStatus);
+  };
 
   return (
-    <Card 
-      className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
-      onClick={onClick}
-    >
-      <CardContent className="p-6">
+    <Card className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-gradient-to-br from-white to-purple-50/30 animate-fade-in">
+      <div className="space-y-6">
         <div className="flex justify-between items-start">
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <h3 className="text-lg font-semibold">
-                Lab Script #{script.requestNumber || script.id.slice(0, 8)}
-              </h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              {getScriptTitle()}
+              <Badge 
+                variant="outline" 
+                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
+              >
+                {getStatusText(script.status)}
+              </Badge>
             </div>
-            <div className="text-sm text-gray-500 space-y-1">
-              <p>Request Date: {format(new Date(script.requestDate), 'MMM dd, yyyy')}</p>
-              <p>Due Date: {format(new Date(script.dueDate), 'MMM dd, yyyy')}</p>
-              {script.upperTreatment && (
-                <p>Upper Treatment: {script.upperTreatment}</p>
-              )}
-              {script.lowerTreatment && (
-                <p>Lower Treatment: {script.lowerTreatment}</p>
-              )}
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+              <div className="flex items-center space-x-2">
+                <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Doctor: {script.doctorName}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Clinic: {script.clinicName}</span>
+              </div>
             </div>
           </div>
-
-          <div className="flex flex-col items-end gap-4">
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="hover:bg-gray-100"
-              >
-                <Edit2 className="h-4 w-4 text-gray-500" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="hover:bg-gray-100"
-              >
-                <Trash2 className="h-4 w-4 text-gray-500" />
-              </Button>
-            </div>
-            <div onClick={(e) => e.stopPropagation()}>
-              <StatusButton
-                script={script}
-                status={script.status}
-                onStatusChange={(newStatus) => onStatusChange(script, newStatus)}
-              />
-            </div>
+          <div className="flex flex-col gap-3">
+            <CardActions
+              onEdit={onEdit}
+              onView={onClick}
+              onDelete={onDelete}
+            />
+            <StatusButton 
+              script={script}
+              status={script.status} 
+              onStatusChange={handleStatusChange}
+            />
           </div>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

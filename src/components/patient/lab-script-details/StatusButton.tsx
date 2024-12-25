@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Play, Pause, StopCircle, PlayCircle, CheckCircle } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useStatusUpdater } from "./StatusUpdater";
 
@@ -9,64 +10,105 @@ interface StatusButtonProps {
 }
 
 export const StatusButton = ({ script, status, onStatusChange }: StatusButtonProps) => {
-  const { updateStatus } = useStatusUpdater();
+  const { updateStatus, isUpdating } = useStatusUpdater();
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
-    console.log("Handling status change in StatusButton:", script.id, newStatus);
-    try {
-      await updateStatus(script, newStatus);
+    const success = await updateStatus(script, newStatus);
+    if (success) {
       onStatusChange(newStatus);
-    } catch (error) {
-      console.error("Error updating status:", error);
     }
   };
 
-  const getStatusColor = () => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 hover:bg-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+  const getStatusButtons = () => {
+    if (isUpdating) {
+      return [
+        <Button
+          key="loading"
+          variant="outline"
+          size="sm"
+          disabled
+          className="flex items-center gap-2"
+        >
+          Updating...
+        </Button>
+      ];
     }
-  };
 
-  const getStatusText = () => {
     switch (status) {
       case 'pending':
-        return 'Pending';
+        return [
+          <Button
+            key="start"
+            variant="outline"
+            size="sm"
+            onClick={() => handleStatusChange('in_progress')}
+            className="flex items-center gap-2 hover:bg-primary/5"
+          >
+            <Play className="h-4 w-4 text-primary" />
+            Start Design
+          </Button>
+        ];
+      
       case 'in_progress':
-        return 'In Progress';
+        return [
+          <Button
+            key="pause"
+            variant="outline"
+            size="sm"
+            onClick={() => handleStatusChange('paused')}
+            className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200 mr-2"
+          >
+            <Pause className="h-4 w-4" />
+            Pause
+          </Button>,
+          <Button
+            key="hold"
+            variant="outline"
+            size="sm"
+            onClick={() => handleStatusChange('hold')}
+            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200 mr-2"
+          >
+            <StopCircle className="h-4 w-4" />
+            Hold
+          </Button>,
+          <Button
+            key="complete"
+            variant="outline"
+            size="sm"
+            onClick={() => handleStatusChange('completed')}
+            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Complete
+          </Button>
+        ];
+      
+      case 'paused':
+      case 'hold':
+        return [
+          <Button
+            key="resume"
+            variant="outline"
+            size="sm"
+            onClick={() => handleStatusChange('in_progress')}
+            className="flex items-center gap-2 hover:bg-primary/5"
+          >
+            <PlayCircle className="h-4 w-4 text-primary" />
+            Resume
+          </Button>
+        ];
+      
       case 'completed':
-        return 'Completed';
+        return null;
+      
       default:
-        return status;
-    }
-  };
-
-  const getNextStatus = () => {
-    switch (status) {
-      case 'pending':
-        return 'in_progress';
-      case 'in_progress':
-        return 'completed';
-      case 'completed':
-        return 'pending';
-      default:
-        return 'pending';
+        return null;
     }
   };
 
   return (
-    <Button
-      variant="outline"
-      className={`${getStatusColor()} border-none font-medium`}
-      onClick={() => handleStatusChange(getNextStatus())}
-    >
-      {getStatusText()}
-    </Button>
+    <div className="flex justify-end gap-2">
+      {getStatusButtons()}
+    </div>
   );
 };
