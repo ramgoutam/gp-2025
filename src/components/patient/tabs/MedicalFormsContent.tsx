@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MedicalFormCard } from "../forms/medical-forms/MedicalFormCard";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
@@ -85,75 +84,33 @@ export const MedicalFormsContent = () => {
         
         <div className="grid gap-4">
           {/* Head and Neck Examination Form */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-primary" />
-              <div>
-                <h3 className="font-medium">Head and Neck Examination</h3>
-                <p className="text-sm text-gray-500">
-                  {existingExamination 
-                    ? `Last updated: ${new Date(existingExamination.updated_at).toLocaleDateString()}`
-                    : "Comprehensive examination form"}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {existingExamination && (
-                <Button
-                  variant="outline"
-                  onClick={handleDeleteExamination}
-                  className="text-sm gap-2 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </Button>
-              )}
-              <Button 
-                variant={existingExamination ? "outline" : "default"}
-                onClick={() => setShowHeadNeckForm(true)}
-                className="text-sm gap-2"
-              >
-                <FileText className="w-4 h-4" />
-                {existingExamination ? "Continue" : "Fill Form"}
-              </Button>
-            </div>
-          </div>
+          <MedicalFormCard
+            title="Head and Neck Examination"
+            description="Comprehensive examination form"
+            lastUpdated={existingExamination ? new Date(existingExamination.updated_at).toLocaleDateString() : undefined}
+            onAction={() => setShowHeadNeckForm(true)}
+            actionLabel={existingExamination ? "Edit" : "Fill Form"}
+            showDelete={!!existingExamination}
+            onDelete={handleDeleteExamination}
+          />
 
           {/* Medical History Form - Placeholder */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-primary" />
-              <div>
-                <h3 className="font-medium">Medical History</h3>
-                <p className="text-sm text-gray-500">Patient medical history form</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline"
-              className="text-sm"
-              disabled
-            >
-              Coming Soon
-            </Button>
-          </div>
+          <MedicalFormCard
+            title="Medical History"
+            description="Patient medical history form"
+            actionLabel="Coming Soon"
+            onAction={() => {}}
+            isDisabled={true}
+          />
 
           {/* Consent Form - Placeholder */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-primary" />
-              <div>
-                <h3 className="font-medium">Consent Form</h3>
-                <p className="text-sm text-gray-500">Treatment consent documentation</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline"
-              className="text-sm"
-              disabled
-            >
-              Coming Soon
-            </Button>
-          </div>
+          <MedicalFormCard
+            title="Consent Form"
+            description="Treatment consent documentation"
+            actionLabel="Coming Soon"
+            onAction={() => {}}
+            isDisabled={true}
+          />
         </div>
       </div>
 
