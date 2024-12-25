@@ -13,12 +13,21 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
   console.log("Progress bar steps:", steps);
 
   return (
-    <div className="flex items-center w-full gap-2">
+    <div className="flex items-start w-full">
       {steps.map((step, index) => (
-        <div key={step.label} className="flex flex-col items-center flex-1">
-          <div className="flex items-center w-full">
+        <div key={step.label} className="flex-1 relative">
+          <div className="flex items-center justify-center">
+            {index > 0 && (
+              <div
+                className={`h-[2px] w-full absolute top-4 -left-1/2 ${
+                  step.status === "completed" || steps[index - 1].status === "completed"
+                    ? "bg-primary"
+                    : "bg-gray-200"
+                }`}
+              />
+            )}
             <div
-              className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative ${
                 step.status === "completed"
                   ? "bg-primary border-primary"
                   : step.status === "current"
@@ -38,23 +47,18 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
                 </span>
               )}
             </div>
-            {index < steps.length - 1 && (
-              <div
-                className={`h-[2px] w-full mx-2 ${
-                  step.status === "completed" ? "bg-primary" : "bg-gray-200"
-                }`}
-              />
-            )}
           </div>
-          <span
-            className={`text-xs font-medium mt-2 text-center ${
-              step.status === "completed" || step.status === "current"
-                ? "text-gray-900"
-                : "text-gray-400"
-            }`}
-          >
-            {step.label}
-          </span>
+          <div className="mt-2 text-center">
+            <span
+              className={`text-xs font-medium ${
+                step.status === "completed" || step.status === "current"
+                  ? "text-gray-900"
+                  : "text-gray-400"
+              }`}
+            >
+              {step.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>
