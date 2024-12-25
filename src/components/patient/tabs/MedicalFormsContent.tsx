@@ -3,15 +3,28 @@ import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { Loader, Trash2 } from "lucide-react";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [existingExamination, setExistingExamination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
   const fetchExistingExamination = async () => {
     if (!patientId) return;
@@ -39,6 +52,39 @@ export const MedicalFormsContent = () => {
   useEffect(() => {
     fetchExistingExamination();
   }, [patientId]);
+
+  const handleDeleteExamination = async () => {
+    if (!existingExamination?.id) return;
+    
+    setIsDeleting(true);
+    try {
+      console.log("Deleting examination:", existingExamination.id);
+      const { error } = await supabase
+        .from('head_neck_examinations')
+        .delete()
+        .eq('id', existingExamination.id);
+
+      if (error) throw error;
+
+      setExistingExamination(null);
+      setShowDeleteDialog(false);
+      
+      toast({
+        title: "Success",
+        description: "Examination deleted successfully",
+        className: "bg-success text-white",
+      });
+    } catch (error) {
+      console.error("Error deleting examination:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete examination",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!patientId) {
     return <div>Error: Patient ID not found</div>;
@@ -78,33 +124,46 @@ export const MedicalFormsContent = () => {
                 </p>
               </div>
             </div>
-            <Button 
-              variant={existingExamination ? "outline" : "default"}
-              onClick={() => setShowHeadNeckForm(true)}
-              className={cn(
-                "text-sm gap-2",
-                existingExamination ? "text-green-600 border-green-200 hover:border-green-300 hover:bg-green-50" : ""
+            <div className="flex gap-2">
+              {existingExamination && (
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
               )}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                "Loading..."
-              ) : (
-                <>
-                  {existingExamination ? (
-                    <>
-                      <PenSquare className="w-4 h-4" />
-                      Edit Examination
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="w-4 h-4" />
-                      Fill Form
-                    </>
-                  )}
-                </>
-              )}
-            </Button>
+              <Button 
+                variant={existingExamination ? "outline" : "default"}
+                onClick={() => setShowHeadNeckForm(true)}
+                className={cn(
+                  "text-sm gap-2",
+                  existingExamination ? "text-primary hover:bg-primary/10" : ""
+                )}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  "Loading..."
+                ) : (
+                  <>
+                    {existingExamination ? (
+                      <>
+                        <PenSquare className="w-4 h-4" />
+                        Edit
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4" />
+                        Fill Form
+                      </>
+                    )}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Medical History Form - Placeholder */}
@@ -163,6 +222,45 @@ export const MedicalFormsContent = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Examination</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this examination? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteExamination}
+              disabled={isDeleting}
+              className="gap-2"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
