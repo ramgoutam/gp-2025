@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, FileText, Stethoscope, ClipboardList, Calendar, FileCheck2, ScrollText, Smile } from "lucide-react";
+import { Mail, Phone, Smile } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPatients } from "@/utils/databaseUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -33,28 +33,9 @@ export const PatientList = () => {
       .includes(searchQuery.toLowerCase())
   );
 
-  const ShortcutButton = ({ icon: Icon, label, to }: { icon: any; label: string; to: string }) => (
-    <Link
-      to={to}
-      className="flex flex-col items-center p-3 rounded-lg bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/20 hover:-translate-y-1 group"
-    >
-      <div className="p-3 rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
-        <Icon className="w-5 h-5" />
-      </div>
-      <span className="mt-2 text-sm font-medium text-gray-600 group-hover:text-primary transition-colors duration-200">
-        {label}
-      </span>
-    </Link>
-  );
-
   if (isLoading) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-white rounded-lg animate-pulse border border-gray-100" />
-          ))}
-        </div>
         <div className="space-y-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 animate-pulse">
@@ -77,34 +58,6 @@ export const PatientList = () => {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-        <ShortcutButton 
-          icon={FileText} 
-          label="Medical Records" 
-          to="#medical-record" 
-        />
-        <ShortcutButton 
-          icon={Stethoscope} 
-          label="Treatment Status" 
-          to="#treatment-status" 
-        />
-        <ShortcutButton 
-          icon={ClipboardList} 
-          label="Lab Scripts" 
-          to="#lab-scripts" 
-        />
-        <ShortcutButton 
-          icon={Calendar} 
-          label="Appointments" 
-          to="#appointment-history" 
-        />
-        <ShortcutButton 
-          icon={ScrollText} 
-          label="Medical Forms" 
-          to="#medical-forms" 
-        />
-      </div>
-
       <div className="space-y-4">
         {filteredPatients.map((patient: Patient) => (
           <Link
