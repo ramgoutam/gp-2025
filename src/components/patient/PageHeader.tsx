@@ -42,6 +42,7 @@ export const PageHeader = () => {
       last_name: formData.lastName,
       email: formData.email,
       phone: formData.phone,
+      emergency_contact_name: formData.emergencyContactName,
       emergency_phone: formData.emergencyPhone,
       sex: formData.sex,
       dob: formData.dob,

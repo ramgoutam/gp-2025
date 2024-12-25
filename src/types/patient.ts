@@ -3,6 +3,7 @@ export interface PatientFormData {
   lastName: string;
   email: string;
   phone: string;
+  emergencyContactName: string;
   emergencyPhone: string;
   sex: string;
   dob: string;

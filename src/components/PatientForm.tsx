@@ -18,6 +18,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     lastName: "",
     email: "",
     phone: "",
+    emergencyContactName: "",
     emergencyPhone: "",
     sex: "",
     dob: "",

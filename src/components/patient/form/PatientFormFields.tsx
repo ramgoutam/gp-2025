@@ -59,6 +59,14 @@ export const PatientFormFields = ({
       />
 
       <FormField
+        id="emergencyContactName"
+        label="Emergency Contact Name"
+        value={formData.emergencyContactName}
+        onChange={handleChange}
+        required
+      />
+
+      <FormField
         id="emergencyPhone"
         label="Emergency Phone"
         type="tel"

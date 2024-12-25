@@ -325,6 +325,7 @@ export type Database = {
           created_at: string
           dob: string
           email: string
+          emergency_contact_name: string | null
           emergency_phone: string | null
           first_name: string
           id: string
@@ -342,6 +343,7 @@ export type Database = {
           created_at?: string
           dob: string
           email: string
+          emergency_contact_name?: string | null
           emergency_phone?: string | null
           first_name: string
           id?: string
@@ -359,6 +361,7 @@ export type Database = {
           created_at?: string
           dob?: string
           email?: string
+          emergency_contact_name?: string | null
           emergency_phone?: string | null
           first_name?: string
           id?: string
