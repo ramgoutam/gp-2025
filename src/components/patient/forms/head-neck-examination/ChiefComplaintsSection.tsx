@@ -17,7 +17,6 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     { id: "head_pain", label: "Head Pain" },
     { id: "jaw_pain", label: "Jaw Pain (R68.84)", code: "R68.84" },
     { id: "oral_infection", label: "Oral Infection (ICD K04.7)", code: "K04.7" },
-    { id: "gastrointestinal_issues", label: "Gastro-intestional Issues/Difficulty Swallowing (R13.11)", code: "R13.11" },
   ];
 
   const symptoms = [
