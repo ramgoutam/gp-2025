@@ -20,13 +20,15 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
     }
   };
 
+  const baseButtonStyles = "w-[120px] transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md";
+
   if (isUpdating) {
     return (
       <Button
         variant="outline"
         size="sm"
         disabled
-        className="flex items-center gap-2 transition-all duration-500 ease-in-out animate-pulse"
+        className={`${baseButtonStyles} animate-pulse`}
       >
         Updating...
       </Button>
@@ -40,7 +42,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
           variant="outline"
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
-          className="flex items-center gap-2 hover:bg-primary/5 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md"
+          className={`${baseButtonStyles} hover:bg-primary/5 group`}
         >
           <Play className="h-4 w-4 text-primary transition-transform duration-500 group-hover:rotate-[360deg]" />
           Start Design
@@ -49,12 +51,12 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
     
     case 'in_progress':
       return (
-        <div className="flex gap-2 animate-fade-in transition-all duration-500">
+        <div className="flex gap-2 animate-fade-in">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('paused')}
-            className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md"
+            className={`${baseButtonStyles} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
           >
             <Pause className="h-4 w-4 transition-all duration-500 group-hover:scale-110" />
             Pause
@@ -63,7 +65,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('hold')}
-            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md"
+            className={`${baseButtonStyles} hover:bg-red-50 text-red-600 border-red-200 group`}
           >
             <StopCircle className="h-4 w-4 transition-all duration-500 group-hover:scale-110" />
             Hold
@@ -72,7 +74,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('completed')}
-            className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md"
+            className={`${baseButtonStyles} hover:bg-green-50 text-green-600 border-green-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-500 group-hover:scale-110" />
             Complete
@@ -87,7 +89,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
           variant="outline"
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
-          className="flex items-center gap-2 hover:bg-primary/5 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md"
+          className={`${baseButtonStyles} hover:bg-primary/5 group`}
         >
           <PlayCircle className="h-4 w-4 text-primary transition-all duration-500 group-hover:rotate-[360deg]" />
           Resume
@@ -100,7 +102,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
           variant="outline"
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
-          className="flex items-center gap-2 hover:bg-blue-50 text-blue-600 border-blue-200 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md animate-fade-in"
+          className={`${baseButtonStyles} hover:bg-blue-50 text-blue-600 border-blue-200 group animate-fade-in`}
         >
           <Edit className="h-4 w-4 transition-all duration-500 group-hover:rotate-12" />
           Edit Status
