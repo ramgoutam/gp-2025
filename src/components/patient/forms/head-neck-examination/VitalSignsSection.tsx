@@ -31,6 +31,24 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
     }
   }, [formData.vital_signs?.height, formData.vital_signs?.weight]);
 
+  // Handle blood pressure changes
+  const handleBPChange = (type: 'systolic' | 'diastolic', value: string) => {
+    const currentBP = formData.vital_signs?.blood_pressure || '/';
+    const [systolic, diastolic] = currentBP.split('/');
+    
+    let newBP = '';
+    if (type === 'systolic') {
+      newBP = `${value}/${diastolic || ''}`;
+    } else {
+      newBP = `${systolic || ''}/${value}`;
+    }
+    
+    updateVitalSigns("blood_pressure", newBP);
+  };
+
+  // Extract systolic and diastolic values
+  const [systolic, diastolic] = (formData.vital_signs?.blood_pressure || '/').split('/');
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Vital Signs</h3>
@@ -74,20 +92,27 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
         </div>
         <div className="space-y-2">
           <Label htmlFor="blood_pressure">Blood Pressure (systolic/diastolic)</Label>
-          <Input
-            id="blood_pressure"
-            placeholder="120/80"
-            pattern="\d{2,3}\/\d{2,3}"
-            title="Please enter blood pressure in format: systolic/diastolic (e.g., 120/80)"
-            value={formData.vital_signs?.blood_pressure || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              // Only allow numbers and forward slash
-              if (/^[\d\/]*$/.test(value)) {
-                updateVitalSigns("blood_pressure", value);
-              }
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              id="blood_pressure_systolic"
+              type="number"
+              min="0"
+              max="300"
+              value={systolic || ""}
+              onChange={(e) => handleBPChange('systolic', e.target.value)}
+              className="w-20"
+            />
+            <span className="text-gray-500">/</span>
+            <Input
+              id="blood_pressure_diastolic"
+              type="number"
+              min="0"
+              max="200"
+              value={diastolic || ""}
+              onChange={(e) => handleBPChange('diastolic', e.target.value)}
+              className="w-20"
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="temperature">Temperature (°C)</Label>
