@@ -9,11 +9,11 @@ interface StatusButtonProps {
   onStatusChange: (newStatus: LabScript['status']) => void;
 }
 
-export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
+export const StatusButton = ({ script, status, onStatusChange }: StatusButtonProps) => {
   const { updateStatus, isUpdating } = useStatusUpdater();
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
-    const success = await updateStatus(newStatus);
+    const success = await updateStatus(script, newStatus);
     if (success) {
       onStatusChange(newStatus);
     }
