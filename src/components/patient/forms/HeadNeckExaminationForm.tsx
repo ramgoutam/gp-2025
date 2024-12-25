@@ -43,14 +43,13 @@ export const HeadNeckExaminationForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Load existing data when the form opens
   useEffect(() => {
     if (existingData) {
       console.log("Loading existing examination data:", existingData);
       setFormData(prevData => ({
         ...prevData,
         ...existingData,
-        patient_id: patientId // Ensure patient_id is always set correctly
+        patient_id: patientId
       }));
     }
   }, [existingData, patientId]);
@@ -64,7 +63,6 @@ export const HeadNeckExaminationForm = ({
     try {
       console.log("Submitting head and neck examination form for patient:", patientId);
       
-      // First check if an examination already exists for this patient
       const { data: existingExam, error: fetchError } = await supabase
         .from('head_neck_examinations')
         .select('id')
@@ -99,9 +97,11 @@ export const HeadNeckExaminationForm = ({
         description: `Examination form has been ${existingExam ? 'updated' : 'saved'} successfully.`,
       });
 
+      // Only close and reset if explicitly saving and submitting
       if (shouldClose && onSuccess) {
         onSuccess();
-      } else if (!shouldClose) {
+      } else {
+        // If not closing, proceed to next step
         handleNext();
       }
     } catch (error) {
