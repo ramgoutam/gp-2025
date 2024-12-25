@@ -1,17 +1,17 @@
-import React from 'react';
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-interface MedicalHistorySectionProps {
+export interface MedicalHistorySectionProps {
   formData: any;
   setFormData: (data: any) => void;
 }
 
-export const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({
+export const MedicalHistorySection = ({
   formData,
-  setFormData
-}) => {
+  setFormData,
+}: MedicalHistorySectionProps) => {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Medical History</h3>
