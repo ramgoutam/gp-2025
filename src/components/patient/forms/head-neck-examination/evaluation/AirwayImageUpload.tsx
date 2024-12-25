@@ -78,7 +78,7 @@ export const AirwayImageUpload = ({ formData, setFormData }: AirwayImageUploadPr
           ) : (
             <>
               <Upload className="mr-2 h-4 w-4" />
-              Upload Picture
+              Upload Airway Evaluation Picture
             </>
           )}
         </Button>
