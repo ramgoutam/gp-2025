@@ -54,20 +54,9 @@ export const HeadNeckExaminationForm = ({
     }
   }, [existingData, patientId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submission triggered");
-    
-    if (currentStep !== totalSteps - 1) {
-      console.log("Not on final step, preventing submission");
-      return;
-    }
-
-    setIsSubmitting(true);
-    
+  const saveFormData = async () => {
+    console.log("Saving form data...");
     try {
-      console.log("Submitting head and neck examination form for patient:", patientId);
-      
       // First check if an examination already exists for this patient
       const { data: existingExam, error: fetchError } = await supabase
         .from('head_neck_examinations')
@@ -100,25 +89,52 @@ export const HeadNeckExaminationForm = ({
 
       toast({
         title: "Success",
-        description: `Examination form has been ${existingExam ? 'updated' : 'saved'} successfully.`,
+        description: "Progress saved successfully.",
       });
 
-      if (onSuccess) onSuccess();
+      return true;
     } catch (error) {
-      console.error("Error saving examination form:", error);
+      console.error("Error saving form data:", error);
       toast({
         title: "Error",
-        description: "Failed to save examination form. Please try again.",
+        description: "Failed to save progress. Please try again.",
         variant: "destructive",
       });
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submission triggered");
+    
+    if (currentStep !== totalSteps - 1) {
+      console.log("Not on final step, preventing submission");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const success = await saveFormData();
+      if (success && onSuccess) onSuccess();
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleNextStep = (e: React.MouseEvent) => {
+  const handleNextStep = async (e: React.MouseEvent) => {
     e.preventDefault();
-    handleNext();
+    setIsSubmitting(true);
+    
+    try {
+      const success = await saveFormData();
+      if (success) {
+        handleNext();
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePreviousStep = (e: React.MouseEvent) => {
@@ -154,10 +170,11 @@ export const HeadNeckExaminationForm = ({
           <Button
             type="button"
             onClick={handleNextStep}
+            disabled={isSubmitting}
             size="sm"
             className="flex items-center gap-1"
           >
-            Next
+            {isSubmitting ? "Saving..." : "Next"}
             <ChevronRight className="w-4 h-4" />
           </Button>
         )}
