@@ -11,10 +11,15 @@ interface FormStepsProps {
   totalSteps: number;
   formData: any;
   onStepChange?: (step: number) => void;
-  completedSteps: number[];
+  completedSteps?: number[];
 }
 
-export const FormSteps = ({ currentStep, formData, onStepChange, completedSteps }: FormStepsProps) => {
+export const FormSteps = ({ 
+  currentStep, 
+  formData, 
+  onStepChange, 
+  completedSteps = [] 
+}: FormStepsProps) => {
   // Helper function to determine if an object has any filled fields
   const hasFilledFields = (obj: any): boolean => {
     if (!obj) return false;
