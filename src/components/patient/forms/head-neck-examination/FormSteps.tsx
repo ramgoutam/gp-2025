@@ -25,7 +25,7 @@ export const FormSteps = ({ currentStep, totalSteps }: FormStepsProps) => {
       status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming" 
     },
     { 
-      label: "Clinical Examination", 
+      label: "Intra-Oral Examination", 
       status: currentStep === 3 ? "current" : currentStep > 3 ? "completed" : "upcoming" 
     },
     { 
