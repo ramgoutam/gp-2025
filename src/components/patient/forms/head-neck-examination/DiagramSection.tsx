@@ -14,7 +14,7 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
   
   const getPublicUrl = (filename: string) => {
     const { data } = supabase.storage
-      .from('lab_script_files')
+      .from('medical_diagrams')
       .getPublicUrl(filename);
     return data.publicUrl;
   };
@@ -48,25 +48,25 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
     ],
     malocclusion: [
       {
-        src: getPublicUrl('malocclusion-normal.png'),
+        src: getPublicUrl('malocclusion-normal.png.png'),
         alt: "Normal Bite",
         value: "normal",
         description: "Normal occlusion"
       },
       {
-        src: getPublicUrl('malocclusion-cross.png'),
+        src: getPublicUrl('malocclusion-Cross.png.png'),
         alt: "Cross Bite",
         value: "cross_bite",
         description: "Cross bite"
       },
       {
-        src: getPublicUrl('malocclusion-open.png'),
+        src: getPublicUrl('malocclusion-Open.png.png'),
         alt: "Open Bite",
         value: "open_bite",
         description: "Open bite"
       },
       {
-        src: getPublicUrl('malocclusion-deep.png'),
+        src: getPublicUrl('malocclusion-deep.png.png'),
         alt: "Deep Bite",
         value: "deep_bite",
         description: "Deep bite"
