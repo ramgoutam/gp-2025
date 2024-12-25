@@ -9,15 +9,31 @@ interface ExtraOralSectionProps {
 }
 
 export const ExtraOralSection = ({ formData, setFormData }: ExtraOralSectionProps) => {
-  const handleSelectionChange = (category: string, value: string) => {
+  const handleSelectionChange = (category: string, value: string | boolean) => {
     console.log(`Updating ${category} with value:`, value);
-    setFormData((prev: any) => ({
-      ...prev,
-      extra_oral_examination: {
-        ...prev.extra_oral_examination,
-        [category]: value,
-      },
-    }));
+    
+    // Handle nested paths (e.g., 'clinical_findings.overjet')
+    if (category.includes('.')) {
+      const [mainCategory, subCategory] = category.split('.');
+      setFormData((prev: any) => ({
+        ...prev,
+        extra_oral_examination: {
+          ...prev.extra_oral_examination,
+          [mainCategory]: {
+            ...prev.extra_oral_examination?.[mainCategory],
+            [subCategory]: value
+          }
+        }
+      }));
+    } else {
+      setFormData((prev: any) => ({
+        ...prev,
+        extra_oral_examination: {
+          ...prev.extra_oral_examination,
+          [category]: value,
+        },
+      }));
+    }
   };
 
   const handleMeasurementChange = (field: string, value: string) => {
@@ -134,9 +150,9 @@ export const ExtraOralSection = ({ formData, setFormData }: ExtraOralSectionProp
           ].map((item) => (
             <div key={item.id} className="flex justify-between items-center gap-4">
               <SelectionButton
-                selected={formData.extra_oral_examination?.clinical_findings?.[item.id] === true}
+                selected={formData.extra_oral_examination?.clinical_findings?.[item.id] === "true"}
                 onClick={() => handleSelectionChange(`clinical_findings.${item.id}`, 
-                  !formData.extra_oral_examination?.clinical_findings?.[item.id])}
+                  formData.extra_oral_examination?.clinical_findings?.[item.id] === "true" ? "false" : "true")}
               >
                 {item.label}
               </SelectionButton>
@@ -164,10 +180,10 @@ export const ExtraOralSection = ({ formData, setFormData }: ExtraOralSectionProp
           ].map((muscle) => (
             <SelectionButton
               key={muscle}
-              selected={formData.extra_oral_examination?.muscle_palpation?.[muscle.toLowerCase().replace(/-/g, "_")] === true}
+              selected={formData.extra_oral_examination?.muscle_palpation?.[muscle.toLowerCase().replace(/-/g, "_")] === "true"}
               onClick={() => handleSelectionChange(
                 `muscle_palpation.${muscle.toLowerCase().replace(/-/g, "_")}`,
-                !formData.extra_oral_examination?.muscle_palpation?.[muscle.toLowerCase().replace(/-/g, "_")]
+                formData.extra_oral_examination?.muscle_palpation?.[muscle.toLowerCase().replace(/-/g, "_")] === "true" ? "false" : "true"
               )}
             >
               {muscle}
