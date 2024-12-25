@@ -41,6 +41,7 @@ export const HeadNeckExaminationForm = ({
       if (existingData.evaluation_notes) completed[8] = true;
       if (existingData.guideline_questions) completed[9] = true;
       
+      console.log("Setting completed steps:", completed);
       setCompletedSteps(completed);
     }
   }, [existingData]);
