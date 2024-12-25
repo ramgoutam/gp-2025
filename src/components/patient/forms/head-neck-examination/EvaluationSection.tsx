@@ -110,8 +110,8 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     <div className="space-y-6">
       <div className="space-y-4">
         <div>
-          <Label className="text-base font-semibold">
-            Radiographic Examination
+          <Label className="text-base font-semibold text-[#0EA5E9]">
+            Radiographic Findings
           </Label>
           <div className="grid grid-cols-2 gap-4 mt-2">
             {evaluationOptions.map((option) => (
