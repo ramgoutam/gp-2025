@@ -20,7 +20,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
     }
   };
 
-  const baseButtonStyles = "w-[120px] transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md";
+  const baseButtonStyles = "h-9 px-3 transition-all duration-500 ease-in-out transform hover:scale-[1.03] active:scale-[0.97] hover:shadow-md";
 
   if (isUpdating) {
     return (
