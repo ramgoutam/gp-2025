@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { CardActions } from "./CardActions";
 import { StatusButton } from "./StatusButton";
 import { LabScript } from "@/types/labScript";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabScriptCardProps {
   script: LabScript;
@@ -21,6 +23,28 @@ export const LabScriptCard = ({
   onDelete,
   onStatusChange,
 }: LabScriptCardProps) => {
+  // Query for real-time script updates
+  const { data: updatedScript } = useQuery({
+    queryKey: ['labScript', script.id],
+    queryFn: async () => {
+      console.log("Fetching real-time updates for script:", script.id);
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching script:", error);
+        return script;
+      }
+
+      return data || script;
+    },
+    refetchInterval: 1, // Refetch every millisecond
+    initialData: script,
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -59,11 +83,11 @@ export const LabScriptCard = ({
   };
 
   const getScriptTitle = () => {
-    const upperDesign = script.upperDesignName || "Not specified";
-    const lowerDesign = script.lowerDesignName || "Not specified";
+    const upperDesign = updatedScript.upperDesignName || "Not specified";
+    const lowerDesign = updatedScript.lowerDesignName || "Not specified";
     return (
       <div className="flex items-center gap-2">
-        <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
+        <span className="text-lg font-semibold">{updatedScript.applianceType || "N/A"}</span>
         <span className="text-sm text-gray-500">|</span>
         <span className="text-sm text-gray-600">Upper: {upperDesign}</span>
         <span className="text-sm text-gray-500">|</span>
@@ -73,8 +97,8 @@ export const LabScriptCard = ({
   };
 
   const handleStatusChange = (newStatus: LabScript['status']) => {
-    console.log("Handling status change in LabScriptCard:", script.id, newStatus);
-    onStatusChange(script, newStatus);
+    console.log("Handling status change in LabScriptCard:", updatedScript.id, newStatus);
+    onStatusChange(updatedScript, newStatus);
   };
 
   return (
@@ -86,23 +110,23 @@ export const LabScriptCard = ({
               {getScriptTitle()}
               <Badge 
                 variant="outline" 
-                className={`${getStatusColor(script.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
+                className={`${getStatusColor(updatedScript.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
               >
-                {getStatusText(script.status)}
+                {getStatusText(updatedScript.status)}
               </Badge>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
-                <span>Created: {format(new Date(script.requestDate), "MMM dd, yyyy")}</span>
+                <span>Created: {format(new Date(updatedScript.requestDate), "MMM dd, yyyy")}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span>Due: {format(new Date(script.dueDate), "MMM dd, yyyy")}</span>
+                <span>Due: {format(new Date(updatedScript.dueDate), "MMM dd, yyyy")}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span>Doctor: {script.doctorName}</span>
+                <span>Doctor: {updatedScript.doctorName}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span>Clinic: {script.clinicName}</span>
+                <span>Clinic: {updatedScript.clinicName}</span>
               </div>
             </div>
           </div>
@@ -113,8 +137,8 @@ export const LabScriptCard = ({
               onDelete={onDelete}
             />
             <StatusButton 
-              script={script}
-              status={script.status} 
+              script={updatedScript}
+              status={updatedScript.status} 
               onStatusChange={handleStatusChange}
             />
           </div>
