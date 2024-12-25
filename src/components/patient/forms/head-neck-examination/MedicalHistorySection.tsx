@@ -2,6 +2,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 
 interface MedicalHistorySectionProps {
   formData: any;
@@ -64,54 +65,65 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Medical History</h3>
-        <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-primary">Medical History</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {medicalConditions.map((condition) => (
-            <div key={condition} className="flex items-center space-x-2">
+            <div key={condition} className="flex items-center space-x-3">
               <Checkbox
                 id={condition}
                 checked={(formData.medical_history?.conditions || []).includes(condition)}
                 onCheckedChange={() => toggleCondition(condition)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
-              <Label htmlFor={condition}>{condition}</Label>
+              <Label 
+                htmlFor={condition}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {condition}
+              </Label>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Allergies</h3>
-        <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-primary">Allergies</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allergyTypes.map((allergy) => (
-            <div key={allergy} className="flex items-center space-x-2">
+            <div key={allergy} className="flex items-center space-x-3">
               <Checkbox
                 id={allergy}
                 checked={(formData.medical_history?.allergies || []).includes(allergy)}
                 onCheckedChange={() => toggleAllergy(allergy)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
-              <Label htmlFor={allergy}>{allergy}</Label>
+              <Label 
+                htmlFor={allergy}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {allergy}
+              </Label>
             </div>
           ))}
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">COVID-19 Vaccination Status</h3>
+        <h3 className="text-lg font-semibold text-primary">COVID-19 Vaccination Status</h3>
         <RadioGroup
           value={formData.medical_history?.covid19_vaccinated || ""}
           onValueChange={(value) => updateMedicalHistory("covid19_vaccinated", value)}
+          className="flex items-center space-x-6"
         >
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="covid-yes" />
-              <Label htmlFor="covid-yes">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="covid-no" />
-              <Label htmlFor="covid-no">No</Label>
-            </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="yes" id="covid-yes" />
+            <Label htmlFor="covid-yes">Yes</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="no" id="covid-no" />
+            <Label htmlFor="covid-no">No</Label>
           </div>
         </RadioGroup>
       </div>
