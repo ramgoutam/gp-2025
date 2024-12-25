@@ -1,24 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, FileDown } from "lucide-react";
+import { FileDown } from "lucide-react";
 
 interface FormHeaderProps {
-  currentStep: number;
-  totalSteps: number;
-  isSubmitting: boolean;
-  onPrevious: (e: React.MouseEvent) => void;
-  onNext: (e: React.MouseEvent) => void;
-  onSubmit: (e: React.FormEvent) => void;
   onDownload: () => void;
 }
 
 export const FormHeader = ({
-  currentStep,
-  totalSteps,
-  isSubmitting,
-  onPrevious,
-  onNext,
-  onSubmit,
   onDownload,
 }: FormHeaderProps) => {
   return (
@@ -33,45 +21,6 @@ export const FormHeader = ({
         <FileDown className="w-4 h-4" />
         Download
       </Button>
-
-      <div className="absolute bottom-4 right-4">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onPrevious}
-            disabled={currentStep === 0}
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </Button>
-
-          {currentStep === totalSteps - 1 ? (
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={onSubmit}
-            >
-              {isSubmitting ? "Saving..." : "Save Examination"}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={onNext}
-              disabled={isSubmitting}
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              {isSubmitting ? "Saving..." : "Next"}
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { FormSteps } from "./head-neck-examination/FormSteps";
 import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
 import { FormHeader } from "./head-neck-examination/FormHeader";
+import { FormFooterNav } from "./head-neck-examination/FormFooterNav";
 
 interface HeadNeckExaminationFormProps {
   patientId: string;
@@ -181,18 +182,10 @@ export const HeadNeckExaminationForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <FormHeader
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        isSubmitting={isSubmitting}
-        onPrevious={handlePreviousStep}
-        onNext={handleNextStep}
-        onSubmit={handleSubmit}
-        onDownload={handleDownload}
-      />
+    <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white rounded-lg shadow-sm border border-gray-100">
+      <FormHeader onDownload={handleDownload} />
       
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 flex-1 overflow-y-auto">
         <FormSteps 
           currentStep={currentStep} 
           totalSteps={totalSteps}
@@ -207,6 +200,15 @@ export const HeadNeckExaminationForm = ({
           setFormData={setFormData}
         />
       </div>
+
+      <FormFooterNav
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+        isSubmitting={isSubmitting}
+        onPrevious={handlePreviousStep}
+        onNext={handleNextStep}
+        onSubmit={handleSubmit}
+      />
     </form>
   );
 };
