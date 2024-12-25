@@ -8,7 +8,7 @@ interface Step {
 interface ProgressBarProps {
   steps: Step[];
   onStepClick?: (index: number) => void;
-  activeStep?: number; // Add this prop to track which step is being viewed
+  activeStep?: number;
 }
 
 export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps) => {
@@ -47,19 +47,21 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
                   ? activeStep === index 
-                    ? "bg-green-500 border-green-500" // Active completed step
-                    : "bg-primary border-primary" // Regular completed step
+                    ? "bg-primary border-primary text-white" // Active completed step shows number
+                    : "bg-primary border-primary text-white" // Completed step shows checkmark
                   : step.status === "current"
                   ? "bg-primary border-2 border-primary text-white"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
-              {step.status === "completed" ? (
+              {step.status === "completed" && activeStep !== index ? (
                 <Check className="h-4 w-4 text-white" />
               ) : (
                 <span
                   className={`text-sm font-medium ${
-                    step.status === "current" ? "text-white" : "text-gray-400"
+                    step.status === "current" || (step.status === "completed" && activeStep === index)
+                      ? "text-white"
+                      : "text-gray-400"
                   }`}
                 >
                   {index + 1}
