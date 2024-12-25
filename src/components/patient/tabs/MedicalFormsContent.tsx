@@ -1,13 +1,43 @@
-import { FileText } from "lucide-react";
+import { FileText, PenSquare } from "lucide-react";
 import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
+  const [existingExamination, setExistingExamination] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExistingExamination = async () => {
+      if (!patientId) return;
+
+      try {
+        console.log("Fetching existing examination for patient:", patientId);
+        const { data, error } = await supabase
+          .from('head_neck_examinations')
+          .select('*')
+          .eq('patient_id', patientId)
+          .single();
+
+        if (error) throw error;
+        
+        console.log("Existing examination data:", data);
+        setExistingExamination(data);
+      } catch (error) {
+        console.error("Error fetching examination:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExistingExamination();
+  }, [patientId]);
 
   if (!patientId) {
     return <div>Error: Patient ID not found</div>;
@@ -16,6 +46,8 @@ export const MedicalFormsContent = () => {
   const handleFormSuccess = () => {
     console.log("Form submitted successfully");
     setShowHeadNeckForm(false);
+    // Refresh the examination data
+    window.location.reload();
   };
 
   return (
@@ -27,25 +59,55 @@ export const MedicalFormsContent = () => {
         
         <div className="grid gap-4">
           {/* Head and Neck Examination Form */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div className={cn(
+            "flex items-center justify-between p-4 rounded-lg transition-colors",
+            existingExamination ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
+          )}>
             <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-primary" />
+              <FileText className={cn(
+                "w-5 h-5",
+                existingExamination ? "text-green-600" : "text-primary"
+              )} />
               <div>
                 <h3 className="font-medium">Head and Neck Examination</h3>
-                <p className="text-sm text-gray-500">Comprehensive examination form</p>
+                <p className="text-sm text-gray-500">
+                  {existingExamination 
+                    ? `Last updated: ${new Date(existingExamination.updated_at).toLocaleDateString()}`
+                    : "Comprehensive examination form"}
+                </p>
               </div>
             </div>
             <Button 
-              variant="outline"
+              variant={existingExamination ? "outline" : "default"}
               onClick={() => setShowHeadNeckForm(true)}
-              className="text-sm"
+              className={cn(
+                "text-sm gap-2",
+                existingExamination ? "text-green-600 border-green-200 hover:border-green-300 hover:bg-green-50" : ""
+              )}
+              disabled={isLoading}
             >
-              Fill Form
+              {isLoading ? (
+                "Loading..."
+              ) : (
+                <>
+                  {existingExamination ? (
+                    <>
+                      <PenSquare className="w-4 h-4" />
+                      Edit Examination
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4" />
+                      Fill Form
+                    </>
+                  )}
+                </>
+              )}
             </Button>
           </div>
 
           {/* Medical History Form - Placeholder */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-primary" />
               <div>
@@ -63,7 +125,7 @@ export const MedicalFormsContent = () => {
           </div>
 
           {/* Consent Form - Placeholder */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-primary" />
               <div>
@@ -89,7 +151,9 @@ export const MedicalFormsContent = () => {
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Head and Neck Examination Form</DialogTitle>
+            <DialogTitle>
+              {existingExamination ? "Edit Head and Neck Examination" : "Head and Neck Examination Form"}
+            </DialogTitle>
           </DialogHeader>
           <HeadNeckExaminationForm 
             patientId={patientId} 
