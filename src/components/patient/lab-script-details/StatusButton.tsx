@@ -13,67 +13,62 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
   const { updateStatus, isUpdating } = useStatusUpdater();
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
-    console.log("Handling status change:", script.id, newStatus);
+    console.log("Handling status change in StatusButton:", script.id, newStatus);
     const success = await updateStatus(script, newStatus);
     if (success) {
       onStatusChange(newStatus);
     }
   };
 
-  const getStatusButtons = () => {
-    if (isUpdating) {
-      return [
+  if (isUpdating) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="flex items-center gap-2"
+      >
+        Updating...
+      </Button>
+    );
+  }
+
+  switch (status) {
+    case 'pending':
+      return (
         <Button
-          key="loading"
           variant="outline"
           size="sm"
-          disabled
-          className="flex items-center gap-2"
+          onClick={() => handleStatusChange('in_progress')}
+          className="flex items-center gap-2 hover:bg-primary/5"
         >
-          Updating...
+          <Play className="h-4 w-4 text-primary" />
+          Start Design
         </Button>
-      ];
-    }
-
-    switch (status) {
-      case 'pending':
-        return [
+      );
+    
+    case 'in_progress':
+      return (
+        <div className="flex gap-2">
           <Button
-            key="start"
-            variant="outline"
-            size="sm"
-            onClick={() => handleStatusChange('in_progress')}
-            className="flex items-center gap-2 hover:bg-primary/5"
-          >
-            <Play className="h-4 w-4 text-primary" />
-            Start Design
-          </Button>
-        ];
-      
-      case 'in_progress':
-        return [
-          <Button
-            key="pause"
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('paused')}
-            className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200 mr-2"
+            className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200"
           >
             <Pause className="h-4 w-4" />
             Pause
-          </Button>,
+          </Button>
           <Button
-            key="hold"
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('hold')}
-            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200 mr-2"
+            className="flex items-center gap-2 hover:bg-red-50 text-red-600 border-red-200"
           >
             <StopCircle className="h-4 w-4" />
             Hold
-          </Button>,
+          </Button>
           <Button
-            key="complete"
             variant="outline"
             size="sm"
             onClick={() => handleStatusChange('completed')}
@@ -82,34 +77,27 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
             <CheckCircle className="h-4 w-4" />
             Complete
           </Button>
-        ];
-      
-      case 'paused':
-      case 'hold':
-        return [
-          <Button
-            key="resume"
-            variant="outline"
-            size="sm"
-            onClick={() => handleStatusChange('in_progress')}
-            className="flex items-center gap-2 hover:bg-primary/5"
-          >
-            <PlayCircle className="h-4 w-4 text-primary" />
-            Resume
-          </Button>
-        ];
-      
-      case 'completed':
-        return null;
-      
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="flex justify-end gap-2">
-      {getStatusButtons()}
-    </div>
-  );
+        </div>
+      );
+    
+    case 'paused':
+    case 'hold':
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleStatusChange('in_progress')}
+          className="flex items-center gap-2 hover:bg-primary/5"
+        >
+          <PlayCircle className="h-4 w-4 text-primary" />
+          Resume
+        </Button>
+      );
+    
+    case 'completed':
+      return null;
+    
+    default:
+      return null;
+  }
 };
