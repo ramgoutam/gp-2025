@@ -1,6 +1,7 @@
 import React from "react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 
 interface GuidelineQuestionsSectionProps {
   formData: any;
@@ -11,13 +12,13 @@ export const GuidelineQuestionsSection = ({
   formData,
   setFormData,
 }: GuidelineQuestionsSectionProps) => {
-  const handleOptionChange = (questionId: string, value: string) => {
+  const handleOptionChange = (questionId: string, value: boolean) => {
     console.log(`Updating question ${questionId}:`, value);
     setFormData((prev: any) => ({
       ...prev,
       guideline_questions: {
         ...prev.guideline_questions,
-        [questionId]: value === "true",
+        [questionId]: value,
       },
     }));
   };
@@ -93,25 +94,18 @@ export const GuidelineQuestionsSection = ({
     <div className="space-y-6 animate-fade-in">
       <div className="grid gap-4">
         {questions.map((question) => (
-          <div key={question.id} className="space-y-2">
-            <Label className="text-base">{question.text}</Label>
-            <RadioGroup
-              value={
-                formData.guideline_questions?.[question.id]?.toString() || "false"
-              }
-              onValueChange={(value) => handleOptionChange(question.id, value)}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="true" id={`${question.id}-true`} />
-                <Label htmlFor={`${question.id}-true`}>True</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="false" id={`${question.id}-false`} />
-                <Label htmlFor={`${question.id}-false`}>False</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <Card key={question.id} className="p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between gap-4">
+              <Label className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {question.text}
+              </Label>
+              <Switch
+                checked={formData.guideline_questions?.[question.id] || false}
+                onCheckedChange={(checked) => handleOptionChange(question.id, checked)}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+          </Card>
         ))}
       </div>
     </div>
