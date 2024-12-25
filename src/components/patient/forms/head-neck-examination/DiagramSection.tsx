@@ -1,6 +1,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DiagramSectionProps {
   type: "mallampati" | "malocclusion" | "inflammation";
@@ -11,28 +12,35 @@ interface DiagramSectionProps {
 export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) => {
   console.log(`Rendering ${type} diagram with value:`, value);
   
+  const getPublicUrl = (filename: string) => {
+    const { data } = supabase.storage
+      .from('lab_script_files')
+      .getPublicUrl(filename);
+    return data.publicUrl;
+  };
+  
   const diagrams = {
     mallampati: [
       {
-        src: "/lovable-uploads/mallampati-1.png",
+        src: getPublicUrl('mallampati-1.png.png'),
         alt: "Mallampati Score Class I",
         value: "class_1",
         description: "Soft palate, uvula, fauces, pillars visible"
       },
       {
-        src: "/lovable-uploads/mallampati-2.png",
+        src: getPublicUrl('mallampati-2.png.png'),
         alt: "Mallampati Score Class II",
         value: "class_2",
         description: "Soft palate, uvula, fauces visible"
       },
       {
-        src: "/lovable-uploads/mallampati-3.png",
+        src: getPublicUrl('mallampati-3.png.png'),
         alt: "Mallampati Score Class III",
         value: "class_3",
         description: "Soft palate, base of uvula visible"
       },
       {
-        src: "/lovable-uploads/mallampati-4.png",
+        src: getPublicUrl('mallampati-4.png.png'),
         alt: "Mallampati Score Class IV",
         value: "class_4",
         description: "Only hard palate visible"
@@ -40,25 +48,25 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
     ],
     malocclusion: [
       {
-        src: "/lovable-uploads/malocclusion-normal.png",
+        src: getPublicUrl('malocclusion-normal.png'),
         alt: "Normal Bite",
         value: "normal",
         description: "Normal occlusion"
       },
       {
-        src: "/lovable-uploads/malocclusion-cross.png",
+        src: getPublicUrl('malocclusion-cross.png'),
         alt: "Cross Bite",
         value: "cross_bite",
         description: "Cross bite"
       },
       {
-        src: "/lovable-uploads/malocclusion-open.png",
+        src: getPublicUrl('malocclusion-open.png'),
         alt: "Open Bite",
         value: "open_bite",
         description: "Open bite"
       },
       {
-        src: "/lovable-uploads/malocclusion-deep.png",
+        src: getPublicUrl('malocclusion-deep.png'),
         alt: "Deep Bite",
         value: "deep_bite",
         description: "Deep bite"
@@ -66,19 +74,19 @@ export const DiagramSection = ({ type, value, onChange }: DiagramSectionProps) =
     ],
     inflammation: [
       {
-        src: "/lovable-uploads/inflammation-mild.png",
+        src: getPublicUrl('inflammation-mild.png'),
         alt: "Mild Inflammation",
         value: "mild",
         description: "Mild inflammation"
       },
       {
-        src: "/lovable-uploads/inflammation-moderate.png",
+        src: getPublicUrl('inflammation-moderate.png'),
         alt: "Moderate Inflammation",
         value: "moderate",
         description: "Moderate inflammation"
       },
       {
-        src: "/lovable-uploads/inflammation-severe.png",
+        src: getPublicUrl('inflammation-severe.png'),
         alt: "Severe Inflammation",
         value: "severe",
         description: "Severe inflammation"
