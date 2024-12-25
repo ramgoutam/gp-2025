@@ -64,32 +64,33 @@ export const AirwayImageUpload = ({ formData, setFormData }: AirwayImageUploadPr
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => document.getElementById('airway-image-upload')?.click()}
-          disabled={isUploading}
-        >
-          {isUploading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Airway Evaluation Picture
-            </>
-          )}
-        </Button>
-        {formData.airway_image_url && (
+        {!formData.airway_image_url ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => document.getElementById('airway-image-upload')?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Airway Evaluation Picture
+              </>
+            )}
+          </Button>
+        ) : (
           <Button
             type="button"
             variant="outline"
             onClick={() => setShowPreview(true)}
           >
             <Eye className="mr-2 h-4 w-4" />
-            Preview Image
+            Preview Airway Evaluation Picture
           </Button>
         )}
         <input
