@@ -58,6 +58,11 @@ export const HeadNeckExaminationForm = ({
     e.preventDefault();
     console.log("Form submission triggered");
     
+    if (!shouldClose && currentStep !== totalSteps - 1) {
+      console.log("Not on final step, preventing submission");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -117,7 +122,7 @@ export const HeadNeckExaminationForm = ({
 
   const handleNextStep = (e: React.MouseEvent) => {
     e.preventDefault();
-    handleSubmit(e as any, false);
+    handleSubmit(e as any);
   };
 
   const handlePreviousStep = (e: React.MouseEvent) => {
@@ -140,26 +145,29 @@ export const HeadNeckExaminationForm = ({
           Previous
         </Button>
 
-        <Button
-          type="button"
-          onClick={handleNextStep}
-          disabled={currentStep === totalSteps - 1 || isSubmitting}
-          size="sm"
-          className="flex items-center gap-1"
-        >
-          Save & Next
-          <ChevronRight className="w-4 h-4" />
-        </Button>
-
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          size="sm"
-          className="flex items-center gap-1"
-        >
-          <Save className="w-4 h-4" />
-          {isSubmitting ? "Saving..." : "Save & Submit"}
-        </Button>
+        {currentStep === totalSteps - 1 ? (
+          <>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Save className="w-4 h-4" />
+              {isSubmitting ? "Saving..." : "Save & Submit"}
+            </Button>
+          </>
+        ) : (
+          <Button
+            type="button"
+            onClick={handleNextStep}
+            size="sm"
+            className="flex items-center gap-1"
+          >
+            Save & Next
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        )}
       </div>
       
       <div className="p-6 space-y-6">
