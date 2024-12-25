@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { ReportCardDialog } from "./ReportCardDialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ReportCardProps {
   script: LabScript;
@@ -29,11 +30,14 @@ export const ReportCard = ({
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
   const [isCompleted, setIsCompleted] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchReportCardStatus = async () => {
-    try {
+  // Query for report card status with millisecond refresh
+  const { data: reportCard } = useQuery({
+    queryKey: ['reportCard', script.id],
+    queryFn: async () => {
       console.log("Fetching report card status for script:", script.id);
-      const { data: reportCard, error } = await supabase
+      const { data, error } = await supabase
         .from('report_cards')
         .select(`
           *,
@@ -45,23 +49,24 @@ export const ReportCard = ({
 
       if (error) {
         console.error("Error fetching report card:", error);
-        return;
+        return null;
       }
 
-      if (reportCard) {
-        console.log("Found report card:", reportCard);
-        setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
-        setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-        setIsCompleted(reportCard.status === 'completed');
-      }
-    } catch (error) {
-      console.error("Error in fetchReportCardStatus:", error);
-    }
-  };
+      console.log("Found report card:", data);
+      return data;
+    },
+    refetchInterval: 1, // Refetch every millisecond
+  });
 
   useEffect(() => {
-    fetchReportCardStatus();
+    if (reportCard) {
+      setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
+      setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+      setIsCompleted(reportCard.status === 'completed');
+    }
+  }, [reportCard]);
 
+  useEffect(() => {
     const channel = supabase
       .channel('report-card-changes')
       .on(
@@ -74,12 +79,7 @@ export const ReportCard = ({
         },
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
-          if (payload.new) {
-            const newData = payload.new as ReportCardData;
-            setDesignInfoStatus(newData.design_info_status);
-            setClinicalInfoStatus(newData.clinical_info_status);
-            setIsCompleted(newData.status === 'completed');
-          }
+          queryClient.invalidateQueries({ queryKey: ['reportCard', script.id] });
         }
       )
       .subscribe();
@@ -87,7 +87,7 @@ export const ReportCard = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [script.id]);
+  }, [script.id, queryClient]);
 
   const handleComplete = async () => {
     console.log("Completing report card");

@@ -10,6 +10,7 @@ import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type LabScriptsTabProps = {
   labScripts: LabScript[];
@@ -32,13 +33,15 @@ export const LabScriptsTab = ({
   const [selectedScript, setSelectedScript] = React.useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = React.useState(false);
   const { toast } = useToast();
-  const [enrichedLabScripts, setEnrichedLabScripts] = useState<LabScript[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const enrichLabScripts = async () => {
+  // Query for enriched lab scripts with millisecond refresh
+  const { data: enrichedLabScripts = [] } = useQuery({
+    queryKey: ['enrichedLabScripts', labScripts],
+    queryFn: async () => {
       try {
-        setIsLoading(true);
+        console.log("Fetching enriched lab scripts data");
         const enrichedScripts = await Promise.all(
           labScripts.map(async (script) => {
             console.log("Fetching report card data for script:", script.id);
@@ -89,8 +92,8 @@ export const LabScriptsTab = ({
           return dateB - dateA;
         });
 
-        console.log("Sorted report card scripts:", sortedScripts);
-        setEnrichedLabScripts(sortedScripts);
+        console.log("Sorted and enriched scripts:", sortedScripts);
+        return sortedScripts;
       } catch (error) {
         console.error("Error enriching lab scripts:", error);
         toast({
@@ -98,13 +101,13 @@ export const LabScriptsTab = ({
           description: "Failed to load some script details",
           variant: "destructive"
         });
-      } finally {
-        setIsLoading(false);
+        return [];
       }
-    };
+    },
+    refetchInterval: 1, // Refetch every millisecond
+  });
 
-    enrichLabScripts();
-
+  useEffect(() => {
     // Set up real-time subscription for report cards
     const channel = supabase
       .channel('report-cards-changes')
@@ -115,45 +118,9 @@ export const LabScriptsTab = ({
           schema: 'public',
           table: 'report_cards'
         },
-        async (payload: RealtimePostgresChangesPayload<any>) => {
+        (payload: RealtimePostgresChangesPayload<any>) => {
           console.log("Report card changed:", payload);
-          
-          // Re-fetch the updated report card data
-          if (payload.new && payload.new.lab_script_id) {
-            const { data: updatedReportCard, error } = await supabase
-              .from('report_cards')
-              .select(`
-                *,
-                design_info:design_info_id(*),
-                clinical_info:clinical_info_id(*)
-              `)
-              .eq('id', payload.new.id)
-              .single();
-
-            if (error) {
-              console.error("Error fetching updated report card:", error);
-              return;
-            }
-
-            // Update the enriched lab scripts with new data
-            setEnrichedLabScripts(prevScripts =>
-              prevScripts.map(script => {
-                if (script.id === updatedReportCard.lab_script_id) {
-                  return {
-                    ...script,
-                    designInfo: updatedReportCard.design_info,
-                    clinicalInfo: updatedReportCard.clinical_info,
-                    reportCard: {
-                      ...updatedReportCard,
-                      design_info: undefined,
-                      clinical_info: undefined
-                    }
-                  };
-                }
-                return script;
-              })
-            );
-          }
+          queryClient.invalidateQueries({ queryKey: ['enrichedLabScripts'] });
         }
       )
       .subscribe();
@@ -161,7 +128,7 @@ export const LabScriptsTab = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [labScripts]);
+  }, [queryClient]);
 
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
