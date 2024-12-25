@@ -1,6 +1,5 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 interface EvaluationSectionProps {
@@ -35,7 +34,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     // Parse current selections
     let currentSelections: string[] = [];
     try {
-      const parsedSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
+      const parsedSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side] || '[]');
       currentSelections = Array.isArray(parsedSelections) ? parsedSelections : [];
     } catch (e) {
       console.error('Error parsing selections:', e);
@@ -128,11 +127,11 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           </div>
         </div>
 
-        <h2 className="text-xl font-bold text-primary mb-4">Maxillary Sinus Evaluation</h2>
+        <h2 className="text-xl font-bold text-[#0EA5E9] mb-4">Maxillary Sinus Evaluation</h2>
 
         <div className="space-y-4">
           <div>
-            <Label className="text-base font-semibold">
+            <Label className="text-base font-semibold text-[#0EA5E9]">
               Left Maxillary Sinus
             </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
@@ -151,7 +150,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           </div>
 
           <div>
-            <Label className="text-base font-semibold">
+            <Label className="text-base font-semibold text-[#0EA5E9]">
               Right Maxillary Sinus
             </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
@@ -171,14 +170,14 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
         </div>
 
         <div>
-          <Label htmlFor="airway_evaluation" className="text-base font-semibold">
+          <Label htmlFor="airway_evaluation" className="text-base font-semibold text-[#0EA5E9]">
             AIRWAY EVALUATION
           </Label>
-          <Textarea
+          <textarea
             id="airway_evaluation"
             value={formData.airway_evaluation || ""}
             onChange={handleTextChange("airway_evaluation")}
-            className="mt-2 min-h-[100px]"
+            className="mt-2 min-h-[100px] w-full border rounded p-2"
             placeholder="Enter airway evaluation..."
           />
         </div>
