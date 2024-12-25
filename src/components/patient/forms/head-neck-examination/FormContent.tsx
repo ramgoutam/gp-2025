@@ -9,10 +9,6 @@ import { FunctionalPresentationSection } from "./FunctionalPresentationSection";
 import { TactileRadiographicSection } from "./TactileRadiographicSection";
 import { EvaluationSection } from "./EvaluationSection";
 import { GuidelineQuestionsSection } from "./GuidelineQuestionsSection";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import { generateExaminationPDF } from "@/utils/pdfUtils";
-import { useToast } from "@/hooks/use-toast";
 
 interface FormContentProps {
   currentStep: number;
@@ -21,26 +17,6 @@ interface FormContentProps {
 }
 
 export const FormContent = ({ currentStep, formData, setFormData }: FormContentProps) => {
-  const { toast } = useToast();
-
-  const handleDownload = async () => {
-    try {
-      console.log("Initiating PDF download for form data:", formData);
-      await generateExaminationPDF(formData);
-      toast({
-        title: "Success",
-        description: "Examination report has been downloaded successfully.",
-      });
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-      toast({
-        title: "Error",
-        description: "Failed to download examination report. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
@@ -69,21 +45,8 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
   };
 
   return (
-    <div className="min-h-[400px] relative">
-      <div className="absolute top-0 right-0">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDownload}
-          className="flex items-center gap-2"
-        >
-          <Download className="w-4 h-4" />
-          Download Report
-        </Button>
-      </div>
-      <div className="pt-12">
-        {renderStepContent()}
-      </div>
+    <div className="min-h-[400px]">
+      {renderStepContent()}
     </div>
   );
 };
