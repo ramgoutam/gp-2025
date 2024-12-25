@@ -8,7 +8,10 @@ export const useStatusUpdater = () => {
   const { toast } = useToast();
 
   const updateStatus = async (script: LabScript, newStatus: LabScript['status']) => {
-    if (isUpdating) return;
+    if (isUpdating || !script?.id) {
+      console.log("Cannot update status: either already updating or missing script ID");
+      return false;
+    }
     
     setIsUpdating(true);
     console.log("Updating lab script status:", script.id, newStatus);
@@ -19,9 +22,12 @@ export const useStatusUpdater = () => {
         .update({ status: newStatus })
         .eq('id', script.id)
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating status:", error);
+        throw error;
+      }
 
       console.log("Status updated successfully:", data);
       toast({
@@ -29,7 +35,7 @@ export const useStatusUpdater = () => {
         description: `Lab script status changed to ${newStatus}`
       });
 
-      return data;
+      return true;
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -37,6 +43,7 @@ export const useStatusUpdater = () => {
         description: "Failed to update status. Please try again.",
         variant: "destructive"
       });
+      return false;
     } finally {
       setIsUpdating(false);
     }
