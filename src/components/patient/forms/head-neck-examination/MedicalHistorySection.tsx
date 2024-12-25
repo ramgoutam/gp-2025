@@ -109,23 +109,6 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
           })}
         </div>
       </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">COVID-19 Vaccination Status</h3>
-        <div className="flex gap-4">
-          {["yes", "no"].map((value) => (
-            <Button
-              key={value}
-              type="button"
-              variant={formData.medical_history?.covid19_vaccinated === value ? "default" : "outline"}
-              onClick={() => updateMedicalHistory("covid19_vaccinated", value)}
-              className="w-24"
-            >
-              {value.charAt(0).toUpperCase() + value.slice(1)}
-            </Button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
