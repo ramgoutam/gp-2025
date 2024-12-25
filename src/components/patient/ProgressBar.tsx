@@ -7,15 +7,31 @@ interface Step {
 
 interface ProgressBarProps {
   steps: Step[];
+  onStepClick?: (index: number) => void;
 }
 
-export const ProgressBar = ({ steps }: ProgressBarProps) => {
+export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
   console.log("Progress bar steps:", steps);
+
+  const handleStepClick = (index: number, status: Step["status"]) => {
+    // Only allow clicking on completed steps or the next available step
+    if (status === "completed" || status === "current") {
+      console.log("Navigating to step:", index);
+      onStepClick?.(index);
+    }
+  };
 
   return (
     <div className="flex items-start w-full">
       {steps.map((step, index) => (
-        <div key={step.label} className="flex-1 relative">
+        <div 
+          key={step.label} 
+          className="flex-1 relative"
+          onClick={() => handleStepClick(index, step.status)}
+          role="button"
+          tabIndex={0}
+          style={{ cursor: step.status === "upcoming" ? "not-allowed" : "pointer" }}
+        >
           <div className="flex items-center justify-center">
             {index > 0 && (
               <div

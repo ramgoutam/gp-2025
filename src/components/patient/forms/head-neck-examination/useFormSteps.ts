@@ -18,6 +18,7 @@ export const useFormSteps = () => {
 
   return {
     currentStep,
+    setCurrentStep,
     handleNext,
     handlePrevious,
     totalSteps,

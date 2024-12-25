@@ -18,7 +18,7 @@ export const HeadNeckExaminationForm = ({
   onSuccess,
   existingData 
 }: HeadNeckExaminationFormProps) => {
-  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
+  const { currentStep, handleNext, handlePrevious, totalSteps, setCurrentStep } = useFormSteps();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -142,6 +142,14 @@ export const HeadNeckExaminationForm = ({
     handlePrevious();
   };
 
+  const handleStepChange = async (step: number) => {
+    // Save current step data before changing
+    const success = await saveFormData();
+    if (success) {
+      setCurrentStep(step);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="flex items-center justify-end px-4 py-3 border-b border-gray-100 gap-2">
@@ -185,6 +193,7 @@ export const HeadNeckExaminationForm = ({
           currentStep={currentStep} 
           totalSteps={totalSteps}
           formData={formData}
+          onStepChange={handleStepChange}
         />
         
         <FormContent 

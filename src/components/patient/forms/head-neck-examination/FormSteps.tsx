@@ -1,4 +1,5 @@
 import { ProgressBar } from "../../ProgressBar";
+import { useFormSteps } from "./useFormSteps";
 
 interface Step {
   label: string;
@@ -9,9 +10,10 @@ interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
   formData: any;
+  onStepChange?: (step: number) => void;
 }
 
-export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
+export const FormSteps = ({ currentStep, formData, onStepChange }: FormStepsProps) => {
   // Helper function to determine if an object has any filled fields
   const hasFilledFields = (obj: any): boolean => {
     if (!obj) return false;
@@ -96,6 +98,11 @@ export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
     }
   };
 
+  const handleStepClick = (stepIndex: number) => {
+    console.log("Step clicked:", stepIndex);
+    onStepChange?.(stepIndex);
+  };
+
   const steps: Step[] = [
     { 
       label: "Patient Information & Vital Signs", 
@@ -140,5 +147,5 @@ export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
   ];
 
   console.log("Progress bar steps:", steps);
-  return <ProgressBar steps={steps} />;
+  return <ProgressBar steps={steps} onStepClick={handleStepClick} />;
 };
