@@ -73,11 +73,20 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="blood_pressure">Blood Pressure</Label>
+          <Label htmlFor="blood_pressure">Blood Pressure (systolic/diastolic)</Label>
           <Input
             id="blood_pressure"
+            placeholder="120/80"
+            pattern="\d{2,3}\/\d{2,3}"
+            title="Please enter blood pressure in format: systolic/diastolic (e.g., 120/80)"
             value={formData.vital_signs?.blood_pressure || ""}
-            onChange={(e) => updateVitalSigns("blood_pressure", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Only allow numbers and forward slash
+              if (/^[\d\/]*$/.test(value)) {
+                updateVitalSigns("blood_pressure", value);
+              }
+            }}
           />
         </div>
         <div className="space-y-2">
