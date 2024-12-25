@@ -43,8 +43,15 @@ export const HeadNeckExaminationForm = ({
       
       console.log("Setting completed steps:", completed);
       setCompletedSteps(completed);
+    } else {
+      console.log("No existing data found, starting with empty form");
+      // Initialize with empty form data
+      setFormData({
+        patient_id: patientId,
+        status: 'draft'
+      });
     }
-  }, [existingData]);
+  }, [existingData, patientId]);
 
   const saveFormData = async () => {
     setIsSaving(true);
