@@ -23,12 +23,14 @@ export const MedicalFormsContent = () => {
           .from('head_neck_examinations')
           .select('*')
           .eq('patient_id', patientId)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1);
 
         if (error) throw error;
         
         console.log("Existing examination data:", data);
-        setExistingExamination(data);
+        // Set the most recent examination if exists
+        setExistingExamination(data?.[0] || null);
       } catch (error) {
         console.error("Error fetching examination:", error);
       } finally {
