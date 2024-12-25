@@ -18,7 +18,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     lastName: "",
     email: "",
     phone: "",
-    emergencyContactName: "",
+    emergencyContactName: "", // Added this line
     emergencyPhone: "",
     sex: "",
     dob: "",
@@ -117,6 +117,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         lastName: "",
         email: "",
         phone: "",
+        emergencyContactName: "", // Added this line
         emergencyPhone: "",
         sex: "",
         dob: "",
