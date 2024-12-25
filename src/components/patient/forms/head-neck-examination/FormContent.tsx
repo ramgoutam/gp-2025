@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DiagramSection } from "./DiagramSection";
 import { IntraOralSection } from "./IntraOralSection";
+import { VitalSignsSection } from "./VitalSignsSection";
+import { MedicalHistorySection } from "./MedicalHistorySection";
 
 interface FormContentProps {
   currentStep: number;
@@ -26,56 +28,8 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
       case 0:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  value={formData.vital_signs?.height || ""}
-                  onChange={(e) => handleInputChange("vital_signs", {
-                    ...formData.vital_signs,
-                    height: e.target.value
-                  })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  value={formData.vital_signs?.weight || ""}
-                  onChange={(e) => handleInputChange("vital_signs", {
-                    ...formData.vital_signs,
-                    weight: e.target.value
-                  })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="blood_pressure">Blood Pressure</Label>
-                <Input
-                  id="blood_pressure"
-                  value={formData.vital_signs?.blood_pressure || ""}
-                  onChange={(e) => handleInputChange("vital_signs", {
-                    ...formData.vital_signs,
-                    blood_pressure: e.target.value
-                  })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="temperature">Temperature (°C)</Label>
-                <Input
-                  id="temperature"
-                  type="number"
-                  step="0.1"
-                  value={formData.vital_signs?.temperature || ""}
-                  onChange={(e) => handleInputChange("vital_signs", {
-                    ...formData.vital_signs,
-                    temperature: e.target.value
-                  })}
-                />
-              </div>
-            </div>
+            <VitalSignsSection formData={formData} setFormData={setFormData} />
+            <MedicalHistorySection formData={formData} setFormData={setFormData} />
           </div>
         );
 
