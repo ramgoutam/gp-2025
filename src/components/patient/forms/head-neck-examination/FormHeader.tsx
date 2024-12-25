@@ -34,7 +34,7 @@ export const FormHeader = ({
         Download
       </Button>
 
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="absolute bottom-4 right-4">
         <div className="flex items-center gap-2">
           <Button
             type="button"
