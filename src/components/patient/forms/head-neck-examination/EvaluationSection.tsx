@@ -109,7 +109,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     <div className="space-y-6">
       <div className="space-y-4">
         <div>
-          <Label className="text-xl font-bold text-[#0EA5E9]">
+          <Label className="text-xl font-bold text-primary">
             Radiographic Findings
           </Label>
           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -127,7 +127,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           </div>
         </div>
 
-        <h2 className="text-xl font-bold text-[#0EA5E9] mb-4">Maxillary Sinus Evaluation</h2>
+        <h2 className="text-xl font-bold text-primary mb-4">Maxillary Sinus Evaluation</h2>
 
         <div className="space-y-4">
           <div>
@@ -170,7 +170,7 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
         </div>
 
         <div>
-          <Label htmlFor="airway_evaluation" className="text-xl font-bold text-[#0EA5E9]">
+          <Label htmlFor="airway_evaluation" className="text-xl font-bold text-primary">
             AIRWAY EVALUATION
           </Label>
           <textarea
