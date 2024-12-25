@@ -1,29 +1,17 @@
-import { FileText, PenSquare, Trash2 } from "lucide-react";
+import { FileText, PenSquare } from "lucide-react";
 import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
   const [existingExamination, setExistingExamination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const fetchExistingExamination = async () => {
     if (!patientId) return;
@@ -52,36 +40,16 @@ export const MedicalFormsContent = () => {
     fetchExistingExamination();
   }, [patientId]);
 
+  if (!patientId) {
+    return <div>Error: Patient ID not found</div>;
+  }
+
   const handleFormSuccess = () => {
     console.log("Form submitted successfully");
     setShowHeadNeckForm(false);
     // Refresh the examination data
     fetchExistingExamination();
   };
-
-  const handleDelete = async () => {
-    if (!existingExamination?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('head_neck_examinations')
-        .delete()
-        .eq('id', existingExamination.id);
-
-      if (error) throw error;
-
-      toast.success("Examination deleted successfully");
-      setShowDeleteDialog(false);
-      setExistingExamination(null);
-    } catch (error) {
-      console.error("Error deleting examination:", error);
-      toast.error("Failed to delete examination");
-    }
-  };
-
-  if (!patientId) {
-    return <div>Error: Patient ID not found</div>;
-  }
 
   return (
     <div className="space-y-6">
@@ -110,45 +78,33 @@ export const MedicalFormsContent = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button 
-                variant={existingExamination ? "outline" : "default"}
-                onClick={() => setShowHeadNeckForm(true)}
-                className={cn(
-                  "text-sm gap-2",
-                  existingExamination ? "text-green-600 border-green-200 hover:border-green-300 hover:bg-green-50" : ""
-                )}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  "Loading..."
-                ) : (
-                  <>
-                    {existingExamination ? (
-                      <>
-                        <PenSquare className="w-4 h-4" />
-                        Edit
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-4 h-4" />
-                        Fill Form
-                      </>
-                    )}
-                  </>
-                )}
-              </Button>
-              {existingExamination && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="text-sm gap-2 text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </Button>
+            <Button 
+              variant={existingExamination ? "outline" : "default"}
+              onClick={() => setShowHeadNeckForm(true)}
+              className={cn(
+                "text-sm gap-2",
+                existingExamination ? "text-green-600 border-green-200 hover:border-green-300 hover:bg-green-50" : ""
               )}
-            </div>
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                "Loading..."
+              ) : (
+                <>
+                  {existingExamination ? (
+                    <>
+                      <PenSquare className="w-4 h-4" />
+                      Edit Examination
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4" />
+                      Fill Form
+                    </>
+                  )}
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Medical History Form - Placeholder */}
@@ -207,27 +163,6 @@ export const MedicalFormsContent = () => {
           />
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the examination record.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
