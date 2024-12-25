@@ -81,10 +81,12 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="hp">HP</Label>
+          <Label htmlFor="heart_rate">Heart Rate (BPM)</Label>
           <Input
-            id="hp"
-            type="text"
+            id="heart_rate"
+            type="number"
+            min="30"
+            max="250"
             value={formData.vital_signs?.hp || ""}
             onChange={(e) => updateVitalSigns("hp", e.target.value)}
           />
