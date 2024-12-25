@@ -8,51 +8,89 @@ interface Step {
 interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
+  formData: any;
 }
 
-export const FormSteps = ({ currentStep }: FormStepsProps) => {
+export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
+  // Helper function to determine step status
+  const getStepStatus = (stepIndex: number, data: any): "completed" | "current" | "upcoming" => {
+    if (currentStep === stepIndex) return "current";
+    if (currentStep > stepIndex) return "completed";
+    
+    // Check if there's data for this step
+    const stepData = getStepData(stepIndex, data);
+    if (stepData && Object.keys(stepData).length > 0) return "completed";
+    
+    return "upcoming";
+  };
+
+  // Helper function to get data for a specific step
+  const getStepData = (stepIndex: number, data: any) => {
+    switch (stepIndex) {
+      case 0: return data?.vital_signs;
+      case 1: return data?.medical_history;
+      case 2: return data?.chief_complaints;
+      case 3: return data?.extra_oral_examination;
+      case 4: return data?.intra_oral_examination;
+      case 5: return data?.dental_classification;
+      case 6: return data?.functional_presentation;
+      case 7: return {
+        ...data?.tactile_observation,
+        ...data?.radiographic_presentation
+      };
+      case 8: return {
+        evaluation_notes: data?.evaluation_notes,
+        maxillary_sinuses_evaluation: data?.maxillary_sinuses_evaluation,
+        airway_evaluation: data?.airway_evaluation
+      };
+      case 9: return data?.guideline_questions;
+      default: return null;
+    }
+  };
+
   const steps: Step[] = [
     { 
       label: "Patient Information & Vital Signs", 
-      status: currentStep === 0 ? "current" : currentStep > 0 ? "completed" : "upcoming"
+      status: getStepStatus(0, formData)
     },
     { 
       label: "Medical History", 
-      status: currentStep === 1 ? "current" : currentStep > 1 ? "completed" : "upcoming"
+      status: getStepStatus(1, formData)
     },
     { 
       label: "Chief Complaints", 
-      status: currentStep === 2 ? "current" : currentStep > 2 ? "completed" : "upcoming"
+      status: getStepStatus(2, formData)
     },
     { 
       label: "Extra-Oral Examination", 
-      status: currentStep === 3 ? "current" : currentStep > 3 ? "completed" : "upcoming"
+      status: getStepStatus(3, formData)
     },
     { 
       label: "Intra-Oral Examination", 
-      status: currentStep === 4 ? "current" : currentStep > 4 ? "completed" : "upcoming"
+      status: getStepStatus(4, formData)
     },
     { 
       label: "Dental Classification", 
-      status: currentStep === 5 ? "current" : currentStep > 5 ? "completed" : "upcoming"
+      status: getStepStatus(5, formData)
     },
     { 
       label: "Functional Presentation", 
-      status: currentStep === 6 ? "current" : currentStep > 6 ? "completed" : "upcoming"
+      status: getStepStatus(6, formData)
     },
     { 
       label: "Tactile & Radiographic", 
-      status: currentStep === 7 ? "current" : currentStep > 7 ? "completed" : "upcoming"
+      status: getStepStatus(7, formData)
     },
     { 
       label: "Evaluation", 
-      status: currentStep === 8 ? "current" : currentStep > 8 ? "completed" : "upcoming"
+      status: getStepStatus(8, formData)
     },
     { 
       label: "Guideline Questions", 
-      status: currentStep === 9 ? "current" : currentStep > 9 ? "completed" : "upcoming"
+      status: getStepStatus(9, formData)
     }
   ];
 
+  console.log("Progress bar steps:", steps);
   return <ProgressBar steps={steps} />;
 };

@@ -181,7 +181,11 @@ export const HeadNeckExaminationForm = ({
       </div>
       
       <div className="p-6 space-y-6">
-        <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
+        <FormSteps 
+          currentStep={currentStep} 
+          totalSteps={totalSteps}
+          formData={formData}
+        />
         
         <FormContent 
           currentStep={currentStep} 

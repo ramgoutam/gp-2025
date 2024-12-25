@@ -23,12 +23,13 @@ export const MedicalFormsContent = () => {
         .select('*')
         .eq('patient_id', patientId)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
       
       console.log("Existing examination data:", data);
-      setExistingExamination(data?.[0] || null);
+      setExistingExamination(data);
     } catch (error) {
       console.error("Error fetching examination:", error);
     } finally {
@@ -38,7 +39,7 @@ export const MedicalFormsContent = () => {
 
   useEffect(() => {
     fetchExistingExamination();
-  }, [patientId]);
+  }, [patientId, showHeadNeckForm]); // Added showHeadNeckForm dependency to refresh when dialog closes
 
   if (!patientId) {
     return <div>Error: Patient ID not found</div>;
@@ -47,8 +48,23 @@ export const MedicalFormsContent = () => {
   const handleFormSuccess = () => {
     console.log("Form submitted successfully");
     setShowHeadNeckForm(false);
-    // Refresh the examination data
     fetchExistingExamination();
+  };
+
+  const getButtonText = () => {
+    if (isLoading) return "Loading...";
+    if (existingExamination) {
+      if (existingExamination.status === 'completed') return "View Examination";
+      return "Continue Examination";
+    }
+    return "Fill Form";
+  };
+
+  const getButtonIcon = () => {
+    if (existingExamination) {
+      return <PenSquare className="w-4 h-4" />;
+    }
+    return <FileText className="w-4 h-4" />;
   };
 
   return (
@@ -87,23 +103,8 @@ export const MedicalFormsContent = () => {
               )}
               disabled={isLoading}
             >
-              {isLoading ? (
-                "Loading..."
-              ) : (
-                <>
-                  {existingExamination ? (
-                    <>
-                      <PenSquare className="w-4 h-4" />
-                      Edit Examination
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="w-4 h-4" />
-                      Fill Form
-                    </>
-                  )}
-                </>
-              )}
+              {getButtonIcon()}
+              {getButtonText()}
             </Button>
           </div>
 
@@ -153,7 +154,7 @@ export const MedicalFormsContent = () => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {existingExamination ? "Edit Head and Neck Examination" : "Head and Neck Examination Form"}
+              {existingExamination ? "Continue Head and Neck Examination" : "Head and Neck Examination Form"}
             </DialogTitle>
           </DialogHeader>
           <HeadNeckExaminationForm 
