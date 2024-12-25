@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Trash2 } from "lucide-react";
+import { FileText, Trash2, Eye } from "lucide-react";
 
 interface MedicalFormCardProps {
   title: string;
@@ -8,9 +8,11 @@ interface MedicalFormCardProps {
   lastUpdated?: string;
   onDelete?: () => void;
   onAction: () => void;
+  onView?: () => void;
   actionLabel: string;
   isDisabled?: boolean;
   showDelete?: boolean;
+  showView?: boolean;
 }
 
 export const MedicalFormCard = ({
@@ -19,9 +21,11 @@ export const MedicalFormCard = ({
   lastUpdated,
   onDelete,
   onAction,
+  onView,
   actionLabel,
   isDisabled = false,
   showDelete = false,
+  showView = false,
 }: MedicalFormCardProps) => {
   return (
     <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -44,6 +48,16 @@ export const MedicalFormCard = ({
           <FileText className="w-4 h-4" />
           {actionLabel}
         </Button>
+        {showView && (
+          <Button
+            variant="outline"
+            onClick={onView}
+            className="text-sm gap-2 hover:bg-blue-500/10 hover:border-blue-500/30 text-blue-500"
+          >
+            <Eye className="w-4 h-4" />
+            View
+          </Button>
+        )}
         {showDelete && (
           <Button
             variant="outline"

@@ -9,6 +9,7 @@ import { MedicalFormCard } from "../forms/medical-forms/MedicalFormCard";
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
+  const [showExaminationSummary, setShowExaminationSummary] = useState(false);
   const [existingExamination, setExistingExamination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -91,7 +92,9 @@ export const MedicalFormsContent = () => {
             onAction={() => setShowHeadNeckForm(true)}
             actionLabel={existingExamination ? "Edit" : "Fill Form"}
             showDelete={!!existingExamination}
+            showView={!!existingExamination}
             onDelete={handleDeleteExamination}
+            onView={() => setShowExaminationSummary(true)}
           />
 
           {/* Medical History Form - Placeholder */}
@@ -130,6 +133,33 @@ export const MedicalFormsContent = () => {
             onSuccess={handleFormSuccess}
             existingData={existingExamination}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Examination Summary Dialog */}
+      <Dialog
+        open={showExaminationSummary}
+        onOpenChange={setShowExaminationSummary}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Head and Neck Examination Summary</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            {existingExamination && Object.entries(existingExamination).map(([key, value]) => {
+              if (typeof value === 'object' && value !== null) {
+                return (
+                  <div key={key} className="border-b pb-4">
+                    <h3 className="font-medium capitalize mb-2">{key.replace(/_/g, ' ')}</h3>
+                    <pre className="text-sm whitespace-pre-wrap">
+                      {JSON.stringify(value, null, 2)}
+                    </pre>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
