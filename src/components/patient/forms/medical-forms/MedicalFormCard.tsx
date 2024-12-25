@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Trash2, Eye } from "lucide-react";
+import { FileText, Trash2, Eye, Download } from "lucide-react";
 
 interface MedicalFormCardProps {
   title: string;
@@ -9,10 +9,12 @@ interface MedicalFormCardProps {
   onDelete?: () => void;
   onAction: () => void;
   onView?: () => void;
+  onDownload?: () => void;
   actionLabel: string;
   isDisabled?: boolean;
   showDelete?: boolean;
   showView?: boolean;
+  showDownload?: boolean;
 }
 
 export const MedicalFormCard = ({
@@ -22,10 +24,12 @@ export const MedicalFormCard = ({
   onDelete,
   onAction,
   onView,
+  onDownload,
   actionLabel,
   isDisabled = false,
   showDelete = false,
   showView = false,
+  showDownload = false,
 }: MedicalFormCardProps) => {
   return (
     <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -39,6 +43,16 @@ export const MedicalFormCard = ({
         </div>
       </div>
       <div className="flex gap-2">
+        {showDownload && (
+          <Button
+            variant="outline"
+            onClick={onDownload}
+            className="text-sm gap-2 hover:bg-blue-500/10 hover:border-blue-500/30 text-blue-500"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
+        )}
         <Button 
           variant="outline"
           onClick={onAction}
