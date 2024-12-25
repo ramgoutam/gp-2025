@@ -53,7 +53,7 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
       <h3 className="text-lg font-semibold">Vital Signs</h3>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="height">Height (inches)</Label>
+          <Label htmlFor="height">Height (in)</Label>
           <Input
             id="height"
             type="number"
@@ -77,7 +77,7 @@ export const VitalSignsSection = ({ formData, setFormData }: VitalSignsSectionPr
             type="text"
             value={formData.vital_signs?.bmi || ""}
             readOnly
-            className="bg-gray-50"
+            className="bg-gray-100"
           />
         </div>
         <div className="space-y-2">
