@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const useFormSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = 9; // Updated to include the new Evaluation step
+  const totalSteps = 10; // Updated to include the new Guideline Questions step
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
