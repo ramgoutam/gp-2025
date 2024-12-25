@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,9 +10,14 @@ import { FormContent } from "./head-neck-examination/FormContent";
 interface HeadNeckExaminationFormProps {
   patientId: string;
   onSuccess?: () => void;
+  existingData?: any;
 }
 
-export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExaminationFormProps) => {
+export const HeadNeckExaminationForm = ({ 
+  patientId, 
+  onSuccess,
+  existingData 
+}: HeadNeckExaminationFormProps) => {
   const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -36,6 +41,18 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
     guideline_questions: {},
     status: "draft"
   });
+
+  // Load existing data when the form opens
+  useEffect(() => {
+    if (existingData) {
+      console.log("Loading existing examination data:", existingData);
+      setFormData(prevData => ({
+        ...prevData,
+        ...existingData,
+        patient_id: patientId // Ensure patient_id is always set correctly
+      }));
+    }
+  }, [existingData, patientId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
