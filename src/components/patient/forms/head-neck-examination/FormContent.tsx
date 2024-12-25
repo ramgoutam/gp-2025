@@ -5,6 +5,7 @@ import { MedicalHistorySection } from "./MedicalHistorySection";
 import { ExtraOralSection } from "./ExtraOralSection";
 import { IntraOralSection } from "./IntraOralSection";
 import { DentalClassificationSection } from "./DentalClassificationSection";
+import { FunctionalPresentationSection } from "./FunctionalPresentationSection";
 
 interface FormContentProps {
   currentStep: number;
@@ -27,6 +28,8 @@ export const FormContent = ({ currentStep, formData, setFormData }: FormContentP
         return <IntraOralSection formData={formData} setFormData={setFormData} />;
       case 5:
         return <DentalClassificationSection formData={formData} setFormData={setFormData} />;
+      case 6:
+        return <FunctionalPresentationSection formData={formData} setFormData={setFormData} />;
       default:
         return null;
     }

@@ -1,6 +1,5 @@
 import { ProgressBar } from "../../ProgressBar";
 
-// Import the Step type from ProgressBar
 interface Step {
   label: string;
   status: "completed" | "current" | "upcoming";
@@ -36,6 +35,10 @@ export const FormSteps = ({ currentStep }: FormStepsProps) => {
     { 
       label: "Dental Classification", 
       status: currentStep === 5 ? "current" : currentStep > 5 ? "completed" : "upcoming"
+    },
+    { 
+      label: "Functional Presentation", 
+      status: currentStep === 6 ? "current" : currentStep > 6 ? "completed" : "upcoming"
     }
   ];
 

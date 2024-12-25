@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const useFormSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = 6;
+  const totalSteps = 7; // Updated to include the new Functional Presentation step
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
