@@ -40,18 +40,44 @@ export const FormSteps = ({
 
     console.log("Checking evaluation completion status:", evaluationData);
     
-    return Object.values(evaluationData).some(value => {
+    // Check each field individually
+    const hasValidData = Object.entries(evaluationData).some(([key, value]) => {
+      if (!value) return false;
+
       if (typeof value === 'string') {
-        // Parse JSON strings that might be arrays
-        try {
-          const parsed = JSON.parse(value);
-          return Array.isArray(parsed) ? parsed.length > 0 : value.trim() !== '';
-        } catch {
+        // For maxillary_sinuses_evaluation, check if it's a valid JSON with non-empty arrays
+        if (key === 'maxillary_sinuses_evaluation') {
+          try {
+            const parsed = JSON.parse(value);
+            return parsed && 
+                   typeof parsed === 'object' && 
+                   (parsed.left?.length > 0 || parsed.right?.length > 0);
+          } catch {
+            return false;
+          }
+        }
+
+        // For evaluation_notes and airway_evaluation, check if they're valid JSON arrays with content
+        if (key === 'evaluation_notes' || key === 'airway_evaluation') {
+          try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) && parsed.length > 0;
+          } catch {
+            return value.trim() !== '';
+          }
+        }
+
+        // For airway_image_url, just check if it's a non-empty string
+        if (key === 'airway_image_url') {
           return value.trim() !== '';
         }
       }
-      return value !== null && value !== undefined && value !== '';
+
+      return false;
     });
+
+    console.log("Evaluation has valid data:", hasValidData);
+    return hasValidData;
   };
 
   // Helper function to determine step status
