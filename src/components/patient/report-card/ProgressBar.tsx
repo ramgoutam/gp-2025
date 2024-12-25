@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { InfoStatus } from "@/types/reportCard";
 
 interface Step {
   label: string;
@@ -10,26 +11,19 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar = ({ steps }: ProgressBarProps) => {
+  console.log("Progress bar steps:", steps);
+
   return (
-    <div className="flex items-start w-full">
+    <div className="flex items-center w-full gap-2">
       {steps.map((step, index) => (
-        <div key={step.label} className="flex-1 relative">
-          <div className="flex items-center justify-center">
-            {index > 0 && (
-              <div
-                className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
-                  step.status === "completed" || steps[index - 1].status === "completed"
-                    ? "bg-green-500"
-                    : "bg-gray-200"
-                }`}
-              />
-            )}
+        <div key={step.label} className="flex items-center flex-1">
+          <div className="flex items-center gap-3 flex-1">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
+              className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-colors duration-300 ${
                 step.status === "completed"
-                  ? "bg-green-500 border-green-500"
+                  ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "bg-green-500 border-2 border-green-500 text-white"
+                  ? "border-2 border-primary bg-white"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
@@ -38,17 +32,15 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               ) : (
                 <span
                   className={`text-sm font-medium ${
-                    step.status === "current" ? "text-white" : "text-gray-400"
+                    step.status === "current" ? "text-primary" : "text-gray-400"
                   }`}
                 >
                   {index + 1}
                 </span>
               )}
             </div>
-          </div>
-          <div className="mt-2 text-center">
             <span
-              className={`text-xs font-medium ${
+              className={`text-sm font-medium ${
                 step.status === "completed" || step.status === "current"
                   ? "text-gray-900"
                   : "text-gray-400"
@@ -57,6 +49,13 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               {step.label}
             </span>
           </div>
+          {index < steps.length - 1 && (
+            <div
+              className={`h-[2px] w-full mx-2 ${
+                step.status === "completed" ? "bg-primary" : "bg-gray-200"
+              }`}
+            />
+          )}
         </div>
       ))}
     </div>

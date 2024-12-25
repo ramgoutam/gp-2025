@@ -47,7 +47,7 @@ export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
                 step.status === "completed"
                   ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "bg-green-500 border-2 border-green-500 text-white"
+                  ? "bg-green-500 border-2 border-green-500 text-white" // Changed to green background for current step
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
