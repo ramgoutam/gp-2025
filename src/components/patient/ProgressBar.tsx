@@ -47,7 +47,7 @@ export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
                 step.status === "completed"
                   ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "bg-blue-500 border-2 border-blue-500 text-white" // Changed to blue background for current step
+                  ? "border-2 border-primary bg-white"
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
@@ -56,7 +56,7 @@ export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
               ) : (
                 <span
                   className={`text-sm font-medium ${
-                    step.status === "current" ? "text-white" : "text-gray-400"
+                    step.status === "current" ? "text-primary" : "text-gray-400"
                   }`}
                 >
                   {index + 1}
