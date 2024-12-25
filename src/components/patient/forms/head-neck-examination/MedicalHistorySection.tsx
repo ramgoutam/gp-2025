@@ -1,7 +1,5 @@
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface MedicalHistorySectionProps {
@@ -69,63 +67,64 @@ export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistoryS
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-primary">Medical History</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {medicalConditions.map((condition) => (
-            <div key={condition} className="flex items-center space-x-3">
-              <Checkbox
-                id={condition}
-                checked={(formData.medical_history?.conditions || []).includes(condition)}
-                onCheckedChange={() => toggleCondition(condition)}
-                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-              />
-              <Label 
-                htmlFor={condition}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          {medicalConditions.map((condition) => {
+            const isSelected = (formData.medical_history?.conditions || []).includes(condition);
+            return (
+              <Button
+                key={condition}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleCondition(condition)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
               >
                 {condition}
-              </Label>
-            </div>
-          ))}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-primary">Allergies</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allergyTypes.map((allergy) => (
-            <div key={allergy} className="flex items-center space-x-3">
-              <Checkbox
-                id={allergy}
-                checked={(formData.medical_history?.allergies || []).includes(allergy)}
-                onCheckedChange={() => toggleAllergy(allergy)}
-                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-              />
-              <Label 
-                htmlFor={allergy}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          {allergyTypes.map((allergy) => {
+            const isSelected = (formData.medical_history?.allergies || []).includes(allergy);
+            return (
+              <Button
+                key={allergy}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleAllergy(allergy)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
               >
                 {allergy}
-              </Label>
-            </div>
-          ))}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-primary">COVID-19 Vaccination Status</h3>
-        <RadioGroup
-          value={formData.medical_history?.covid19_vaccinated || ""}
-          onValueChange={(value) => updateMedicalHistory("covid19_vaccinated", value)}
-          className="flex items-center space-x-6"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="yes" id="covid-yes" />
-            <Label htmlFor="covid-yes">Yes</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="covid-no" />
-            <Label htmlFor="covid-no">No</Label>
-          </div>
-        </RadioGroup>
+        <div className="flex gap-4">
+          {["yes", "no"].map((value) => (
+            <Button
+              key={value}
+              type="button"
+              variant={formData.medical_history?.covid19_vaccinated === value ? "default" : "outline"}
+              onClick={() => updateMedicalHistory("covid19_vaccinated", value)}
+              className="w-24"
+            >
+              {value.charAt(0).toUpperCase() + value.slice(1)}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );
