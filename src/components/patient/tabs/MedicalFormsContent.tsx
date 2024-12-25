@@ -1,17 +1,18 @@
-import { FileText, PenSquare } from "lucide-react";
-import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
+import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
+import { FileText, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
   const [existingExamination, setExistingExamination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchExistingExamination = async () => {
     if (!patientId) return;
@@ -39,11 +40,7 @@ export const MedicalFormsContent = () => {
 
   useEffect(() => {
     fetchExistingExamination();
-  }, [patientId, showHeadNeckForm]); // Added showHeadNeckForm dependency to refresh when dialog closes
-
-  if (!patientId) {
-    return <div>Error: Patient ID not found</div>;
-  }
+  }, [patientId, showHeadNeckForm]);
 
   const handleFormSuccess = () => {
     console.log("Form submitted successfully");
@@ -51,20 +48,32 @@ export const MedicalFormsContent = () => {
     fetchExistingExamination();
   };
 
-  const getButtonText = () => {
-    if (isLoading) return "Loading...";
-    if (existingExamination) {
-      if (existingExamination.status === 'completed') return "View Examination";
-      return "Continue Examination";
-    }
-    return "Fill Form";
-  };
+  const handleDeleteExamination = async () => {
+    if (!existingExamination?.id) return;
 
-  const getButtonIcon = () => {
-    if (existingExamination) {
-      return <PenSquare className="w-4 h-4" />;
+    try {
+      console.log("Deleting examination:", existingExamination.id);
+      const { error } = await supabase
+        .from('head_neck_examinations')
+        .delete()
+        .eq('id', existingExamination.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Examination Deleted",
+        description: "The examination has been successfully deleted.",
+      });
+
+      setExistingExamination(null);
+    } catch (error) {
+      console.error("Error deleting examination:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete examination. Please try again.",
+        variant: "destructive",
+      });
     }
-    return <FileText className="w-4 h-4" />;
   };
 
   return (
@@ -76,15 +85,9 @@ export const MedicalFormsContent = () => {
         
         <div className="grid gap-4">
           {/* Head and Neck Examination Form */}
-          <div className={cn(
-            "flex items-center justify-between p-4 rounded-lg transition-colors",
-            existingExamination ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
-          )}>
+          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
             <div className="flex items-center gap-3">
-              <FileText className={cn(
-                "w-5 h-5",
-                existingExamination ? "text-green-600" : "text-primary"
-              )} />
+              <FileText className="w-5 h-5 text-primary" />
               <div>
                 <h3 className="font-medium">Head and Neck Examination</h3>
                 <p className="text-sm text-gray-500">
@@ -94,18 +97,26 @@ export const MedicalFormsContent = () => {
                 </p>
               </div>
             </div>
-            <Button 
-              variant={existingExamination ? "outline" : "default"}
-              onClick={() => setShowHeadNeckForm(true)}
-              className={cn(
-                "text-sm gap-2",
-                existingExamination ? "text-green-600 border-green-200 hover:border-green-300 hover:bg-green-50" : ""
+            <div className="flex gap-2">
+              {existingExamination && (
+                <Button
+                  variant="outline"
+                  onClick={handleDeleteExamination}
+                  className="text-sm gap-2 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
               )}
-              disabled={isLoading}
-            >
-              {getButtonIcon()}
-              {getButtonText()}
-            </Button>
+              <Button 
+                variant={existingExamination ? "outline" : "default"}
+                onClick={() => setShowHeadNeckForm(true)}
+                className="text-sm gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                {existingExamination ? "Continue" : "Fill Form"}
+              </Button>
+            </div>
           </div>
 
           {/* Medical History Form - Placeholder */}
@@ -158,7 +169,7 @@ export const MedicalFormsContent = () => {
             </DialogTitle>
           </DialogHeader>
           <HeadNeckExaminationForm 
-            patientId={patientId} 
+            patientId={patientId!} 
             onSuccess={handleFormSuccess}
             existingData={existingExamination}
           />
