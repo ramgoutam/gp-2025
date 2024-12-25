@@ -118,50 +118,87 @@ export const MedicalFormsContent = () => {
     const pdf = new jsPDF();
     let yPosition = 20;
     const lineHeight = 10;
+    const pageWidth = pdf.internal.pageSize.width;
     
-    // Add title
-    pdf.setFontSize(16);
-    pdf.text("Head and Neck Examination Summary", 20, yPosition);
-    yPosition += lineHeight * 2;
+    // Define colors to match UI
+    const colors = {
+      primary: '#4F6BFF',
+      secondary: '#2DD4BF',
+      muted: '#F1F5F9',
+      text: '#1E293B',
+      border: '#E2E8F0'
+    };
 
-    // Helper function to add a section
-    const addSection = (title: string, content: any) => {
-      pdf.setFontSize(14);
-      pdf.setFont(undefined, 'bold');
-      pdf.text(title, 20, yPosition);
-      yPosition += lineHeight * 1.5;
+    // Helper function to create section headers with background
+    const addSectionHeader = (title: string) => {
+      // Add background rectangle
+      pdf.setFillColor(colors.muted);
+      pdf.rect(15, yPosition - 5, pageWidth - 30, 12, 'F');
       
+      // Add title text
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(colors.primary);
+      pdf.setFontSize(14);
+      pdf.text(title, 20, yPosition);
+      yPosition += lineHeight * 1.8;
+    };
+
+    // Helper function to add content with proper formatting
+    const addContent = (content: any, indent: number = 0) => {
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(colors.text);
+      pdf.setFontSize(11);
+
       if (typeof content === 'string') {
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'normal');
-        const lines = pdf.splitTextToSize(content, 170);
-        pdf.text(lines, 20, yPosition);
-        yPosition += lineHeight * (lines.length + 1);
+        const lines = pdf.splitTextToSize(content, 160 - indent);
+        pdf.text(lines, 20 + indent, yPosition);
+        yPosition += lineHeight * (lines.length + 0.5);
       } else if (typeof content === 'object' && content !== null) {
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'normal');
         Object.entries(content).forEach(([key, value]) => {
           if (value) {
             const formattedKey = key.split('_').map(word => 
               word.charAt(0).toUpperCase() + word.slice(1)
             ).join(' ');
+            
+            // Add bullet point
+            pdf.setTextColor(colors.primary);
+            pdf.text('•', 20 + indent, yPosition);
+            
+            // Add key-value pair
+            pdf.setTextColor(colors.text);
             const text = `${formattedKey}: ${value}`;
-            const lines = pdf.splitTextToSize(text, 170);
-            pdf.text(lines, 25, yPosition);
-            yPosition += lineHeight * lines.length;
+            const lines = pdf.splitTextToSize(text, 155 - indent);
+            pdf.text(lines, 25 + indent, yPosition);
+            yPosition += lineHeight * (lines.length + 0.3);
           }
         });
-        yPosition += lineHeight;
-      }
-
-      // Add new page if needed
-      if (yPosition > 280) {
-        pdf.addPage();
-        yPosition = 20;
+        yPosition += lineHeight * 0.5;
       }
     };
 
-    // Add all examination sections
+    // Add title with styling
+    pdf.setFillColor(colors.primary);
+    pdf.rect(0, 0, pageWidth, 25, 'F');
+    pdf.setTextColor('#FFFFFF');
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Head and Neck Examination Summary', 20, 15);
+    yPosition += 20;
+
+    // Function to add a complete section
+    const addSection = (title: string, content: any) => {
+      // Check if we need a new page
+      if (yPosition > 250) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+
+      addSectionHeader(title);
+      addContent(content);
+      yPosition += lineHeight;
+    };
+
+    // Add all examination sections with enhanced styling
     if (existingExamination.vital_signs) {
       addSection("Vital Signs", existingExamination.vital_signs);
     }
@@ -213,9 +250,10 @@ export const MedicalFormsContent = () => {
       addSection("Guideline Questions", existingExamination.guideline_questions);
     }
 
-    // Add date at the bottom
+    // Add footer with date
     const date = new Date(existingExamination.created_at).toLocaleDateString();
-    pdf.setFontSize(10);
+    pdf.setFontSize(9);
+    pdf.setTextColor(colors.text);
     pdf.text(`Generated on: ${date}`, 20, 280);
 
     // Save the PDF
