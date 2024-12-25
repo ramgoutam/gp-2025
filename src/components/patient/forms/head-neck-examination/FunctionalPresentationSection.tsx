@@ -1,6 +1,6 @@
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface FunctionalPresentationSectionProps {
   formData: any;
@@ -11,6 +11,17 @@ export const FunctionalPresentationSection = ({
   formData,
   setFormData,
 }: FunctionalPresentationSectionProps) => {
+  const handleOptionChange = (itemId: string) => {
+    console.log("Toggling functional item:", itemId);
+    setFormData((prev: any) => ({
+      ...prev,
+      functional_presentation: {
+        ...prev.functional_presentation,
+        [itemId]: !prev.functional_presentation?.[itemId]
+      }
+    }));
+  };
+
   const functionalItems = [
     {
       category: "FUNCTIONAL PRESENTATION",
@@ -47,41 +58,31 @@ export const FunctionalPresentationSection = ({
     },
   ];
 
-  const handleCheckboxChange = (itemId: string, checked: boolean) => {
-    console.log("Checkbox changed:", itemId, checked);
-    setFormData({
-      ...formData,
-      functional_presentation: {
-        ...formData.functional_presentation,
-        [itemId]: checked,
-      },
-    });
-  };
-
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {functionalItems.map((section, sectionIndex) => (
         <div key={sectionIndex} className="space-y-4">
           {section.category && (
             <h3 className="text-lg font-semibold text-primary">{section.category}</h3>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {section.items.map((item) => (
-              <div key={item.id} className="flex items-start space-x-2">
-                <Checkbox
-                  id={item.id}
-                  checked={formData.functional_presentation?.[item.id] || false}
-                  onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
-                  className="mt-1"
-                />
-                <Label
-                  htmlFor={item.id}
-                  className="text-sm leading-tight cursor-pointer"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {section.items.map((item) => {
+              const isSelected = formData.functional_presentation?.[item.id] || false;
+              return (
+                <Button
+                  key={item.id}
+                  type="button"
+                  variant={isSelected ? "default" : "outline"}
+                  onClick={() => handleOptionChange(item.id)}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    isSelected && "bg-primary text-primary-foreground"
+                  )}
                 >
                   {item.label}
-                </Label>
-              </div>
-            ))}
+                </Button>
+              );
+            })}
           </div>
         </div>
       ))}
