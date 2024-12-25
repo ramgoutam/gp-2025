@@ -29,13 +29,12 @@ export const PatientList = () => {
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'patients'
         },
         (payload) => {
           console.log('Received real-time update:', payload);
-          // Invalidate and refetch patients data
           queryClient.invalidateQueries({ queryKey: ['patients'] });
         }
       )
@@ -49,7 +48,13 @@ export const PatientList = () => {
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
-    queryFn: getPatients,
+    queryFn: async () => {
+      console.log('Fetching patients data');
+      const data = await getPatients();
+      console.log('Fetched patients:', data.length);
+      return data;
+    },
+    refetchInterval: 1, // Refetch every millisecond
     meta: {
       onError: (error: Error) => {
         console.error('Error fetching patients:', error);

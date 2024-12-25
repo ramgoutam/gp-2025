@@ -36,7 +36,7 @@ export const DashboardStats = () => {
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
-    refetchInterval: 1000, // Refetch every second
+    refetchInterval: 1, // Refetch every millisecond
   });
 
   const { data: labScriptCount = 0 } = useQuery({
@@ -48,7 +48,7 @@ export const DashboardStats = () => {
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
-    refetchInterval: 1000, // Refetch every second
+    refetchInterval: 1, // Refetch every millisecond
   });
 
   const { data: reportCardCount = 0 } = useQuery({
@@ -60,7 +60,7 @@ export const DashboardStats = () => {
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
-    refetchInterval: 1000, // Refetch every second
+    refetchInterval: 1, // Refetch every millisecond
   });
 
   return (
