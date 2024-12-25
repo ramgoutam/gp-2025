@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileText, Trash2, Eye, FileDown } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface MedicalFormCardProps {
   title: string;
@@ -31,57 +39,91 @@ export const MedicalFormCard = ({
   showView = false,
   showDownload = false,
 }: MedicalFormCardProps) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteDialog(false);
+    onDelete?.();
+  };
+
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-3">
-        <FileText className="w-5 h-5 text-primary" />
-        <div>
-          <h3 className="font-medium">{title}</h3>
-          <p className="text-sm text-gray-500">
-            {lastUpdated ? `Last updated: ${lastUpdated}` : description}
-          </p>
+    <>
+      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+        <div className="flex items-center gap-3">
+          <FileText className="w-5 h-5 text-primary" />
+          <div>
+            <h3 className="font-medium">{title}</h3>
+            <p className="text-sm text-gray-500">
+              {lastUpdated ? `Last updated: ${lastUpdated}` : description}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {showDownload && onDownload && (
+            <Button
+              variant="outline"
+              onClick={onDownload}
+              className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
+            >
+              <FileDown className="w-4 h-4" />
+              Download
+            </Button>
+          )}
+          <Button 
+            variant="outline"
+            onClick={onAction}
+            className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
+            disabled={isDisabled}
+          >
+            <FileText className="w-4 h-4" />
+            {actionLabel}
+          </Button>
+          {showView && (
+            <Button
+              variant="outline"
+              onClick={onView}
+              className="text-sm gap-2 hover:bg-blue-500/10 hover:border-blue-500/30 text-blue-500"
+            >
+              <Eye className="w-4 h-4" />
+              View
+            </Button>
+          )}
+          {showDelete && (
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              className="w-9 h-9 p-0 flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/30"
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          )}
         </div>
       </div>
-      <div className="flex gap-2">
-        {showDownload && onDownload && (
-          <Button
-            variant="outline"
-            onClick={onDownload}
-            className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
-          >
-            <FileDown className="w-4 h-4" />
-            Download
-          </Button>
-        )}
-        <Button 
-          variant="outline"
-          onClick={onAction}
-          className="text-sm gap-2 hover:bg-primary/10 hover:border-primary/30 text-primary"
-          disabled={isDisabled}
-        >
-          <FileText className="w-4 h-4" />
-          {actionLabel}
-        </Button>
-        {showView && (
-          <Button
-            variant="outline"
-            onClick={onView}
-            className="text-sm gap-2 hover:bg-blue-500/10 hover:border-blue-500/30 text-blue-500"
-          >
-            <Eye className="w-4 h-4" />
-            View
-          </Button>
-        )}
-        {showDelete && (
-          <Button
-            variant="outline"
-            onClick={onDelete}
-            className="w-9 h-9 p-0 flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/30"
-          >
-            <Trash2 className="w-4 h-4 text-destructive" />
-          </Button>
-        )}
-      </div>
-    </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this {title.toLowerCase()}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
