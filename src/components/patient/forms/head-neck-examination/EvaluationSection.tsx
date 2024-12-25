@@ -10,6 +10,16 @@ interface EvaluationSectionProps {
 
 export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionProps) => {
   const sinusOptions = ["Normal", "Clear", "Congested", "Pneumatized"];
+  const evaluationOptions = [
+    "Focal bone loss",
+    "Diffused bone loss",
+    "Alveolar resorption",
+    "Localized Decay",
+    "Gross Decay",
+    "Terminal Dentition",
+    "Focal Intra-osseous Pathology",
+    "Diffused Intra-osseous Pathology"
+  ];
 
   const handleTextChange = (field: string) => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     console.log(`Updating ${field}:`, e.target.value);
@@ -49,6 +59,33 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     });
   };
 
+  const handleEvaluationChange = (option: string) => {
+    console.log(`Updating evaluation notes:`, option);
+    
+    // Parse current selections
+    let currentSelections: string[] = [];
+    try {
+      const parsedSelections = JSON.parse(formData.evaluation_notes || '[]');
+      currentSelections = Array.isArray(parsedSelections) ? parsedSelections : [];
+    } catch (e) {
+      console.error('Error parsing evaluation selections:', e);
+      currentSelections = [];
+    }
+    
+    // Toggle selection
+    const updatedSelections = currentSelections.includes(option)
+      ? currentSelections.filter(item => item !== option)
+      : [...currentSelections, option];
+
+    console.log(`Updated evaluation selections:`, updatedSelections);
+    
+    // Update form data
+    setFormData({
+      ...formData,
+      evaluation_notes: JSON.stringify(updatedSelections)
+    });
+  };
+
   const isOptionSelected = (side: 'left' | 'right', option: string) => {
     try {
       const selections = JSON.parse(formData.maxillary_sinuses_evaluation[side] || '[]');
@@ -59,20 +96,36 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     }
   };
 
+  const isEvaluationSelected = (option: string) => {
+    try {
+      const selections = JSON.parse(formData.evaluation_notes || '[]');
+      return Array.isArray(selections) && selections.includes(option);
+    } catch (e) {
+      console.error('Error checking evaluation selection:', e);
+      return false;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <div>
-          <Label htmlFor="evaluation_notes" className="text-base font-semibold">
+          <Label className="text-base font-semibold">
             Radiographic Examination
           </Label>
-          <Textarea
-            id="evaluation_notes"
-            value={formData.evaluation_notes || ""}
-            onChange={handleTextChange("evaluation_notes")}
-            className="mt-2 min-h-[100px]"
-            placeholder="Enter evaluation notes..."
-          />
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {evaluationOptions.map((option) => (
+              <Button
+                key={option}
+                type="button"
+                variant={isEvaluationSelected(option) ? "default" : "outline"}
+                onClick={() => handleEvaluationChange(option)}
+                className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
         </div>
 
         <h2 className="text-xl font-bold text-primary mb-4">Maxillary Sinus Evaluation</h2>

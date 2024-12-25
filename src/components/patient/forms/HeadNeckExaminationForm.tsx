@@ -42,7 +42,7 @@ export const HeadNeckExaminationForm = ({
     tactile_observation: {} as Json,
     radiographic_presentation: {} as Json,
     tomography_data: {} as Json,
-    evaluation_notes: "",
+    evaluation_notes: JSON.stringify([]),
     maxillary_sinuses_evaluation: {
       left: JSON.stringify([]),
       right: JSON.stringify([])
@@ -59,7 +59,7 @@ export const HeadNeckExaminationForm = ({
         ...prevData,
         ...existingData,
         patient_id: patientId,
-        // Parse maxillary_sinuses_evaluation if it's a string
+        evaluation_notes: existingData.evaluation_notes || JSON.stringify([]),
         maxillary_sinuses_evaluation: existingData.maxillary_sinuses_evaluation 
           ? typeof existingData.maxillary_sinuses_evaluation === 'string'
             ? JSON.parse(existingData.maxillary_sinuses_evaluation)
