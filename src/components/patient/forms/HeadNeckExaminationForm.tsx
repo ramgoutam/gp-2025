@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FormContent } from "./head-neck-examination/FormContent";
 import { FormSteps } from "./head-neck-examination/FormSteps";
 import { Button } from "@/components/ui/button";
@@ -94,6 +94,7 @@ export const HeadNeckExaminationForm = ({
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
+      console.log("Submitting form with data:", formData);
       const { error } = await supabase
         .from('head_neck_examinations')
         .upsert({
