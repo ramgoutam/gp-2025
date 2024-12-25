@@ -46,6 +46,9 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           />
         </div>
 
+        {/* New headline for Maxillary Sinus Evaluation */}
+        <h2 className="text-xl font-bold text-primary mb-4">Maxillary Sinus Evaluation</h2>
+
         <div className="space-y-4">
           <div>
             <Label className="text-base font-semibold">
