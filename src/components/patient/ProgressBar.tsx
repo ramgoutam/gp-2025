@@ -37,7 +37,7 @@ export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
               <div
                 className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
                   step.status === "completed" || steps[index - 1].status === "completed"
-                    ? "bg-primary"
+                    ? "bg-green-500"
                     : "bg-gray-200"
                 }`}
               />
@@ -45,7 +45,7 @@ export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
-                  ? "bg-primary border-primary"
+                  ? "bg-green-500 border-green-500"
                   : step.status === "current"
                   ? "bg-green-500 border-2 border-green-500 text-white"
                   : "border-2 border-gray-200 bg-white"
