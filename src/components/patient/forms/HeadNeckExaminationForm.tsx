@@ -1,194 +1,136 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FormSteps } from "./head-neck-examination/FormSteps";
-import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
+import { FormSteps } from "./head-neck-examination/FormSteps";
+import { Button } from "@/components/ui/button";
+import { useFormSteps } from "./head-neck-examination/useFormSteps";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useExaminationData } from "./head-neck-examination/useExaminationData";
 
 interface HeadNeckExaminationFormProps {
   patientId: string;
-  onSuccess?: () => void;
-  existingData?: any;
+  onSuccess: () => void;
 }
 
 export const HeadNeckExaminationForm = ({ 
-  patientId, 
-  onSuccess,
-  existingData 
+  patientId,
+  onSuccess 
 }: HeadNeckExaminationFormProps) => {
-  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    patient_id: patientId,
-    vital_signs: {},
-    medical_history: {},
-    chief_complaints: {},
-    extra_oral_examination: {},
-    intra_oral_examination: {},
-    dental_classification: {},
-    skeletal_presentation: {},
-    functional_presentation: {},
-    clinical_observation: {},
-    tactile_observation: {},
-    radiographic_presentation: {},
-    tomography_data: {},
-    evaluation_notes: "",
-    maxillary_sinuses_evaluation: "",
-    airway_evaluation: "",
-    guideline_questions: {},
-    status: "draft"
-  });
+  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<any>({});
+  const [completedSteps, setCompletedSteps] = useState<{ [key: number]: boolean }>({});
+  const { existingData, isLoading } = useExaminationData(patientId);
 
-  // Load existing data when the form opens
   useEffect(() => {
     if (existingData) {
-      console.log("Loading existing examination data:", existingData);
-      setFormData(prevData => ({
-        ...prevData,
-        ...existingData,
-        patient_id: patientId // Ensure patient_id is always set correctly
-      }));
+      console.log("Setting existing data:", existingData);
+      setFormData(existingData);
+      
+      // Calculate completed steps based on existing data
+      const completed: { [key: number]: boolean } = {};
+      if (existingData.vital_signs) completed[0] = true;
+      if (existingData.medical_history) completed[1] = true;
+      if (existingData.chief_complaints) completed[2] = true;
+      if (existingData.extra_oral_examination) completed[3] = true;
+      if (existingData.intra_oral_examination) completed[4] = true;
+      if (existingData.dental_classification) completed[5] = true;
+      if (existingData.functional_presentation) completed[6] = true;
+      if (existingData.tactile_observation || existingData.radiographic_presentation) completed[7] = true;
+      if (existingData.evaluation_notes) completed[8] = true;
+      if (existingData.guideline_questions) completed[9] = true;
+      
+      setCompletedSteps(completed);
     }
-  }, [existingData, patientId]);
+  }, [existingData]);
 
   const saveFormData = async () => {
-    console.log("Saving form data...");
+    setIsSaving(true);
     try {
-      // First check if an examination already exists for this patient
-      const { data: existingExam, error: fetchError } = await supabase
+      console.log("Saving form data:", formData);
+      const { error } = await supabase
         .from('head_neck_examinations')
-        .select('id')
-        .eq('patient_id', patientId)
-        .maybeSingle();
+        .upsert({
+          ...formData,
+          patient_id: patientId,
+          updated_at: new Date().toISOString()
+        });
 
-      if (fetchError) throw fetchError;
+      if (error) throw error;
 
-      let result;
-      
-      if (existingExam) {
-        console.log("Updating existing examination:", existingExam.id);
-        result = await supabase
-          .from('head_neck_examinations')
-          .update(formData)
-          .eq('id', existingExam.id)
-          .select()
-          .single();
-      } else {
-        console.log("Creating new examination");
-        result = await supabase
-          .from('head_neck_examinations')
-          .insert([formData])
-          .select()
-          .single();
-      }
-
-      if (result.error) throw result.error;
+      // Mark current step as completed
+      setCompletedSteps(prev => ({
+        ...prev,
+        [currentStep]: true
+      }));
 
       toast({
         title: "Success",
-        description: "Progress saved successfully.",
+        description: "Form data saved successfully",
       });
-
-      return true;
     } catch (error) {
       console.error("Error saving form data:", error);
       toast({
         title: "Error",
-        description: "Failed to save progress. Please try again.",
-        variant: "destructive",
+        description: "Failed to save form data",
+        variant: "destructive"
       });
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submission triggered");
-    
-    if (currentStep !== totalSteps - 1) {
-      console.log("Not on final step, preventing submission");
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      const success = await saveFormData();
-      if (success && onSuccess) onSuccess();
     } finally {
-      setIsSubmitting(false);
+      setIsSaving(false);
     }
   };
 
-  const handleNextStep = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const success = await saveFormData();
-      if (success) {
-        handleNext();
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleNextStep = async () => {
+    await saveFormData();
+    handleNext();
   };
 
-  const handlePreviousStep = (e: React.MouseEvent) => {
-    e.preventDefault();
-    handlePrevious();
+  const handleSubmit = async () => {
+    await saveFormData();
+    onSuccess();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center justify-end px-4 py-3 border-b border-gray-100 gap-2">
+    <div className="space-y-6 py-4">
+      <FormSteps 
+        currentStep={currentStep} 
+        totalSteps={totalSteps} 
+        completedSteps={completedSteps}
+      />
+      
+      <FormContent 
+        currentStep={currentStep} 
+        formData={formData} 
+        setFormData={setFormData}
+        isLoading={isLoading}
+      />
+
+      <div className="flex justify-between pt-4">
         <Button
-          type="button"
           variant="outline"
-          onClick={handlePreviousStep}
-          disabled={currentStep === 0}
-          size="sm"
-          className="flex items-center gap-1"
+          onClick={handlePrevious}
+          disabled={currentStep === 0 || isSaving}
         >
-          <ChevronLeft className="w-4 h-4" />
           Previous
         </Button>
 
         {currentStep === totalSteps - 1 ? (
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            size="sm"
-            className="flex items-center gap-1"
+          <Button 
+            onClick={handleSubmit}
+            disabled={isSaving}
           >
-            {isSubmitting ? "Saving..." : "Save Examination"}
+            {isSaving ? "Saving..." : "Save & Submit"}
           </Button>
         ) : (
-          <Button
-            type="button"
+          <Button 
             onClick={handleNextStep}
-            disabled={isSubmitting}
-            size="sm"
-            className="flex items-center gap-1"
+            disabled={isSaving}
           >
-            {isSubmitting ? "Saving..." : "Next"}
-            <ChevronRight className="w-4 h-4" />
+            {isSaving ? "Saving..." : "Save & Next"}
           </Button>
         )}
       </div>
-      
-      <div className="p-6 space-y-6">
-        <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
-        
-        <FormContent 
-          currentStep={currentStep} 
-          formData={formData}
-          setFormData={setFormData}
-        />
-      </div>
-    </form>
+    </div>
   );
 };
