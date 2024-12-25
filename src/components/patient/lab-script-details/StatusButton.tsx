@@ -6,7 +6,7 @@ import { useStatusUpdater } from "./StatusUpdater";
 interface StatusButtonProps {
   script: LabScript;
   status: LabScript['status'];
-  onStatusChange: (newStatus: LabScript['status']) => void;
+  onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
 }
 
 export const StatusButton = ({ script, status, onStatusChange }: StatusButtonProps) => {
@@ -15,7 +15,7 @@ export const StatusButton = ({ script, status, onStatusChange }: StatusButtonPro
   const handleStatusChange = async (newStatus: LabScript['status']) => {
     const success = await updateStatus(script, newStatus);
     if (success) {
-      onStatusChange(newStatus);
+      onStatusChange(script, newStatus);
     }
   };
 
