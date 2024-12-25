@@ -17,4 +17,16 @@ export interface Patient {
   emergency_contact_name?: string;
 }
 
+export interface PatientFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  emergencyContactName: string;
+  emergencyPhone: string;
+  sex: string;
+  dob: string;
+  address: string;
+}
+
 export type PatientUpdateData = Partial<Patient>;
