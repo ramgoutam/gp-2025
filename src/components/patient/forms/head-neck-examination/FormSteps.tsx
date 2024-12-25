@@ -1,11 +1,6 @@
 import { ProgressBar } from "../../ProgressBar";
 import { useFormSteps } from "./useFormSteps";
 
-interface Step {
-  label: string;
-  status: "completed" | "current" | "upcoming";
-}
-
 interface FormStepsProps {
   currentStep: number;
   totalSteps: number;
@@ -34,17 +29,14 @@ export const FormSteps = ({
 
   // Helper function to determine step status
   const getStepStatus = (stepIndex: number): "completed" | "current" | "upcoming" => {
-    // If the step is in completedSteps array, mark it as completed
     if (completedSteps.includes(stepIndex)) {
       return "completed";
     }
     
-    // If we're on this step
     if (currentStep === stepIndex) {
       return "current";
     }
     
-    // If we're past this step but no data, mark as upcoming
     return "upcoming";
   };
 
@@ -100,7 +92,7 @@ export const FormSteps = ({
     onStepChange?.(stepIndex);
   };
 
-  const steps: Step[] = [
+  const steps = [
     { 
       label: "Patient Information & Vital Signs", 
       status: getStepStatus(0)

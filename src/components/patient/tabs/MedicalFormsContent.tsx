@@ -15,6 +15,7 @@ export const MedicalFormsContent = () => {
   const [existingExamination, setExistingExamination] = useState(null);
   const [currentViewStep, setCurrentViewStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
 
   const fetchExistingExamination = async () => {
@@ -22,6 +23,13 @@ export const MedicalFormsContent = () => {
 
     try {
       console.log("Fetching existing examination for patient:", patientId);
+      const { data: session } = await supabase.auth.getSession();
+      
+      if (!session?.session) {
+        console.log("No active session found");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('head_neck_examinations')
         .select('*')
@@ -34,8 +42,31 @@ export const MedicalFormsContent = () => {
       
       console.log("Existing examination data:", data);
       setExistingExamination(data);
+      
+      // If there's existing data, determine completed steps
+      if (data) {
+        const completed: number[] = [];
+        if (Object.keys(data.vital_signs || {}).length > 0) completed.push(0);
+        if (Object.keys(data.medical_history || {}).length > 0) completed.push(1);
+        if (Object.keys(data.chief_complaints || {}).length > 0) completed.push(2);
+        if (Object.keys(data.extra_oral_examination || {}).length > 0) completed.push(3);
+        if (Object.keys(data.intra_oral_examination || {}).length > 0) completed.push(4);
+        if (Object.keys(data.dental_classification || {}).length > 0) completed.push(5);
+        if (Object.keys(data.functional_presentation || {}).length > 0) completed.push(6);
+        if (Object.keys(data.tactile_observation || {}).length > 0 || 
+            Object.keys(data.radiographic_presentation || {}).length > 0) completed.push(7);
+        if (data.evaluation_notes || data.maxillary_sinuses_evaluation || 
+            data.airway_evaluation) completed.push(8);
+        if (Object.keys(data.guideline_questions || {}).length > 0) completed.push(9);
+        setCompletedSteps(completed);
+      }
     } catch (error) {
       console.error("Error fetching examination:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch examination data. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -69,6 +100,7 @@ export const MedicalFormsContent = () => {
       });
 
       setExistingExamination(null);
+      setCompletedSteps([]);
     } catch (error) {
       console.error("Error deleting examination:", error);
       toast({
@@ -87,7 +119,6 @@ export const MedicalFormsContent = () => {
         </div>
         
         <div className="grid gap-4">
-          {/* Head and Neck Examination Form */}
           <MedicalFormCard
             title="Head and Neck Examination"
             description="Comprehensive examination form"
@@ -100,7 +131,6 @@ export const MedicalFormsContent = () => {
             onView={() => setShowExaminationSummary(true)}
           />
 
-          {/* Medical History Form - Placeholder */}
           <MedicalFormCard
             title="Medical History"
             description="Patient medical history form"
@@ -109,7 +139,6 @@ export const MedicalFormsContent = () => {
             isDisabled={true}
           />
 
-          {/* Consent Form - Placeholder */}
           <MedicalFormCard
             title="Consent Form"
             description="Treatment consent documentation"
@@ -120,7 +149,6 @@ export const MedicalFormsContent = () => {
         </div>
       </div>
 
-      {/* Head and Neck Examination Form Dialog */}
       <Dialog 
         open={showHeadNeckForm} 
         onOpenChange={setShowHeadNeckForm}
@@ -139,7 +167,6 @@ export const MedicalFormsContent = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Examination Summary Dialog */}
       <Dialog
         open={showExaminationSummary}
         onOpenChange={setShowExaminationSummary}
@@ -153,9 +180,10 @@ export const MedicalFormsContent = () => {
               <>
                 <FormSteps 
                   currentStep={currentViewStep} 
-                  totalSteps={8}
+                  totalSteps={10}
                   formData={existingExamination}
                   onStepChange={setCurrentViewStep}
+                  completedSteps={completedSteps}
                 />
                 
                 <div className="pointer-events-none opacity-90">
