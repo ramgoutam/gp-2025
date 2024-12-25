@@ -1,7 +1,8 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ChiefComplaintsSectionProps {
   formData: any;
@@ -51,25 +52,32 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="space-y-4">
-        <Label className="text-lg font-semibold">Chief Complaint: Please check all that apply to patient</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {complaints.map((complaint) => (
-            <div key={complaint.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={complaint.id}
-                checked={formData.chief_complaints?.[complaint.id] || false}
-                onCheckedChange={(checked) => handleComplaintChange(complaint.id, checked as boolean)}
-              />
-              <Label htmlFor={complaint.id}>{complaint.label}</Label>
-            </div>
-          ))}
+        <h3 className="text-lg font-semibold text-primary">Chief Complaint: Please check all that apply to patient</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {complaints.map((complaint) => {
+            const isSelected = formData.chief_complaints?.[complaint.id] || false;
+            return (
+              <Button
+                key={complaint.id}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => handleComplaintChange(complaint.id, !isSelected)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
+              >
+                {complaint.label}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
       <div className="space-y-4">
-        <Label className="text-lg font-semibold">Symptoms Present for:</Label>
+        <h3 className="text-lg font-semibold text-primary">Symptoms Present for:</h3>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <Input
@@ -93,18 +101,25 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
       </div>
 
       <div className="space-y-4">
-        <Label className="text-lg font-semibold">Associated Symptoms:</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {symptoms.map((symptom) => (
-            <div key={symptom.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={symptom.id}
-                checked={formData.chief_complaints?.[symptom.id] || false}
-                onCheckedChange={(checked) => handleComplaintChange(symptom.id, checked as boolean)}
-              />
-              <Label htmlFor={symptom.id}>{symptom.label}</Label>
-            </div>
-          ))}
+        <h3 className="text-lg font-semibold text-primary">Associated Symptoms:</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {symptoms.map((symptom) => {
+            const isSelected = formData.chief_complaints?.[symptom.id] || false;
+            return (
+              <Button
+                key={symptom.id}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => handleComplaintChange(symptom.id, !isSelected)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
+              >
+                {symptom.label}
+              </Button>
+            );
+          })}
         </div>
       </div>
     </div>
