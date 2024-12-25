@@ -75,7 +75,7 @@ export const FunctionalPresentationSection = ({
                   variant={isSelected ? "default" : "outline"}
                   onClick={() => handleOptionChange(item.id)}
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full min-h-[64px] justify-start text-left font-normal p-3 whitespace-normal break-words",
                     isSelected && "bg-primary text-primary-foreground"
                   )}
                 >
