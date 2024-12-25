@@ -41,17 +41,9 @@ export const HeadNeckExaminationForm = ({
       if (existingData.evaluation_notes) completed[8] = true;
       if (existingData.guideline_questions) completed[9] = true;
       
-      console.log("Setting completed steps:", completed);
       setCompletedSteps(completed);
-    } else {
-      console.log("No existing data found, starting with empty form");
-      // Initialize with empty form data
-      setFormData({
-        patient_id: patientId,
-        status: 'draft'
-      });
     }
-  }, [existingData, patientId]);
+  }, [existingData]);
 
   const saveFormData = async () => {
     setIsSaving(true);

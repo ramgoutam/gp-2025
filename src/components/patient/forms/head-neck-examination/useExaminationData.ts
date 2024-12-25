@@ -17,15 +17,12 @@ export const useExaminationData = (patientId: string) => {
           .eq('patient_id', patientId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .single();
 
-        if (error) {
-          console.error("Error fetching examination data:", error);
-          throw error;
-        }
+        if (error) throw error;
         
         console.log("Fetched examination data:", data);
-        setExistingData(data); // data will be null if no examination exists
+        setExistingData(data);
       } catch (error) {
         console.error("Error fetching examination data:", error);
         toast({
