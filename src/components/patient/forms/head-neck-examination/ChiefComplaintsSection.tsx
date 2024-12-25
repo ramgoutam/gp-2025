@@ -23,6 +23,7 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
   const symptoms = [
     { id: "swelling_inflammation", label: "Swelling/Inflammation" },
     { id: "digestive_problems", label: "Digestive Problems" },
+    { id: "gastrointestinal_issues_symptom", label: "Gastro-intestional Issues/Difficulty Swallowing (R13.11)", code: "R13.11" },
     { id: "limited_diet", label: "Limited Diet/Soft Diet" },
     { id: "difficulty_chewing", label: "Difficulty Chewing" },
     { id: "pain_when_chewing", label: "Pain When Chewing" },
