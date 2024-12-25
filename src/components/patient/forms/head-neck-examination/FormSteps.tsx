@@ -12,7 +12,7 @@ export const FormSteps = ({
   currentStep, 
   formData, 
   onStepChange, 
-  completedSteps = [] 
+  completedSteps = [] // Provide default empty array
 }: FormStepsProps) => {
   // Helper function to determine if an object has any filled fields
   const hasFilledFields = (obj: any): boolean => {
@@ -31,22 +31,30 @@ export const FormSteps = ({
 
   // Helper function to determine step status
   const getStepStatus = (stepIndex: number): "completed" | "current" | "upcoming" => {
+    console.log("Checking status for step:", stepIndex, "Current step:", currentStep);
+    console.log("Completed steps:", completedSteps);
+    
     // First check if the step is marked as completed
     if (completedSteps.includes(stepIndex)) {
+      console.log("Step is in completedSteps array");
       return "completed";
     }
     
     // Then check if it's the current step
     if (currentStep === stepIndex) {
+      console.log("Step is current step");
       return "current";
     }
 
     // Check if the step has data filled
     const stepData = getStepData(stepIndex);
+    console.log("Step data:", stepData);
     if (stepData && hasFilledFields(stepData)) {
+      console.log("Step has filled data");
       return "completed";
     }
     
+    console.log("Step is upcoming");
     return "upcoming";
   };
 
@@ -97,15 +105,6 @@ export const FormSteps = ({
     }
   };
 
-  const handleStepClick = (stepIndex: number) => {
-    console.log("Step clicked:", stepIndex);
-    // Only allow clicking on completed steps or the current step
-    const status = getStepStatus(stepIndex);
-    if (status === "completed" || status === "current") {
-      onStepChange?.(stepIndex);
-    }
-  };
-
   const steps = [
     { 
       label: "Patient Information & Vital Signs", 
@@ -150,5 +149,5 @@ export const FormSteps = ({
   ];
 
   console.log("Progress bar steps:", steps);
-  return <ProgressBar steps={steps} onStepClick={handleStepClick} activeStep={currentStep} />;
+  return <ProgressBar steps={steps} onStepClick={onStepChange} activeStep={currentStep} />;
 };
