@@ -1,7 +1,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 interface ChiefComplaintsSectionProps {
   formData: any;
@@ -17,39 +17,23 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     { id: "head_pain", label: "Head Pain" },
     { id: "jaw_pain", label: "Jaw Pain (R68.84)", code: "R68.84" },
     { id: "oral_infection", label: "Oral Infection (ICD K04.7)", code: "K04.7" },
-    { id: "tmj_pain", label: "TMJ Pain" },
-    { id: "neck_pain", label: "Neck Pain" },
-    { id: "facial_pain", label: "Facial Pain" },
-    { id: "ear_pain", label: "Ear Pain" },
-    { id: "tooth_pain", label: "Tooth Pain" },
-    { id: "muscle_pain", label: "Muscle Pain" },
   ];
 
   const symptoms = [
     { id: "swelling_inflammation", label: "Swelling/Inflammation" },
+    { id: "digestive_gastrointestinal", label: "Digestive Problems/Gastro-intestional Issues/Difficulty Swallowing (R13.11)", code: "R13.11" },
     { id: "limited_diet", label: "Limited Diet/Soft Diet" },
     { id: "difficulty_chewing", label: "Difficulty Chewing" },
     { id: "pain_when_chewing", label: "Pain When Chewing" },
-    { id: "jaw_clicking", label: "Jaw Clicking/Popping" },
-    { id: "jaw_locking", label: "Jaw Locking" },
-    { id: "limited_opening", label: "Limited Mouth Opening" },
-    { id: "teeth_grinding", label: "Teeth Grinding/Clenching" },
-    { id: "difficulty_speaking", label: "Difficulty Speaking" },
-    { id: "difficulty_swallowing", label: "Difficulty Swallowing" },
-    { id: "ear_congestion", label: "Ear Congestion/Fullness" },
-    { id: "dizziness", label: "Dizziness" },
-    { id: "tinnitus", label: "Tinnitus (Ringing in Ears)" },
   ];
 
-  const handleComplaintChange = (complaintId: string) => {
+  const handleComplaintChange = (complaintId: string, checked: boolean) => {
     const currentComplaints = formData.chief_complaints || {};
-    const currentValue = currentComplaints[complaintId] === "true";
-    
     setFormData({
       ...formData,
       chief_complaints: {
         ...currentComplaints,
-        [complaintId]: currentValue ? "false" : "true",
+        [complaintId]: checked,
       },
     });
   };
@@ -66,38 +50,20 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
     });
   };
 
-  const SelectionButton = ({ 
-    selected, 
-    onClick, 
-    children 
-  }: { 
-    selected: boolean; 
-    onClick: () => void; 
-    children: React.ReactNode 
-  }) => (
-    <Button
-      type="button"
-      variant={selected ? "default" : "outline"}
-      onClick={onClick}
-      className="h-auto py-2 px-4 text-sm font-medium transition-all w-full justify-start"
-    >
-      {children}
-    </Button>
-  );
-
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="space-y-4">
-        <Label className="text-lg font-semibold">Chief Complaint: Please select all that apply to patient</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Label className="text-lg font-semibold">Chief Complaint: Please check all that apply to patient</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {complaints.map((complaint) => (
-            <SelectionButton
-              key={complaint.id}
-              selected={formData.chief_complaints?.[complaint.id] === "true"}
-              onClick={() => handleComplaintChange(complaint.id)}
-            >
-              {complaint.label}
-            </SelectionButton>
+            <div key={complaint.id} className="flex items-center space-x-2">
+              <Checkbox
+                id={complaint.id}
+                checked={formData.chief_complaints?.[complaint.id] || false}
+                onCheckedChange={(checked) => handleComplaintChange(complaint.id, checked as boolean)}
+              />
+              <Label htmlFor={complaint.id}>{complaint.label}</Label>
+            </div>
           ))}
         </div>
       </div>
@@ -111,7 +77,6 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
               value={formData.chief_complaints?.duration_months || ""}
               onChange={(e) => handleDurationChange('months', e.target.value)}
               className="w-20"
-              min="0"
             />
             <Label>months</Label>
           </div>
@@ -121,7 +86,6 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
               value={formData.chief_complaints?.duration_years || ""}
               onChange={(e) => handleDurationChange('years', e.target.value)}
               className="w-20"
-              min="0"
             />
             <Label>years</Label>
           </div>
@@ -130,15 +94,16 @@ export const ChiefComplaintsSection = ({ formData, setFormData }: ChiefComplaint
 
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Associated Symptoms:</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {symptoms.map((symptom) => (
-            <SelectionButton
-              key={symptom.id}
-              selected={formData.chief_complaints?.[symptom.id] === "true"}
-              onClick={() => handleComplaintChange(symptom.id)}
-            >
-              {symptom.label}
-            </SelectionButton>
+            <div key={symptom.id} className="flex items-center space-x-2">
+              <Checkbox
+                id={symptom.id}
+                checked={formData.chief_complaints?.[symptom.id] || false}
+                onCheckedChange={(checked) => handleComplaintChange(symptom.id, checked as boolean)}
+              />
+              <Label htmlFor={symptom.id}>{symptom.label}</Label>
+            </div>
           ))}
         </div>
       </div>
