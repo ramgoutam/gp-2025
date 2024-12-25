@@ -30,10 +30,17 @@ export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
     
     // Check if there's data for this step
     const stepData = getStepData(stepIndex);
-    if (hasFilledFields(stepData)) return "completed";
+    const hasData = hasFilledFields(stepData);
+    console.log(`Step ${stepIndex} has data:`, hasData, stepData);
+    
+    if (hasData) {
+      return "completed";
+    }
     
     // If we're past this step but no data, still mark as completed
-    if (currentStep > stepIndex) return "completed";
+    if (currentStep > stepIndex) {
+      return "completed";
+    }
     
     return "upcoming";
   };
