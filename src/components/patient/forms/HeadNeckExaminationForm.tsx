@@ -86,8 +86,8 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between p-6 border-b border-gray-100">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-end p-6 border-b border-gray-100">
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
