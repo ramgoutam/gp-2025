@@ -203,7 +203,6 @@ export const MedicalFormsContent = () => {
           <HeadNeckExaminationForm 
             patientId={patientId} 
             onSuccess={handleFormSuccess}
-            existingData={existingExamination}
           />
         </DialogContent>
       </Dialog>
