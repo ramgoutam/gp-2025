@@ -21,12 +21,7 @@ export const LabScriptCard = ({
   onDelete,
   onStatusChange,
 }: LabScriptCardProps) => {
-  console.log("Handling lab script card:", script);
-
-  const handleStatusChange = (updatedScript: LabScript, newStatus: LabScript['status']) => {
-    console.log("Handling status change in LabScriptCard:", updatedScript.id, newStatus);
-    onStatusChange(updatedScript, newStatus);
-  };
+  console.log("Rendering lab script card:", script);
 
   return (
     <Card 
@@ -82,7 +77,7 @@ export const LabScriptCard = ({
               <StatusButton
                 script={script}
                 status={script.status}
-                onStatusChange={handleStatusChange}
+                onStatusChange={(newStatus) => onStatusChange(script, newStatus)}
               />
             </div>
           </div>
