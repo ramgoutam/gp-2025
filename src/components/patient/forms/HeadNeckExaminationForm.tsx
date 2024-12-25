@@ -14,6 +14,11 @@ interface HeadNeckExaminationFormProps {
   existingData?: any;
 }
 
+interface MaxillarySinusesEvaluation {
+  left: string[];
+  right: string[];
+}
+
 export const HeadNeckExaminationForm = ({ 
   patientId, 
   onSuccess,
@@ -39,9 +44,9 @@ export const HeadNeckExaminationForm = ({
     tomography_data: {} as Json,
     evaluation_notes: "",
     maxillary_sinuses_evaluation: {
-      left: "",
-      right: ""
-    } as unknown as string, // This will be stringified when saving
+      left: JSON.stringify([]),
+      right: JSON.stringify([])
+    },
     airway_evaluation: "",
     guideline_questions: {} as Json,
     status: "draft" as const
@@ -58,8 +63,11 @@ export const HeadNeckExaminationForm = ({
         maxillary_sinuses_evaluation: existingData.maxillary_sinuses_evaluation 
           ? typeof existingData.maxillary_sinuses_evaluation === 'string'
             ? JSON.parse(existingData.maxillary_sinuses_evaluation)
-            : existingData.maxillary_sinuses_evaluation
-          : { left: "", right: "" }
+            : {
+                left: existingData.maxillary_sinuses_evaluation.left || JSON.stringify([]),
+                right: existingData.maxillary_sinuses_evaluation.right || JSON.stringify([])
+              }
+          : { left: JSON.stringify([]), right: JSON.stringify([]) }
       }));
     }
   }, [existingData, patientId]);

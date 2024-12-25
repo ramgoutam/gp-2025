@@ -21,26 +21,25 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
 
   const handleSelectionChange = (side: 'left' | 'right', option: string) => {
     console.log(`Updating ${side} maxillary sinus:`, option);
-    // Initialize current selections, ensuring we have a valid array
+    
+    // Parse current selections
     let currentSelections: string[] = [];
     try {
-      if (formData.maxillary_sinuses_evaluation?.[side]) {
-        currentSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
-        if (!Array.isArray(currentSelections)) {
-          currentSelections = [];
-        }
-      }
+      const parsedSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
+      currentSelections = Array.isArray(parsedSelections) ? parsedSelections : [];
     } catch (e) {
-      console.error('Error parsing selections, resetting to empty array:', e);
+      console.error('Error parsing selections:', e);
       currentSelections = [];
     }
     
-    // Toggle the selection
+    // Toggle selection
     const updatedSelections = currentSelections.includes(option)
       ? currentSelections.filter(item => item !== option)
       : [...currentSelections, option];
 
-    // Update the form data with stringified array
+    console.log(`Updated selections for ${side}:`, updatedSelections);
+    
+    // Update form data
     setFormData({
       ...formData,
       maxillary_sinuses_evaluation: {
@@ -52,13 +51,10 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
 
   const isOptionSelected = (side: 'left' | 'right', option: string) => {
     try {
-      if (!formData.maxillary_sinuses_evaluation?.[side]) {
-        return false;
-      }
-      const selections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
+      const selections = JSON.parse(formData.maxillary_sinuses_evaluation[side] || '[]');
       return Array.isArray(selections) && selections.includes(option);
     } catch (e) {
-      console.error('Error parsing selections:', e);
+      console.error('Error checking selection:', e);
       return false;
     }
   };
@@ -79,7 +75,6 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
           />
         </div>
 
-        {/* New headline for Maxillary Sinus Evaluation */}
         <h2 className="text-xl font-bold text-primary mb-4">Maxillary Sinus Evaluation</h2>
 
         <div className="space-y-4">
