@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { FormSteps } from "./head-neck-examination/FormSteps";
 import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
@@ -38,12 +38,12 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     console.log("Form submission triggered");
     
     if (currentStep !== totalSteps - 1) {
       console.log("Not on final step, preventing submission");
-      return; // Only allow submission on the final step
+      return;
     }
 
     setIsSubmitting(true);
@@ -75,17 +75,52 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   };
 
   const handleNextStep = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent form submission on next button click
+    e.preventDefault();
     handleNext();
   };
 
   const handlePreviousStep = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent form submission on previous button click
+    e.preventDefault();
     handlePrevious();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold">Edit Head and Neck Examination</h2>
+        <div className="flex items-center gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handlePreviousStep}
+            disabled={currentStep === 0}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </Button>
+
+          {currentStep === totalSteps - 1 ? (
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex items-center gap-2"
+            >
+              {isSubmitting ? "Saving..." : "Save Examination"}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleNextStep}
+              className="flex items-center gap-2"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+      
       <FormSteps currentStep={currentStep} totalSteps={totalSteps} />
       
       <FormContent 
@@ -93,38 +128,6 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
         formData={formData}
         setFormData={setFormData}
       />
-
-      <div className="flex justify-between pt-6 border-t">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePreviousStep}
-          disabled={currentStep === 0}
-          className="flex items-center gap-2"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Previous
-        </Button>
-
-        {currentStep === totalSteps - 1 ? (
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex items-center gap-2"
-          >
-            {isSubmitting ? "Saving..." : "Save Examination"}
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={handleNextStep}
-            className="flex items-center gap-2"
-          >
-            Next
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        )}
-      </div>
     </form>
   );
 };
