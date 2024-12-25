@@ -21,14 +21,26 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
 
   const handleSelectionChange = (side: 'left' | 'right', option: string) => {
     console.log(`Updating ${side} maxillary sinus:`, option);
-    const currentSelections = formData.maxillary_sinuses_evaluation?.[side] 
-      ? JSON.parse(formData.maxillary_sinuses_evaluation[side]) 
-      : [];
+    // Initialize current selections, ensuring we have a valid array
+    let currentSelections: string[] = [];
+    try {
+      if (formData.maxillary_sinuses_evaluation?.[side]) {
+        currentSelections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
+        if (!Array.isArray(currentSelections)) {
+          currentSelections = [];
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing selections, resetting to empty array:', e);
+      currentSelections = [];
+    }
     
+    // Toggle the selection
     const updatedSelections = currentSelections.includes(option)
-      ? currentSelections.filter((item: string) => item !== option)
+      ? currentSelections.filter(item => item !== option)
       : [...currentSelections, option];
 
+    // Update the form data with stringified array
     setFormData({
       ...formData,
       maxillary_sinuses_evaluation: {
@@ -40,10 +52,11 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
 
   const isOptionSelected = (side: 'left' | 'right', option: string) => {
     try {
-      const selections = formData.maxillary_sinuses_evaluation?.[side] 
-        ? JSON.parse(formData.maxillary_sinuses_evaluation[side]) 
-        : [];
-      return selections.includes(option);
+      if (!formData.maxillary_sinuses_evaluation?.[side]) {
+        return false;
+      }
+      const selections = JSON.parse(formData.maxillary_sinuses_evaluation[side]);
+      return Array.isArray(selections) && selections.includes(option);
     } catch (e) {
       console.error('Error parsing selections:', e);
       return false;
