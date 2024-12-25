@@ -30,31 +30,37 @@ export const DashboardStats = () => {
   const { data: patientCount = 0 } = useQuery({
     queryKey: ['patientCount'],
     queryFn: async () => {
+      console.log('Fetching patient count');
       const { count } = await supabase
         .from('patients')
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
+    refetchInterval: 1000, // Refetch every second
   });
 
   const { data: labScriptCount = 0 } = useQuery({
     queryKey: ['labScriptCount'],
     queryFn: async () => {
+      console.log('Fetching lab script count');
       const { count } = await supabase
         .from('lab_scripts')
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
+    refetchInterval: 1000, // Refetch every second
   });
 
   const { data: reportCardCount = 0 } = useQuery({
     queryKey: ['reportCardCount'],
     queryFn: async () => {
+      console.log('Fetching report card count');
       const { count } = await supabase
         .from('report_cards')
         .select('*', { count: 'exact', head: true });
       return count || 0;
     },
+    refetchInterval: 1000, // Refetch every second
   });
 
   return (
