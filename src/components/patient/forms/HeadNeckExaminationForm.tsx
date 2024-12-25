@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FormSteps } from "./head-neck-examination/FormSteps";
 import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { FormContent } from "./head-neck-examination/FormContent";
@@ -87,7 +87,6 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <h2 className="text-lg font-semibold">Edit Head and Neck Examination</h2>
         <div className="flex items-center gap-2">
           <Button
             type="button"
