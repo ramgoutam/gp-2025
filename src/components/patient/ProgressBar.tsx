@@ -19,7 +19,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
           <div className="flex items-center justify-center">
             {index > 0 && (
               <div
-                className={`h-[2px] w-full absolute top-4 -left-1/2 ${
+                className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
                   step.status === "completed" || steps[index - 1].status === "completed"
                     ? "bg-primary"
                     : "bg-gray-200"
@@ -27,7 +27,7 @@ export const ProgressBar = ({ steps }: ProgressBarProps) => {
               />
             )}
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
                   ? "bg-primary border-primary"
                   : step.status === "current"
