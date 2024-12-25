@@ -8,11 +8,10 @@ interface Step {
 interface ProgressBarProps {
   steps: Step[];
   onStepClick?: (index: number) => void;
-  activeStep?: number; // Add this prop to track which step is being viewed
 }
 
-export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps) => {
-  console.log("Progress bar steps:", steps, "Active step:", activeStep);
+export const ProgressBar = ({ steps, onStepClick }: ProgressBarProps) => {
+  console.log("Progress bar steps:", steps);
 
   const handleStepClick = (index: number, status: Step["status"]) => {
     // Only allow clicking on completed steps or the next available step
@@ -46,11 +45,9 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
-                  ? activeStep === index 
-                    ? "bg-green-500 border-green-500" // Active completed step
-                    : "bg-primary border-primary" // Regular completed step
+                  ? "bg-primary border-primary"
                   : step.status === "current"
-                  ? "bg-primary border-2 border-primary text-white"
+                  ? "bg-blue-500 border-2 border-blue-500 text-white" // Changed to blue background for current step
                   : "border-2 border-gray-200 bg-white"
               }`}
             >
