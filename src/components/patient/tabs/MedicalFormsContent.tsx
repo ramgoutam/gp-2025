@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MedicalFormCard } from "../forms/medical-forms/MedicalFormCard";
 import { FormContent } from "../forms/head-neck-examination/FormContent";
 import { FormSteps } from "../forms/head-neck-examination/FormSteps";
+import jsPDF from "jspdf";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
@@ -114,31 +115,51 @@ export const MedicalFormsContent = () => {
   const handleDownloadExamination = () => {
     if (!existingExamination) return;
     
-    // Convert formData to a formatted string
-    const formattedData = JSON.stringify(existingExamination, null, 2);
+    const pdf = new jsPDF();
+    let yPosition = 20;
+    const lineHeight = 10;
     
-    // Create a blob with the data
-    const blob = new Blob([formattedData], { type: 'application/json' });
-    
-    // Create a URL for the blob
-    const url = window.URL.createObjectURL(blob);
-    
-    // Create a temporary anchor element
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `head-neck-examination-${patientId}.json`;
-    
-    // Trigger the download
-    document.body.appendChild(a);
-    a.click();
-    
-    // Clean up
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    // Add title
+    pdf.setFontSize(16);
+    pdf.text("Head and Neck Examination Summary", 20, yPosition);
+    yPosition += lineHeight * 2;
+
+    // Helper function to add a section
+    const addSection = (title: string, content: string | undefined) => {
+      if (!content) return;
+      pdf.setFontSize(12);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(title, 20, yPosition);
+      yPosition += lineHeight;
+      
+      pdf.setFont(undefined, 'normal');
+      const lines = pdf.splitTextToSize(content, 170);
+      pdf.text(lines, 20, yPosition);
+      yPosition += lineHeight * (lines.length + 1);
+
+      // Add new page if needed
+      if (yPosition > 280) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+    };
+
+    // Add examination sections
+    addSection("Evaluation Notes", existingExamination.evaluation_notes);
+    addSection("Maxillary Sinuses Evaluation", existingExamination.maxillary_sinuses_evaluation);
+    addSection("Airway Evaluation", existingExamination.airway_evaluation);
+
+    // Add date
+    const date = new Date(existingExamination.created_at).toLocaleDateString();
+    pdf.setFontSize(10);
+    pdf.text(`Generated on: ${date}`, 20, 280);
+
+    // Save the PDF
+    pdf.save(`head-neck-examination-${patientId}.pdf`);
 
     toast({
       title: "Success",
-      description: "Examination data downloaded successfully.",
+      description: "Examination summary PDF downloaded successfully.",
     });
   };
 
