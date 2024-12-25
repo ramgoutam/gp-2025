@@ -12,7 +12,7 @@ export const FormSteps = ({
   currentStep, 
   formData, 
   onStepChange, 
-  completedSteps = [] // Provide default empty array
+  completedSteps = []
 }: FormStepsProps) => {
   // Helper function to determine if an object has any filled fields
   const hasFilledFields = (obj: any): boolean => {
@@ -24,6 +24,31 @@ export const FormSteps = ({
       }
       if (typeof value === 'object') {
         return hasFilledFields(value);
+      }
+      return value !== null && value !== undefined && value !== '';
+    });
+  };
+
+  // Helper function to check if evaluation step is complete
+  const isEvaluationComplete = (): boolean => {
+    const evaluationData = {
+      evaluation_notes: formData?.evaluation_notes,
+      maxillary_sinuses_evaluation: formData?.maxillary_sinuses_evaluation,
+      airway_evaluation: formData?.airway_evaluation,
+      airway_image_url: formData?.airway_image_url
+    };
+
+    console.log("Checking evaluation completion status:", evaluationData);
+    
+    return Object.values(evaluationData).some(value => {
+      if (typeof value === 'string') {
+        // Parse JSON strings that might be arrays
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed.length > 0 : value.trim() !== '';
+        } catch {
+          return value.trim() !== '';
+        }
       }
       return value !== null && value !== undefined && value !== '';
     });
@@ -44,6 +69,11 @@ export const FormSteps = ({
     if (currentStep === stepIndex) {
       console.log("Step is current step");
       return "current";
+    }
+
+    // Special handling for evaluation step (index 8)
+    if (stepIndex === 8) {
+      return isEvaluationComplete() ? "completed" : "upcoming";
     }
 
     // Check if the step has data filled
@@ -94,7 +124,8 @@ export const FormSteps = ({
         const evaluationData = {
           evaluation_notes: formData?.evaluation_notes,
           maxillary_sinuses_evaluation: formData?.maxillary_sinuses_evaluation,
-          airway_evaluation: formData?.airway_evaluation
+          airway_evaluation: formData?.airway_evaluation,
+          airway_image_url: formData?.airway_image_url
         };
         console.log("Evaluation data:", evaluationData);
         return evaluationData;
