@@ -11,9 +11,10 @@ interface FormStepsProps {
   totalSteps: number;
   formData: any;
   onStepChange?: (step: number) => void;
+  completedSteps: number[];
 }
 
-export const FormSteps = ({ currentStep, formData, onStepChange }: FormStepsProps) => {
+export const FormSteps = ({ currentStep, formData, onStepChange, completedSteps }: FormStepsProps) => {
   // Helper function to determine if an object has any filled fields
   const hasFilledFields = (obj: any): boolean => {
     if (!obj) return false;
@@ -28,13 +29,8 @@ export const FormSteps = ({ currentStep, formData, onStepChange }: FormStepsProp
 
   // Helper function to determine step status
   const getStepStatus = (stepIndex: number): "completed" | "current" | "upcoming" => {
-    // Check if there's data for this step
-    const stepData = getStepData(stepIndex);
-    const hasData = hasFilledFields(stepData);
-    console.log(`Step ${stepIndex} has data:`, hasData, stepData);
-    
-    // If the step has data, mark it as completed regardless of current step
-    if (hasData) {
+    // If the step is in completedSteps array, mark it as completed
+    if (completedSteps.includes(stepIndex)) {
       return "completed";
     }
     
@@ -43,11 +39,7 @@ export const FormSteps = ({ currentStep, formData, onStepChange }: FormStepsProp
       return "current";
     }
     
-    // If we're past this step but no data, still mark as completed
-    if (currentStep > stepIndex) {
-      return "completed";
-    }
-    
+    // If we're past this step but no data, mark as upcoming
     return "upcoming";
   };
 

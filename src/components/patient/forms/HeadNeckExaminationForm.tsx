@@ -20,6 +20,7 @@ export const HeadNeckExaminationForm = ({
 }: HeadNeckExaminationFormProps) => {
   const { currentStep, handleNext, handlePrevious, totalSteps, setCurrentStep } = useFormSteps();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     patient_id: patientId,
@@ -42,14 +43,13 @@ export const HeadNeckExaminationForm = ({
     status: "draft"
   });
 
-  // Load existing data when the form opens
   useEffect(() => {
     if (existingData) {
       console.log("Loading existing examination data:", existingData);
       setFormData(prevData => ({
         ...prevData,
         ...existingData,
-        patient_id: patientId // Ensure patient_id is always set correctly
+        patient_id: patientId
       }));
     }
   }, [existingData, patientId]);
@@ -57,7 +57,6 @@ export const HeadNeckExaminationForm = ({
   const saveFormData = async () => {
     console.log("Saving form data...");
     try {
-      // First check if an examination already exists for this patient
       const { data: existingExam, error: fetchError } = await supabase
         .from('head_neck_examinations')
         .select('id')
@@ -91,6 +90,11 @@ export const HeadNeckExaminationForm = ({
         title: "Success",
         description: "Progress saved successfully.",
       });
+
+      // Mark the current step as completed
+      if (!completedSteps.includes(currentStep)) {
+        setCompletedSteps(prev => [...prev, currentStep]);
+      }
 
       return true;
     } catch (error) {
@@ -143,7 +147,6 @@ export const HeadNeckExaminationForm = ({
   };
 
   const handleStepChange = async (step: number) => {
-    // Save current step data before changing
     const success = await saveFormData();
     if (success) {
       setCurrentStep(step);
@@ -194,6 +197,7 @@ export const HeadNeckExaminationForm = ({
           totalSteps={totalSteps}
           formData={formData}
           onStepChange={handleStepChange}
+          completedSteps={completedSteps}
         />
         
         <FormContent 
