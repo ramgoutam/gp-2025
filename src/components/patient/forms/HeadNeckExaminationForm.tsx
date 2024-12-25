@@ -50,15 +50,40 @@ export const HeadNeckExaminationForm = ({ patientId, onSuccess }: HeadNeckExamin
     
     try {
       console.log("Submitting head and neck examination form for patient:", patientId);
-      const { error } = await supabase
+      
+      // First check if an examination already exists for this patient
+      const { data: existingExam, error: fetchError } = await supabase
         .from('head_neck_examinations')
-        .insert([formData]);
+        .select('id')
+        .eq('patient_id', patientId)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+
+      let result;
+      
+      if (existingExam) {
+        console.log("Updating existing examination:", existingExam.id);
+        result = await supabase
+          .from('head_neck_examinations')
+          .update(formData)
+          .eq('id', existingExam.id)
+          .select()
+          .single();
+      } else {
+        console.log("Creating new examination");
+        result = await supabase
+          .from('head_neck_examinations')
+          .insert([formData])
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
 
       toast({
         title: "Success",
-        description: "Examination form has been saved successfully.",
+        description: `Examination form has been ${existingExam ? 'updated' : 'saved'} successfully.`,
       });
 
       if (onSuccess) onSuccess();
