@@ -1,7 +1,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 interface EvaluationSectionProps {
   formData: any;
@@ -19,15 +19,35 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
     });
   };
 
-  const handleCheckboxChange = (side: 'left' | 'right', option: string) => {
+  const handleSelectionChange = (side: 'left' | 'right', option: string) => {
     console.log(`Updating ${side} maxillary sinus:`, option);
+    const currentSelections = formData.maxillary_sinuses_evaluation?.[side] 
+      ? JSON.parse(formData.maxillary_sinuses_evaluation[side]) 
+      : [];
+    
+    const updatedSelections = currentSelections.includes(option)
+      ? currentSelections.filter((item: string) => item !== option)
+      : [...currentSelections, option];
+
     setFormData({
       ...formData,
       maxillary_sinuses_evaluation: {
         ...formData.maxillary_sinuses_evaluation,
-        [side]: option
+        [side]: JSON.stringify(updatedSelections)
       }
     });
+  };
+
+  const isOptionSelected = (side: 'left' | 'right', option: string) => {
+    try {
+      const selections = formData.maxillary_sinuses_evaluation?.[side] 
+        ? JSON.parse(formData.maxillary_sinuses_evaluation[side]) 
+        : [];
+      return selections.includes(option);
+    } catch (e) {
+      console.error('Error parsing selections:', e);
+      return false;
+    }
   };
 
   return (
@@ -56,19 +76,15 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
             </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
               {sinusOptions.map((option) => (
-                <div key={`left-${option}`} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`left-${option}`}
-                    checked={formData.maxillary_sinuses_evaluation?.left === option}
-                    onCheckedChange={() => handleCheckboxChange('left', option)}
-                  />
-                  <Label
-                    htmlFor={`left-${option}`}
-                    className="text-sm font-normal"
-                  >
-                    {option}
-                  </Label>
-                </div>
+                <Button
+                  key={`left-${option}`}
+                  type="button"
+                  variant={isOptionSelected('left', option) ? "default" : "outline"}
+                  onClick={() => handleSelectionChange('left', option)}
+                  className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
+                >
+                  {option}
+                </Button>
               ))}
             </div>
           </div>
@@ -79,19 +95,15 @@ export const EvaluationSection = ({ formData, setFormData }: EvaluationSectionPr
             </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
               {sinusOptions.map((option) => (
-                <div key={`right-${option}`} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`right-${option}`}
-                    checked={formData.maxillary_sinuses_evaluation?.right === option}
-                    onCheckedChange={() => handleCheckboxChange('right', option)}
-                  />
-                  <Label
-                    htmlFor={`right-${option}`}
-                    className="text-sm font-normal"
-                  >
-                    {option}
-                  </Label>
-                </div>
+                <Button
+                  key={`right-${option}`}
+                  type="button"
+                  variant={isOptionSelected('right', option) ? "default" : "outline"}
+                  onClick={() => handleSelectionChange('right', option)}
+                  className="h-auto py-2 px-4 text-sm font-medium transition-all justify-start"
+                >
+                  {option}
+                </Button>
               ))}
             </div>
           </div>
