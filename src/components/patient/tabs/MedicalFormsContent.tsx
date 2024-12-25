@@ -125,17 +125,34 @@ export const MedicalFormsContent = () => {
     yPosition += lineHeight * 2;
 
     // Helper function to add a section
-    const addSection = (title: string, content: string | undefined) => {
-      if (!content) return;
-      pdf.setFontSize(12);
+    const addSection = (title: string, content: any) => {
+      pdf.setFontSize(14);
       pdf.setFont(undefined, 'bold');
       pdf.text(title, 20, yPosition);
-      yPosition += lineHeight;
+      yPosition += lineHeight * 1.5;
       
-      pdf.setFont(undefined, 'normal');
-      const lines = pdf.splitTextToSize(content, 170);
-      pdf.text(lines, 20, yPosition);
-      yPosition += lineHeight * (lines.length + 1);
+      if (typeof content === 'string') {
+        pdf.setFontSize(12);
+        pdf.setFont(undefined, 'normal');
+        const lines = pdf.splitTextToSize(content, 170);
+        pdf.text(lines, 20, yPosition);
+        yPosition += lineHeight * (lines.length + 1);
+      } else if (typeof content === 'object' && content !== null) {
+        pdf.setFontSize(12);
+        pdf.setFont(undefined, 'normal');
+        Object.entries(content).forEach(([key, value]) => {
+          if (value) {
+            const formattedKey = key.split('_').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            const text = `${formattedKey}: ${value}`;
+            const lines = pdf.splitTextToSize(text, 170);
+            pdf.text(lines, 25, yPosition);
+            yPosition += lineHeight * lines.length;
+          }
+        });
+        yPosition += lineHeight;
+      }
 
       // Add new page if needed
       if (yPosition > 280) {
@@ -144,12 +161,59 @@ export const MedicalFormsContent = () => {
       }
     };
 
-    // Add examination sections
-    addSection("Evaluation Notes", existingExamination.evaluation_notes);
-    addSection("Maxillary Sinuses Evaluation", existingExamination.maxillary_sinuses_evaluation);
-    addSection("Airway Evaluation", existingExamination.airway_evaluation);
+    // Add all examination sections
+    if (existingExamination.vital_signs) {
+      addSection("Vital Signs", existingExamination.vital_signs);
+    }
 
-    // Add date
+    if (existingExamination.medical_history) {
+      addSection("Medical History", existingExamination.medical_history);
+    }
+
+    if (existingExamination.chief_complaints) {
+      addSection("Chief Complaints", existingExamination.chief_complaints);
+    }
+
+    if (existingExamination.extra_oral_examination) {
+      addSection("Extra Oral Examination", existingExamination.extra_oral_examination);
+    }
+
+    if (existingExamination.intra_oral_examination) {
+      addSection("Intra Oral Examination", existingExamination.intra_oral_examination);
+    }
+
+    if (existingExamination.dental_classification) {
+      addSection("Dental Classification", existingExamination.dental_classification);
+    }
+
+    if (existingExamination.functional_presentation) {
+      addSection("Functional Presentation", existingExamination.functional_presentation);
+    }
+
+    if (existingExamination.tactile_observation || existingExamination.radiographic_presentation) {
+      addSection("Tactile & Radiographic Observations", {
+        ...existingExamination.tactile_observation,
+        ...existingExamination.radiographic_presentation
+      });
+    }
+
+    if (existingExamination.evaluation_notes) {
+      addSection("Evaluation Notes", existingExamination.evaluation_notes);
+    }
+
+    if (existingExamination.maxillary_sinuses_evaluation) {
+      addSection("Maxillary Sinuses Evaluation", existingExamination.maxillary_sinuses_evaluation);
+    }
+
+    if (existingExamination.airway_evaluation) {
+      addSection("Airway Evaluation", existingExamination.airway_evaluation);
+    }
+
+    if (existingExamination.guideline_questions) {
+      addSection("Guideline Questions", existingExamination.guideline_questions);
+    }
+
+    // Add date at the bottom
     const date = new Date(existingExamination.created_at).toLocaleDateString();
     pdf.setFontSize(10);
     pdf.text(`Generated on: ${date}`, 20, 280);
@@ -159,7 +223,7 @@ export const MedicalFormsContent = () => {
 
     toast({
       title: "Success",
-      description: "Examination summary PDF downloaded successfully.",
+      description: "Complete examination summary PDF downloaded successfully.",
     });
   };
 
