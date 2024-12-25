@@ -8,7 +8,7 @@ interface FormHeaderProps {
   isSubmitting: boolean;
   onPrevious: (e: React.MouseEvent) => void;
   onNext: (e: React.MouseEvent) => void;
-  onSubmit: () => void;
+  onSubmit: (e: React.FormEvent) => void;  // Updated this line
   onDownload: () => void;
 }
 
@@ -53,7 +53,7 @@ export const FormHeader = ({
             disabled={isSubmitting}
             size="sm"
             className="flex items-center gap-1"
-            onClick={onSubmit}
+            onClick={onSubmit}  // This now accepts the event parameter
           >
             {isSubmitting ? "Saving..." : "Save Examination"}
           </Button>
