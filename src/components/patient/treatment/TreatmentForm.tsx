@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PatientUpdateData } from "@/types/patient";
 
 interface TreatmentFormProps {
   patientId: string;
@@ -39,15 +38,13 @@ export const TreatmentForm = ({ patientId, onClose, onSubmitSuccess }: Treatment
     setIsSubmitting(true);
 
     try {
-      const updateData: PatientUpdateData = {
-        treatment_type: formData.treatmentType,
-        upper_treatment: formData.upperTreatment,
-        lower_treatment: formData.lowerTreatment,
-      };
-
       const { error } = await supabase
         .from('patients')
-        .update(updateData)
+        .update({
+          treatment_type: formData.treatmentType,
+          upper_treatment: formData.upperTreatment,
+          lower_treatment: formData.lowerTreatment,
+        })
         .eq('id', patientId);
 
       if (error) throw error;

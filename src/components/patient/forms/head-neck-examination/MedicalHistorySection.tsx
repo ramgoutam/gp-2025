@@ -1,86 +1,129 @@
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export interface MedicalHistorySectionProps {
+interface MedicalHistorySectionProps {
   formData: any;
   setFormData: (data: any) => void;
 }
 
-export const MedicalHistorySection = ({
-  formData,
-  setFormData,
-}: MedicalHistorySectionProps) => {
+const medicalConditions = [
+  "Diabetes",
+  "Hypertension",
+  "Heart Disease",
+  "Asthma",
+  "Thyroid Disorder",
+  "Arthritis",
+  "Cancer",
+  "Kidney Disease",
+  "Liver Disease",
+  "Neurological Disorder"
+];
+
+const allergyTypes = [
+  "Penicillin",
+  "Sulfa Drugs",
+  "Aspirin",
+  "Latex",
+  "Local Anesthetics",
+  "Iodine",
+  "Metals",
+  "Food Allergies",
+  "Seasonal Allergies",
+  "Other"
+];
+
+export const MedicalHistorySection = ({ formData, setFormData }: MedicalHistorySectionProps) => {
+  const updateMedicalHistory = (key: string, value: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      medical_history: {
+        ...prev.medical_history,
+        [key]: value
+      }
+    }));
+  };
+
+  const toggleCondition = (condition: string) => {
+    const currentConditions = formData.medical_history?.conditions || [];
+    const updatedConditions = currentConditions.includes(condition)
+      ? currentConditions.filter((c: string) => c !== condition)
+      : [...currentConditions, condition];
+    
+    updateMedicalHistory("conditions", updatedConditions);
+  };
+
+  const toggleAllergy = (allergy: string) => {
+    const currentAllergies = formData.medical_history?.allergies || [];
+    const updatedAllergies = currentAllergies.includes(allergy)
+      ? currentAllergies.filter((a: string) => a !== allergy)
+      : [...currentAllergies, allergy];
+    
+    updateMedicalHistory("allergies", updatedAllergies);
+  };
+
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Medical History</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="allergies">Allergies</Label>
-          <Input
-            id="allergies"
-            value={formData.medical_history?.allergies || ""}
-            onChange={(e) => setFormData((prev: any) => ({
-              ...prev,
-              medical_history: {
-                ...prev.medical_history,
-                allergies: e.target.value,
-              },
-            }))}
-          />
+    <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-primary">Medical History</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {medicalConditions.map((condition) => {
+            const isSelected = (formData.medical_history?.conditions || []).includes(condition);
+            return (
+              <Button
+                key={condition}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleCondition(condition)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
+              >
+                {condition}
+              </Button>
+            );
+          })}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="medications">Current Medications</Label>
-          <Input
-            id="medications"
-            value={formData.medical_history?.medications || ""}
-            onChange={(e) => setFormData((prev: any) => ({
-              ...prev,
-              medical_history: {
-                ...prev.medical_history,
-                medications: e.target.value,
-              },
-            }))}
-          />
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-primary">Allergies</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {allergyTypes.map((allergy) => {
+            const isSelected = (formData.medical_history?.allergies || []).includes(allergy);
+            return (
+              <Button
+                key={allergy}
+                type="button"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleAllergy(allergy)}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  isSelected && "bg-primary text-primary-foreground"
+                )}
+              >
+                {allergy}
+              </Button>
+            );
+          })}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="medical_conditions">Medical Conditions</Label>
-          <Input
-            id="medical_conditions"
-            value={formData.medical_history?.conditions || ""}
-            onChange={(e) => setFormData((prev: any) => ({
-              ...prev,
-              medical_history: {
-                ...prev.medical_history,
-                conditions: e.target.value,
-              },
-            }))}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Do you have any of the following conditions?</Label>
-          <RadioGroup
-            value={formData.medical_history?.has_conditions || ""}
-            onValueChange={(value) => setFormData((prev: any) => ({
-              ...prev,
-              medical_history: {
-                ...prev.medical_history,
-                has_conditions: value,
-              },
-            }))}
-          >
-            <div className="flex gap-4">
-              <div className="flex items-center">
-                <RadioGroupItem value="yes" id="has_conditions_yes" />
-                <Label htmlFor="has_conditions_yes" className="ml-2">Yes</Label>
-              </div>
-              <div className="flex items-center">
-                <RadioGroupItem value="no" id="has_conditions_no" />
-                <Label htmlFor="has_conditions_no" className="ml-2">No</Label>
-              </div>
-            </div>
-          </RadioGroup>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-primary">COVID-19 Vaccination Status</h3>
+        <div className="flex gap-4">
+          {["yes", "no"].map((value) => (
+            <Button
+              key={value}
+              type="button"
+              variant={formData.medical_history?.covid19_vaccinated === value ? "default" : "outline"}
+              onClick={() => updateMedicalHistory("covid19_vaccinated", value)}
+              className="w-24"
+            >
+              {value.charAt(0).toUpperCase() + value.slice(1)}
+            </Button>
+          ))}
         </div>
       </div>
     </div>
