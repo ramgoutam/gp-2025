@@ -5,12 +5,15 @@ import { HeadNeckExaminationForm } from "../forms/HeadNeckExaminationForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { MedicalFormCard } from "../forms/medical-forms/MedicalFormCard";
+import { FormContent } from "../forms/head-neck-examination/FormContent";
+import { FormSteps } from "../forms/head-neck-examination/FormSteps";
 
 export const MedicalFormsContent = () => {
   const { id: patientId } = useParams();
   const [showHeadNeckForm, setShowHeadNeckForm] = useState(false);
   const [showExaminationSummary, setShowExaminationSummary] = useState(false);
   const [existingExamination, setExistingExamination] = useState(null);
+  const [currentViewStep, setCurrentViewStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -145,20 +148,25 @@ export const MedicalFormsContent = () => {
           <DialogHeader>
             <DialogTitle>Head and Neck Examination Summary</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 space-y-4">
-            {existingExamination && Object.entries(existingExamination).map(([key, value]) => {
-              if (typeof value === 'object' && value !== null) {
-                return (
-                  <div key={key} className="border-b pb-4">
-                    <h3 className="font-medium capitalize mb-2">{key.replace(/_/g, ' ')}</h3>
-                    <pre className="text-sm whitespace-pre-wrap">
-                      {JSON.stringify(value, null, 2)}
-                    </pre>
-                  </div>
-                );
-              }
-              return null;
-            })}
+          <div className="p-6 space-y-6">
+            {existingExamination && (
+              <>
+                <FormSteps 
+                  currentStep={currentViewStep} 
+                  totalSteps={8}
+                  formData={existingExamination}
+                  onStepChange={setCurrentViewStep}
+                />
+                
+                <div className="pointer-events-none opacity-90">
+                  <FormContent 
+                    currentStep={currentViewStep} 
+                    formData={existingExamination}
+                    setFormData={() => {}} // Empty function since it's read-only
+                  />
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
