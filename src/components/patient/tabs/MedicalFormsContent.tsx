@@ -83,16 +83,6 @@ export const MedicalFormsContent = () => {
     return <div>Error: Patient ID not found</div>;
   }
 
-  const getExaminationStatus = () => {
-    if (!existingExamination) return null;
-    return {
-      status: existingExamination.status || 'draft',
-      lastUpdated: new Date(existingExamination.updated_at).toLocaleDateString()
-    };
-  };
-
-  const examinationStatus = getExaminationStatus();
-
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
@@ -113,16 +103,11 @@ export const MedicalFormsContent = () => {
               )} />
               <div>
                 <h3 className="font-medium">Head and Neck Examination</h3>
-                {examinationStatus ? (
-                  <p className="text-sm text-gray-500">
-                    Status: {examinationStatus.status.charAt(0).toUpperCase() + examinationStatus.status.slice(1)} | 
-                    Last updated: {examinationStatus.lastUpdated}
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    Comprehensive examination form
-                  </p>
-                )}
+                <p className="text-sm text-gray-500">
+                  {existingExamination 
+                    ? `Last updated: ${new Date(existingExamination.updated_at).toLocaleDateString()}`
+                    : "Comprehensive examination form"}
+                </p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -218,7 +203,6 @@ export const MedicalFormsContent = () => {
           <HeadNeckExaminationForm 
             patientId={patientId} 
             onSuccess={handleFormSuccess}
-            onClose={() => setShowHeadNeckForm(false)}
           />
         </DialogContent>
       </Dialog>

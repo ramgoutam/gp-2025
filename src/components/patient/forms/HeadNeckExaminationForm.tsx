@@ -6,18 +6,15 @@ import { useFormSteps } from "./head-neck-examination/useFormSteps";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useExaminationData } from "./head-neck-examination/useExaminationData";
-import { X } from "lucide-react";
 
 interface HeadNeckExaminationFormProps {
   patientId: string;
   onSuccess: () => void;
-  onClose?: () => void;
 }
 
 export const HeadNeckExaminationForm = ({ 
   patientId,
-  onSuccess,
-  onClose 
+  onSuccess 
 }: HeadNeckExaminationFormProps) => {
   const { toast } = useToast();
   const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
@@ -58,8 +55,7 @@ export const HeadNeckExaminationForm = ({
         .upsert({
           ...formData,
           patient_id: patientId,
-          updated_at: new Date().toISOString(),
-          status: 'draft'
+          updated_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -72,7 +68,7 @@ export const HeadNeckExaminationForm = ({
 
       toast({
         title: "Success",
-        description: "Progress saved successfully",
+        description: "Form data saved successfully",
       });
     } catch (error) {
       console.error("Error saving form data:", error);
@@ -92,55 +88,17 @@ export const HeadNeckExaminationForm = ({
   };
 
   const handleSubmit = async () => {
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from('head_neck_examinations')
-        .upsert({
-          ...formData,
-          patient_id: patientId,
-          updated_at: new Date().toISOString(),
-          status: 'completed'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Examination submitted successfully",
-      });
-      onSuccess();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit examination",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    await saveFormData();
+    onSuccess();
   };
 
   return (
     <div className="space-y-6 py-4">
-      <div className="flex items-center justify-between">
-        <FormSteps 
-          currentStep={currentStep} 
-          totalSteps={totalSteps} 
-          completedSteps={completedSteps}
-        />
-        {onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="shrink-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
+      <FormSteps 
+        currentStep={currentStep} 
+        totalSteps={totalSteps} 
+        completedSteps={completedSteps}
+      />
       
       <FormContent 
         currentStep={currentStep} 
