@@ -26,15 +26,19 @@ export const FormSteps = ({ currentStep, formData }: FormStepsProps) => {
 
   // Helper function to determine step status
   const getStepStatus = (stepIndex: number): "completed" | "current" | "upcoming" => {
-    if (currentStep === stepIndex) return "current";
-    
     // Check if there's data for this step
     const stepData = getStepData(stepIndex);
     const hasData = hasFilledFields(stepData);
     console.log(`Step ${stepIndex} has data:`, hasData, stepData);
     
+    // If the step has data, mark it as completed regardless of current step
     if (hasData) {
       return "completed";
+    }
+    
+    // If we're on this step
+    if (currentStep === stepIndex) {
+      return "current";
     }
     
     // If we're past this step but no data, still mark as completed
