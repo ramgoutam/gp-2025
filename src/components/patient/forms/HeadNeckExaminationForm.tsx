@@ -18,6 +18,9 @@ export const HeadNeckExaminationForm = ({
   onSuccess,
   existingData 
 }: HeadNeckExaminationFormProps) => {
+  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     patient_id: patientId,
     vital_signs: {},
@@ -38,10 +41,6 @@ export const HeadNeckExaminationForm = ({
     guideline_questions: {},
     status: "draft"
   });
-
-  const { currentStep, handleNext, handlePrevious, totalSteps } = useFormSteps(formData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
   // Load existing data when the form opens
   useEffect(() => {
