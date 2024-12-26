@@ -1,8 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, TestTube, Factory, FileText } from "lucide-react";
+import { LayoutDashboard, Users, TestTube, Factory, FileText, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
+import { useToast } from "./ui/use-toast";
 
-export const Navigation = () => {
+export const Navigation = ({ session }) => {
   const location = useLocation();
+  const { toast } = useToast();
 
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -11,6 +15,24 @@ export const Navigation = () => {
     { to: "/report-card", label: "Report Card", icon: FileText },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast({
+        title: "Signed out successfully",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -34,6 +56,16 @@ export const Navigation = () => {
               );
             })}
           </div>
+          {session && (
+            <Button
+              variant="ghost"
+              className="flex items-center space-x-2"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Sign out</span>
+            </Button>
+          )}
         </div>
       </div>
     </nav>
