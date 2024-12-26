@@ -17,11 +17,11 @@ const AnimatedNumber = ({ number }: { number: number }) => {
   const { number: animatedNumber } = useSpring({
     from: { number: 0 },
     number: number,
-    delay: 50, // Reduced delay for quicker animation
+    delay: 50,
     config: { 
       mass: 1, 
-      tension: 170, // Increased tension for faster animation
-      friction: 26  // Reduced friction for smoother, quicker movement
+      tension: 170,
+      friction: 26
     }
   });
 
@@ -39,37 +39,62 @@ const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: Stat
       cursor-pointer 
       transition-all 
       duration-300 
-      hover:shadow-lg
-      hover:-translate-y-1
-      ${isActive ? 'ring-2 ring-primary shadow-lg' : ''}
+      hover:shadow-xl
+      hover:-translate-y-2
+      ${isActive ? 'ring-2 ring-primary-500 shadow-lg' : ''}
       animate-fade-in
       relative
       overflow-hidden
       group
-      bg-gradient-to-br from-white to-purple-50/30
+      bg-gradient-to-br from-white to-gray-50
+      dark:from-gray-900 dark:to-gray-800
+      backdrop-blur-sm
+      border border-gray-100/20
+      dark:border-gray-700/20
     `}
     onClick={onClick}
   >
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
+    {/* Shine effect overlay */}
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
+    
     <div className="flex items-start justify-between relative">
       <div className={`
         p-3 
         rounded-xl 
         ${color} 
         bg-opacity-10
-        transition-transform 
-        duration-300 
+        transition-all 
+        duration-500 
         group-hover:scale-110
-        group-hover:rotate-3
+        group-hover:rotate-6
+        group-hover:shadow-lg
+        backdrop-blur-sm
       `}>
-        <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" 
-              style={{ color: color.replace('bg-', 'text-') }} />
+        <Icon className={`
+          w-6 
+          h-6 
+          transition-all 
+          duration-500 
+          group-hover:rotate-12
+          ${color.replace('bg-', 'text-')}
+        `} />
       </div>
-      <div className="text-right">
-        <p className="text-3xl font-bold mb-2 transition-colors duration-300 group-hover:text-primary">
+      <div className="text-right space-y-1">
+        <p className={`
+          text-3xl 
+          font-bold 
+          mb-2 
+          transition-colors 
+          duration-300 
+          group-hover:text-primary-500
+          bg-clip-text
+          ${isActive ? 'text-primary-500' : 'text-gray-800 dark:text-gray-100'}
+        `}>
           <AnimatedNumber number={count} />
         </p>
-        <p className="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-700">{title}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300">
+          {title}
+        </p>
       </div>
     </div>
   </Card>
