@@ -21,17 +21,23 @@ export const Navigation = () => {
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      // Even if we get a session_not_found error, we still want to redirect to login
-      // as this means the user is already signed out
+      
+      if (error?.message?.includes('session_not_found')) {
+        console.log('Session already expired, redirecting to login');
+      } else if (error) {
+        console.error('Error during sign out:', error);
+      }
+      
+      // Always redirect to login and show success message
       navigate("/login");
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
+      
     } catch (error) {
-      console.error("Error signing out:", error);
-      // If there's an error, we still want to redirect to login
-      // as the session is likely invalid anyway
+      console.error("Error in sign out process:", error);
+      // If there's an unexpected error, still redirect to login
       navigate("/login");
       toast({
         variant: "destructive",
