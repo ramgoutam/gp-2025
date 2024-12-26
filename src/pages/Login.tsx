@@ -50,15 +50,6 @@ const Login = () => {
     };
   }, [navigate, toast]);
 
-  const handleAuthError = (error: any) => {
-    console.error('Authentication error:', error);
-    toast({
-      title: "Login Failed",
-      description: error.message || "Unable to log in. Please try again.",
-      variant: "destructive"
-    });
-  };
-
   return (
     <div className="min-h-screen w-full flex">
       <div className="w-full lg:w-[45%] h-screen flex items-center justify-center bg-white p-8">
@@ -122,7 +113,6 @@ const Login = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/auth/callback`}
-            onError={handleAuthError}
           />
         </div>
       </div>
