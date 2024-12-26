@@ -4,15 +4,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App.tsx'
 import './index.css'
 
-// Create a client with caching disabled
+// Create a client with caching completely disabled
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 0, // Data is always considered stale
-      gcTime: 0, // Replace cacheTime with gcTime
+      gcTime: 0, // Immediately garbage collect
       refetchOnMount: true, // Always refetch on component mount
       refetchOnWindowFocus: true, // Refetch when window regains focus
-      retry: 1,
+      refetchOnReconnect: true, // Refetch when reconnecting
+      retry: 1, // Only retry once on failure
+      cacheTime: 0, // Don't cache at all
     },
   },
 })
