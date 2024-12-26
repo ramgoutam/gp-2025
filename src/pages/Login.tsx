@@ -52,15 +52,15 @@ const Login = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-50">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
+        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg p-8 space-y-6">
           {/* Auth Tabs */}
           <div className="flex justify-center gap-2 mb-8">
-            <button className="px-6 py-2 rounded-full bg-gray-100 text-gray-900 font-medium">
+            <button className="px-6 py-2 rounded-full bg-primary-100 text-primary-900 font-medium">
               Register
             </button>
-            <button className="px-6 py-2 rounded-full bg-white text-gray-600 font-medium">
+            <button className="px-6 py-2 rounded-full bg-white text-primary-600 font-medium">
               Login
             </button>
           </div>
@@ -76,14 +76,16 @@ const Login = () => {
                   fontSize: '14px',
                   padding: '12px 16px',
                   fontWeight: '500',
+                  color: 'white',
                   transition: 'all 0.2s ease',
                 },
                 input: {
                   borderRadius: '12px',
                   fontSize: '14px',
                   padding: '12px 16px',
-                  backgroundColor: '#F8F9FA',
+                  backgroundColor: 'white',
                   border: '1px solid #E9ECEF',
+                  color: '#1a1a1a',
                 },
                 anchor: {
                   color: '#6C5CE7',
@@ -98,12 +100,13 @@ const Login = () => {
                 },
                 message: {
                   fontSize: '14px',
-                  color: '#495057',
+                  color: '#1a1a1a',
                 },
                 label: {
                   fontSize: '14px',
-                  color: '#495057',
+                  color: '#1a1a1a',
                   marginBottom: '4px',
+                  fontWeight: '500',
                 }
               },
               className: {
@@ -115,12 +118,12 @@ const Login = () => {
                 divider: 'my-6',
               }
             }}
-            providers={["google", "apple", "facebook"]}
+            providers={["google"]}
             redirectTo={`${window.location.origin}/`}
             view="sign_up"
           />
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-gray-900 mt-6">
             By continuing you agree to our{" "}
             <a href="#" className="text-[#6C5CE7] hover:underline">
               Terms & Conditions
