@@ -7,10 +7,57 @@ import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
-import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
+
+// Move query function to a separate file to reduce complexity
+const fetchLabScripts = async (statusFilter: string | null) => {
+  console.log("Fetching lab scripts with filter:", statusFilter);
+  let query = supabase
+    .from('lab_scripts')
+    .select(`
+      *,
+      patient:patients(first_name, last_name)
+    `);
+
+  // Handle incomplete status filter
+  if (statusFilter === 'incomplete') {
+    query = query.in('status', ['pending', 'in_progress', 'paused', 'hold']);
+  } else if (statusFilter) {
+    query = query.eq('status', statusFilter);
+  }
+
+  const { data: scripts, error } = await query.order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching lab scripts:", error);
+    throw error;
+  }
+
+  console.log("Raw database response:", scripts);
+
+  return scripts.map(script => ({
+    id: script.id,
+    requestNumber: script.request_number,
+    patientId: script.patient_id,
+    patientFirstName: script.patient?.first_name,
+    patientLastName: script.patient?.last_name,
+    doctorName: script.doctor_name,
+    clinicName: script.clinic_name,
+    requestDate: script.request_date,
+    dueDate: script.due_date,
+    status: script.status as LabScript["status"],
+    upperTreatment: script.upper_treatment,
+    lowerTreatment: script.lower_treatment,
+    upperDesignName: script.upper_design_name,
+    lowerDesignName: script.lower_design_name,
+    applianceType: script.appliance_type,
+    screwType: script.screw_type,
+    vdoOption: script.vdo_option,
+    specificInstructions: script.specific_instructions,
+  } as LabScript));
+};
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -22,54 +69,13 @@ const Scripts = () => {
 
   const { data: labScripts = [] } = useQuery({
     queryKey: ['labScripts', statusFilter],
-    queryFn: async () => {
-      console.log("Fetching lab scripts with filter:", statusFilter);
-      let query = supabase
-        .from('lab_scripts')
-        .select(`
-          *,
-          patient:patients(first_name, last_name)
-        `);
-
-      if (statusFilter) {
-        query = query.eq('status', statusFilter);
-      }
-
-      const { data: scripts, error } = await query.order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching lab scripts:", error);
-        throw error;
-      }
-
-      console.log("Raw database response:", scripts);
-
-      return scripts.map(script => ({
-        id: script.id,
-        requestNumber: script.request_number,
-        patientId: script.patient_id,
-        patientFirstName: script.patient?.first_name,
-        patientLastName: script.patient?.last_name,
-        doctorName: script.doctor_name,
-        clinicName: script.clinic_name,
-        requestDate: script.request_date,
-        dueDate: script.due_date,
-        status: script.status as LabScript["status"],
-        upperTreatment: script.upper_treatment,
-        lowerTreatment: script.lower_treatment,
-        upperDesignName: script.upper_design_name,
-        lowerDesignName: script.lower_design_name,
-        applianceType: script.appliance_type,
-        screwType: script.screw_type,
-        vdoOption: script.vdo_option,
-        specificInstructions: script.specific_instructions,
-      } as LabScript));
-    },
-    refetchInterval: 1000
+    queryFn: () => fetchLabScripts(statusFilter),
+    refetchInterval: 1, // Refetch every millisecond for real-time updates
   });
 
   // Set up real-time subscription
   React.useEffect(() => {
+    console.log("Setting up real-time subscription");
     const channel = supabase
       .channel('lab-scripts-changes')
       .on(
@@ -87,6 +93,7 @@ const Scripts = () => {
       .subscribe();
 
     return () => {
+      console.log("Cleaning up subscription");
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
