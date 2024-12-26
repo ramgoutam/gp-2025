@@ -75,7 +75,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
 
   const handleStatusChange = async (script: LabScript, newStatus: LabScript["status"]) => {
     console.log("Handling status change in LabScriptList:", script.id, newStatus);
-    await updateStatus(script, newStatus);
+    return await updateStatus(script, newStatus);
   };
 
   return (
