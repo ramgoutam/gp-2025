@@ -52,7 +52,7 @@ export const DashboardCharts = () => {
       color: "text-amber-500",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-200",
-      size: "col-span-1"
+      size: "md:col-span-1"
     },
     {
       title: "In Progress",
@@ -61,7 +61,7 @@ export const DashboardCharts = () => {
       color: "text-blue-500",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      size: "col-span-2"
+      size: "md:col-span-2"
     },
     {
       title: "Completed",
@@ -70,7 +70,7 @@ export const DashboardCharts = () => {
       color: "text-green-500",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
-      size: "col-span-2"
+      size: "md:col-span-2"
     },
     {
       title: "Paused",
@@ -79,7 +79,7 @@ export const DashboardCharts = () => {
       color: "text-orange-500",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200",
-      size: "col-span-1"
+      size: "md:col-span-1"
     },
     {
       title: "On Hold",
@@ -88,7 +88,7 @@ export const DashboardCharts = () => {
       color: "text-red-500",
       bgColor: "bg-red-50",
       borderColor: "border-red-200",
-      size: "col-span-2"
+      size: "md:col-span-2"
     },
     {
       title: "Total Scripts",
@@ -97,12 +97,12 @@ export const DashboardCharts = () => {
       color: "text-purple-500",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      size: "col-span-4"
+      size: "md:col-span-4"
     }
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-4 animate-fade-in">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 animate-fade-in">
       {statusCards.map((card, index) => (
         <Card 
           key={card.title}
@@ -119,11 +119,11 @@ export const DashboardCharts = () => {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-3xl font-bold tracking-tight">{card.count}</p>
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight">{card.count}</p>
                 <p className="text-xs text-gray-500">Total Scripts</p>
               </div>
-              <div className={`p-4 rounded-full ${card.bgColor} group-hover:scale-110 transition-transform`}>
-                <card.icon className={`h-6 w-6 ${card.color}`} />
+              <div className={`p-3 sm:p-4 rounded-full ${card.bgColor} group-hover:scale-110 transition-transform`}>
+                <card.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${card.color}`} />
               </div>
             </div>
             <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">

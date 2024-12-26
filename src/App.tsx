@@ -28,7 +28,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Navigation />
-          <main className="container mx-auto py-8 px-4">
+          <main className="container mx-auto max-w-[1600px] py-6 px-4 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
