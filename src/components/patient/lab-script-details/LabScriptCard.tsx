@@ -42,7 +42,7 @@ export const LabScriptCard = ({
       // Map the database response to our LabScript type
       return data ? mapDatabaseLabScript(data as DatabaseLabScript) : script;
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1, // Updated to 1ms for real-time updates
     initialData: script,
   });
 

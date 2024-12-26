@@ -82,7 +82,7 @@ export const LabScriptsTab = ({
         return initialLabScripts;
       }
     },
-    refetchInterval: 1000, // Refetch every second for other updates
+    refetchInterval: 1, // Updated to 1ms for real-time updates
   });
 
   // Set up real-time subscription for lab script status updates

@@ -55,7 +55,7 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1, // Updated to 1ms for real-time updates
   });
 
   useEffect(() => {
