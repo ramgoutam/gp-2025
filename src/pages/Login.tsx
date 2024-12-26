@@ -14,7 +14,7 @@ const Login = () => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Current session:", session);
+      console.log("Initial session check:", session ? "Session found" : "No session");
       
       if (error) {
         console.error("Error checking session:", error);
@@ -27,7 +27,7 @@ const Login = () => {
       }
       
       if (session) {
-        console.log("User already logged in, redirecting to dashboard");
+        console.log("Active session found, redirecting to dashboard");
         navigate("/");
       }
     };
@@ -37,17 +37,22 @@ const Login = () => {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        console.log("Auth state changed:", event, session);
+        console.log("Auth state changed - Event:", event);
+        console.log("Auth state changed - Session:", session ? "Present" : "None");
         
         if (event === "SIGNED_IN" && session) {
-          console.log("User signed in successfully, redirecting to dashboard");
+          console.log("Sign in successful, redirecting to dashboard");
           navigate("/");
+        } else if (event === "SIGNED_OUT") {
+          console.log("User signed out");
+          navigate("/login");
         }
       }
     );
 
     // Cleanup subscription on unmount
     return () => {
+      console.log("Cleaning up auth subscription");
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
