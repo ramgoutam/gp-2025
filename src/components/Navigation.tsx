@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, TestTube, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, TestTube, Factory, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ export const Navigation = () => {
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
     { to: "/scripts", label: "Lab Scripts", icon: TestTube },
+    { to: "/manufacturing", label: "Manufacturing", icon: Factory },
   ];
 
   const handleSignOut = async () => {

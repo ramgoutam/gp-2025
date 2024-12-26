@@ -8,8 +8,8 @@ import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
+import Manufacturing from "@/pages/Manufacturing";
 
-// Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   console.log("Protected route - session:", session);
@@ -60,6 +60,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Scripts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manufacturing"
+                element={
+                  <ProtectedRoute>
+                    <Manufacturing />
                   </ProtectedRoute>
                 }
               />
