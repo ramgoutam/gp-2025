@@ -9,11 +9,31 @@ import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import { FormBuilder } from "@/pages/FormBuilder";
 import { FormBuilderEditor } from "@/pages/FormBuilderEditor";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
-  console.log("Protected route - session state:", session ? "Authenticated" : "Not authenticated");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      console.log("Protected route - checking session:", currentSession ? "Authenticated" : "Not authenticated");
+      
+      if (!currentSession) {
+        console.log("No active session, redirecting to login");
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to access this page",
+          variant: "destructive",
+        });
+      }
+    };
+
+    checkAuth();
+  }, [toast]);
 
   if (!session) {
     console.log("No session found, redirecting to login");
@@ -24,6 +44,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+  // Set up auth state change listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("App level - Auth state changed:", event);
+      console.log("App level - Session state:", session ? "Authenticated" : "Not authenticated");
+    });
+
+    return () => {
+      console.log("Cleaning up auth subscription in App");
+      subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <SessionContextProvider supabaseClient={supabase}>
       <Router>
