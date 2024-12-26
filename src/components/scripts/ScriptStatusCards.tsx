@@ -66,10 +66,12 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
         paused: scripts.filter(s => s.status === 'paused').length,
         hold: scripts.filter(s => s.status === 'hold').length,
-        incomplete: scripts.filter(s => s.status === 'incomplete').length,
         completed: scripts.filter(s => s.status === 'completed').length,
         total: scripts.length
       };
+
+      // Calculate incomplete count as sum of pending, in_progress, paused, and hold
+      counts.incomplete = counts.pending + counts.inProcess + counts.paused + counts.hold;
 
       console.log('Script counts:', counts);
       return counts;
