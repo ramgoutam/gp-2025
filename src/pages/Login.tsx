@@ -57,7 +57,7 @@ const Login = () => {
         <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-lg p-8 space-y-6">
           {/* Auth Tabs */}
           <div className="flex justify-center gap-2 mb-8">
-            <button className="px-6 py-2 rounded-full bg-primary-500 text-white font-medium w-full">
+            <button className="px-6 py-2 rounded-full bg-primary-500 text-white font-medium w-1/2">
               Login
             </button>
           </div>
