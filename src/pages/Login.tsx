@@ -35,43 +35,13 @@ const Login = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
-        switch (event) {
-          case "SIGNED_IN":
-            if (session) {
-              console.log("User signed in, redirecting to dashboard");
-              // Refresh the session to ensure we have the latest token
-              const { error: refreshError } = await supabase.auth.refreshSession();
-              if (refreshError) {
-                console.error("Error refreshing session:", refreshError);
-                toast({
-                  variant: "destructive",
-                  title: "Session Error",
-                  description: "There was a problem with your session. Please try logging in again.",
-                });
-                return;
-              }
-              toast({
-                title: "Welcome back!",
-                description: "You have successfully signed in.",
-              });
-              navigate("/");
-            }
-            break;
-          case "SIGNED_OUT":
-            console.log("User signed out, staying on login page");
-            navigate("/login");
-            break;
-          case "USER_UPDATED":
-            console.log("User updated");
-            break;
-          case "TOKEN_REFRESHED":
-            console.log("Token refreshed");
-            break;
-          case "MFA_CHALLENGE_VERIFIED":
-            console.log("MFA challenge verified");
-            break;
-          default:
-            console.log("Unhandled auth event:", event);
+        if (event === "SIGNED_IN" && session) {
+          console.log("User signed in, redirecting to dashboard");
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
+          navigate("/");
         }
       }
     );
@@ -95,8 +65,8 @@ const Login = () => {
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          providers={["google"]}
-          redirectTo={`${window.location.origin}/auth/callback`}
+          providers={[]}
+          redirectTo={`${window.location.origin}/`}
         />
       </div>
     </div>
