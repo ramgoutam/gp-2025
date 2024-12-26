@@ -5,11 +5,11 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
     autoRefreshToken: true,
+    persistSession: true,
     detectSessionInUrl: true,
     storageKey: 'supabase.auth.token',
-  }
+  },
 });
 
 // Add error logging for debugging
@@ -17,7 +17,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   console.log('Auth state changed:', event);
   if (session) {
     console.log('Session user ID:', session.user?.id);
-    console.log('Session token:', session.access_token);
   } else {
     console.log('No active session');
   }
@@ -32,14 +31,18 @@ const testConnection = async () => {
     return;
   }
 
-  const { error } = await supabase
-    .from('lab_scripts')
-    .select('*', { count: 'exact', head: true });
+  try {
+    const { error } = await supabase
+      .from('lab_scripts')
+      .select('*', { count: 'exact', head: true });
 
-  if (error) {
-    console.error('Supabase connection test failed:', error);
-  } else {
-    console.log('Supabase connection test successful');
+    if (error) {
+      console.error('Supabase connection test failed:', error);
+    } else {
+      console.log('Supabase connection test successful');
+    }
+  } catch (error) {
+    console.error('Error testing connection:', error);
   }
 };
 
