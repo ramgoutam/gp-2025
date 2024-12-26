@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, LogOut, User } from "lucide-react";
+import { LayoutDashboard, Users, FileText, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -59,6 +59,7 @@ export const Navigation = () => {
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
+    { to: "/scripts", label: "Lab Scripts", icon: FileText },
   ];
 
   const getInitials = (name: string) => {

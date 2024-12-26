@@ -6,6 +6,7 @@ import PatientProfile from "./pages/PatientProfile";
 import { FormBuilder } from "./pages/FormBuilder";
 import { FormBuilderEditor } from "./pages/FormBuilderEditor";
 import Profile from "./pages/Profile";
+import Scripts from "./pages/Scripts";
 
 export const router = createBrowserRouter([
   {
@@ -35,5 +36,9 @@ export const router = createBrowserRouter([
   {
     path: "/profile",
     element: <Profile />,
+  },
+  {
+    path: "/scripts",
+    element: <Scripts />,
   },
 ]);
