@@ -21,16 +21,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log("Checking auth state:", session?.user?.id);
+        
+        if (error) {
+          throw error;
+        }
+        
         if (!session) {
-          console.log("No active session, redirecting to login");
+          console.log("No active session found");
           toast({
             title: "Please Sign In",
             description: "You need to be signed in to access this page",
           });
         }
       } catch (error) {
-        console.error("Error checking auth:", error);
+        console.error("Auth check error:", error);
         toast({
           title: "Authentication Error",
           description: "Please sign in again",
@@ -41,7 +47,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
+      if (event === 'SIGNED_OUT') {
+        console.log("User signed out, clearing session");
+      }
+    });
+
     checkAuth();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [toast]);
 
   if (isLoading) {

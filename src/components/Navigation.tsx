@@ -1,5 +1,4 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { LayoutDashboard, Users, TestTube, Factory, FileText, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +13,7 @@ export const Navigation = () => {
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/scripts", label: "Lab Scripts", icon: TestTube },
+    { to: "/scripts", label: "Scripts", icon: TestTube },
     { to: "/report-card", label: "Report Card", icon: FileText },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
   ];
@@ -22,14 +21,8 @@ export const Navigation = () => {
   const handleSignOut = async () => {
     try {
       console.log("Starting sign out process...");
-      console.log("Current session:", session);
-
-      if (!session) {
-        console.log("No active session found, redirecting to login");
-        navigate('/login');
-        return;
-      }
-
+      
+      // Clear any existing session data
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -38,12 +31,18 @@ export const Navigation = () => {
       }
 
       console.log("Successfully signed out");
+      
+      // Force clear the session from localStorage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Show success message
       toast({
         title: "Signed out successfully",
         description: "You have been signed out of your account",
       });
       
-      navigate('/login');
+      // Navigate to login page
+      navigate('/login', { replace: true });
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
@@ -51,38 +50,38 @@ export const Navigation = () => {
         description: "There was a problem signing out. Please try again.",
         variant: "destructive",
       });
+      // Even if there's an error, try to redirect to login
+      navigate('/login', { replace: true });
     }
   };
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-8">
-            <div className="text-primary font-bold text-xl">NYDI</div>
-            <div className="flex space-x-4">
-              {links.map(({ to, label, icon: Icon }) => (
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex space-x-8">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive = location.pathname === link.to;
+              return (
                 <Link
-                  key={to}
-                  to={to}
-                  className={cn(
-                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    location.pathname === to
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  )}
+                  key={link.to}
+                  to={link.to}
+                  className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-gray-900 ${
+                    isActive ? "text-gray-900" : "text-gray-500"
+                  }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{label}</span>
+                  <Icon className="h-5 w-5" />
+                  <span>{link.label}</span>
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center space-x-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="h-5 w-5" />
             <span>Sign Out</span>
           </button>
         </div>
