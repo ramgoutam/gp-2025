@@ -1,13 +1,11 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, TestTube, Factory, LogOut, FileText } from "lucide-react";
-import { Button } from "./ui/button";
+import { LayoutDashboard, Users, TestTube, Factory, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export const Navigation = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const links = [
@@ -17,24 +15,6 @@ export const Navigation = () => {
     { to: "/report-card", label: "Report Card", icon: FileText },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
   ];
-
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-      });
-    }
-  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -60,15 +40,6 @@ export const Navigation = () => {
               ))}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
         </div>
       </div>
     </nav>
