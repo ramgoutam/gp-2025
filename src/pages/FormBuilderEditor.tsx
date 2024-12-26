@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { FormBuilderCanvas } from "@/components/form-builder/FormBuilderCanvas";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Plus } from "lucide-react";
+import { ArrowLeft, Save, Plus, Heading1, Heading2, Type, Link, ListTodo, MessageSquare, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FormComponent, FormTemplate } from "@/types/formBuilder";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { v4 as uuidv4 } from "uuid";
 
@@ -23,17 +26,32 @@ export const FormBuilderEditor = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const availableComponents = [
-    { type: 'input', label: 'Text Input' },
-    { type: 'textarea', label: 'Text Area' },
-    { type: 'checkbox', label: 'Checkbox' },
-    { type: 'radio', label: 'Radio Group' },
-    { type: 'select', label: 'Select' },
-    { type: 'email', label: 'Email Input' },
-    { type: 'phone', label: 'Phone Input' },
-    { type: 'number', label: 'Number Input' },
-    { type: 'date', label: 'Date Picker' },
-    { type: 'file', label: 'File Upload' },
-    { type: 'toggle', label: 'Toggle Switch' },
+    // Text Components
+    { type: 'h1', label: 'Heading 1', icon: Heading1, category: 'Text' },
+    { type: 'h2', label: 'Heading 2', icon: Heading2, category: 'Text' },
+    { type: 'paragraph', label: 'Paragraph', icon: Type, category: 'Text' },
+    
+    // Input Components
+    { type: 'input', label: 'Text Input', icon: Type, category: 'Input' },
+    { type: 'textarea', label: 'Text Area', icon: Type, category: 'Input' },
+    { type: 'email', label: 'Email Input', icon: Type, category: 'Input' },
+    { type: 'phone', label: 'Phone Input', icon: Type, category: 'Input' },
+    { type: 'number', label: 'Number Input', icon: Type, category: 'Input' },
+    { type: 'date', label: 'Date Picker', icon: Type, category: 'Input' },
+    { type: 'file', label: 'File Upload', icon: Type, category: 'Input' },
+    
+    // Selection Components
+    { type: 'checkbox', label: 'Checkbox', icon: ListTodo, category: 'Selection' },
+    { type: 'radio', label: 'Radio Group', icon: ListTodo, category: 'Selection' },
+    { type: 'select', label: 'Select Dropdown', icon: ListTodo, category: 'Selection' },
+    { type: 'toggle', label: 'Toggle Switch', icon: ListTodo, category: 'Selection' },
+    
+    // Advanced Components
+    { type: 'link', label: 'Link', icon: Link, category: 'Advanced' },
+    { type: 'popup-sm', label: 'Small Popup', icon: MessageSquare, category: 'Advanced' },
+    { type: 'popup-md', label: 'Medium Popup', icon: MessageSquare, category: 'Advanced' },
+    { type: 'popup-lg', label: 'Large Popup', icon: MessageSquare, category: 'Advanced' },
+    { type: 'conditional', label: 'Conditional Logic', icon: LogIn, category: 'Advanced' },
   ];
 
   const addComponent = (type: string, label: string) => {
@@ -44,6 +62,11 @@ export const FormBuilderEditor = () => {
       placeholder: `Enter ${label.toLowerCase()}`,
       required: false,
       options: type === 'select' || type === 'radio' ? ['Option 1', 'Option 2', 'Option 3'] : undefined,
+      style: {
+        width: type.startsWith('popup') ? 
+          (type === 'popup-sm' ? '300px' : type === 'popup-md' ? '500px' : '800px') : 
+          '100%'
+      }
     };
     setComponents([...components, newComponent]);
     toast({
@@ -142,14 +165,25 @@ export const FormBuilderEditor = () => {
                 <Plus className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {availableComponents.map((component) => (
-                <DropdownMenuItem
-                  key={component.type}
-                  onClick={() => addComponent(component.type, component.label)}
-                >
-                  {component.label}
-                </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-56">
+              {['Text', 'Input', 'Selection', 'Advanced'].map((category) => (
+                <div key={category}>
+                  <DropdownMenuLabel>{category}</DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                    {availableComponents
+                      .filter(component => component.category === category)
+                      .map((component) => (
+                        <DropdownMenuItem
+                          key={component.type}
+                          onClick={() => addComponent(component.type, component.label)}
+                        >
+                          <component.icon className="mr-2 h-4 w-4" />
+                          {component.label}
+                        </DropdownMenuItem>
+                      ))}
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                </div>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>

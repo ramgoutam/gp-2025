@@ -8,6 +8,15 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FormComponent } from "@/types/formBuilder";
 
@@ -32,7 +41,7 @@ export const FormBuilderCanvas = ({
     onUpdateComponents(items);
   };
 
-  const renderComponent = (component: any) => {
+  const renderComponent = (component: FormComponent) => {
     const commonProps = {
       placeholder: component.placeholder,
       className: cn("w-full", component.style?.width && `w-[${component.style.width}]`),
@@ -40,6 +49,12 @@ export const FormBuilderCanvas = ({
     };
 
     switch (component.type) {
+      case 'h1':
+        return <h1 className="text-4xl font-bold mb-4">{component.placeholder}</h1>;
+      case 'h2':
+        return <h2 className="text-2xl font-semibold mb-3">{component.placeholder}</h2>;
+      case 'paragraph':
+        return <p className="text-gray-600 mb-4">{component.placeholder}</p>;
       case 'input':
         return <Input type="text" {...commonProps} />;
       case 'textarea':
@@ -100,8 +115,52 @@ export const FormBuilderCanvas = ({
             <Label htmlFor={component.id}>{component.placeholder}</Label>
           </div>
         );
-      case 'card':
-        return <Input type="text" pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}" placeholder="Card number" {...commonProps} />;
+      case 'link':
+        return (
+          <a href="#" className="text-primary hover:underline">
+            {component.placeholder}
+          </a>
+        );
+      case 'popup-sm':
+      case 'popup-md':
+      case 'popup-lg':
+        return (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Open {component.label}</Button>
+            </DialogTrigger>
+            <DialogContent className={cn(
+              component.type === 'popup-sm' ? 'max-w-sm' :
+              component.type === 'popup-md' ? 'max-w-md' :
+              'max-w-lg'
+            )}>
+              <DialogHeader>
+                <DialogTitle>{component.label}</DialogTitle>
+                <DialogDescription>
+                  {component.placeholder}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        );
+      case 'conditional':
+        return (
+          <div className="border p-4 rounded-lg bg-muted/50">
+            <p className="text-sm text-muted-foreground mb-2">Conditional Logic Block</p>
+            <div className="space-y-2">
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="equals">Equals</SelectItem>
+                  <SelectItem value="not-equals">Not equals</SelectItem>
+                  <SelectItem value="contains">Contains</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
