@@ -4,6 +4,17 @@ import { PatientList } from "@/components/patient/PatientList";
 import { PatientSearch } from "@/components/patient/PatientSearch";
 import { PageHeader } from "@/components/patient/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,13 +42,15 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <PageHeader />
-        <PatientSearch />
-        <PatientList />
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-gray-50 pt-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <PageHeader />
+          <PatientSearch />
+          <PatientList />
+        </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 };
 
