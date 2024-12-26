@@ -67,25 +67,25 @@ export const useLabScripts = (statusFilter: string | null) => {
     retry: 1,
     meta: {
       errorMessage: "Failed to load lab scripts",
-    },
-    onSuccess: (data: LabScript[]) => {
-      console.log("Successfully fetched lab scripts:", data);
-    },
-    onError: (error: Error) => {
-      console.error("Error fetching lab scripts:", error);
-      if (error.message === "Authentication required") {
-        navigate("/login");
-        toast({
-          variant: "destructive",
-          title: "Session expired",
-          description: "Please sign in again to continue.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load lab scripts. Please try again.",
-        });
+      onSuccess: (data: LabScript[]) => {
+        console.log("Successfully fetched lab scripts:", data);
+      },
+      onError: (error: Error) => {
+        console.error("Error fetching lab scripts:", error);
+        if (error.message === "Authentication required") {
+          navigate("/login");
+          toast({
+            variant: "destructive",
+            title: "Session expired",
+            description: "Please sign in again to continue.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to load lab scripts. Please try again.",
+          });
+        }
       }
     }
   });
