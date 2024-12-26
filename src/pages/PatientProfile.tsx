@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { PatientHeader } from "@/components/patient/PatientHeader";
@@ -8,13 +8,18 @@ import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
 import { getLabScripts, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
 import { Loader } from "lucide-react";
+import { Login } from "@/components/auth/Login";
+import { supabase } from "@/integrations/supabase/client";
 
 const PatientProfile = () => {
   const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
   const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { state } = useLocation();
   const { id } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [patientData, setPatientData] = useState(() => {
     if (state?.patientData) {
@@ -22,6 +27,40 @@ const PatientProfile = () => {
     }
     return null;
   });
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log("Current session:", currentSession);
+        setSession(currentSession);
+        
+        if (!currentSession) {
+          console.log("No active session, redirecting to login");
+          navigate("/");
+          return;
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", session);
+      setSession(session);
+      if (!session) {
+        navigate("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const loadScripts = async () => {
     try {
@@ -41,10 +80,10 @@ const PatientProfile = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id && session) {
       loadScripts();
     }
-  }, [id]);
+  }, [id, session]);
 
   const handleLabScriptSubmit = async (formData: any) => {
     try {
@@ -116,6 +155,21 @@ const PatientProfile = () => {
     console.log("Updating patient data:", updatedData);
     setPatientData(updatedData);
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Login />;
+  }
 
   if (!patientData) {
     return (
