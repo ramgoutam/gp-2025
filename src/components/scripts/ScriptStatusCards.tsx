@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Clock, Loader2, CheckCircle2, Files, Pause, StopCircle } from "lucide-react";
+import { Clock, Loader2, CheckCircle2, Files, Pause, StopCircle, AlertCircle } from "lucide-react";
 
 type StatusCardProps = {
   title: string;
@@ -14,18 +14,26 @@ type StatusCardProps = {
 
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
-    className={`p-6 hover:shadow-lg transition-all duration-300 cursor-pointer ${
-      isActive ? 'ring-2 ring-primary shadow-lg' : ''
+    className={`p-6 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
+      isActive ? 'ring-2 ring-primary shadow-lg scale-[1.02]' : ''
     }`}
     onClick={onClick}
   >
     <div className="flex items-center justify-between">
-      <div>
+      <div className="space-y-3">
         <p className="text-sm font-medium text-gray-500">{title}</p>
-        <p className="text-3xl font-bold mt-2">{count}</p>
+        <p className="text-3xl font-bold">{count}</p>
       </div>
-      <div className={`p-4 rounded-full ${color}`}>
-        <Icon className="w-6 h-6 text-white" />
+      <div className={`p-4 rounded-full ${color} bg-opacity-20`}>
+        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+      </div>
+    </div>
+    <div className="mt-4">
+      <div className={`h-1 rounded-full ${color} bg-opacity-30`}>
+        <div 
+          className={`h-1 rounded-full ${color}`} 
+          style={{ width: `${(count / (count || 1)) * 100}%` }}
+        />
       </div>
     </div>
   </Card>
@@ -37,7 +45,7 @@ type ScriptStatusCardsProps = {
 };
 
 export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
-  const { data: scriptCounts = { pending: 0, inProcess: 0, paused: 0, hold: 0, completed: 0, total: 0 } } = useQuery({
+  const { data: scriptCounts = { pending: 0, inProcess: 0, paused: 0, hold: 0, incomplete: 0, completed: 0, total: 0 } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
       console.log('Fetching script status counts');
@@ -56,6 +64,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
         paused: scripts.filter(s => s.status === 'paused').length,
         hold: scripts.filter(s => s.status === 'hold').length,
+        incomplete: scripts.filter(s => s.status === 'incomplete').length,
         completed: scripts.filter(s => s.status === 'completed').length,
         total: scripts.length
       };
@@ -71,7 +80,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
       <StatusCard
         title="Pending Scripts"
         count={scriptCounts.pending}
@@ -103,6 +112,14 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         color="bg-red-500"
         onClick={() => handleCardClick('hold')}
         isActive={activeFilter === 'hold'}
+      />
+      <StatusCard
+        title="Incomplete"
+        count={scriptCounts.incomplete}
+        icon={AlertCircle}
+        color="bg-rose-500"
+        onClick={() => handleCardClick('incomplete')}
+        isActive={activeFilter === 'incomplete'}
       />
       <StatusCard
         title="Completed"
