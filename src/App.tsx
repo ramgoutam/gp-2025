@@ -7,6 +7,7 @@ import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
+import Scripts from "@/pages/Scripts";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +52,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PatientProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/scripts"
+                element={
+                  <ProtectedRoute>
+                    <Scripts />
                   </ProtectedRoute>
                 }
               />
