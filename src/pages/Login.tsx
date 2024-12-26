@@ -1,63 +1,46 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthChangeEvent } from "@supabase/supabase-js";
-import { X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-      if (error) {
-        console.error("Error checking session:", error);
+    const checkSession = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          console.log('Existing session found, redirecting to dashboard');
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
         toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to check authentication status",
+          title: "Authentication Error",
+          description: "Unable to check current session",
+          variant: "destructive"
         });
-      }
-      if (session) {
-        console.log("User already logged in, redirecting to dashboard");
-        navigate("/");
+      } finally {
+        setIsLoading(false);
       }
     };
-    
-    checkUser();
 
-    // Set up auth state change listener
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session) => {
-        console.log("Auth state changed:", event, session);
-        switch (event) {
-          case "SIGNED_IN":
-            if (session) {
-              console.log("User signed in, redirecting to dashboard");
-              navigate("/");
-            }
-            break;
-          case "SIGNED_OUT":
-            console.log("User signed out, staying on login page");
-            navigate("/login");
-            break;
-          case "USER_UPDATED":
-            console.log("User updated");
-            break;
-          case "TOKEN_REFRESHED":
-            console.log("Token refreshed");
-            break;
-          case "MFA_CHALLENGE_VERIFIED":
-            console.log("MFA challenge verified");
-            break;
-          default:
-            console.log("Unhandled auth event:", event);
+      (event, session) => {
+        console.log('Auth state change:', event, session);
+        
+        if (event === 'SIGNED_IN') {
+          console.log('User signed in, redirecting to dashboard');
+          navigate('/');
         }
       }
     );
@@ -67,78 +50,80 @@ const Login = () => {
     };
   }, [navigate, toast]);
 
+  const handleAuthError = (error: any) => {
+    console.error('Authentication error:', error);
+    toast({
+      title: "Login Failed",
+      description: error.message || "Unable to log in. Please try again.",
+      variant: "destructive"
+    });
+  };
+
   return (
     <div className="min-h-screen w-full flex">
-      {/* Left Panel - Auth Form */}
       <div className="w-full lg:w-[45%] h-screen flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-md space-y-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Fira Sans, sans-serif' }}>
-                NYDI
-              </h1>
-              <p className="mt-2 text-sm text-gray-600">
-                Welcome back! Please sign in to continue.
-              </p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">NYDI</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Welcome back! Please sign in to continue.
+            </p>
           </div>
 
-          <div className="mt-10">
-            <Auth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                style: {
-                  button: {
-                    borderRadius: '8px',
-                    backgroundColor: '#4F6BFF',
-                    color: 'white',
-                    padding: '12px 24px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    width: '100%',
-                    marginTop: '24px',
-                  },
-                  input: {
-                    borderRadius: '8px',
-                    backgroundColor: '#F8FAFC',
-                    padding: '12px 16px',
-                    fontSize: '14px',
-                    border: '1px solid #E2E8F0',
-                    width: '100%',
-                  },
-                  label: {
-                    fontSize: '14px',
-                    color: '#475569',
-                    marginBottom: '6px',
-                    display: 'block',
-                  },
-                  container: {
-                    gap: '20px',
-                  },
-                  message: {
-                    fontSize: '14px',
-                    color: '#EF4444',
-                    marginTop: '6px',
-                  },
-                  anchor: {
-                    color: '#4F6BFF',
-                    fontSize: '14px',
-                    textDecoration: 'none',
-                  },
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  borderRadius: '8px',
+                  backgroundColor: '#4F6BFF',
+                  color: 'white',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  width: '100%',
+                  marginTop: '24px',
                 },
-                className: {
-                  container: 'space-y-6',
-                  button: 'hover:bg-primary-600 transition-colors duration-200',
-                  input: 'hover:border-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-colors duration-200',
-                  label: 'font-medium',
+                input: {
+                  borderRadius: '8px',
+                  backgroundColor: '#F8FAFC',
+                  padding: '12px 16px',
+                  fontSize: '14px',
+                  border: '1px solid #E2E8F0',
+                  width: '100%',
                 },
-              }}
-              providers={["google"]}
-              redirectTo={window.location.origin + "/auth/callback"}
-              theme="custom"
-            />
-          </div>
+                label: {
+                  fontSize: '14px',
+                  color: '#475569',
+                  marginBottom: '6px',
+                  display: 'block',
+                },
+                container: {
+                  gap: '20px',
+                },
+                message: {
+                  fontSize: '14px',
+                  color: '#EF4444',
+                  marginTop: '6px',
+                },
+                anchor: {
+                  color: '#4F6BFF',
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                },
+              },
+              className: {
+                container: 'space-y-6',
+                button: 'hover:bg-primary-600 transition-colors duration-200',
+                input: 'hover:border-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-colors duration-200',
+                label: 'font-medium',
+              },
+            }}
+            providers={["google"]}
+            redirectTo={`${window.location.origin}/auth/callback`}
+            onError={handleAuthError}
+          />
         </div>
       </div>
 
