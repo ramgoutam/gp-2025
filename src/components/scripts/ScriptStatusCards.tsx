@@ -57,7 +57,15 @@ type ScriptStatusCardsProps = {
 };
 
 export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
-  const { data: scriptCounts = { pending: 0, inProcess: 0, paused: 0, hold: 0, incomplete: 0, completed: 0, total: 0 } } = useQuery({
+  const { data: scriptCounts = { 
+    pending: 0, 
+    inProcess: 0, 
+    paused: 0, 
+    hold: 0, 
+    incomplete: 0, 
+    completed: 0, 
+    total: 0 
+  } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
       console.log('Fetching script status counts');
@@ -78,7 +86,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         hold: scripts.filter(s => s.status === 'hold').length,
         completed: scripts.filter(s => s.status === 'completed').length,
         total: scripts.length,
-        incomplete: 0 // Initialize with 0
+        incomplete: 0
       };
 
       // Calculate incomplete count as sum of pending, in_progress, paused, and hold
