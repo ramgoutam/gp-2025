@@ -23,6 +23,7 @@ export const FormBuilder = () => {
   const [forms, setForms] = useState<FormTemplate[]>([]);
   const [showNewFormDialog, setShowNewFormDialog] = useState(false);
   const [newFormName, setNewFormName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   const fetchForms = async () => {
     try {
@@ -53,6 +54,11 @@ export const FormBuilder = () => {
       return;
     }
 
+    // Prevent multiple simultaneous submissions
+    if (isCreating) return;
+
+    setIsCreating(true);
+
     try {
       const { data, error } = await supabase
         .from('form_templates')
@@ -77,11 +83,15 @@ export const FormBuilder = () => {
       console.error('Error creating form:', error);
       toast({
         title: "Error",
-        description: "Failed to create form",
+        description: "Failed to create form. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsCreating(false);
     }
   };
+
+  // ... keep existing code (rest of the component remains the same)
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
@@ -90,6 +100,7 @@ export const FormBuilder = () => {
         <Button 
           onClick={() => setShowNewFormDialog(true)}
           className="bg-primary hover:bg-primary/90"
+          disabled={isCreating}
         >
           <Plus className="w-4 h-4 mr-2" />
           Build New Form
@@ -153,15 +164,23 @@ export const FormBuilder = () => {
                 value={newFormName}
                 onChange={(e) => setNewFormName(e.target.value)}
                 placeholder="Enter form name"
+                disabled={isCreating}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewFormDialog(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowNewFormDialog(false)}
+              disabled={isCreating}
+            >
               Cancel
             </Button>
-            <Button onClick={handleCreateNewForm}>
-              Create Form
+            <Button 
+              onClick={handleCreateNewForm} 
+              disabled={isCreating}
+            >
+              {isCreating ? 'Creating...' : 'Create Form'}
             </Button>
           </DialogFooter>
         </DialogContent>
