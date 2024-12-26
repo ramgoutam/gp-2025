@@ -13,25 +13,38 @@ const Index = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("Current session:", session);
+        // Get the current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Error checking session:", error);
-          throw error;
+        console.log("Checking current session:", session?.user?.id);
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          throw sessionError;
         }
         
         if (!session) {
-          console.log("No active session, redirecting to login");
+          console.log("No active session found, redirecting to login");
           navigate("/login", { replace: true });
           return;
         }
+
+        // Verify the session is still valid
+        const { data: user, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          console.error("User verification failed:", userError);
+          throw userError || new Error("Failed to verify user");
+        }
+        
       } catch (error) {
         console.error("Authentication error:", error);
+        // Clear any stale session data
+        await supabase.auth.clearSession();
         toast({
           variant: "destructive",
           title: "Authentication Error",
-          description: "Please try logging in again.",
+          description: "Please sign in again to continue.",
         });
         navigate("/login", { replace: true });
       }
@@ -39,15 +52,19 @@ const Index = () => {
 
     checkAuth();
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event, session);
-        if (!session) {
+        console.log("Auth state changed:", event, session?.user?.id);
+        
+        if (event === 'SIGNED_OUT' || !session) {
+          console.log("User signed out or session ended");
           navigate("/login", { replace: true });
         }
       }
     );
 
+    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };

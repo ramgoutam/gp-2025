@@ -20,17 +20,26 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Attempting to sign out...");
-      const { error } = await supabase.auth.signOut();
+      console.log("Starting sign out process");
       
+      // Clear any existing session first
+      await supabase.auth.clearSession();
+      
+      const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Sign out error:", error);
         throw error;
       }
+
+      console.log("Successfully signed out");
       
-      console.log("Successfully signed out, redirecting to login");
-      // Force a hard navigation to clear any stale state
-      window.location.href = "/login";
+      // Clear any local storage items that might be causing issues
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+      
+      // Force a complete page reload and redirect
+      window.location.href = '/login';
+      
     } catch (error) {
       console.error("Error during sign out:", error);
       toast({
