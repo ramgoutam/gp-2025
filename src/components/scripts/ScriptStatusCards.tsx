@@ -19,36 +19,40 @@ const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: Stat
       cursor-pointer 
       transition-all 
       duration-300 
-      hover:shadow-xl
+      hover:shadow-md
       hover:-translate-y-1
-      hover:bg-gray-50
-      dark:hover:bg-gray-800
-      ${isActive ? 'ring-2 ring-primary shadow-xl scale-105 bg-primary/5' : ''}
+      ${isActive ? 'ring-2 ring-primary shadow-lg scale-[1.02] bg-primary/5' : ''}
       animate-fade-in
-      backdrop-blur-sm
       relative
       overflow-hidden
       group
+      dark:bg-gray-800/50
+      backdrop-blur-sm
     `}
     onClick={onClick}
   >
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-700 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
     <div className="flex items-center justify-between relative">
-      <div>
-        <p className="text-xs font-medium text-gray-500 transition-colors group-hover:text-gray-700">{title}</p>
-        <p className="text-2xl font-bold mt-1 transition-colors group-hover:text-primary">{count}</p>
+      <div className="space-y-1">
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors group-hover:text-gray-700 dark:group-hover:text-gray-300">
+          {title}
+        </p>
+        <p className="text-2xl font-bold transition-colors group-hover:text-primary">
+          {count}
+        </p>
       </div>
       <div className={`
-        p-3 
+        p-2.5
         rounded-full 
         ${color} 
-        transition-transform 
+        transition-all
         duration-300 
-        group-hover:scale-110 
-        group-hover:rotate-12
+        group-hover:scale-110
         shadow-lg
+        group-hover:shadow-xl
+        group-hover:rotate-3
       `}>
-        <Icon className="w-4 h-4 text-white transition-transform duration-300 group-hover:-rotate-12" />
+        <Icon className="w-4 h-4 text-white transition-transform duration-300 group-hover:-rotate-3" />
       </div>
     </div>
   </Card>
@@ -108,7 +112,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Pending Scripts"
         count={scriptCounts.pending}
         icon={Clock}
-        color="bg-yellow-500"
+        color="bg-yellow-500/90 hover:bg-yellow-500"
         onClick={() => handleCardClick('pending')}
         isActive={activeFilter === 'pending'}
       />
@@ -116,7 +120,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="In Process"
         count={scriptCounts.inProcess}
         icon={Loader2}
-        color="bg-blue-500"
+        color="bg-blue-500/90 hover:bg-blue-500"
         onClick={() => handleCardClick('in_progress')}
         isActive={activeFilter === 'in_progress'}
       />
@@ -124,7 +128,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Paused"
         count={scriptCounts.paused}
         icon={PauseCircle}
-        color="bg-orange-500"
+        color="bg-orange-500/90 hover:bg-orange-500"
         onClick={() => handleCardClick('paused')}
         isActive={activeFilter === 'paused'}
       />
@@ -132,7 +136,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="On Hold"
         count={scriptCounts.hold}
         icon={StopCircle}
-        color="bg-red-500"
+        color="bg-red-500/90 hover:bg-red-500"
         onClick={() => handleCardClick('hold')}
         isActive={activeFilter === 'hold'}
       />
@@ -140,7 +144,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Incomplete"
         count={scriptCounts.incomplete}
         icon={AlertTriangle}
-        color="bg-purple-500"
+        color="bg-purple-500/90 hover:bg-purple-500"
         onClick={() => handleCardClick('incomplete')}
         isActive={activeFilter === 'incomplete'}
       />
@@ -148,7 +152,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Completed"
         count={scriptCounts.completed}
         icon={CheckCircle2}
-        color="bg-green-500"
+        color="bg-green-500/90 hover:bg-green-500"
         onClick={() => handleCardClick('completed')}
         isActive={activeFilter === 'completed'}
       />
@@ -156,7 +160,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="All Scripts"
         count={scriptCounts.total}
         icon={Files}
-        color="bg-gray-500"
+        color="bg-gray-500/90 hover:bg-gray-500"
         onClick={() => handleCardClick(null)}
         isActive={activeFilter === null}
       />
