@@ -14,18 +14,41 @@ type StatusCardProps = {
 
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
-    className={`p-4 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
-      isActive ? 'ring-2 ring-primary shadow-lg scale-105' : ''
-    } animate-fade-in`}
+    className={`
+      p-4 
+      cursor-pointer 
+      transition-all 
+      duration-300 
+      hover:shadow-xl
+      hover:-translate-y-1
+      hover:bg-gray-50
+      dark:hover:bg-gray-800
+      ${isActive ? 'ring-2 ring-primary shadow-xl scale-105 bg-primary/5' : ''}
+      animate-fade-in
+      backdrop-blur-sm
+      relative
+      overflow-hidden
+      group
+    `}
     onClick={onClick}
   >
-    <div className="flex items-center justify-between">
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
+    <div className="flex items-center justify-between relative">
       <div>
-        <p className="text-xs font-medium text-gray-500">{title}</p>
-        <p className="text-2xl font-bold mt-1">{count}</p>
+        <p className="text-xs font-medium text-gray-500 transition-colors group-hover:text-gray-700">{title}</p>
+        <p className="text-2xl font-bold mt-1 transition-colors group-hover:text-primary">{count}</p>
       </div>
-      <div className={`p-3 rounded-full ${color}`}>
-        <Icon className="w-4 h-4 text-white" />
+      <div className={`
+        p-3 
+        rounded-full 
+        ${color} 
+        transition-transform 
+        duration-300 
+        group-hover:scale-110 
+        group-hover:rotate-12
+        shadow-lg
+      `}>
+        <Icon className="w-4 h-4 text-white transition-transform duration-300 group-hover:-rotate-12" />
       </div>
     </div>
   </Card>
