@@ -79,13 +79,22 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         throw error;
       }
 
+      const pending = scripts.filter(s => s.status === 'pending').length;
+      const inProcess = scripts.filter(s => s.status === 'in_progress').length;
+      const completed = scripts.filter(s => s.status === 'completed').length;
+      const paused = scripts.filter(s => s.status === 'paused').length;
+      const hold = scripts.filter(s => s.status === 'hold').length;
+      
+      // Update incomplete count to include pending, in_progress, paused, and hold statuses
+      const incomplete = pending + inProcess + paused + hold;
+
       const counts = {
-        pending: scripts.filter(s => s.status === 'pending').length,
-        inProcess: scripts.filter(s => s.status === 'in_progress').length,
-        completed: scripts.filter(s => s.status === 'completed').length,
-        paused: scripts.filter(s => s.status === 'paused').length,
-        hold: scripts.filter(s => s.status === 'hold').length,
-        incomplete: scripts.filter(s => s.status === 'incomplete').length,
+        pending,
+        inProcess,
+        completed,
+        paused,
+        hold,
+        incomplete,
         total: scripts.length
       };
 
