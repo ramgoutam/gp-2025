@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, CheckCircle } from "lucide-react";
+import { Play, Pause, StopCircle, CheckCircle, Edit } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -110,7 +110,16 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         </Button>
       );
     case 'completed':
-      return null;
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => handleStatusUpdate(e, 'in_progress')}
+          className={`${buttonClass} hover:bg-blue-50 text-blue-600 group`}
+        >
+          <Edit className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+        </Button>
+      );
     default:
       return null;
   }
