@@ -7,6 +7,7 @@ import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
+import { FormBuilder } from "@/pages/FormBuilder";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/patients" element={<Index />} />
               <Route path="/patient/:id" element={<PatientProfile />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/form-builder" element={<FormBuilder />} />
             </Routes>
           </main>
         </div>
