@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowRight, Stethoscope, CheckCircle, PenTool } from "lucide-react";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -26,16 +26,15 @@ export const ActionButtons = ({
   isCompleted = false
 }: ActionButtonsProps) => {
   const { toast } = useToast();
-  const [currentScript, setCurrentScript] = useState<LabScript>(script);
+  const [currentScript, setCurrentScript] = useState(script);
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
-  // Set up real-time subscription and polling for script status updates
+  // Set up real-time subscription for script status updates
   useEffect(() => {
-    console.log("Setting up real-time subscription and polling for script:", script.id);
+    console.log("Setting up real-time subscription for script:", script.id);
     
-    // Set up real-time subscription
     const channel = supabase
       .channel('lab-script-status')
       .on(
@@ -48,48 +47,14 @@ export const ActionButtons = ({
         },
         (payload) => {
           console.log("Real-time update received:", payload);
-          if (payload.new && typeof payload.new.status === 'string') {
-            setCurrentScript(prev => ({
-              ...prev,
-              ...payload.new,
-              status: payload.new.status as LabScriptStatus
-            }));
-          }
+          setCurrentScript(prev => ({ ...prev, ...payload.new }));
         }
       )
       .subscribe();
 
-    // Set up polling interval (every 5 seconds)
-    const intervalId = setInterval(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('lab_scripts')
-          .select('*')
-          .eq('id', script.id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error("Error fetching script status:", error);
-          return;
-        }
-
-        if (data && typeof data.status === 'string') {
-          console.log("Status check update:", data);
-          setCurrentScript(prev => ({
-            ...prev,
-            ...data,
-            status: data.status as LabScriptStatus
-          }));
-        }
-      } catch (error) {
-        console.error("Error in polling interval:", error);
-      }
-    }, 5000); // Check every 5 seconds
-
     return () => {
-      console.log("Cleaning up real-time subscription and polling interval");
+      console.log("Cleaning up real-time subscription");
       supabase.removeChannel(channel);
-      clearInterval(intervalId);
     };
   }, [script.id]);
 
