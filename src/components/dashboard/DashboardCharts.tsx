@@ -51,7 +51,8 @@ export const DashboardCharts = () => {
       icon: Clock,
       color: "text-amber-500",
       bgColor: "bg-amber-50",
-      borderColor: "border-amber-200"
+      borderColor: "border-amber-200",
+      size: "col-span-1"
     },
     {
       title: "In Progress",
@@ -59,7 +60,8 @@ export const DashboardCharts = () => {
       icon: Loader2,
       color: "text-blue-500",
       bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
+      borderColor: "border-blue-200",
+      size: "col-span-2"
     },
     {
       title: "Completed",
@@ -67,7 +69,8 @@ export const DashboardCharts = () => {
       icon: CheckCircle2,
       color: "text-green-500",
       bgColor: "bg-green-50",
-      borderColor: "border-green-200"
+      borderColor: "border-green-200",
+      size: "col-span-2"
     },
     {
       title: "Paused",
@@ -75,7 +78,8 @@ export const DashboardCharts = () => {
       icon: PauseCircle,
       color: "text-orange-500",
       bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
+      borderColor: "border-orange-200",
+      size: "col-span-1"
     },
     {
       title: "On Hold",
@@ -83,40 +87,42 @@ export const DashboardCharts = () => {
       icon: StopCircle,
       color: "text-red-500",
       bgColor: "bg-red-50",
-      borderColor: "border-red-200"
+      borderColor: "border-red-200",
+      size: "col-span-2"
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-fade-in">
+    <div className="grid grid-cols-4 gap-4 animate-fade-in">
       {statusCards.map((card, index) => (
         <Card 
           key={card.title}
-          className={`relative overflow-hidden border ${card.borderColor} transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}
+          className={`${card.size} relative overflow-hidden border ${card.borderColor} transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group`}
           style={{
             animationDelay: `${index * 100}ms`
           }}
         >
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-sm font-medium text-gray-500 group-hover:text-gray-700 transition-colors">
               {card.title}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-2xl font-bold">{card.count}</p>
+                <p className="text-3xl font-bold tracking-tight">{card.count}</p>
                 <p className="text-xs text-gray-500">Total Scripts</p>
               </div>
-              <div className={`p-3 rounded-full ${card.bgColor}`}>
-                <card.icon className={`h-5 w-5 ${card.color}`} />
+              <div className={`p-4 rounded-full ${card.bgColor} group-hover:scale-110 transition-transform`}>
+                <card.icon className={`h-6 w-6 ${card.color}`} />
               </div>
             </div>
-            <div className="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
               <div 
-                className={`h-full ${card.bgColor} transition-all duration-1000 ease-in-out`}
+                className={`h-full ${card.bgColor} transition-all duration-500 ease-spring`}
                 style={{ 
                   width: `${(card.count / (scriptCounts.total || 1)) * 100}%`,
+                  transition: 'width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
                 }}
               />
             </div>
