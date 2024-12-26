@@ -23,10 +23,24 @@ export const StatusCardProgress = ({ count, total }: { count: number; total: num
     <div className="mt-4">
       <Progress value={progress} className="h-1 bg-gray-100 dark:bg-gray-700">
         <animated.div
-          className="h-full bg-primary-500/50 rounded-full"
-          style={props}
+          className="h-full bg-gradient-to-r from-primary-300 via-primary-500 to-primary-600 rounded-full shadow-lg shadow-primary-500/20"
+          style={{
+            ...props,
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 2s linear infinite',
+          }}
         />
       </Progress>
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
+        }
+      `}</style>
     </div>
   );
 };
