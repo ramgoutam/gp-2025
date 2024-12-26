@@ -7,6 +7,7 @@ import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
+import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
