@@ -21,9 +21,9 @@ export const StatusCardProgress = ({ count, total }: { count: number; total: num
 
   return (
     <div className="mt-4">
-      <Progress value={progress} className="h-1.5 bg-gray-100 dark:bg-gray-700">
+      <Progress value={progress} className="h-2 bg-gray-100/50 dark:bg-gray-700/50 backdrop-blur-sm">
         <animated.div
-          className="h-full bg-gradient-to-r from-primary-300 via-primary-500 to-primary-600 rounded-full shadow-lg shadow-primary-500/20 animate-shimmer"
+          className="h-full bg-gradient-to-r from-violet-400 via-purple-500 to-fuchsia-500 rounded-full shadow-lg shadow-purple-500/20 animate-shimmer"
           style={{
             ...props,
             backgroundSize: '200% 100%'

@@ -30,13 +30,13 @@ export const StatusCard = ({
       duration-300 
       hover:shadow-xl
       hover:-translate-y-2
-      ${isActive ? 'ring-2 ring-primary-500 shadow-lg' : ''}
+      ${isActive ? 'ring-2 ring-primary shadow-lg' : ''}
       animate-fade-in
       relative
       overflow-hidden
       group
-      bg-gradient-to-br from-white to-gray-50
-      dark:from-gray-900 dark:to-gray-800
+      bg-gradient-to-br from-white to-gray-50/80
+      dark:from-gray-900 dark:to-gray-800/90
       backdrop-blur-sm
       border border-gray-100/20
       dark:border-gray-700/20
@@ -75,9 +75,9 @@ export const StatusCard = ({
           mb-2 
           transition-colors 
           duration-300 
-          group-hover:text-primary-500
+          group-hover:text-primary
           bg-clip-text
-          ${isActive ? 'text-primary-500' : 'text-gray-800 dark:text-gray-100'}
+          ${isActive ? 'text-primary' : 'text-gray-800 dark:text-gray-100'}
         `}>
           <AnimatedNumber number={count} />
         </p>
