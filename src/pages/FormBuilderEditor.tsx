@@ -3,7 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { FormBuilderCanvas } from "@/components/form-builder/FormBuilderCanvas";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Plus, Heading1, Heading2, Type, Link, ListTodo, MessageSquare, LogIn } from "lucide-react";
+import { 
+  ArrowLeft, Save, Plus, Heading1, Heading2, Type, 
+  Link, ListTodo, MessageSquare, LogIn 
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FormComponent, FormTemplate } from "@/types/formBuilder";
 import {
@@ -17,6 +20,36 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { v4 as uuidv4 } from "uuid";
 
+// Move component definitions to a separate component for better organization
+const availableComponents = [
+  // Text Components
+  { type: 'h1', label: 'Heading 1', icon: Heading1, category: 'Text' },
+  { type: 'h2', label: 'Heading 2', icon: Heading2, category: 'Text' },
+  { type: 'paragraph', label: 'Paragraph', icon: Type, category: 'Text' },
+  
+  // Input Components
+  { type: 'input', label: 'Text Input', icon: Type, category: 'Input' },
+  { type: 'textarea', label: 'Text Area', icon: Type, category: 'Input' },
+  { type: 'email', label: 'Email Input', icon: Type, category: 'Input' },
+  { type: 'phone', label: 'Phone Input', icon: Type, category: 'Input' },
+  { type: 'number', label: 'Number Input', icon: Type, category: 'Input' },
+  { type: 'date', label: 'Date Picker', icon: Type, category: 'Input' },
+  { type: 'file', label: 'File Upload', icon: Type, category: 'Input' },
+  
+  // Selection Components
+  { type: 'checkbox', label: 'Checkbox', icon: ListTodo, category: 'Selection' },
+  { type: 'radio', label: 'Radio Group', icon: ListTodo, category: 'Selection' },
+  { type: 'select', label: 'Select Dropdown', icon: ListTodo, category: 'Selection' },
+  { type: 'toggle', label: 'Toggle Switch', icon: ListTodo, category: 'Selection' },
+  
+  // Advanced Components
+  { type: 'link', label: 'Link', icon: Link, category: 'Advanced' },
+  { type: 'popup-sm', label: 'Small Popup', icon: MessageSquare, category: 'Advanced' },
+  { type: 'popup-md', label: 'Medium Popup', icon: MessageSquare, category: 'Advanced' },
+  { type: 'popup-lg', label: 'Large Popup', icon: MessageSquare, category: 'Advanced' },
+  { type: 'conditional', label: 'Conditional Logic', icon: LogIn, category: 'Advanced' },
+];
+
 export const FormBuilderEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,35 +57,6 @@ export const FormBuilderEditor = () => {
   
   const [components, setComponents] = useState<FormComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const availableComponents = [
-    // Text Components
-    { type: 'h1', label: 'Heading 1', icon: Heading1, category: 'Text' },
-    { type: 'h2', label: 'Heading 2', icon: Heading2, category: 'Text' },
-    { type: 'paragraph', label: 'Paragraph', icon: Type, category: 'Text' },
-    
-    // Input Components
-    { type: 'input', label: 'Text Input', icon: Type, category: 'Input' },
-    { type: 'textarea', label: 'Text Area', icon: Type, category: 'Input' },
-    { type: 'email', label: 'Email Input', icon: Type, category: 'Input' },
-    { type: 'phone', label: 'Phone Input', icon: Type, category: 'Input' },
-    { type: 'number', label: 'Number Input', icon: Type, category: 'Input' },
-    { type: 'date', label: 'Date Picker', icon: Type, category: 'Input' },
-    { type: 'file', label: 'File Upload', icon: Type, category: 'Input' },
-    
-    // Selection Components
-    { type: 'checkbox', label: 'Checkbox', icon: ListTodo, category: 'Selection' },
-    { type: 'radio', label: 'Radio Group', icon: ListTodo, category: 'Selection' },
-    { type: 'select', label: 'Select Dropdown', icon: ListTodo, category: 'Selection' },
-    { type: 'toggle', label: 'Toggle Switch', icon: ListTodo, category: 'Selection' },
-    
-    // Advanced Components
-    { type: 'link', label: 'Link', icon: Link, category: 'Advanced' },
-    { type: 'popup-sm', label: 'Small Popup', icon: MessageSquare, category: 'Advanced' },
-    { type: 'popup-md', label: 'Medium Popup', icon: MessageSquare, category: 'Advanced' },
-    { type: 'popup-lg', label: 'Large Popup', icon: MessageSquare, category: 'Advanced' },
-    { type: 'conditional', label: 'Conditional Logic', icon: LogIn, category: 'Advanced' },
-  ];
 
   const addComponent = (type: string, label: string) => {
     const newComponent: FormComponent = {
@@ -161,28 +165,35 @@ export const FormBuilderEditor = () => {
         <div className="flex items-center space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="relative">
                 <Plus className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent 
+              align="end" 
+              className="w-64 bg-white shadow-lg border rounded-lg p-2"
+              style={{ maxHeight: '500px', overflowY: 'auto' }}
+            >
               {['Text', 'Input', 'Selection', 'Advanced'].map((category) => (
-                <div key={category}>
-                  <DropdownMenuLabel>{category}</DropdownMenuLabel>
-                  <DropdownMenuGroup>
+                <div key={category} className="mb-2">
+                  <DropdownMenuLabel className="text-sm font-semibold text-gray-700 px-2 py-1">
+                    {category}
+                  </DropdownMenuLabel>
+                  <DropdownMenuGroup className="bg-gray-50 rounded-md p-1">
                     {availableComponents
                       .filter(component => component.category === category)
                       .map((component) => (
                         <DropdownMenuItem
                           key={component.type}
                           onClick={() => addComponent(component.type, component.label)}
+                          className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-md cursor-pointer"
                         >
-                          <component.icon className="mr-2 h-4 w-4" />
-                          {component.label}
+                          <component.icon className="mr-2 h-4 w-4 text-primary" />
+                          <span className="text-sm">{component.label}</span>
                         </DropdownMenuItem>
                       ))}
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="my-2" />
                 </div>
               ))}
             </DropdownMenuContent>
