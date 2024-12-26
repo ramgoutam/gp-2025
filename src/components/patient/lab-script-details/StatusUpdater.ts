@@ -7,12 +7,12 @@ export const useStatusUpdater = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
-  const updateStatus = async (script: LabScript, newStatus: LabScript["status"]) => {
-    if (isUpdating) {
-      console.log("Status update already in progress");
-      return;
+  const updateStatus = async (script: LabScript, newStatus: LabScript["status"]): Promise<boolean> => {
+    if (isUpdating || !script?.id) {
+      console.log("Cannot update status: either already updating or missing script ID");
+      return false;
     }
-
+    
     setIsUpdating(true);
     console.log("Updating lab script status:", script.id, newStatus);
 
@@ -25,27 +25,25 @@ export const useStatusUpdater = () => {
         .maybeSingle();
 
       if (error) {
+        console.error("Error updating status:", error);
         throw error;
       }
 
-      if (!data) {
-        throw new Error("Lab script not found");
-      }
-
       console.log("Status updated successfully:", data);
-      
       toast({
         title: "Status Updated",
-        description: `Lab script status has been updated to ${newStatus}`,
+        description: `Lab script status changed to ${newStatus}`
       });
 
+      return true;
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update status",
-        variant: "destructive",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive"
       });
+      return false;
     } finally {
       setIsUpdating(false);
     }
