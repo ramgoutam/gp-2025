@@ -3,6 +3,7 @@ import { Play, Pause, StopCircle, CheckCircle, Edit } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface StatusButtonsProps {
   script: LabScript;
@@ -10,6 +11,7 @@ interface StatusButtonsProps {
 
 export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const { toast } = useToast();
+  const [showStatusOptions, setShowStatusOptions] = useState(false);
   const buttonClass = "p-2 rounded-full transition-all duration-300 hover:scale-110";
 
   const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScript['status']) => {
@@ -26,6 +28,8 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         title: "Status Updated",
         description: `Script status changed to ${newStatus.replace('_', ' ')}`
       });
+      
+      setShowStatusOptions(false);
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -34,6 +38,11 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowStatusOptions(true);
   };
 
   switch (script.status) {
@@ -110,11 +119,30 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         </Button>
       );
     case 'completed':
-      return (
+      return showStatusOptions ? (
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleStatusUpdate(e, 'in_progress')}
+            className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleStatusUpdate(e, 'hold')}
+            className={`${buttonClass} hover:bg-red-50 text-red-600`}
+          >
+            <StopCircle className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) => handleStatusUpdate(e, 'in_progress')}
+          onClick={handleEditClick}
           className={`${buttonClass} hover:bg-blue-50 text-blue-600 group`}
         >
           <Edit className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
