@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/PatientForm";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { createPatient } from "@/utils/databaseUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,28 +58,40 @@ export const PageHeader = () => {
         <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
         <p className="text-gray-500">Manage and view all patient records</p>
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
-            <Plus className="h-4 w-4" />
-            Add New Patient
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>New Patient Registration</DialogTitle>
-          </DialogHeader>
-          <PatientForm 
-            onSubmitSuccess={handleAddPatient}
-            onClose={() => {
-              const closeButton = document.querySelector('[aria-label="Close"]');
-              if (closeButton instanceof HTMLButtonElement) {
-                closeButton.click();
-              }
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <div className="flex gap-4">
+        <Button 
+          variant="outline" 
+          onClick={async () => {
+            await supabase.auth.signOut();
+            navigate("/login");
+          }}
+          className="border-gray-200 hover:bg-gray-50 transition-colors duration-200"
+        >
+          Sign Out
+        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Plus className="h-4 w-4" />
+              Add New Patient
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>New Patient Registration</DialogTitle>
+            </DialogHeader>
+            <PatientForm 
+              onSubmitSuccess={handleAddPatient}
+              onClose={() => {
+                const closeButton = document.querySelector('[aria-label="Close"]');
+                if (closeButton instanceof HTMLButtonElement) {
+                  closeButton.click();
+                }
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

@@ -3,40 +3,51 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { AuthChangeEvent } from "@supabase/supabase-js";
+import { X } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-          console.log('Existing session found, redirecting to dashboard');
-          navigate('/');
-        }
-      } catch (error) {
-        console.error('Session check error:', error);
-        toast({
-          title: "Authentication Error",
-          description: "Unable to check current session",
-          variant: "destructive"
-        });
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session);
+      if (session) {
+        console.log("User already logged in, redirecting to dashboard");
+        navigate("/");
       }
     };
+    
+    checkUser();
 
-    checkSession();
-
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state change:', event, session);
-        
-        if (event === 'SIGNED_IN') {
-          console.log('User signed in, redirecting to dashboard');
-          navigate('/');
+      (event: AuthChangeEvent, session) => {
+        console.log("Auth state changed:", event, session);
+        switch (event) {
+          case "SIGNED_IN":
+            if (session) {
+              console.log("User signed in, redirecting to dashboard");
+              navigate("/");
+            }
+            break;
+          case "SIGNED_OUT":
+            console.log("User signed out, staying on login page");
+            navigate("/login");
+            break;
+          case "USER_UPDATED":
+            console.log("User updated");
+            break;
+          case "TOKEN_REFRESHED":
+            console.log("Token refreshed");
+            break;
+          case "MFA_CHALLENGE_VERIFIED":
+            console.log("MFA challenge verified");
+            break;
+          default:
+            console.log("Unhandled auth event:", event);
         }
       }
     );
@@ -44,72 +55,87 @@ const Login = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen w-full flex">
+      {/* Left Panel - Auth Form */}
       <div className="w-full lg:w-[45%] h-screen flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-md space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">NYDI</h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Welcome back! Please sign in to continue.
-            </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Fira Sans, sans-serif' }}>
+                NYDI
+              </h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Welcome back! Please sign in to continue.
+              </p>
+            </div>
+            <button 
+              onClick={() => navigate('/')}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
           </div>
 
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              style: {
-                button: {
-                  borderRadius: '8px',
-                  backgroundColor: '#4F6BFF',
-                  color: 'white',
-                  padding: '12px 24px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  width: '100%',
-                  marginTop: '24px',
+          <div className="mt-10">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                style: {
+                  button: {
+                    borderRadius: '8px',
+                    backgroundColor: '#4F6BFF',
+                    color: 'white',
+                    padding: '12px 24px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    width: '100%',
+                    marginTop: '24px',
+                  },
+                  input: {
+                    borderRadius: '8px',
+                    backgroundColor: '#F8FAFC',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    border: '1px solid #E2E8F0',
+                    width: '100%',
+                  },
+                  label: {
+                    fontSize: '14px',
+                    color: '#475569',
+                    marginBottom: '6px',
+                    display: 'block',
+                  },
+                  container: {
+                    gap: '20px',
+                  },
+                  message: {
+                    fontSize: '14px',
+                    color: '#EF4444',
+                    marginTop: '6px',
+                  },
+                  anchor: {
+                    color: '#4F6BFF',
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                  },
                 },
-                input: {
-                  borderRadius: '8px',
-                  backgroundColor: '#F8FAFC',
-                  padding: '12px 16px',
-                  fontSize: '14px',
-                  border: '1px solid #E2E8F0',
-                  width: '100%',
+                className: {
+                  container: 'space-y-6',
+                  button: 'hover:bg-primary-600 transition-colors duration-200',
+                  input: 'hover:border-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-colors duration-200',
+                  label: 'font-medium',
                 },
-                label: {
-                  fontSize: '14px',
-                  color: '#475569',
-                  marginBottom: '6px',
-                  display: 'block',
-                },
-                container: {
-                  gap: '20px',
-                },
-                message: {
-                  fontSize: '14px',
-                  color: '#EF4444',
-                  marginTop: '6px',
-                },
-                anchor: {
-                  color: '#4F6BFF',
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                },
-              },
-              className: {
-                container: 'space-y-6',
-                button: 'hover:bg-primary-600 transition-colors duration-200',
-                input: 'hover:border-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-colors duration-200',
-                label: 'font-medium',
-              },
-            }}
-            providers={["google"]}
-            redirectTo={`${window.location.origin}/auth/callback`}
-          />
+              }}
+              providers={["google"]}
+              redirectTo={`${window.location.origin}/auth/callback`}
+              theme="custom"
+            />
+          </div>
         </div>
       </div>
 
