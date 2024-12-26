@@ -9,6 +9,7 @@ import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
+import ReportCard from "@/pages/ReportCard";
 import Manufacturing from "@/pages/Manufacturing";
 import { useEffect } from "react";
 
@@ -81,6 +82,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Scripts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/report-card"
+                element={
+                  <ProtectedRoute>
+                    <ReportCard />
                   </ProtectedRoute>
                 }
               />
