@@ -3,7 +3,6 @@ import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/components/ui/use-toast";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
@@ -11,62 +10,9 @@ import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import ReportCard from "@/pages/ReportCard";
 import Manufacturing from "@/pages/Manufacturing";
-import { useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("Checking auth state:", session?.user?.id);
-        
-        if (error) {
-          throw error;
-        }
-        
-        if (!session) {
-          console.log("No active session found");
-          toast({
-            title: "Please Sign In",
-            description: "You need to be signed in to access this page",
-          });
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-        toast({
-          title: "Authentication Error",
-          description: "Please sign in again",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      if (event === 'SIGNED_OUT') {
-        console.log("User signed out, clearing session");
-      }
-    });
-
-    checkAuth();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [toast]);
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-    </div>;
-  }
 
   if (!session) {
     return <Navigate to="/login" replace />;

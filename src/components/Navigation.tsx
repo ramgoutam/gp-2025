@@ -2,13 +2,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Users, TestTube, Factory, FileText, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useSession } from "@supabase/auth-helpers-react";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const session = useSession();
 
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -20,29 +18,18 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Starting sign out process...");
-      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error("Error during sign out:", error);
         throw error;
       }
 
-      console.log("Successfully signed out");
-      
-      // Clear any local storage after successful signout
-      localStorage.clear();
-      console.log("Cleared local storage");
-      
       toast({
         title: "Signed out successfully",
         description: "You have been signed out of your account",
       });
-
-      // Navigate after successful signout
-      navigate('/login');
       
+      navigate('/login');
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
@@ -50,8 +37,6 @@ export const Navigation = () => {
         description: "There was a problem signing out. Please try again.",
         variant: "destructive",
       });
-      // Navigate to login even if there's an error
-      navigate('/login');
     }
   };
 
