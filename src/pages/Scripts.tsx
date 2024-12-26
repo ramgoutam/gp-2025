@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,20 @@ import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
+import { useNavigate } from "react-router-dom";
 
 // Move query function to a separate file to reduce complexity
 const fetchLabScripts = async (statusFilter: string | null) => {
   console.log("Fetching lab scripts with filter:", statusFilter);
+  
+  // First check if we have a session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  if (sessionError || !session) {
+    console.error("No valid session found:", sessionError);
+    throw new Error("Authentication required");
+  }
+
   let query = supabase
     .from('lab_scripts')
     .select(`
@@ -67,11 +77,48 @@ const Scripts = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: labScripts = [] } = useQuery({
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.log("No valid session, redirecting to login");
+        navigate("/login");
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please sign in to access this page.",
+        });
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
+
+  const { data: labScripts = [], isError, error } = useQuery({
     queryKey: ['labScripts', statusFilter],
     queryFn: () => fetchLabScripts(statusFilter),
-    refetchInterval: 1, // Refetch every millisecond for real-time updates
+    refetchInterval: 1000, // Refetch every second
+    retry: 1, // Only retry once
+    onError: (error: any) => {
+      console.error("Error fetching lab scripts:", error);
+      if (error.message === "Authentication required") {
+        navigate("/login");
+        toast({
+          variant: "destructive",
+          title: "Session expired",
+          description: "Please sign in again to continue.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load lab scripts. Please try again.",
+        });
+      }
+    }
   });
 
   // Set up real-time subscription
