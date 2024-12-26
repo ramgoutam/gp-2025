@@ -31,7 +31,7 @@ export const StatusActions = ({ script, onStatusUpdate }: StatusActionsProps) =>
 
       // Invalidate and refetch queries that depend on this lab script
       queryClient.invalidateQueries({ queryKey: ['labScripts'] });
-      queryClient.invalidateQueries({ queryKey: ['labScript', script.id] });
+      queryClient.invalidateQueries({ queryKey: ['enrichedLabScripts'] });
 
       toast({
         title: "Status Updated",
