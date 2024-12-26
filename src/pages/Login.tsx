@@ -3,8 +3,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthChangeEvent } from "@supabase/supabase-js";
-import { X } from "lucide-react";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -16,6 +15,7 @@ const Login = () => {
     const checkUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       console.log("Current session:", session);
+      
       if (error) {
         console.error("Error checking session:", error);
         toast({
@@ -23,7 +23,9 @@ const Login = () => {
           title: "Error",
           description: "Failed to check authentication status",
         });
+        return;
       }
+      
       if (session) {
         console.log("User already logged in, redirecting to dashboard");
         navigate("/");
@@ -34,34 +36,17 @@ const Login = () => {
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         console.log("Auth state changed:", event, session);
-        switch (event) {
-          case "SIGNED_IN":
-            if (session) {
-              console.log("User signed in, redirecting to dashboard");
-              navigate("/");
-            }
-            break;
-          case "SIGNED_OUT":
-            console.log("User signed out, staying on login page");
-            navigate("/login");
-            break;
-          case "USER_UPDATED":
-            console.log("User updated");
-            break;
-          case "TOKEN_REFRESHED":
-            console.log("Token refreshed");
-            break;
-          case "MFA_CHALLENGE_VERIFIED":
-            console.log("MFA challenge verified");
-            break;
-          default:
-            console.log("Unhandled auth event:", event);
+        
+        if (event === "SIGNED_IN" && session) {
+          console.log("User signed in successfully, redirecting to dashboard");
+          navigate("/");
         }
       }
     );
 
+    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
@@ -135,7 +120,7 @@ const Login = () => {
                 },
               }}
               providers={["google"]}
-              redirectTo={window.location.origin + "/auth/callback"}
+              redirectTo={`${window.location.origin}/auth/callback`}
               theme="custom"
             />
           </div>
