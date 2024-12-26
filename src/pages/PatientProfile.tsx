@@ -1,181 +1,201 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LabScriptForm } from "@/components/LabScriptForm";
-import { PatientHeader } from "@/components/patient/PatientHeader";
-import { PatientTabs } from "@/components/patient/PatientTabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { LabScript } from "@/types/labScript";
-import { getLabScripts, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
-import { Loader } from "lucide-react";
+import { Loader2, Mail, Phone, Calendar, MapPin, User2, Heart, Stethoscope } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PatientData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  sex: string;
+  dob: string;
+  address?: string;
+  emergencyContactName?: string;
+  emergencyPhone?: string;
+  treatmentType?: string;
+  upperTreatment?: string;
+  lowerTreatment?: string;
+}
 
 const PatientProfile = () => {
-  const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
-  const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
-  const { state } = useLocation();
+  const [loading, setLoading] = useState(true);
+  const [patientData, setPatientData] = useState<PatientData | null>(null);
   const { id } = useParams();
   const { toast } = useToast();
 
-  const [patientData, setPatientData] = useState(() => {
-    if (state?.patientData) {
-      return state.patientData;
-    }
-    return null;
-  });
-
-  const loadScripts = async () => {
-    try {
-      console.log("Loading scripts for patient:", id);
-      const allScripts = await getLabScripts();
-      const patientScripts = allScripts.filter(script => script.patientId === id);
-      console.log("Filtered scripts for patient:", patientScripts.length);
-      setLabScripts(patientScripts);
-    } catch (error) {
-      console.error("Error loading scripts:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load lab scripts. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
   useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        console.log("Fetching patient data for ID:", id);
+        const { data, error } = await supabase
+          .from('patients')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          console.log("Patient data fetched:", data);
+          setPatientData({
+            id: data.id,
+            firstName: data.first_name,
+            lastName: data.last_name,
+            email: data.email,
+            phone: data.phone,
+            sex: data.sex,
+            dob: data.dob,
+            address: data.address,
+            emergencyContactName: data.emergency_contact_name,
+            emergencyPhone: data.emergency_phone,
+            treatmentType: data.treatment_type,
+            upperTreatment: data.upper_treatment,
+            lowerTreatment: data.lower_treatment,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load patient data",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) {
-      loadScripts();
+      fetchPatientData();
     }
-  }, [id]);
+  }, [id, toast]);
 
-  const handleLabScriptSubmit = async (formData: any) => {
-    try {
-      console.log("Lab script submitted successfully:", formData);
-      await loadScripts(); // Reload scripts after submission
-      setShowLabScriptDialog(false);
-      
-      toast({
-        title: "Lab Script Created",
-        description: "The lab script has been successfully created.",
-      });
-    } catch (error) {
-      console.error("Error handling lab script submission:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create lab script. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleEditLabScript = async (updatedScript: LabScript) => {
-    try {
-      console.log("Updating lab script:", updatedScript);
-      const savedScript = await updateLabScript(updatedScript);
-      
-      // Update local state directly instead of reloading
-      setLabScripts(prev => 
-        prev.map(script => script.id === savedScript.id ? savedScript : script)
-      );
-      
-      toast({
-        title: "Lab Script Updated",
-        description: "The lab script has been successfully updated.",
-      });
-    } catch (error) {
-      console.error("Error updating lab script:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update lab script. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDeleteLabScript = async (scriptToDelete: LabScript) => {
-    try {
-      console.log("Deleting script:", scriptToDelete);
-      await deleteLabScript(scriptToDelete.id);
-      
-      // Update local state directly instead of reloading
-      setLabScripts(prev => prev.filter(script => script.id !== scriptToDelete.id));
-      
-      toast({
-        title: "Lab Script Deleted",
-        description: "The lab script has been successfully deleted.",
-      });
-    } catch (error) {
-      console.error("Error deleting lab script:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete lab script. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleUpdatePatient = (updatedData: typeof patientData) => {
-    console.log("Updating patient data:", updatedData);
-    setPatientData(updatedData);
-  };
-
-  if (!patientData) {
+  if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-gray-600">Loading patient data...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
+  if (!patientData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-lg text-gray-600">Patient not found</p>
+      </div>
+    );
+  }
+
+  const InfoCard = ({ icon: Icon, title, value }: { icon: any; title: string; value: string }) => (
+    <div className="flex items-start space-x-4 p-4 rounded-lg bg-white border border-gray-100 hover:border-primary/20 transition-all duration-200">
+      <div className="p-2 rounded-lg bg-primary/10">
+        <Icon className="w-4 h-4 text-primary" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-sm font-medium">{value}</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gray-50 animate-fade-in">
-      <main className="flex-1 overflow-hidden">
-        <div className="container mx-auto py-8 px-4 h-full flex flex-col">
-          <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
-            Patient list / Patient detail
-          </div>
+    <div className="container mx-auto py-8 px-4 animate-fade-in">
+      <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
+        Patient list / Patient detail
+      </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border">
-            <PatientHeader 
-              patientData={patientData}
-              onCreateLabScript={() => setShowLabScriptDialog(true)}
-              onUpdatePatient={handleUpdatePatient}
+      <Card className="shadow-lg">
+        <CardHeader className="border-b">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <User2 className="w-6 h-6 text-primary" />
+            Patient Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <InfoCard 
+              icon={User2}
+              title="First Name" 
+              value={patientData.firstName} 
             />
-
-            <div className="flex-1 overflow-hidden">
-              <PatientTabs
-                labScripts={labScripts}
-                onCreateLabScript={() => setShowLabScriptDialog(true)}
-                onEditLabScript={handleEditLabScript}
-                onDeleteLabScript={handleDeleteLabScript}
-                patientData={patientData}
+            <InfoCard 
+              icon={User2}
+              title="Last Name" 
+              value={patientData.lastName} 
+            />
+            <InfoCard 
+              icon={Mail}
+              title="Email" 
+              value={patientData.email} 
+            />
+            <InfoCard 
+              icon={Phone}
+              title="Phone" 
+              value={patientData.phone} 
+            />
+            <InfoCard 
+              icon={User2}
+              title="Sex" 
+              value={patientData.sex.charAt(0).toUpperCase() + patientData.sex.slice(1)} 
+            />
+            <InfoCard 
+              icon={Calendar}
+              title="Date of Birth" 
+              value={new Date(patientData.dob).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })} 
+            />
+            {patientData.address && (
+              <div className="col-span-full">
+                <InfoCard 
+                  icon={MapPin}
+                  title="Address" 
+                  value={patientData.address}
+                />
+              </div>
+            )}
+            {patientData.emergencyContactName && (
+              <InfoCard 
+                icon={Heart}
+                title="Emergency Contact" 
+                value={`${patientData.emergencyContactName} (${patientData.emergencyPhone})`} 
               />
-            </div>
+            )}
+            {patientData.treatmentType && (
+              <div className="col-span-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <InfoCard 
+                    icon={Stethoscope}
+                    title="Treatment Type" 
+                    value={patientData.treatmentType.charAt(0).toUpperCase() + patientData.treatmentType.slice(1)}
+                  />
+                  {patientData.upperTreatment && (
+                    <InfoCard 
+                      icon={Stethoscope}
+                      title="Upper Treatment" 
+                      value={patientData.upperTreatment}
+                    />
+                  )}
+                  {patientData.lowerTreatment && (
+                    <InfoCard 
+                      icon={Stethoscope}
+                      title="Lower Treatment" 
+                      value={patientData.lowerTreatment}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </main>
-
-      <Dialog 
-        open={showLabScriptDialog} 
-        onOpenChange={setShowLabScriptDialog}
-      >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-primary">
-              Create Lab Script
-            </DialogTitle>
-            <DialogDescription>
-              Create a new lab script for {patientData.firstName} {patientData.lastName}
-            </DialogDescription>
-          </DialogHeader>
-          <LabScriptForm 
-            onSubmit={handleLabScriptSubmit} 
-            patientData={patientData}
-            patientId={id}
-          />
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 };
