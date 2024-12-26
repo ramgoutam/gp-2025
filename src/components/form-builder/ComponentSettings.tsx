@@ -4,25 +4,50 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { FormComponent } from "@/types/formBuilder";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface ComponentSettingsProps {
   component: FormComponent;
   onUpdateComponent: (updatedComponent: FormComponent) => void;
 }
 
-export const ComponentSettings = ({
-  component,
-  onUpdateComponent,
-}: ComponentSettingsProps) => {
-  const handleStyleChange = (property: string, value: string) => {
+export const ComponentSettings = ({ component, onUpdateComponent }: ComponentSettingsProps) => {
+  const handleRequiredToggle = () => {
+    onUpdateComponent({
+      ...component,
+      required: !component.required,
+    });
+  };
+
+  const handlePlaceholderEdit = () => {
+    const newPlaceholder = prompt("Enter new placeholder text:", component.placeholder);
+    if (newPlaceholder !== null) {
+      onUpdateComponent({
+        ...component,
+        placeholder: newPlaceholder,
+      });
+    }
+  };
+
+  const handleLabelEdit = () => {
+    const newLabel = prompt("Enter new label:", component.label);
+    if (newLabel !== null) {
+      onUpdateComponent({
+        ...component,
+        label: newLabel,
+      });
+    }
+  };
+
+  const handleStyleUpdate = (property: string, value: string) => {
     onUpdateComponent({
       ...component,
       style: {
@@ -32,106 +57,110 @@ export const ComponentSettings = ({
     });
   };
 
-  const handleTextAlign = (alignment: 'left' | 'center' | 'right') => {
-    handleStyleChange('textAlign', alignment);
+  const handleTextAlign = (align: 'left' | 'center' | 'right') => {
+    handleStyleUpdate('textAlign', align);
   };
 
   const handleFontSize = (size: string) => {
-    handleStyleChange('fontSize', size);
+    handleStyleUpdate('fontSize', size);
   };
 
-  const handleDimensionChange = (dimension: 'width' | 'height', value: string) => {
-    if (!value.endsWith('px') && !value.endsWith('%')) {
-      value = `${value}px`;
-    }
-    handleStyleChange(dimension, value);
+  const handleCustomWidth = (width: string) => {
+    handleStyleUpdate('width', width);
+  };
+
+  const handleCustomHeight = (height: string) => {
+    handleStyleUpdate('height', height);
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <Settings className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Component Settings</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        
-        <div className="p-2">
-          <Label className="text-xs">Text Alignment</Label>
-          <div className="flex justify-between mt-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={() => handleTextAlign('left')}
-            >
-              <AlignLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={() => handleTextAlign('center')}
-            >
-              <AlignCenter className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={() => handleTextAlign('right')}
-            >
-              <AlignRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        
-        <DropdownMenuSeparator />
-        
-        <div className="p-2">
-          <Label className="text-xs">Font Size</Label>
-          <div className="flex items-center mt-1">
-            <Type className="h-4 w-4 mr-2" />
-            <Input
-              type="text"
-              value={component.style?.fontSize || ''}
-              onChange={(e) => handleFontSize(e.target.value)}
-              className="h-8"
-              placeholder="e.g., 16px"
-            />
-          </div>
-        </div>
-        
-        <DropdownMenuSeparator />
-        
-        <div className="p-2">
-          <Label className="text-xs">Dimensions</Label>
-          <div className="space-y-2 mt-1">
-            <div className="flex items-center">
-              <ArrowLeftRight className="h-4 w-4 mr-2" />
-              <Input
-                type="text"
-                value={component.style?.width || ''}
-                onChange={(e) => handleDimensionChange('width', e.target.value)}
-                className="h-8"
-                placeholder="Width (px or %)"
-              />
-            </div>
-            <div className="flex items-center">
-              <ArrowUpDown className="h-4 w-4 mr-2" />
-              <Input
-                type="text"
-                value={component.style?.height || ''}
-                onChange={(e) => handleDimensionChange('height', e.target.value)}
-                className="h-8"
-                placeholder="Height (px)"
-              />
-            </div>
-          </div>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="absolute top-2 right-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={handleLabelEdit}>
+            Edit Label
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handlePlaceholderEdit}>
+            Edit Placeholder
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleRequiredToggle}>
+            {component.required ? "Make Optional" : "Make Required"}
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <AlignLeft className="mr-2 h-4 w-4" />
+              Text Alignment
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => handleTextAlign('left')}>
+                <AlignLeft className="mr-2 h-4 w-4" /> Left
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleTextAlign('center')}>
+                <AlignCenter className="mr-2 h-4 w-4" /> Center
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleTextAlign('right')}>
+                <AlignRight className="mr-2 h-4 w-4" /> Right
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Type className="mr-2 h-4 w-4" />
+              Font Size
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {['sm', 'base', 'lg', 'xl', '2xl', '3xl'].map((size) => (
+                <DropdownMenuItem key={size} onClick={() => handleFontSize(`text-${size}`)}>
+                  {size}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              Custom Width
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <div className="p-2">
+                <Input
+                  type="text"
+                  placeholder="e.g., 200px or 50%"
+                  defaultValue={component.style?.width || ''}
+                  onChange={(e) => handleCustomWidth(e.target.value)}
+                />
+              </div>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              Custom Height
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <div className="p-2">
+                <Input
+                  type="text"
+                  placeholder="e.g., 100px"
+                  defaultValue={component.style?.height || ''}
+                  onChange={(e) => handleCustomHeight(e.target.value)}
+                />
+              </div>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
