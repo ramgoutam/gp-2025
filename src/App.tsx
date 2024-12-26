@@ -7,6 +7,8 @@ import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
+import { FormBuilder } from "@/pages/FormBuilder";
+import { FormBuilderEditor } from "@/pages/FormBuilderEditor";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +53,30 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PatientProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/form-builder"
+                element={
+                  <ProtectedRoute>
+                    <FormBuilder />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/form-builder/new"
+                element={
+                  <ProtectedRoute>
+                    <FormBuilderEditor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/form-builder/:id"
+                element={
+                  <ProtectedRoute>
+                    <FormBuilderEditor />
                   </ProtectedRoute>
                 }
               />
