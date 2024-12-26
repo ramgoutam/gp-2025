@@ -11,6 +11,9 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Clear any existing session data on mount
+    localStorage.clear();
+    
     // Check if user is already logged in
     const checkUser = async () => {
       try {
