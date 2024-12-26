@@ -10,6 +10,7 @@ import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -51,7 +52,7 @@ const Scripts = () => {
           clinicName: script.clinic_name,
           requestDate: script.request_date,
           dueDate: script.due_date,
-          status: script.status as LabScript["status"], // Ensure status is properly typed
+          status: script.status as LabScript["status"],
           upperTreatment: script.upper_treatment,
           lowerTreatment: script.lower_treatment,
           upperDesignName: script.upper_design_name,
@@ -204,6 +205,8 @@ const Scripts = () => {
           New Script
         </Button>
       </div>
+
+      <ScriptStatusCards />
 
       <div className="bg-white p-6 rounded-lg shadow">
         <ScrollArea className="h-[500px]">
