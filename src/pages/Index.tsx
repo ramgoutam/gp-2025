@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const navigate = useNavigate();
 
-  // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -31,12 +30,14 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 animate-fade-in">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <PageHeader />
-        <div className="px-4 sm:px-6 lg:px-8">
+    <div className="h-full flex flex-col animate-fade-in">
+      <PageHeader />
+      <div className="flex-1 overflow-hidden px-4 sm:px-6 lg:px-8">
+        <div className="h-full flex flex-col gap-6">
           <PatientSearch />
-          <PatientList />
+          <div className="flex-1 overflow-auto">
+            <PatientList />
+          </div>
         </div>
       </div>
     </div>

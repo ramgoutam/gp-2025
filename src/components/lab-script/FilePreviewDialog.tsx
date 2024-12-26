@@ -18,7 +18,7 @@ interface FilePreviewDialogProps {
 export const FilePreviewDialog = ({ file, imageUrl, isOpen, onClose }: FilePreviewDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] p-0 gap-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <div className="p-4 pb-0">
           <DialogTitle className="text-xl">
             Preview - {file?.name || imageUrl?.split('/').pop()}
@@ -27,18 +27,18 @@ export const FilePreviewDialog = ({ file, imageUrl, isOpen, onClose }: FilePrevi
             {file?.type || (imageUrl ? 'Image file' : '')}
           </DialogDescription>
         </div>
-        <div className="relative flex-1 p-4 overflow-hidden">
+        <div className="flex-1 p-4 overflow-auto">
           {file?.name?.toLowerCase().endsWith('.stl') && file && (
-            <div className="h-[500px] w-full">
+            <div className="h-[calc(90vh-200px)] w-full">
               <STLViewer file={file} />
             </div>
           )}
           {imageUrl && (
-            <div className="flex items-center justify-center bg-black/5 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-center bg-black/5 rounded-lg overflow-hidden h-[calc(90vh-200px)]">
               <img
                 src={imageUrl}
                 alt="Preview"
-                className="max-w-full max-h-[500px] object-contain"
+                className="max-w-full max-h-full object-contain"
               />
             </div>
           )}

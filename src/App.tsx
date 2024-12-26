@@ -26,52 +26,54 @@ function App() {
   return (
     <SessionContextProvider supabaseClient={supabase}>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-gray-50">
           <Navigation />
-          <main className="container mx-auto max-w-[1600px] py-6 px-4 sm:px-6 lg:px-8">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patients"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patient/:id"
-                element={
-                  <ProtectedRoute>
-                    <PatientProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/scripts"
-                element={
-                  <ProtectedRoute>
-                    <Scripts />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manufacturing"
-                element={
-                  <ProtectedRoute>
-                    <Manufacturing />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+          <main className="flex-1 overflow-hidden">
+            <div className="container mx-auto max-w-[1600px] h-[calc(100vh-4rem)] py-6 px-4 sm:px-6 lg:px-8">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patients"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patient/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PatientProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/scripts"
+                  element={
+                    <ProtectedRoute>
+                      <Scripts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/manufacturing"
+                  element={
+                    <ProtectedRoute>
+                      <Manufacturing />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </div>
           </main>
         </div>
         <Toaster />
