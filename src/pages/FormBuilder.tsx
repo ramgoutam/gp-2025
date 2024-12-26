@@ -91,7 +91,7 @@ export const FormBuilder = () => {
     }
   };
 
-  fetchForms();
+  // ... keep existing code (rest of the component remains the same)
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">

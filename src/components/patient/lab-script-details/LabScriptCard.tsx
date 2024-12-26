@@ -13,7 +13,7 @@ interface LabScriptCardProps {
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  onStatusChange: (script: LabScript, newStatus: LabScript['status']) => Promise<boolean>;
+  onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
 }
 
 export const LabScriptCard = ({
@@ -97,9 +97,9 @@ export const LabScriptCard = ({
     );
   };
 
-  const handleStatusChange = async (newStatus: LabScript['status']) => {
+  const handleStatusChange = (newStatus: LabScript['status']) => {
     console.log("Handling status change in LabScriptCard:", updatedScript.id, newStatus);
-    return await onStatusChange(updatedScript, newStatus);
+    onStatusChange(updatedScript, newStatus);
   };
 
   const formatDate = (dateString: string) => {

@@ -1,71 +1,73 @@
-import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, TestTube, Factory, FileText, LogOut } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { LayoutDashboard, Users, TestTube, Factory, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { useToast } from "./ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-export const Navigation = ({ session }) => {
+export const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/scripts", label: "Scripts", icon: TestTube },
-    { to: "/report-card", label: "Report Card", icon: FileText },
+    { to: "/scripts", label: "Lab Scripts", icon: TestTube },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
   ];
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await supabase.auth.signOut();
       toast({
-        title: "Signed out successfully",
-        duration: 2000,
+        title: "Signed out",
+        description: "You have been successfully signed out.",
       });
+      navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
       toast({
-        title: "Error signing out",
-        description: error.message,
         variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
       });
     }
   };
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex space-x-8">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const isActive = location.pathname === link.to;
-              return (
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center space-x-8">
+            <div className="text-primary font-bold text-xl">NYDI</div>
+            <div className="flex space-x-4">
+              {links.map(({ to, label, icon: Icon }) => (
                 <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-gray-900 ${
-                    isActive ? "text-gray-900" : "text-gray-500"
-                  }`}
+                  key={to}
+                  to={to}
+                  className={cn(
+                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    location.pathname === to
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{link.label}</span>
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </div>
-          {session && (
-            <Button
-              variant="ghost"
-              className="flex items-center space-x-2"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Sign out</span>
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
       </div>
     </nav>

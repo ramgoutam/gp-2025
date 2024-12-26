@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
-import { StatusButton } from "./lab-script-details/StatusButton";
-import { useStatusUpdater } from "./lab-script-details/StatusUpdater";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -42,8 +40,13 @@ const getTreatments = (script: LabScript) => {
 
 const formatDate = (dateString: string) => {
   try {
+    // Ensure we have a valid date string
     if (!dateString) return "N/A";
+    
+    // Log the date string for debugging
     console.log("Formatting date:", dateString);
+    
+    // Parse the date string and format it
     const date = parseISO(dateString);
     return format(date, "MMM dd, yyyy");
   } catch (error) {
@@ -54,7 +57,6 @@ const formatDate = (dateString: string) => {
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
-  const { updateStatus } = useStatusUpdater();
 
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
@@ -71,11 +73,6 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
   const handlePatientClick = (e: React.MouseEvent, patientId: string) => {
     e.stopPropagation();
     navigate(`/patient/${patientId}`);
-  };
-
-  const handleStatusChange = async (script: LabScript, newStatus: LabScript["status"]) => {
-    console.log("Handling status change in LabScriptList:", script.id, newStatus);
-    return await updateStatus(script, newStatus);
   };
 
   return (
@@ -129,16 +126,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
                   )}
                 </div>
               </TableCell>
-              <TableCell>
-                <div className="flex flex-col gap-2">
-                  {getStatusBadge(script.status)}
-                  <StatusButton 
-                    script={script}
-                    status={script.status} 
-                    onStatusChange={(newStatus) => handleStatusChange(script, newStatus)}
-                  />
-                </div>
-              </TableCell>
+              <TableCell>{getStatusBadge(script.status)}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
