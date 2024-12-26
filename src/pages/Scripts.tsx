@@ -36,27 +36,32 @@ const Scripts = () => {
         throw error;
       }
 
+      console.log("Raw database response:", scripts);
+
       // Map the database response to match our LabScript interface
-      return scripts.map(script => ({
-        id: script.id,
-        requestNumber: script.request_number,
-        patientId: script.patient_id,
-        patientFirstName: script.patient?.first_name,
-        patientLastName: script.patient?.last_name,
-        doctorName: script.doctor_name,
-        clinicName: script.clinic_name,
-        requestDate: script.request_date,
-        dueDate: script.due_date,
-        status: script.status,
-        upperTreatment: script.upper_treatment,
-        lowerTreatment: script.lower_treatment,
-        upperDesignName: script.upper_design_name,
-        lowerDesignName: script.lower_design_name,
-        applianceType: script.appliance_type,
-        screwType: script.screw_type,
-        vdoOption: script.vdo_option,
-        specificInstructions: script.specific_instructions,
-      }));
+      return scripts.map(script => {
+        console.log("Processing script:", script);
+        return {
+          id: script.id,
+          requestNumber: script.request_number,
+          patientId: script.patient_id,
+          patientFirstName: script.patient?.first_name,
+          patientLastName: script.patient?.last_name,
+          doctorName: script.doctor_name,
+          clinicName: script.clinic_name,
+          requestDate: script.request_date,
+          dueDate: script.due_date,
+          status: script.status as LabScript["status"], // Ensure status is properly typed
+          upperTreatment: script.upper_treatment,
+          lowerTreatment: script.lower_treatment,
+          upperDesignName: script.upper_design_name,
+          lowerDesignName: script.lower_design_name,
+          applianceType: script.appliance_type,
+          screwType: script.screw_type,
+          vdoOption: script.vdo_option,
+          specificInstructions: script.specific_instructions,
+        } as LabScript;
+      });
     },
     refetchInterval: 1000 // Refetch every second for real-time updates
   });

@@ -43,6 +43,9 @@ const formatDate = (dateString: string) => {
     // Ensure we have a valid date string
     if (!dateString) return "N/A";
     
+    // Log the date string for debugging
+    console.log("Formatting date:", dateString);
+    
     // Parse the date string and format it
     const date = parseISO(dateString);
     return format(date, "MMM dd, yyyy");
