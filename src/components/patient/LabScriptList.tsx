@@ -2,9 +2,11 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Play, Pause, StopCircle, CheckCircle } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -18,10 +20,12 @@ const getStatusBadge = (status: LabScript["status"]) => {
     pending: "bg-yellow-100 text-yellow-800",
     in_progress: "bg-blue-100 text-blue-800",
     completed: "bg-green-100 text-green-800",
+    paused: "bg-orange-100 text-orange-800",
+    hold: "bg-red-100 text-red-800"
   };
 
   return (
-    <Badge variant="secondary" className={styles[status]}>
+    <Badge variant="secondary" className={styles[status] || styles.pending}>
       {status?.replace("_", " ") || "pending"}
     </Badge>
   );
@@ -40,13 +44,8 @@ const getTreatments = (script: LabScript) => {
 
 const formatDate = (dateString: string) => {
   try {
-    // Ensure we have a valid date string
     if (!dateString) return "N/A";
-    
-    // Log the date string for debugging
     console.log("Formatting date:", dateString);
-    
-    // Parse the date string and format it
     const date = parseISO(dateString);
     return format(date, "MMM dd, yyyy");
   } catch (error) {
@@ -57,6 +56,7 @@ const formatDate = (dateString: string) => {
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
@@ -75,6 +75,105 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     navigate(`/patient/${patientId}`);
   };
 
+  const handleStatusUpdate = async (e: React.MouseEvent, script: LabScript, newStatus: LabScript['status']) => {
+    e.stopPropagation();
+    try {
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({ status: newStatus })
+        .eq('id', script.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: `Script status changed to ${newStatus.replace('_', ' ')}`
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusButtons = (script: LabScript) => {
+    const buttonClass = "p-2 rounded-full transition-all duration-300 hover:scale-110";
+    
+    switch (script.status) {
+      case 'pending':
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
+            className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+        );
+      case 'in_progress':
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => handleStatusUpdate(e, script, 'paused')}
+              className={`${buttonClass} hover:bg-orange-50 text-orange-600`}
+            >
+              <Pause className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => handleStatusUpdate(e, script, 'completed')}
+              className={`${buttonClass} hover:bg-green-50 text-green-600`}
+            >
+              <CheckCircle className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      case 'paused':
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
+              className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
+            >
+              <Play className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => handleStatusUpdate(e, script, 'hold')}
+              className={`${buttonClass} hover:bg-red-50 text-red-600`}
+            >
+              <StopCircle className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      case 'hold':
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
+            className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+        );
+      case 'completed':
+        return null;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -85,6 +184,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
           <TableHead>Due Date</TableHead>
           <TableHead>Treatments</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Update Status</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -96,7 +196,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
           return (
             <TableRow 
               key={script.id}
-              className="hover:bg-gray-50"
+              className="hover:bg-gray-50 transition-colors duration-200"
             >
               <TableCell 
                 onClick={(e) => handlePatientClick(e, script.id)}
@@ -127,6 +227,11 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
                 </div>
               </TableCell>
               <TableCell>{getStatusBadge(script.status)}</TableCell>
+              <TableCell>
+                <div className="flex items-center justify-start gap-2">
+                  {getStatusButtons(script)}
+                </div>
+              </TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
