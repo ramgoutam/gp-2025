@@ -20,36 +20,13 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Starting sign out process");
-      
-      // First attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.log("Sign out error:", error);
-        // Even if there's an error, we'll proceed with local cleanup
-      }
-
-      // Clear any local storage data
-      localStorage.clear();
-      
-      // Force navigation to login page
-      console.log("Redirecting to login page");
-      navigate("/login", { replace: true });
-      
-      toast({
-        title: "Signed out successfully",
-        description: "You have been logged out.",
-      });
-      
+      await supabase.auth.signOut();
+      navigate("/login");
     } catch (error) {
-      console.error("Unexpected error during sign out:", error);
-      // Even if there's an error, redirect to login
-      navigate("/login", { replace: true });
       toast({
         variant: "destructive",
-        title: "Sign out issue",
-        description: "There was a problem signing out, but you've been redirected to login.",
+        title: "Sign Out Error",
+        description: "Failed to sign out. Please try again.",
       });
     }
   };
