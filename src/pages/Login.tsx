@@ -64,7 +64,7 @@ const Login = () => {
         <div className="w-full md:w-[45%] p-8 md:p-12">
           <div className="mb-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-semibold text-gray-800">Crextio</h1>
+              <h1 className="text-2xl font-semibold text-gray-800">DentFlow</h1>
               <button 
                 onClick={() => navigate('/')}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -77,10 +77,10 @@ const Login = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold text-gray-900">
-                Create an account
+                Welcome to DentFlow
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Sign up and get 30 day free trial
+                Streamline your dental practice workflow
               </p>
             </div>
 
@@ -144,10 +144,10 @@ const Login = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: "url('/lovable-uploads/9f88b5b7-26b7-4759-a326-7982825426c7.png')",
+              backgroundImage: "url('/lovable-uploads/dental-workflow.jpg')",
             }}
           />
-          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-primary-500/20" />
         </div>
       </div>
     </div>
