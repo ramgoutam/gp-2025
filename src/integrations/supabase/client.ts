@@ -9,29 +9,38 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     storageKey: 'supabase.auth.token',
-  },
-  global: {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${supabaseAnonKey}`
-    }
   }
 });
 
 // Add error logging for debugging
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth state changed:', event, session?.user?.id);
+  console.log('Auth state changed:', event);
   if (session) {
+    console.log('Session user ID:', session.user?.id);
     console.log('Session token:', session.access_token);
+  } else {
+    console.log('No active session');
   }
 });
 
-// Test connection
-supabase.from('lab_scripts').select('*', { count: 'exact', head: true })
-  .then(response => {
-    if (response.error) {
-      console.error('Supabase connection test failed:', response.error);
-    } else {
-      console.log('Supabase connection test successful');
-    }
-  });
+// Test connection and auth state
+const testConnection = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    console.error('No active session found');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('lab_scripts')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) {
+    console.error('Supabase connection test failed:', error);
+  } else {
+    console.log('Supabase connection test successful');
+  }
+};
+
+testConnection();
