@@ -17,49 +17,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error("Error checking auth status:", error);
+          console.error("Auth check error:", error);
           toast({
             title: "Authentication Error",
-            description: "Please try logging in again",
+            description: "Please sign in to continue",
             variant: "destructive",
           });
-          setIsAuthenticated(false);
-        } else {
-          console.log("Protected route - session check:", currentSession?.user?.id);
-          setIsAuthenticated(!!currentSession);
         }
+        
+        setIsLoading(false);
       } catch (error) {
-        console.error("Error in auth check:", error);
-        setIsAuthenticated(false);
-      } finally {
+        console.error("Error checking auth:", error);
         setIsLoading(false);
       }
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event, currentSession?.user?.id);
-        setIsAuthenticated(!!currentSession);
-        
-        if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [toast]);
 
   if (isLoading) {
@@ -68,12 +48,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     </div>;
   }
 
-  if (!isAuthenticated) {
-    console.log("No authenticated session found, redirecting to login");
+  if (!session) {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Navigation />
+      {children}
+    </>
+  );
 };
 
 function App() {
@@ -81,8 +65,7 @@ function App() {
     <SessionContextProvider supabaseClient={supabase}>
       <Router>
         <div className="min-h-screen bg-gray-50">
-          <Navigation />
-          <main className="container mx-auto py-8 px-4">
+          <main>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
@@ -133,6 +116,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
