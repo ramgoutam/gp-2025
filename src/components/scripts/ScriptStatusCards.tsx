@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Clock, Loader2, CheckCircle2, Files, PauseCircle, StopCircle, AlertTriangle } from "lucide-react";
+import { useSpring, animated } from "@react-spring/web";
 
 type StatusCardProps = {
   title: string;
@@ -10,6 +11,21 @@ type StatusCardProps = {
   color: string;
   onClick: () => void;
   isActive: boolean;
+};
+
+const AnimatedNumber = ({ number }: { number: number }) => {
+  const { number: animatedNumber } = useSpring({
+    from: { number: 0 },
+    number: number,
+    delay: 200,
+    config: { mass: 1, tension: 20, friction: 10 }
+  });
+
+  return (
+    <animated.span>
+      {animatedNumber.to(n => Math.floor(n))}
+    </animated.span>
+  );
 };
 
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
@@ -46,7 +62,9 @@ const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: Stat
               style={{ color: color.replace('bg-', 'text-') }} />
       </div>
       <div className="text-right">
-        <p className="text-3xl font-bold mb-2 transition-colors duration-300 group-hover:text-primary">{count}</p>
+        <p className="text-3xl font-bold mb-2 transition-colors duration-300 group-hover:text-primary">
+          <AnimatedNumber number={count} />
+        </p>
         <p className="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-700">{title}</p>
       </div>
     </div>
