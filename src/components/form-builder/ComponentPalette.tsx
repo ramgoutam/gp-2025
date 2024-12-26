@@ -11,7 +11,7 @@ import {
   ListIcon,
   CreditCardIcon,
   RadioIcon,
-  SelectIcon,
+  BoxSelectIcon,
   FileIcon,
   ToggleLeftIcon
 } from "lucide-react";
@@ -24,7 +24,7 @@ const componentTypes = [
   { type: 'email', label: 'Email Input', icon: <Mail className="w-4 h-4" /> },
   { type: 'number', label: 'Number Input', icon: <Hash className="w-4 h-4" /> },
   { type: 'date', label: 'Date Picker', icon: <CalendarIcon className="w-4 h-4" /> },
-  { type: 'select', label: 'Dropdown', icon: <SelectIcon className="w-4 h-4" /> },
+  { type: 'select', label: 'Dropdown', icon: <BoxSelectIcon className="w-4 h-4" /> },
   { type: 'radio', label: 'Radio Group', icon: <RadioIcon className="w-4 h-4" /> },
   { type: 'file', label: 'File Upload', icon: <FileIcon className="w-4 h-4" /> },
   { type: 'toggle', label: 'Toggle Switch', icon: <ToggleLeftIcon className="w-4 h-4" /> },
