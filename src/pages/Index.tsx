@@ -1,34 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PatientList } from "@/components/patient/PatientList";
 import { PatientSearch } from "@/components/patient/PatientSearch";
 import { PageHeader } from "@/components/patient/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
+import { Login } from "@/components/auth/Login";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check authentication
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-      }
-    };
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Current session:", session);
+      setSession(session);
+      setLoading(false);
+    });
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!session) {
-          navigate("/login");
-        }
-      }
-    );
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", session);
+      setSession(session);
+    });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Login />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
