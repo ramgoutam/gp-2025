@@ -16,21 +16,26 @@ const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for lab scripts with real-time updates
   const { data: labScripts = [] } = useQuery({
-    queryKey: ['labScripts'],
+    queryKey: ['labScripts', statusFilter],
     queryFn: async () => {
-      console.log("Fetching all lab scripts");
-      const { data: scripts, error } = await supabase
+      console.log("Fetching lab scripts with filter:", statusFilter);
+      let query = supabase
         .from('lab_scripts')
         .select(`
           *,
           patient:patients(first_name, last_name)
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+      if (statusFilter) {
+        query = query.eq('status', statusFilter);
+      }
+
+      const { data: scripts, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         console.error("Error fetching lab scripts:", error);
@@ -39,32 +44,28 @@ const Scripts = () => {
 
       console.log("Raw database response:", scripts);
 
-      // Map the database response to match our LabScript interface
-      return scripts.map(script => {
-        console.log("Processing script:", script);
-        return {
-          id: script.id,
-          requestNumber: script.request_number,
-          patientId: script.patient_id,
-          patientFirstName: script.patient?.first_name,
-          patientLastName: script.patient?.last_name,
-          doctorName: script.doctor_name,
-          clinicName: script.clinic_name,
-          requestDate: script.request_date,
-          dueDate: script.due_date,
-          status: script.status as LabScript["status"],
-          upperTreatment: script.upper_treatment,
-          lowerTreatment: script.lower_treatment,
-          upperDesignName: script.upper_design_name,
-          lowerDesignName: script.lower_design_name,
-          applianceType: script.appliance_type,
-          screwType: script.screw_type,
-          vdoOption: script.vdo_option,
-          specificInstructions: script.specific_instructions,
-        } as LabScript;
-      });
+      return scripts.map(script => ({
+        id: script.id,
+        requestNumber: script.request_number,
+        patientId: script.patient_id,
+        patientFirstName: script.patient?.first_name,
+        patientLastName: script.patient?.last_name,
+        doctorName: script.doctor_name,
+        clinicName: script.clinic_name,
+        requestDate: script.request_date,
+        dueDate: script.due_date,
+        status: script.status as LabScript["status"],
+        upperTreatment: script.upper_treatment,
+        lowerTreatment: script.lower_treatment,
+        upperDesignName: script.upper_design_name,
+        lowerDesignName: script.lower_design_name,
+        applianceType: script.appliance_type,
+        screwType: script.screw_type,
+        vdoOption: script.vdo_option,
+        specificInstructions: script.specific_instructions,
+      } as LabScript));
     },
-    refetchInterval: 1000 // Refetch every second for real-time updates
+    refetchInterval: 1000
   });
 
   // Set up real-time subscription
@@ -206,7 +207,10 @@ const Scripts = () => {
         </Button>
       </div>
 
-      <ScriptStatusCards />
+      <ScriptStatusCards 
+        onFilterChange={setStatusFilter}
+        activeFilter={statusFilter}
+      />
 
       <div className="bg-white p-6 rounded-lg shadow">
         <ScrollArea className="h-[500px]">

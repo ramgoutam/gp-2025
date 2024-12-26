@@ -8,10 +8,17 @@ type StatusCardProps = {
   count: number;
   icon: React.ElementType;
   color: string;
+  onClick: () => void;
+  isActive: boolean;
 };
 
-const StatusCard = ({ title, count, icon: Icon, color }: StatusCardProps) => (
-  <Card className="p-6 hover:shadow-lg transition-all duration-300">
+const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
+  <Card 
+    className={`p-6 hover:shadow-lg transition-all duration-300 cursor-pointer ${
+      isActive ? 'ring-2 ring-primary shadow-lg' : ''
+    }`}
+    onClick={onClick}
+  >
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-gray-500">{title}</p>
@@ -24,7 +31,12 @@ const StatusCard = ({ title, count, icon: Icon, color }: StatusCardProps) => (
   </Card>
 );
 
-export const ScriptStatusCards = () => {
+type ScriptStatusCardsProps = {
+  onFilterChange: (status: string | null) => void;
+  activeFilter: string | null;
+};
+
+export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
   const { data: scriptCounts = { pending: 0, inProcess: 0, completed: 0, total: 0 } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
@@ -49,8 +61,12 @@ export const ScriptStatusCards = () => {
       console.log('Script counts:', counts);
       return counts;
     },
-    refetchInterval: 1000 // Refetch every second for real-time updates
+    refetchInterval: 1000
   });
+
+  const handleCardClick = (status: string | null) => {
+    onFilterChange(activeFilter === status ? null : status);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -59,24 +75,32 @@ export const ScriptStatusCards = () => {
         count={scriptCounts.pending}
         icon={Clock}
         color="bg-yellow-500"
+        onClick={() => handleCardClick('pending')}
+        isActive={activeFilter === 'pending'}
       />
       <StatusCard
         title="In Process"
         count={scriptCounts.inProcess}
         icon={Loader2}
         color="bg-blue-500"
+        onClick={() => handleCardClick('in_progress')}
+        isActive={activeFilter === 'in_progress'}
       />
       <StatusCard
         title="Completed"
         count={scriptCounts.completed}
         icon={CheckCircle2}
         color="bg-green-500"
+        onClick={() => handleCardClick('completed')}
+        isActive={activeFilter === 'completed'}
       />
       <StatusCard
         title="All Scripts"
         count={scriptCounts.total}
         icon={Files}
         color="bg-purple-500"
+        onClick={() => handleCardClick(null)}
+        isActive={activeFilter === null}
       />
     </div>
   );
