@@ -52,15 +52,12 @@ const Login = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100">
       <div className="w-full max-w-md">
-        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-lg p-8 space-y-6">
+        <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-lg p-8 space-y-6">
           {/* Auth Tabs */}
           <div className="flex justify-center gap-2 mb-8">
-            <button className="px-6 py-2 rounded-full bg-primary-100 text-primary-900 font-medium">
-              Register
-            </button>
-            <button className="px-6 py-2 rounded-full bg-white text-primary-600 font-medium">
+            <button className="px-6 py-2 rounded-full bg-primary-500 text-white font-medium w-full">
               Login
             </button>
           </div>
@@ -120,7 +117,7 @@ const Login = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/`}
-            view="sign_up"
+            view="sign_in"
           />
 
           <p className="text-center text-sm text-gray-900 mt-6">
