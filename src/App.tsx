@@ -14,54 +14,12 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <Routes>
-          <Route
-            path="/"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <Dashboard />
-              </main>
-            }
-          />
-          <Route
-            path="/patients"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <Index />
-              </main>
-            }
-          />
-          <Route
-            path="/patient/:id"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <PatientProfile />
-              </main>
-            }
-          />
-          <Route
-            path="/scripts"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <Scripts />
-              </main>
-            }
-          />
-          <Route
-            path="/report-card"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <ReportCard />
-              </main>
-            }
-          />
-          <Route
-            path="/manufacturing"
-            element={
-              <main className="container mx-auto py-8 px-4">
-                <Manufacturing />
-              </main>
-            }
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/patients" element={<Index />} />
+          <Route path="/patient/:id" element={<PatientProfile />} />
+          <Route path="/scripts" element={<Scripts />} />
+          <Route path="/report-card" element={<ReportCard />} />
+          <Route path="/manufacturing" element={<Manufacturing />} />
         </Routes>
         <Toaster />
       </div>
