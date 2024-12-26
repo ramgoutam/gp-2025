@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LabScriptForm } from "@/components/LabScriptForm";
+import { PatientHeader } from "@/components/patient/PatientHeader";
+import { PatientTabs } from "@/components/patient/PatientTabs";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
 import { getLabScripts, updateLabScript, deleteLabScript } from "@/utils/databaseUtils";
-import { supabase } from "@/integrations/supabase/client";
-import { AuthWrapper } from "@/components/patient/profile/AuthWrapper";
-import { LoadingPatient } from "@/components/patient/profile/LoadingPatient";
-import { PatientContent } from "@/components/patient/profile/PatientContent";
+import { Loader } from "lucide-react";
 
 const PatientProfile = () => {
-  const [showLabScriptDialog, setShowLabScriptDialog] = useState(false);
-  const [labScripts, setLabScripts] = useState<LabScript[]>([]);
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [showLabScriptDialog, setShowLabScriptDialog] = React.useState(false);
+  const [labScripts, setLabScripts] = React.useState<LabScript[]>([]);
   const { state } = useLocation();
   const { id } = useParams();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const [patientData, setPatientData] = useState(() => {
     if (state?.patientData) {
@@ -24,40 +22,6 @@ const PatientProfile = () => {
     }
     return null;
   });
-
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        console.log("Current session:", currentSession);
-        setSession(currentSession);
-        
-        if (!currentSession) {
-          console.log("No active session, redirecting to login");
-          navigate("/login");
-          return;
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error checking auth:", error);
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", session);
-      setSession(session);
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const loadScripts = async () => {
     try {
@@ -77,15 +41,15 @@ const PatientProfile = () => {
   };
 
   useEffect(() => {
-    if (id && session) {
+    if (id) {
       loadScripts();
     }
-  }, [id, session]);
+  }, [id]);
 
   const handleLabScriptSubmit = async (formData: any) => {
     try {
       console.log("Lab script submitted successfully:", formData);
-      await loadScripts();
+      await loadScripts(); // Reload scripts after submission
       setShowLabScriptDialog(false);
       
       toast({
@@ -106,6 +70,8 @@ const PatientProfile = () => {
     try {
       console.log("Updating lab script:", updatedScript);
       const savedScript = await updateLabScript(updatedScript);
+      
+      // Update local state directly instead of reloading
       setLabScripts(prev => 
         prev.map(script => script.id === savedScript.id ? savedScript : script)
       );
@@ -128,6 +94,8 @@ const PatientProfile = () => {
     try {
       console.log("Deleting script:", scriptToDelete);
       await deleteLabScript(scriptToDelete.id);
+      
+      // Update local state directly instead of reloading
       setLabScripts(prev => prev.filter(script => script.id !== scriptToDelete.id));
       
       toast({
@@ -149,24 +117,66 @@ const PatientProfile = () => {
     setPatientData(updatedData);
   };
 
+  if (!patientData) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-gray-600">Loading patient data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <AuthWrapper loading={loading} session={session}>
-      {!patientData ? (
-        <LoadingPatient />
-      ) : (
-        <PatientContent
-          patientData={patientData}
-          labScripts={labScripts}
-          showLabScriptDialog={showLabScriptDialog}
-          setShowLabScriptDialog={setShowLabScriptDialog}
-          onLabScriptSubmit={handleLabScriptSubmit}
-          onEditLabScript={handleEditLabScript}
-          onDeleteLabScript={handleDeleteLabScript}
-          onUpdatePatient={handleUpdatePatient}
-          id={id}
-        />
-      )}
-    </AuthWrapper>
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-50 animate-fade-in">
+      <main className="flex-1 overflow-hidden">
+        <div className="container mx-auto py-8 px-4 h-full flex flex-col">
+          <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
+            Patient list / Patient detail
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border">
+            <PatientHeader 
+              patientData={patientData}
+              onCreateLabScript={() => setShowLabScriptDialog(true)}
+              onUpdatePatient={handleUpdatePatient}
+            />
+
+            <div className="flex-1 overflow-hidden">
+              <PatientTabs
+                labScripts={labScripts}
+                onCreateLabScript={() => setShowLabScriptDialog(true)}
+                onEditLabScript={handleEditLabScript}
+                onDeleteLabScript={handleDeleteLabScript}
+                patientData={patientData}
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Dialog 
+        open={showLabScriptDialog} 
+        onOpenChange={setShowLabScriptDialog}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-primary">
+              Create Lab Script
+            </DialogTitle>
+            <DialogDescription>
+              Create a new lab script for {patientData.firstName} {patientData.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          <LabScriptForm 
+            onSubmit={handleLabScriptSubmit} 
+            patientData={patientData}
+            patientId={id}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
