@@ -1,13 +1,34 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, FileSpreadsheet, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, FileSpreadsheet, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [username, setUsername] = useState<string>("");
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUsername(user.user_metadata.username || user.email?.split('@')[0] || 'User');
+      }
+    };
+    getUser();
+  }, []);
 
   // Hide navigation on login and signup pages
   if (location.pathname === "/login" || location.pathname === "/signup") {
@@ -40,9 +61,18 @@ export const Navigation = () => {
     { to: "/form-builder", label: "Form Builder", icon: FileSpreadsheet },
   ];
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <>
-      <nav className="bg-white border-b border-gray-100 fixed w-full top-0 z-50 transition-all duration-300 hover:shadow-md backdrop-blur-sm bg-white/80">
+      <nav className="bg-white/80 border-b border-gray-100 fixed w-full top-0 z-50 transition-all duration-300 hover:shadow-md backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
@@ -72,18 +102,29 @@ export const Navigation = () => {
               </div>
             </div>
             
-            <button
-              onClick={handleSignOut}
-              className={cn(
-                "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium",
-                "text-gray-600 hover:bg-red-50 hover:text-red-600",
-                "transition-all duration-300 hover:scale-105",
-                "border border-transparent hover:border-red-200"
-              )}
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="focus:outline-none">
+                  <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all duration-300">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {getInitials(username)}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </nav>
