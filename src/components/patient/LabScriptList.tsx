@@ -1,6 +1,6 @@
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
@@ -36,6 +36,20 @@ const getTreatments = (script: LabScript) => {
     upper: script.upperTreatment && script.upperTreatment !== "None" ? [script.upperTreatment] : [],
     lower: script.lowerTreatment && script.lowerTreatment !== "None" ? [script.lowerTreatment] : []
   };
+};
+
+const formatDate = (dateString: string) => {
+  try {
+    // Ensure we have a valid date string
+    if (!dateString) return "N/A";
+    
+    // Parse the date string and format it
+    const date = parseISO(dateString);
+    return format(date, "MMM dd, yyyy");
+  } catch (error) {
+    console.error("Error formatting date:", dateString, error);
+    return "Invalid Date";
+  }
 };
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
@@ -95,8 +109,8 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
               >
                 {script.applianceType || "N/A"}
               </TableCell>
-              <TableCell>{format(new Date(script.requestDate), "MMM dd, yyyy")}</TableCell>
-              <TableCell>{format(new Date(script.dueDate), "MMM dd, yyyy")}</TableCell>
+              <TableCell>{formatDate(script.requestDate)}</TableCell>
+              <TableCell>{formatDate(script.dueDate)}</TableCell>
               <TableCell>{script.doctorName}</TableCell>
               <TableCell>{script.clinicName}</TableCell>
               <TableCell>
