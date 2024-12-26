@@ -19,25 +19,14 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Attempting to sign out...");
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error during sign out:", error);
-        throw error;
-      }
-      console.log("Sign out successful");
+      await supabase.auth.signOut();
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
       navigate("/login");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error signing out:", error);
-      // If we get a session_not_found error, we can still redirect to login
-      if (error.message?.includes('session_not_found')) {
-        navigate("/login");
-        return;
-      }
       toast({
         variant: "destructive",
         title: "Error",

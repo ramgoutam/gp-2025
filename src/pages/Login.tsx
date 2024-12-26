@@ -14,8 +14,7 @@ const Login = () => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Checking current session:", session);
-      
+      console.log("Current session:", session);
       if (session) {
         console.log("User already logged in, redirecting to dashboard");
         navigate("/");
@@ -37,18 +36,12 @@ const Login = () => {
       async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
         if (event === "SIGNED_IN" && session) {
-          console.log("User signed in successfully, redirecting to dashboard");
+          console.log("User signed in, redirecting to dashboard");
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
           navigate("/");
-        } else if (event === "SIGNED_OUT") {
-          console.log("User signed out");
-          toast({
-            title: "Signed out",
-            description: "You have been signed out successfully.",
-          });
         }
       }
     );
@@ -71,23 +64,9 @@ const Login = () => {
         </div>
         <Auth
           supabaseClient={supabase}
-          appearance={{ 
-            theme: ThemeSupa,
-            style: {
-              button: { background: 'rgb(59 130 246)', color: 'white' },
-              anchor: { color: 'rgb(59 130 246)' },
-            }
-          }}
+          appearance={{ theme: ThemeSupa }}
           providers={[]}
           redirectTo={`${window.location.origin}/`}
-          localization={{
-            variables: {
-              sign_in: {
-                email_label: 'Email address',
-                password_label: 'Password',
-              },
-            },
-          }}
         />
       </div>
     </div>

@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Settings, ArrowRight, Stethoscope, CheckCircle, PenTool } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
-import { useToast } from "@/hooks/use-toast";
 
 interface ActionButtonsProps {
   script: LabScript;
@@ -23,41 +22,16 @@ export const ActionButtons = ({
   clinicalInfoStatus = 'pending',
   isCompleted = false
 }: ActionButtonsProps) => {
-  const { toast } = useToast();
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
-
-  const handleDesignInfoClick = () => {
-    if (script.status !== 'completed') {
-      toast({
-        title: "Cannot Add Design Info",
-        description: "The lab script must be completed before adding design information.",
-        variant: "destructive"
-      });
-      return;
-    }
-    onDesignInfo(script);
-  };
-
-  const handleClinicalInfoClick = () => {
-    if (script.status !== 'completed') {
-      toast({
-        title: "Cannot Add Clinical Info",
-        description: "The lab script must be completed before adding clinical information.",
-        variant: "destructive"
-      });
-      return;
-    }
-    onClinicalInfo();
-  };
 
   return (
     <div className="flex gap-3">
       <Button
         variant="outline"
         size="sm"
-        onClick={handleDesignInfoClick}
+        onClick={() => onDesignInfo(script)}
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         {isDesignInfoCompleted ? (
@@ -71,7 +45,7 @@ export const ActionButtons = ({
       <Button
         variant="outline"
         size="sm"
-        onClick={handleClinicalInfoClick}
+        onClick={onClinicalInfo}
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         <Stethoscope className="h-4 w-4" />
