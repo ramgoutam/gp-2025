@@ -1,107 +1,71 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react";
-import { supabase } from "@/integrations/supabase/client";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
-import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import ReportCard from "@/pages/ReportCard";
 import Manufacturing from "@/pages/Manufacturing";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const session = useSession();
-  console.log("ProtectedRoute - Current session:", session);
-  
-  if (!session) {
-    console.log("No session found, redirecting to login");
-    return <Navigate to="/login" replace />;
-  }
-  
-  console.log("Session found, rendering protected content");
-  return children;
-};
-
 function App() {
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <Dashboard />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/patients"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <Index />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/patient/:id"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <PatientProfile />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/scripts"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <Scripts />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/report-card"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <ReportCard />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/manufacturing"
-              element={
-                <ProtectedRoute>
-                  <Navigation />
-                  <main className="container mx-auto py-8 px-4">
-                    <Manufacturing />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-          <Toaster />
-        </div>
-      </Router>
-    </SessionContextProvider>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <Dashboard />
+              </main>
+            }
+          />
+          <Route
+            path="/patients"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <Index />
+              </main>
+            }
+          />
+          <Route
+            path="/patient/:id"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <PatientProfile />
+              </main>
+            }
+          />
+          <Route
+            path="/scripts"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <Scripts />
+              </main>
+            }
+          />
+          <Route
+            path="/report-card"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <ReportCard />
+              </main>
+            }
+          />
+          <Route
+            path="/manufacturing"
+            element={
+              <main className="container mx-auto py-8 px-4">
+                <Manufacturing />
+              </main>
+            }
+          />
+        </Routes>
+        <Toaster />
+      </div>
+    </Router>
   );
 }
 
