@@ -11,33 +11,65 @@ import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import ReportCard from "@/pages/ReportCard";
 import Manufacturing from "@/pages/Manufacturing";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Error checking auth status:", error);
-        toast({
-          title: "Authentication Error",
-          description: "Please try logging in again",
-          variant: "destructive",
-        });
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking auth status:", error);
+          toast({
+            title: "Authentication Error",
+            description: "Please try logging in again",
+            variant: "destructive",
+          });
+          setIsAuthenticated(false);
+        } else {
+          console.log("Protected route - session check:", currentSession?.user?.id);
+          setIsAuthenticated(!!currentSession);
+        }
+      } catch (error) {
+        console.error("Error in auth check:", error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
-      
-      console.log("Protected route - session check:", currentSession?.user?.id);
     };
 
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        console.log("Auth state changed:", event, currentSession?.user?.id);
+        setIsAuthenticated(!!currentSession);
+        
+        if (event === 'SIGNED_OUT') {
+          setIsAuthenticated(false);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [toast]);
 
-  if (!session) {
-    console.log("No session found, redirecting to login");
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
+    console.log("No authenticated session found, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
