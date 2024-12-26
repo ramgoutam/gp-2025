@@ -64,14 +64,17 @@ export const StatusCard = ({
         duration-300
         hover:scale-110
         shadow-sm
+        animate-fade-in
       `}>
-        <Icon className={`w-6 h-6 ${iconColor}`} />
+        <Icon className={`w-6 h-6 ${iconColor} transition-transform duration-300 group-hover:rotate-12`} />
       </div>
       <div className="text-right">
         <p className={`
           text-3xl 
           font-bold 
           ${isActive ? 'text-primary' : 'text-gray-900 dark:text-gray-100'}
+          transition-colors
+          duration-300
         `}>
           <AnimatedNumber number={count} />
         </p>
@@ -83,7 +86,7 @@ export const StatusCard = ({
         {title}
       </p>
       <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
-        <div
+        <animated.div
           className={`
             absolute 
             inset-y-0 
@@ -92,7 +95,15 @@ export const StatusCard = ({
             duration-500
             ${progressColor}
           `}
-          style={{ width: '100%' }}
+          style={{
+            width: '100%',
+            transform: useSpring({
+              from: { transform: 'translateX(-100%)' },
+              to: { transform: 'translateX(0)' },
+              delay: 200,
+              config: { tension: 120, friction: 14 }
+            }).transform
+          }}
         />
       </div>
     </div>

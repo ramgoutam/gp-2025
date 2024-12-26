@@ -122,19 +122,26 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
-      {cards.map((card) => (
-        <StatusCard
+    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6 animate-fade-in">
+      {cards.map((card, index) => (
+        <div
           key={card.title}
-          title={card.title}
-          count={card.count}
-          icon={card.icon}
-          color={card.color}
-          iconColor={card.iconColor}
-          progressColor={card.progressColor}
-          onClick={() => handleCardClick(card.status)}
-          isActive={activeFilter === card.status}
-        />
+          className="animate-fade-in"
+          style={{
+            animationDelay: `${index * 100}ms`
+          }}
+        >
+          <StatusCard
+            title={card.title}
+            count={card.count}
+            icon={card.icon}
+            color={card.color}
+            iconColor={card.iconColor}
+            progressColor={card.progressColor}
+            onClick={() => handleCardClick(card.status)}
+            isActive={activeFilter === card.status}
+          />
+        </div>
       ))}
     </div>
   );
