@@ -11,6 +11,8 @@ import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, RefreshCcw } from "lucide-react";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -20,76 +22,70 @@ const Scripts = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: labScripts = [] } = useQuery({
+  const { 
+    data: labScripts = [], 
+    isError,
+    error,
+    refetch,
+    isLoading 
+  } = useQuery({
     queryKey: ['labScripts', statusFilter],
     queryFn: async () => {
       console.log("Fetching lab scripts with filter:", statusFilter);
-      let query = supabase
-        .from('lab_scripts')
-        .select(`
-          *,
-          patient:patients(first_name, last_name)
-        `);
+      try {
+        let query = supabase
+          .from('lab_scripts')
+          .select(`
+            *,
+            patient:patients(first_name, last_name)
+          `);
 
-      if (statusFilter) {
-        query = query.eq('status', statusFilter);
-      }
+        if (statusFilter) {
+          query = query.eq('status', statusFilter);
+        }
 
-      const { data: scripts, error } = await query.order('created_at', { ascending: false });
+        const { data: scripts, error } = await query.order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching lab scripts:", error);
+        if (error) {
+          console.error("Supabase error fetching lab scripts:", error);
+          throw error;
+        }
+
+        if (!scripts) {
+          console.log("No scripts found");
+          return [];
+        }
+
+        console.log("Raw database response:", scripts);
+
+        return scripts.map(script => ({
+          id: script.id,
+          requestNumber: script.request_number,
+          patientId: script.patient_id,
+          patientFirstName: script.patient?.first_name,
+          patientLastName: script.patient?.last_name,
+          doctorName: script.doctor_name,
+          clinicName: script.clinic_name,
+          requestDate: script.request_date,
+          dueDate: script.due_date,
+          status: script.status as LabScript["status"],
+          upperTreatment: script.upper_treatment,
+          lowerTreatment: script.lower_treatment,
+          upperDesignName: script.upper_design_name,
+          lowerDesignName: script.lower_design_name,
+          applianceType: script.appliance_type,
+          screwType: script.screw_type,
+          vdoOption: script.vdo_option,
+          specificInstructions: script.specific_instructions,
+        } as LabScript));
+      } catch (error) {
+        console.error("Error in queryFn:", error);
         throw error;
       }
-
-      console.log("Raw database response:", scripts);
-
-      return scripts.map(script => ({
-        id: script.id,
-        requestNumber: script.request_number,
-        patientId: script.patient_id,
-        patientFirstName: script.patient?.first_name,
-        patientLastName: script.patient?.last_name,
-        doctorName: script.doctor_name,
-        clinicName: script.clinic_name,
-        requestDate: script.request_date,
-        dueDate: script.due_date,
-        status: script.status as LabScript["status"],
-        upperTreatment: script.upper_treatment,
-        lowerTreatment: script.lower_treatment,
-        upperDesignName: script.upper_design_name,
-        lowerDesignName: script.lower_design_name,
-        applianceType: script.appliance_type,
-        screwType: script.screw_type,
-        vdoOption: script.vdo_option,
-        specificInstructions: script.specific_instructions,
-      } as LabScript));
     },
-    refetchInterval: 1000
+    retry: 3,
+    retryDelay: 1000,
   });
-
-  // Set up real-time subscription
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('lab-scripts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'lab_scripts'
-        },
-        (payload) => {
-          console.log("Lab script change detected:", payload);
-          queryClient.invalidateQueries({ queryKey: ['labScripts'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
 
   const handleNewScriptSubmit = async (formData: LabScript) => {
     try {
@@ -194,6 +190,28 @@ const Scripts = () => {
     }
   };
 
+  if (isError) {
+    return (
+      <div className="container mx-auto py-8 space-y-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Error loading lab scripts. Please check your connection and try again.
+            {error instanceof Error ? ` Error: ${error.message}` : ''}
+          </AlertDescription>
+        </Alert>
+        <Button 
+          onClick={() => refetch()} 
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <RefreshCcw className="h-4 w-4" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <main className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
@@ -214,18 +232,24 @@ const Scripts = () => {
 
       <div className="bg-white p-6 rounded-lg shadow">
         <ScrollArea className="h-[500px]">
-          <LabScriptList 
-            labScripts={labScripts}
-            onRowClick={(script) => {
-              setSelectedScript(script);
-              setIsEditing(false);
-            }}
-            onEditClick={(script) => {
-              setSelectedScript(script);
-              setIsEditing(true);
-            }}
-            onDeleteClick={handleScriptDelete}
-          />
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <LabScriptList 
+              labScripts={labScripts}
+              onRowClick={(script) => {
+                setSelectedScript(script);
+                setIsEditing(false);
+              }}
+              onEditClick={(script) => {
+                setSelectedScript(script);
+                setIsEditing(true);
+              }}
+              onDeleteClick={handleScriptDelete}
+            />
+          )}
         </ScrollArea>
       </div>
 
