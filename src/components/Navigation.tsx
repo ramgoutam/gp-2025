@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, FileText, LogOut, User } from "lucide-react";
+import { LayoutDashboard, Users, FileSpreadsheet, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -59,7 +59,7 @@ export const Navigation = () => {
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/scripts", label: "Lab Scripts", icon: FileText },
+    { to: "/form-builder", label: "Form Builder", icon: FileSpreadsheet },
   ];
 
   const getInitials = (name: string) => {
@@ -104,15 +104,6 @@ export const Navigation = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-red-600 hover:bg-red-50"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                   <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all duration-300">
@@ -130,6 +121,15 @@ export const Navigation = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleSignOut}
+                className="text-gray-600 hover:text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
