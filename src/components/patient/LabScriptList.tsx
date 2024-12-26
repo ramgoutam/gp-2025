@@ -2,11 +2,10 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Play, Pause, StopCircle, CheckCircle } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { StatusButtons } from "./lab-script/StatusButtons";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -56,7 +55,6 @@ const formatDate = (dateString: string) => {
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
@@ -73,105 +71,6 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
   const handlePatientClick = (e: React.MouseEvent, patientId: string) => {
     e.stopPropagation();
     navigate(`/patient/${patientId}`);
-  };
-
-  const handleStatusUpdate = async (e: React.MouseEvent, script: LabScript, newStatus: LabScript['status']) => {
-    e.stopPropagation();
-    try {
-      const { error } = await supabase
-        .from('lab_scripts')
-        .update({ status: newStatus })
-        .eq('id', script.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Status Updated",
-        description: `Script status changed to ${newStatus.replace('_', ' ')}`
-      });
-    } catch (error) {
-      console.error("Error updating status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update status",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getStatusButtons = (script: LabScript) => {
-    const buttonClass = "p-2 rounded-full transition-all duration-300 hover:scale-110";
-    
-    switch (script.status) {
-      case 'pending':
-        return (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
-            className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
-          >
-            <Play className="h-4 w-4" />
-          </Button>
-        );
-      case 'in_progress':
-        return (
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => handleStatusUpdate(e, script, 'paused')}
-              className={`${buttonClass} hover:bg-orange-50 text-orange-600`}
-            >
-              <Pause className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => handleStatusUpdate(e, script, 'completed')}
-              className={`${buttonClass} hover:bg-green-50 text-green-600`}
-            >
-              <CheckCircle className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      case 'paused':
-        return (
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
-              className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
-            >
-              <Play className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => handleStatusUpdate(e, script, 'hold')}
-              className={`${buttonClass} hover:bg-red-50 text-red-600`}
-            >
-              <StopCircle className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      case 'hold':
-        return (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => handleStatusUpdate(e, script, 'in_progress')}
-            className={`${buttonClass} hover:bg-blue-50 text-blue-600`}
-          >
-            <Play className="h-4 w-4" />
-          </Button>
-        );
-      case 'completed':
-        return null;
-      default:
-        return null;
-    }
   };
 
   return (
@@ -229,7 +128,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
               <TableCell>{getStatusBadge(script.status)}</TableCell>
               <TableCell>
                 <div className="flex items-center justify-start gap-2">
-                  {getStatusButtons(script)}
+                  <StatusButtons script={script} />
                 </div>
               </TableCell>
               <TableCell>
