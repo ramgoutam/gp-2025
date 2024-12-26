@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowRight, Stethoscope, CheckCircle, PenTool } from "lucide-react";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -31,9 +31,9 @@ export const ActionButtons = ({
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
-  // Set up real-time subscription and millisecond interval for script status updates
+  // Set up real-time subscription and polling for script status updates
   useEffect(() => {
-    console.log("Setting up real-time subscription and interval for script:", script.id);
+    console.log("Setting up real-time subscription and polling for script:", script.id);
     
     // Set up real-time subscription
     const channel = supabase
@@ -48,18 +48,22 @@ export const ActionButtons = ({
         },
         (payload) => {
           console.log("Real-time update received:", payload);
-          setCurrentScript(prev => ({ ...prev, ...payload.new }));
+          setCurrentScript(prev => ({
+            ...prev,
+            ...payload.new,
+            status: payload.new.status as LabScriptStatus
+          }));
         }
       )
       .subscribe();
 
-    // Set up millisecond interval for status checks
+    // Set up polling interval (every 2 seconds instead of every millisecond)
     const intervalId = setInterval(async () => {
       const { data, error } = await supabase
         .from('lab_scripts')
         .select('*')
         .eq('id', script.id)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("Error fetching script status:", error);
@@ -68,12 +72,16 @@ export const ActionButtons = ({
 
       if (data) {
         console.log("Status check update:", data);
-        setCurrentScript(prev => ({ ...prev, ...data }));
+        setCurrentScript(prev => ({
+          ...prev,
+          ...data,
+          status: data.status as LabScriptStatus
+        }));
       }
-    }, 1); // Check every millisecond
+    }, 2000); // Check every 2 seconds
 
     return () => {
-      console.log("Cleaning up real-time subscription and interval");
+      console.log("Cleaning up real-time subscription and polling interval");
       supabase.removeChannel(channel);
       clearInterval(intervalId);
     };
