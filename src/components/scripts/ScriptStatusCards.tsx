@@ -15,7 +15,7 @@ type StatusCardProps = {
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
     className={`
-      p-4 
+      p-6 
       cursor-pointer 
       transition-all 
       duration-300 
@@ -26,26 +26,28 @@ const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: Stat
       relative
       overflow-hidden
       group
+      bg-gradient-to-br from-white to-purple-50/30
     `}
     onClick={onClick}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
     <div className="flex items-start justify-between relative">
       <div className={`
-        p-2 
-        rounded-lg 
+        p-3 
+        rounded-xl 
         ${color} 
         bg-opacity-10
         transition-transform 
         duration-300 
         group-hover:scale-110
+        group-hover:rotate-3
       `}>
-        <Icon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" 
+        <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" 
               style={{ color: color.replace('bg-', 'text-') }} />
       </div>
       <div className="text-right">
-        <p className="text-3xl font-bold mb-1 transition-colors group-hover:text-primary">{count}</p>
-        <p className="text-sm text-gray-500 transition-colors group-hover:text-gray-700">{title}</p>
+        <p className="text-3xl font-bold mb-2 transition-colors duration-300 group-hover:text-primary">{count}</p>
+        <p className="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-700">{title}</p>
       </div>
     </div>
   </Card>
@@ -109,12 +111,12 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   };
 
   return (
-    <div className="grid grid-cols-7 gap-4 mb-6">
+    <div className="grid grid-cols-7 gap-4 mb-6 animate-fade-in">
       <StatusCard
         title="Pending"
         count={scriptCounts.pending}
         icon={Clock}
-        color="bg-yellow-500"
+        color="bg-amber-500"
         onClick={() => handleCardClick('pending')}
         isActive={activeFilter === 'pending'}
       />
