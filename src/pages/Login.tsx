@@ -64,7 +64,9 @@ const Login = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">DentFlow</h1>
+              <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Fira Sans, sans-serif' }}>
+                NYDI
+              </h1>
               <p className="mt-2 text-sm text-gray-600">
                 Welcome back! Please sign in to continue.
               </p>
@@ -152,7 +154,7 @@ const Login = () => {
               Streamline Your Dental Practice
             </h2>
             <p className="text-lg opacity-90">
-              Manage your patients, appointments, and workflows efficiently with DentFlow
+              Manage your patients, appointments, and workflows efficiently with NYDI
             </p>
           </div>
         </div>
