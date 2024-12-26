@@ -13,13 +13,19 @@ const Login = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-      if (session) {
-        console.log("User already logged in, redirecting to dashboard");
-        navigate("/");
-      }
-      if (error) {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log("Current session:", session?.user?.id);
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (session) {
+          console.log("User already logged in, redirecting to dashboard");
+          navigate("/");
+        }
+      } catch (error) {
         console.error("Error checking session:", error);
         toast({
           variant: "destructive",
@@ -34,7 +40,7 @@ const Login = () => {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
-        console.log("Auth state changed:", event, session);
+        console.log("Auth state changed:", event, session?.user?.id);
         if (event === "SIGNED_IN" && session) {
           console.log("User signed in, redirecting to dashboard");
           toast({

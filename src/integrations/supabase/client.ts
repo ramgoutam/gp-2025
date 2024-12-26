@@ -16,12 +16,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   global: {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+      'apikey': SUPABASE_PUBLISHABLE_KEY
     }
   }
 });
 
-// Log authentication state changes
+// Add error handling for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Supabase auth state changed:', event, session);
+  console.log('Supabase auth state changed:', event, session?.user?.id);
+  if (event === 'SIGNED_OUT') {
+    console.log('User signed out, clearing session');
+    supabase.auth.signOut(); // Ensure complete signout
+  }
 });

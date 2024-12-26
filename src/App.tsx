@@ -3,16 +3,37 @@ import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import Manufacturing from "@/pages/Manufacturing";
+import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
-  console.log("Protected route - session:", session);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Error checking auth status:", error);
+        toast({
+          title: "Authentication Error",
+          description: "Please try logging in again",
+          variant: "destructive",
+        });
+      }
+      
+      console.log("Protected route - session check:", currentSession?.user?.id);
+    };
+
+    checkAuth();
+  }, [toast]);
 
   if (!session) {
     console.log("No session found, redirecting to login");
