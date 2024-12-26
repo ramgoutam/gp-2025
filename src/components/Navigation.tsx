@@ -22,6 +22,11 @@ export const Navigation = () => {
     try {
       console.log("Starting sign out process");
       
+      // First clear any stored session data
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+      
+      // Then sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Sign out error:", error);
@@ -29,10 +34,6 @@ export const Navigation = () => {
       }
 
       console.log("Successfully signed out");
-      
-      // Clear any local storage items that might be causing issues
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
       
       // Force a complete page reload and redirect
       window.location.href = '/login';
