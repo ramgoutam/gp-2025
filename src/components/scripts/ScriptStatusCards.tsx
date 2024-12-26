@@ -12,6 +12,16 @@ type StatusCardProps = {
   isActive: boolean;
 };
 
+type ScriptCounts = {
+  pending: number;
+  inProcess: number;
+  paused: number;
+  hold: number;
+  incomplete: number;
+  completed: number;
+  total: number;
+};
+
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
     className={`p-6 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
@@ -61,13 +71,14 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         throw error;
       }
 
-      const counts = {
+      const counts: ScriptCounts = {
         pending: scripts.filter(s => s.status === 'pending').length,
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
         paused: scripts.filter(s => s.status === 'paused').length,
         hold: scripts.filter(s => s.status === 'hold').length,
         completed: scripts.filter(s => s.status === 'completed').length,
-        total: scripts.length
+        total: scripts.length,
+        incomplete: 0 // Initialize with 0
       };
 
       // Calculate incomplete count as sum of pending, in_progress, paused, and hold
