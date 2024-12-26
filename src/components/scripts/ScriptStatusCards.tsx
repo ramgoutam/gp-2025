@@ -12,16 +12,6 @@ type StatusCardProps = {
   isActive: boolean;
 };
 
-type ScriptCounts = {
-  pending: number;
-  inProcess: number;
-  paused: number;
-  hold: number;
-  incomplete: number;
-  completed: number;
-  total: number;
-};
-
 const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
     className={`p-6 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
@@ -57,15 +47,7 @@ type ScriptStatusCardsProps = {
 };
 
 export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
-  const { data: scriptCounts = { 
-    pending: 0, 
-    inProcess: 0, 
-    paused: 0, 
-    hold: 0, 
-    incomplete: 0, 
-    completed: 0, 
-    total: 0 
-  } } = useQuery({
+  const { data: scriptCounts = { pending: 0, inProcess: 0, paused: 0, hold: 0, incomplete: 0, completed: 0, total: 0 } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
       console.log('Fetching script status counts');
@@ -79,14 +61,13 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         throw error;
       }
 
-      const counts: ScriptCounts = {
+      const counts = {
         pending: scripts.filter(s => s.status === 'pending').length,
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
         paused: scripts.filter(s => s.status === 'paused').length,
         hold: scripts.filter(s => s.status === 'hold').length,
         completed: scripts.filter(s => s.status === 'completed').length,
-        total: scripts.length,
-        incomplete: 0
+        total: scripts.length
       };
 
       // Calculate incomplete count as sum of pending, in_progress, paused, and hold
