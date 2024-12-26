@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus, Search, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 interface FormTemplate {
@@ -19,6 +21,8 @@ export const FormBuilder = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [forms, setForms] = useState<FormTemplate[]>([]);
+  const [showNewFormDialog, setShowNewFormDialog] = useState(false);
+  const [newFormName, setNewFormName] = useState("");
 
   const fetchForms = async () => {
     try {
@@ -39,8 +43,44 @@ export const FormBuilder = () => {
     }
   };
 
-  const handleBuildNewForm = () => {
-    navigate("/form-builder/new");
+  const handleCreateNewForm = async () => {
+    if (!newFormName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a form name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('form_templates')
+        .insert({
+          name: newFormName,
+          config: { components: [] }
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setShowNewFormDialog(false);
+      setNewFormName("");
+      navigate(`/form-builder/${data.id}`);
+      
+      toast({
+        title: "Success",
+        description: "Form created successfully",
+      });
+    } catch (error) {
+      console.error('Error creating form:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create form",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -48,7 +88,7 @@ export const FormBuilder = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Form Templates</h1>
         <Button 
-          onClick={handleBuildNewForm}
+          onClick={() => setShowNewFormDialog(true)}
           className="bg-primary hover:bg-primary/90"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -99,6 +139,33 @@ export const FormBuilder = () => {
           </div>
         )}
       </div>
+
+      <Dialog open={showNewFormDialog} onOpenChange={setShowNewFormDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Form</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="formName">Form Name</Label>
+              <Input
+                id="formName"
+                value={newFormName}
+                onChange={(e) => setNewFormName(e.target.value)}
+                placeholder="Enter form name"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewFormDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateNewForm}>
+              Create Form
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
