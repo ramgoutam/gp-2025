@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Clock, Loader2, CheckCircle2, Files } from "lucide-react";
+import { Clock, Loader2, CheckCircle2, Files, PauseCircle, StopCircle, AlertTriangle } from "lucide-react";
 
 type StatusCardProps = {
   title: string;
@@ -37,7 +37,15 @@ type ScriptStatusCardsProps = {
 };
 
 export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
-  const { data: scriptCounts = { pending: 0, inProcess: 0, completed: 0, total: 0 } } = useQuery({
+  const { data: scriptCounts = { 
+    pending: 0, 
+    inProcess: 0, 
+    completed: 0, 
+    paused: 0,
+    hold: 0,
+    incomplete: 0,
+    total: 0 
+  } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
       console.log('Fetching script status counts');
@@ -55,6 +63,9 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         pending: scripts.filter(s => s.status === 'pending').length,
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
         completed: scripts.filter(s => s.status === 'completed').length,
+        paused: scripts.filter(s => s.status === 'paused').length,
+        hold: scripts.filter(s => s.status === 'hold').length,
+        incomplete: scripts.filter(s => s.status === 'incomplete').length,
         total: scripts.length
       };
 
@@ -87,6 +98,30 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         isActive={activeFilter === 'in_progress'}
       />
       <StatusCard
+        title="Paused"
+        count={scriptCounts.paused}
+        icon={PauseCircle}
+        color="bg-orange-500"
+        onClick={() => handleCardClick('paused')}
+        isActive={activeFilter === 'paused'}
+      />
+      <StatusCard
+        title="On Hold"
+        count={scriptCounts.hold}
+        icon={StopCircle}
+        color="bg-red-500"
+        onClick={() => handleCardClick('hold')}
+        isActive={activeFilter === 'hold'}
+      />
+      <StatusCard
+        title="Incomplete"
+        count={scriptCounts.incomplete}
+        icon={AlertTriangle}
+        color="bg-purple-500"
+        onClick={() => handleCardClick('incomplete')}
+        isActive={activeFilter === 'incomplete'}
+      />
+      <StatusCard
         title="Completed"
         count={scriptCounts.completed}
         icon={CheckCircle2}
@@ -98,7 +133,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="All Scripts"
         count={scriptCounts.total}
         icon={Files}
-        color="bg-purple-500"
+        color="bg-gray-500"
         onClick={() => handleCardClick(null)}
         isActive={activeFilter === null}
       />
