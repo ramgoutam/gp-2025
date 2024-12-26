@@ -7,6 +7,7 @@ export type FormComponent = {
   placeholder?: string;
   required?: boolean;
   options?: string[];
+  children?: FormComponent[];
   style?: {
     width?: string;
     [key: string]: string | undefined;

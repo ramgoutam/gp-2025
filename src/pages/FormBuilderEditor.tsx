@@ -5,7 +5,7 @@ import { FormBuilderCanvas } from "@/components/form-builder/FormBuilderCanvas";
 import { Button } from "@/components/ui/button";
 import { 
   ArrowLeft, Save, Plus, Heading1, Heading2, Type, 
-  Link, ListTodo, MessageSquare, LogIn 
+  Link, ListTodo, MessageSquare, LogIn, Layout 
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FormComponent, FormTemplate } from "@/types/formBuilder";
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { v4 as uuidv4 } from "uuid";
 
-// Move component definitions to a separate component for better organization
 const availableComponents = [
   // Text Components
   { type: 'h1', label: 'Heading 1', icon: Heading1, category: 'Text' },
@@ -42,11 +41,16 @@ const availableComponents = [
   { type: 'select', label: 'Select Dropdown', icon: ListTodo, category: 'Selection' },
   { type: 'toggle', label: 'Toggle Switch', icon: ListTodo, category: 'Selection' },
   
+  // Popup Components
+  { type: 'popup-sm', label: 'Small Popup (640px)', icon: Layout, category: 'Popups' },
+  { type: 'popup-md', label: 'Medium Popup (768px)', icon: Layout, category: 'Popups' },
+  { type: 'popup-lg', label: 'Large Popup (1024px)', icon: Layout, category: 'Popups' },
+  { type: 'popup-xl', label: 'XL Popup (1280px)', icon: Layout, category: 'Popups' },
+  { type: 'popup-2xl', label: '2XL Popup (1536px)', icon: Layout, category: 'Popups' },
+  { type: 'popup-custom', label: 'Custom Size Popup', icon: Layout, category: 'Popups' },
+  
   // Advanced Components
   { type: 'link', label: 'Link', icon: Link, category: 'Advanced' },
-  { type: 'popup-sm', label: 'Small Popup', icon: MessageSquare, category: 'Advanced' },
-  { type: 'popup-md', label: 'Medium Popup', icon: MessageSquare, category: 'Advanced' },
-  { type: 'popup-lg', label: 'Large Popup', icon: MessageSquare, category: 'Advanced' },
   { type: 'conditional', label: 'Conditional Logic', icon: LogIn, category: 'Advanced' },
 ];
 
@@ -65,13 +69,11 @@ export const FormBuilderEditor = () => {
       label,
       placeholder: `Enter ${label.toLowerCase()}`,
       required: false,
+      children: type.startsWith('popup-') ? [] : undefined,
       options: type === 'select' || type === 'radio' ? ['Option 1', 'Option 2', 'Option 3'] : undefined,
-      style: {
-        width: type.startsWith('popup') ? 
-          (type === 'popup-sm' ? '300px' : type === 'popup-md' ? '500px' : '800px') : 
-          '100%'
-      }
+      style: type === 'popup-custom' ? { width: '800px' } : undefined
     };
+    
     setComponents([...components, newComponent]);
     toast({
       title: "Component Added",
@@ -174,7 +176,7 @@ export const FormBuilderEditor = () => {
               className="w-64 bg-white shadow-lg border rounded-lg p-2"
               style={{ maxHeight: '500px', overflowY: 'auto' }}
             >
-              {['Text', 'Input', 'Selection', 'Advanced'].map((category) => (
+              {['Text', 'Input', 'Selection', 'Popups', 'Advanced'].map((category) => (
                 <div key={category} className="mb-2">
                   <DropdownMenuLabel className="text-sm font-semibold text-gray-700 px-2 py-1">
                     {category}
