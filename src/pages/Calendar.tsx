@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { snapToHalfHour, formatTime, calculatePosition, calculateHeight } from "@/utils/calendarUtils";
 import { useEventDrag } from "@/hooks/useEventDrag";
 import { Event } from "@/types/calendar";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const categoryLabels = {
   lab: "Lab Schedule",
@@ -18,6 +20,7 @@ const categoryLabels = {
 } as const;
 
 export default function Calendar() {
+  const [session, setSession] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -27,6 +30,20 @@ export default function Calendar() {
     endTime: string;
     category: string;
   } | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const updateEventTime = (id: string, newStartTime: string, newEndTime: string) => {
     setEvents(prevEvents => 
@@ -125,7 +142,7 @@ export default function Calendar() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navigation />
+      <Navigation session={session} />
       
       <main className="container mx-auto py-6">
         <Card className="bg-white border-0 shadow-lg rounded-xl relative z-10">
