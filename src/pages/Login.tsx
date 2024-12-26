@@ -52,58 +52,80 @@ const Login = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
-      <div className="w-full max-w-md p-8 space-y-6 animate-fade-in">
-        <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 backdrop-blur-sm backdrop-filter">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-100/30 to-transparent rounded-2xl" />
-          
-          <div className="relative space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                Welcome back
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Please sign in to your account
-              </p>
-            </div>
-
-            <Auth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                style: {
-                  button: {
-                    background: 'rgb(79, 107, 255)',
-                    borderRadius: '0.5rem',
-                    fontSize: '14px',
-                    padding: '10px 15px',
-                    transition: 'all 0.2s ease',
-                  },
-                  input: {
-                    borderRadius: '0.5rem',
-                    fontSize: '14px',
-                    padding: '10px 15px',
-                  },
-                  anchor: {
-                    color: 'rgb(79, 107, 255)',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                  },
-                  container: {
-                    gap: '1rem',
-                  },
-                },
-                className: {
-                  container: 'space-y-4',
-                  button: 'hover:bg-primary-600 active:bg-primary-700',
-                  input: 'focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
-                  label: 'text-sm font-medium text-gray-700 dark:text-gray-300',
-                }
-              }}
-              providers={[]}
-              redirectTo={`${window.location.origin}/`}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
+          {/* Auth Tabs */}
+          <div className="flex justify-center gap-2 mb-8">
+            <button className="px-6 py-2 rounded-full bg-gray-100 text-gray-900 font-medium">
+              Register
+            </button>
+            <button className="px-6 py-2 rounded-full bg-white text-gray-600 font-medium">
+              Login
+            </button>
           </div>
+
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  background: '#6C5CE7',
+                  borderRadius: '999px',
+                  fontSize: '14px',
+                  padding: '12px 16px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                },
+                input: {
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  padding: '12px 16px',
+                  backgroundColor: '#F8F9FA',
+                  border: '1px solid #E9ECEF',
+                },
+                anchor: {
+                  color: '#6C5CE7',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                },
+                container: {
+                  gap: '1rem',
+                },
+                divider: {
+                  backgroundColor: '#E9ECEF',
+                },
+                message: {
+                  fontSize: '14px',
+                  color: '#495057',
+                },
+                label: {
+                  fontSize: '14px',
+                  color: '#495057',
+                  marginBottom: '4px',
+                }
+              },
+              className: {
+                container: 'space-y-4',
+                button: 'hover:bg-[#5849c4] active:bg-[#4a3db3] transition-colors',
+                input: 'focus:ring-2 focus:ring-[#6C5CE7]/20 focus:border-[#6C5CE7]',
+                label: 'font-medium',
+                message: 'text-sm',
+                divider: 'my-6',
+              }
+            }}
+            providers={["google", "apple", "facebook"]}
+            redirectTo={`${window.location.origin}/`}
+            view="sign_up"
+          />
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            By continuing you agree to our{" "}
+            <a href="#" className="text-[#6C5CE7] hover:underline">
+              Terms & Conditions
+            </a>
+          </p>
         </div>
       </div>
     </div>
