@@ -41,21 +41,27 @@ export const Navigation = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="container mx-auto">
+    <nav className="bg-white border-b border-gray-100 fixed w-full top-0 z-50 transition-all duration-300 hover:shadow-md">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
-            <div className="text-primary font-bold text-xl">NYDI</div>
-            <div className="flex space-x-4">
+            <Link 
+              to="/" 
+              className="text-primary font-bold text-xl tracking-tight hover:scale-105 transition-transform duration-300"
+            >
+              NYDI
+            </Link>
+            <div className="flex space-x-1">
               {links.map(({ to, label, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
                   className={cn(
-                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300",
+                    "hover:bg-primary/5 hover:scale-105",
                     location.pathname === to
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-primary text-white shadow-lg hover:bg-primary/90 hover:shadow-xl animate-fade-in"
+                      : "text-gray-600"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -67,7 +73,12 @@ export const Navigation = () => {
           
           <button
             onClick={handleSignOut}
-            className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+            className={cn(
+              "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium",
+              "text-gray-600 hover:bg-red-50 hover:text-red-600",
+              "transition-all duration-300 hover:scale-105",
+              "border border-transparent hover:border-red-200"
+            )}
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
