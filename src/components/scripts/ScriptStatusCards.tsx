@@ -19,21 +19,23 @@ const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: Stat
     }`}
     onClick={onClick}
   >
-    <div className="flex items-center justify-between">
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <p className="text-3xl font-bold">{count}</p>
+    <div className="flex flex-col h-full">
+      <div className="flex items-start justify-between mb-6">
+        <div className={`p-3 rounded-lg ${color} bg-opacity-10`}>
+          <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
+        </div>
+        <span className={`text-sm font-medium px-2 py-1 rounded-full ${color} bg-opacity-10 ${color.replace('bg-', 'text-')}`}>
+          {count}
+        </span>
       </div>
-      <div className={`p-4 rounded-full ${color} bg-opacity-20`}>
-        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
-      </div>
-    </div>
-    <div className="mt-4">
-      <div className={`h-1 rounded-full ${color} bg-opacity-30`}>
-        <div 
-          className={`h-1 rounded-full ${color}`} 
-          style={{ width: `${(count / (count || 1)) * 100}%` }}
-        />
+      <div className="space-y-2">
+        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <div className={`h-1.5 rounded-full ${color} bg-opacity-15 w-full`}>
+          <div 
+            className={`h-1.5 rounded-full ${color} transition-all duration-500`} 
+            style={{ width: `${(count / (count || 1)) * 100}%` }}
+          />
+        </div>
       </div>
     </div>
   </Card>
@@ -80,7 +82,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
       <StatusCard
         title="Pending Scripts"
         count={scriptCounts.pending}
