@@ -3,9 +3,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { FormBuilderCanvas } from "@/components/form-builder/FormBuilderCanvas";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FormComponent, FormTemplate } from "@/types/formBuilder";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { v4 as uuidv4 } from "uuid";
 
 export const FormBuilderEditor = () => {
   const { id } = useParams();
@@ -14,6 +21,36 @@ export const FormBuilderEditor = () => {
   
   const [components, setComponents] = useState<FormComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const availableComponents = [
+    { type: 'input', label: 'Text Input' },
+    { type: 'textarea', label: 'Text Area' },
+    { type: 'checkbox', label: 'Checkbox' },
+    { type: 'radio', label: 'Radio Group' },
+    { type: 'select', label: 'Select' },
+    { type: 'email', label: 'Email Input' },
+    { type: 'phone', label: 'Phone Input' },
+    { type: 'number', label: 'Number Input' },
+    { type: 'date', label: 'Date Picker' },
+    { type: 'file', label: 'File Upload' },
+    { type: 'toggle', label: 'Toggle Switch' },
+  ];
+
+  const addComponent = (type: string, label: string) => {
+    const newComponent: FormComponent = {
+      id: uuidv4(),
+      type,
+      label,
+      placeholder: `Enter ${label.toLowerCase()}`,
+      required: false,
+      options: type === 'select' || type === 'radio' ? ['Option 1', 'Option 2', 'Option 3'] : undefined,
+    };
+    setComponents([...components, newComponent]);
+    toast({
+      title: "Component Added",
+      description: `${label} has been added to your form`,
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -98,10 +135,29 @@ export const FormBuilderEditor = () => {
             <p className="text-muted-foreground">Design your form layout</p>
           </div>
         </div>
-        <Button onClick={handleSaveForm} className="bg-primary hover:bg-primary/90">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
+        <div className="flex items-center space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {availableComponents.map((component) => (
+                <DropdownMenuItem
+                  key={component.type}
+                  onClick={() => addComponent(component.type, component.label)}
+                >
+                  {component.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={handleSaveForm} className="bg-primary hover:bg-primary/90">
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-6">
