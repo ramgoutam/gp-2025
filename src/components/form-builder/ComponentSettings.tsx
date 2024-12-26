@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, AlignLeft, AlignCenter, AlignRight, Type, Width, Height } from 'lucide-react';
+import { Settings, AlignLeft, AlignCenter, AlignRight, Type, ArrowLeftRight, ArrowUpDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -128,7 +128,7 @@ export const ComponentSettings = ({ component, onUpdateComponent }: ComponentSet
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Width className="mr-2 h-4 w-4" />
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
               Custom Width
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
@@ -145,7 +145,7 @@ export const ComponentSettings = ({ component, onUpdateComponent }: ComponentSet
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Height className="mr-2 h-4 w-4" />
+              <ArrowUpDown className="mr-2 h-4 w-4" />
               Custom Height
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
