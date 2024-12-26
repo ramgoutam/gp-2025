@@ -26,7 +26,7 @@ export const ActionButtons = ({
   isCompleted = false
 }: ActionButtonsProps) => {
   const { toast } = useToast();
-  const [currentScript, setCurrentScript] = useState(script);
+  const [currentScript, setCurrentScript] = useState<LabScript>(script);
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
@@ -48,37 +48,43 @@ export const ActionButtons = ({
         },
         (payload) => {
           console.log("Real-time update received:", payload);
-          setCurrentScript(prev => ({
-            ...prev,
-            ...payload.new,
-            status: payload.new.status as LabScriptStatus
-          }));
+          if (payload.new && typeof payload.new.status === 'string') {
+            setCurrentScript(prev => ({
+              ...prev,
+              ...payload.new,
+              status: payload.new.status as LabScriptStatus
+            }));
+          }
         }
       )
       .subscribe();
 
-    // Set up polling interval (every 2 seconds instead of every millisecond)
+    // Set up polling interval (every 5 seconds)
     const intervalId = setInterval(async () => {
-      const { data, error } = await supabase
-        .from('lab_scripts')
-        .select('*')
-        .eq('id', script.id)
-        .maybeSingle();
-      
-      if (error) {
-        console.error("Error fetching script status:", error);
-        return;
-      }
+      try {
+        const { data, error } = await supabase
+          .from('lab_scripts')
+          .select('*')
+          .eq('id', script.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Error fetching script status:", error);
+          return;
+        }
 
-      if (data) {
-        console.log("Status check update:", data);
-        setCurrentScript(prev => ({
-          ...prev,
-          ...data,
-          status: data.status as LabScriptStatus
-        }));
+        if (data && typeof data.status === 'string') {
+          console.log("Status check update:", data);
+          setCurrentScript(prev => ({
+            ...prev,
+            ...data,
+            status: data.status as LabScriptStatus
+          }));
+        }
+      } catch (error) {
+        console.error("Error in polling interval:", error);
       }
-    }, 2000); // Check every 2 seconds
+    }, 5000); // Check every 5 seconds
 
     return () => {
       console.log("Cleaning up real-time subscription and polling interval");
