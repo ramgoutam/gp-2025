@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
@@ -8,11 +8,9 @@ import { useToast } from "@/components/ui/use-toast";
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
-      setIsLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
@@ -27,8 +25,6 @@ const Login = () => {
           description: "Unable to check current session",
           variant: "destructive"
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
