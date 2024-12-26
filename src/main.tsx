@@ -14,6 +14,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true, // Refetch when window regains focus
       refetchOnReconnect: true, // Refetch when reconnecting
       retry: 1, // Only retry once on failure
+      retryDelay: 3000, // Wait 3 seconds before retrying
     },
   },
 })
