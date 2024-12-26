@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Users, TestTube, Factory, FileText, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const session = useSession();
 
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -19,14 +21,34 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Signing out...");
-      await supabase.auth.signOut({ scope: 'local' });
+      console.log("Starting sign out process...");
+      console.log("Current session:", session);
+
+      if (!session) {
+        console.log("No active session found, redirecting to login");
+        navigate('/login');
+        return;
+      }
+
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error during sign out:", error);
+        throw error;
+      }
+
+      console.log("Successfully signed out");
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
+      });
+      
       navigate('/login');
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Sign out error:", error);
       toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
+        title: "Error signing out",
+        description: "There was a problem signing out. Please try again.",
         variant: "destructive",
       });
     }
