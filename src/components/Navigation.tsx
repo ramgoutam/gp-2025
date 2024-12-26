@@ -17,18 +17,17 @@ export const Navigation = () => {
   ];
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
+    try {
+      await supabase.auth.signOut();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Sign out error:', error);
       toast({
         title: "Error signing out",
-        description: "There was a problem signing out. Please try again.",
+        description: "Please try again",
         variant: "destructive",
       });
-      return;
     }
-
-    navigate('/login');
   };
 
   return (

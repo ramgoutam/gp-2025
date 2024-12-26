@@ -13,7 +13,10 @@ import Manufacturing from "@/pages/Manufacturing";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
-  return session ? children : <Navigate to="/login" />;
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
 };
 
 function App() {
