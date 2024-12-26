@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createClient } from "@supabase/supabase-js";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useEffect, useState } from "react";
@@ -24,15 +23,18 @@ function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session:", session);
       setSession(session);
     });
 
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
       console.log("Auth state changed:", _event, session);
+      setSession(session);
     });
 
     return () => subscription.unsubscribe();
@@ -45,7 +47,19 @@ function App() {
           <h1 className="text-2xl font-bold text-center mb-6">Welcome</h1>
           <Auth
             supabaseClient={supabase}
-            appearance={{ theme: ThemeSupa }}
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  background: '#4F46E5',
+                  color: 'white',
+                  borderRadius: '0.375rem',
+                },
+                anchor: {
+                  color: '#4F46E5',
+                },
+              },
+            }}
             theme="light"
             providers={[]}
           />
