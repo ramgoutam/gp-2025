@@ -8,6 +8,19 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
-  }
+    detectSessionInUrl: true,
+    storageKey: 'supabase.auth.token',
+    storage: window.localStorage
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js',
+    },
+  },
+});
+
+// Set up auth state change listener
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Supabase auth event:', event);
+  console.log('Session state:', session ? 'Authenticated' : 'Not authenticated');
 });
