@@ -68,8 +68,19 @@ export const useScriptQuery = (statusFilter: string | null) => {
         },
         (payload) => {
           console.log("Real-time update received:", payload);
-          // Invalidate and refetch the query
-          queryClient.invalidateQueries({ queryKey: ['labScripts', statusFilter] });
+          // Instead of invalidating, update the cache directly
+          queryClient.setQueryData(['labScripts', statusFilter], (oldData: LabScript[] | undefined) => {
+            if (!oldData) return oldData;
+            
+            if (payload.eventType === 'DELETE') {
+              return oldData.filter(script => script.id !== payload.old.id);
+            }
+            
+            const updatedScript = mapDatabaseToLabScript(payload.new as DatabaseLabScript);
+            return oldData.map(script => 
+              script.id === updatedScript.id ? updatedScript : script
+            );
+          });
         }
       )
       .subscribe();
@@ -116,8 +127,10 @@ export const useScriptQuery = (statusFilter: string | null) => {
         throw error;
       }
     },
-    refetchInterval: 1, // Refetch every millisecond for real-time updates
+    refetchInterval: 1000, // Changed to 1 second instead of 1ms
     retry: 3,
     retryDelay: 1000,
+    staleTime: 1000, // Add staleTime to prevent unnecessary refetches
+    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
   });
 };
