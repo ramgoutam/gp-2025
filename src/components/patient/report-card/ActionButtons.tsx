@@ -31,10 +31,11 @@ export const ActionButtons = ({
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
-  // Set up real-time subscription for script status updates
+  // Set up real-time subscription and millisecond interval for script status updates
   useEffect(() => {
-    console.log("Setting up real-time subscription for script:", script.id);
+    console.log("Setting up real-time subscription and interval for script:", script.id);
     
+    // Set up real-time subscription
     const channel = supabase
       .channel('lab-script-status')
       .on(
@@ -52,9 +53,29 @@ export const ActionButtons = ({
       )
       .subscribe();
 
+    // Set up millisecond interval for status checks
+    const intervalId = setInterval(async () => {
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching script status:", error);
+        return;
+      }
+
+      if (data) {
+        console.log("Status check update:", data);
+        setCurrentScript(prev => ({ ...prev, ...data }));
+      }
+    }, 1); // Check every millisecond
+
     return () => {
-      console.log("Cleaning up real-time subscription");
+      console.log("Cleaning up real-time subscription and interval");
       supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
   }, [script.id]);
 
