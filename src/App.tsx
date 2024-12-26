@@ -27,28 +27,32 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         if (error) {
           console.error("Error checking auth status:", error);
           toast({
-            title: "Authentication Error",
-            description: "Please try logging in again",
+            title: "Session Expired",
+            description: "Please sign in again",
             variant: "destructive",
           });
           setIsAuthenticated(false);
-          // Clear any existing session on error
-          await supabase.auth.signOut();
+          await supabase.auth.signOut({ scope: 'local' });
         } else {
           console.log("Protected route - session check:", currentSession?.user?.id);
           setIsAuthenticated(!!currentSession);
           
           if (!currentSession) {
             console.log("No active session found");
-            // Ensure clean logout if no session exists
-            await supabase.auth.signOut();
+            toast({
+              title: "Please Sign In",
+              description: "You need to be signed in to access this page",
+            });
           }
         }
       } catch (error) {
         console.error("Error in auth check:", error);
         setIsAuthenticated(false);
-        // Clear session on any error
-        await supabase.auth.signOut();
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -56,19 +60,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     checkAuth();
 
-    // Set up real-time auth state monitoring
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
         
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-          console.log("User signed out or deleted");
+        if (event === 'SIGNED_OUT') {
+          console.log("User signed out");
           setIsAuthenticated(false);
-          // Clear any remaining session data
-          await supabase.auth.signOut({ scope: 'local' });
+          toast({
+            title: "Signed Out",
+            description: "You have been signed out",
+          });
         } else if (event === 'SIGNED_IN') {
           console.log("User signed in");
           setIsAuthenticated(true);
+          toast({
+            title: "Welcome Back",
+            description: "You have successfully signed in",
+          });
         }
       }
     );
