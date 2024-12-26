@@ -59,16 +59,6 @@ export const PageHeader = () => {
         <p className="text-gray-500">Manage and view all patient records</p>
       </div>
       <div className="flex gap-4">
-        <Button 
-          variant="outline" 
-          onClick={async () => {
-            await supabase.auth.signOut();
-            navigate("/login");
-          }}
-          className="border-gray-200 hover:bg-gray-50 transition-colors duration-200"
-        >
-          Sign Out
-        </Button>
         <Dialog>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
