@@ -5,6 +5,11 @@ import { LayoutDashboard, Users, FileSpreadsheet } from "lucide-react";
 export const Navigation = () => {
   const location = useLocation();
 
+  // Hide navigation on login and signup pages
+  if (location.pathname === "/login" || location.pathname === "/signup") {
+    return null;
+  }
+
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
