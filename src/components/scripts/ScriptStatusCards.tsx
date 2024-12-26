@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Clock, Loader2, PauseCircle, StopCircle, AlertTriangle, CheckCircle2, Files } from "lucide-react";
+import { Clock, Loader2, CheckCircle2, Files, PauseCircle, StopCircle, AlertTriangle } from "lucide-react";
 
 type StatusCardProps = {
   title: string;
@@ -10,51 +10,45 @@ type StatusCardProps = {
   color: string;
   onClick: () => void;
   isActive: boolean;
-  iconBgColor: string;
-  borderColor: string;
 };
 
-const StatusCard = ({ 
-  title, 
-  count, 
-  icon: Icon, 
-  color, 
-  onClick, 
-  isActive,
-  iconBgColor,
-  borderColor
-}: StatusCardProps) => (
+const StatusCard = ({ title, count, icon: Icon, color, onClick, isActive }: StatusCardProps) => (
   <Card 
     className={`
       p-4 
       cursor-pointer 
       transition-all 
       duration-300 
+      hover:shadow-xl
       hover:-translate-y-1
-      ${isActive ? 'ring-2 ring-primary/20 shadow-lg scale-[1.02]' : ''}
+      hover:bg-gray-50
+      dark:hover:bg-gray-800
+      ${isActive ? 'ring-2 ring-primary shadow-xl scale-105 bg-primary/5' : ''}
       animate-fade-in
+      backdrop-blur-sm
       relative
       overflow-hidden
       group
-      bg-white
-      hover:shadow-lg
-      border-b-2 ${borderColor}
     `}
     onClick={onClick}
   >
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full transition-transform duration-1000 transform -skew-x-12 opacity-0 group-hover:opacity-100" />
     <div className="flex items-center justify-between relative">
-      <div className="space-y-3">
-        <div className={`${iconBgColor} w-10 h-10 rounded-lg flex items-center justify-center`}>
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-900">
-            {title}
-          </p>
-        </div>
+      <div>
+        <p className="text-xs font-medium text-gray-500 transition-colors group-hover:text-gray-700">{title}</p>
+        <p className="text-2xl font-bold mt-1 transition-colors group-hover:text-primary">{count}</p>
       </div>
-      <div className={`text-xl font-semibold ${color}`}>
-        {count}
+      <div className={`
+        p-3 
+        rounded-full 
+        ${color} 
+        transition-transform 
+        duration-300 
+        group-hover:scale-110 
+        group-hover:rotate-12
+        shadow-lg
+      `}>
+        <Icon className="w-4 h-4 text-white transition-transform duration-300 group-hover:-rotate-12" />
       </div>
     </div>
   </Card>
@@ -109,14 +103,12 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   };
 
   return (
-    <div className="grid grid-cols-7 gap-4 mb-6">
+    <div className="grid grid-cols-7 gap-3 mb-6">
       <StatusCard
         title="Pending Scripts"
         count={scriptCounts.pending}
         icon={Clock}
-        color="text-yellow-600"
-        iconBgColor="bg-yellow-50"
-        borderColor="border-yellow-500"
+        color="bg-yellow-500"
         onClick={() => handleCardClick('pending')}
         isActive={activeFilter === 'pending'}
       />
@@ -124,9 +116,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="In Process"
         count={scriptCounts.inProcess}
         icon={Loader2}
-        color="text-blue-600"
-        iconBgColor="bg-blue-50"
-        borderColor="border-blue-500"
+        color="bg-blue-500"
         onClick={() => handleCardClick('in_progress')}
         isActive={activeFilter === 'in_progress'}
       />
@@ -134,9 +124,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Paused"
         count={scriptCounts.paused}
         icon={PauseCircle}
-        color="text-orange-600"
-        iconBgColor="bg-orange-50"
-        borderColor="border-orange-500"
+        color="bg-orange-500"
         onClick={() => handleCardClick('paused')}
         isActive={activeFilter === 'paused'}
       />
@@ -144,9 +132,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="On Hold"
         count={scriptCounts.hold}
         icon={StopCircle}
-        color="text-red-600"
-        iconBgColor="bg-red-50"
-        borderColor="border-red-500"
+        color="bg-red-500"
         onClick={() => handleCardClick('hold')}
         isActive={activeFilter === 'hold'}
       />
@@ -154,9 +140,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Incomplete"
         count={scriptCounts.incomplete}
         icon={AlertTriangle}
-        color="text-pink-600"
-        iconBgColor="bg-pink-50"
-        borderColor="border-pink-500"
+        color="bg-purple-500"
         onClick={() => handleCardClick('incomplete')}
         isActive={activeFilter === 'incomplete'}
       />
@@ -164,9 +148,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="Completed"
         count={scriptCounts.completed}
         icon={CheckCircle2}
-        color="text-green-600"
-        iconBgColor="bg-green-50"
-        borderColor="border-green-500"
+        color="bg-green-500"
         onClick={() => handleCardClick('completed')}
         isActive={activeFilter === 'completed'}
       />
@@ -174,9 +156,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         title="All Scripts"
         count={scriptCounts.total}
         icon={Files}
-        color="text-purple-600"
-        iconBgColor="bg-purple-50"
-        borderColor="border-purple-500"
+        color="bg-gray-500"
         onClick={() => handleCardClick(null)}
         isActive={activeFilter === null}
       />
