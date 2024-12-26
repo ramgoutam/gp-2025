@@ -3,33 +3,38 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@supabase/auth-helpers-react";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const session = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-      if (session) {
-        console.log("User already logged in, redirecting to dashboard");
-        navigate("/");
-      }
-    };
-    
-    checkUser();
+    if (session) {
+      console.log("User already logged in, redirecting to dashboard");
+      navigate("/");
+      return;
+    }
+
+    console.log("Current session:", session);
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session) => {
-        console.log("Auth state changed:", event, session);
+      (event: AuthChangeEvent, currentSession) => {
+        console.log("Auth state changed:", event, currentSession);
         switch (event) {
           case "SIGNED_IN":
-            if (session) {
+            if (currentSession) {
               console.log("User signed in, redirecting to dashboard");
+              toast({
+                title: "Welcome back!",
+                description: "You have successfully signed in.",
+              });
               navigate("/");
             }
             break;
@@ -55,7 +60,7 @@ const Login = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, session, toast]);
 
   return (
     <div className="min-h-screen w-full flex">
