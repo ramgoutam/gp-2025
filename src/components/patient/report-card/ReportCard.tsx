@@ -32,7 +32,7 @@ export const ReportCard = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for report card status with 1 second refresh instead of millisecond
+  // Query for report card status with 1 second refresh
   const { data: reportCard } = useQuery({
     queryKey: ['reportCard', script.id],
     queryFn: async () => {
@@ -55,19 +55,31 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1000, // Changed from 1 to 1000 (1 second)
+    refetchInterval: 1000, // 1 second refresh interval
   });
 
+  // Set up real-time subscription for both lab script and report card changes
   useEffect(() => {
-    if (reportCard) {
-      setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
-      setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
-      setIsCompleted(reportCard.status === 'completed');
-    }
-  }, [reportCard]);
+    console.log("Setting up real-time subscriptions for script:", script.id);
+    
+    const labScriptChannel = supabase
+      .channel('lab-script-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lab_scripts',
+          filter: `id=eq.${script.id}`
+        },
+        (payload) => {
+          console.log("Lab script updated:", payload);
+          queryClient.invalidateQueries({ queryKey: ['reportCard', script.id] });
+        }
+      )
+      .subscribe();
 
-  useEffect(() => {
-    const channel = supabase
+    const reportCardChannel = supabase
       .channel('report-card-changes')
       .on(
         'postgres_changes',
@@ -85,9 +97,19 @@ export const ReportCard = ({
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      console.log("Cleaning up real-time subscriptions");
+      supabase.removeChannel(labScriptChannel);
+      supabase.removeChannel(reportCardChannel);
     };
   }, [script.id, queryClient]);
+
+  useEffect(() => {
+    if (reportCard) {
+      setDesignInfoStatus(reportCard.design_info_status as InfoStatus);
+      setClinicalInfoStatus(reportCard.clinical_info_status as InfoStatus);
+      setIsCompleted(reportCard.status === 'completed');
+    }
+  }, [reportCard]);
 
   const handleComplete = async () => {
     console.log("Completing report card");
