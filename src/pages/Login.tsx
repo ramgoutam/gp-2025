@@ -11,18 +11,21 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("Login component mounted");
+    
     // Check if user is already logged in
     const checkUser = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("Current session:", session?.user?.id);
+        console.log("Current session check:", session?.user?.id);
         
         if (error) {
+          console.error("Session check error:", error);
           throw error;
         }
         
         if (session) {
-          console.log("User already logged in, redirecting to dashboard");
+          console.log("Active session found, redirecting to dashboard");
           navigate("/", { replace: true });
         }
       } catch (error) {
@@ -35,24 +38,31 @@ const Login = () => {
       }
     };
     
+    // Run initial session check
     checkUser();
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session?.user?.id);
+        
         if (event === "SIGNED_IN" && session) {
-          console.log("User signed in, redirecting to dashboard");
+          console.log("Sign in detected, redirecting to dashboard");
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          navigate("/", { replace: true });
+          // Use setTimeout to ensure state updates are processed
+          setTimeout(() => {
+            navigate("/", { replace: true });
+          }, 100);
         }
       }
     );
 
+    // Cleanup subscription on unmount
     return () => {
+      console.log("Cleaning up auth subscription");
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
