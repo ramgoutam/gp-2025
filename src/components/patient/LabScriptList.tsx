@@ -7,6 +7,7 @@ import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -258,3 +259,4 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     </Table>
   );
 };
+
