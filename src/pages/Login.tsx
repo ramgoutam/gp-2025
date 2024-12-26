@@ -37,9 +37,6 @@ const Login = () => {
         console.log("Sign in detected, redirecting to home");
         navigate("/", { replace: true });
       }
-      if (event === 'SIGNED_OUT') {
-        console.log("Sign out detected, staying on login page");
-      }
     });
 
     return () => {

@@ -20,17 +20,11 @@ export const Navigation = () => {
     console.log("Sign out process started");
     try {
       console.log("Attempting to sign out from Supabase");
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Supabase sign out error:", error);
-        throw error;
-      }
-      
+      await supabase.auth.signOut();
       console.log("Successfully signed out from Supabase");
-      console.log("Navigating to login page");
-      navigate('/login', { replace: true });
-      console.log("Navigation completed");
+      
+      // Force navigation to login page
+      window.location.href = '/login';
       
     } catch (error) {
       console.error('Sign out error:', error);
