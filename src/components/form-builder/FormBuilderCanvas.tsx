@@ -1,5 +1,9 @@
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface FormBuilderCanvasProps {
   components: any[];
@@ -23,25 +27,30 @@ export const FormBuilderCanvas = ({
   };
 
   const renderComponent = (component: any) => {
+    const commonProps = {
+      placeholder: component.placeholder,
+      className: "w-full",
+      style: component.style,
+    };
+
     switch (component.type) {
       case 'input':
-        return (
-          <input
-            type="text"
-            placeholder={component.placeholder}
-            className="w-full p-2 border rounded"
-            style={component.style}
-          />
-        );
+        return <Input type="text" {...commonProps} />;
       case 'textarea':
+        return <Textarea {...commonProps} />;
+      case 'checkbox':
         return (
-          <textarea
-            placeholder={component.placeholder}
-            className="w-full p-2 border rounded"
-            style={component.style}
-          />
+          <div className="flex items-center space-x-2">
+            <Checkbox id={component.id} />
+            <Label htmlFor={component.id}>{component.placeholder}</Label>
+          </div>
         );
-      // Add more component types as needed
+      case 'phone':
+        return <Input type="tel" {...commonProps} />;
+      case 'email':
+        return <Input type="email" {...commonProps} />;
+      case 'number':
+        return <Input type="number" {...commonProps} />;
       default:
         return null;
     }
@@ -73,6 +82,7 @@ export const FormBuilderCanvas = ({
                     >
                       <label className="block mb-2 text-sm font-medium">
                         {component.label}
+                        {component.required && <span className="text-destructive ml-1">*</span>}
                       </label>
                       {renderComponent(component)}
                     </div>

@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface StyleControlsProps {
   selectedComponent: any;
@@ -42,6 +43,13 @@ export const StyleControls = ({
     });
   };
 
+  const handlePlaceholderChange = (value: string) => {
+    onUpdateComponent({
+      ...selectedComponent,
+      placeholder: value,
+    });
+  };
+
   const handleRequiredChange = (checked: boolean) => {
     onUpdateComponent({
       ...selectedComponent,
@@ -64,19 +72,47 @@ export const StyleControls = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Width</Label>
+          <Label>Placeholder</Label>
           <Input
-            value={selectedComponent.style.width}
-            onChange={(e) => handleStyleChange('width', e.target.value)}
+            value={selectedComponent.placeholder}
+            onChange={(e) => handlePlaceholderChange(e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
+          <Label>Width</Label>
+          <Select
+            value={selectedComponent.style.width}
+            onValueChange={(value) => handleStyleChange('width', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select width" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="100%">Full Width</SelectItem>
+              <SelectItem value="75%">75%</SelectItem>
+              <SelectItem value="50%">50%</SelectItem>
+              <SelectItem value="25%">25%</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
           <Label>Margin Bottom</Label>
-          <Input
+          <Select
             value={selectedComponent.style.marginBottom}
-            onChange={(e) => handleStyleChange('marginBottom', e.target.value)}
-          />
+            onValueChange={(value) => handleStyleChange('marginBottom', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select margin" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0.5rem">Small</SelectItem>
+              <SelectItem value="1rem">Medium</SelectItem>
+              <SelectItem value="1.5rem">Large</SelectItem>
+              <SelectItem value="2rem">Extra Large</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex items-center space-x-2">

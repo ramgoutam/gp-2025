@@ -1,24 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { 
+  TextIcon, 
+  CheckSquare, 
+  Phone, 
+  Mail, 
+  Hash, 
+  AlignLeft 
+} from "lucide-react";
 
 const componentTypes = [
-  { type: 'input', label: 'Text Input', icon: '📝' },
-  { type: 'textarea', label: 'Text Area', icon: '📄' },
-  { type: 'select', label: 'Select', icon: '📋' },
-  { type: 'checkbox', label: 'Checkbox', icon: '☑️' },
-  { type: 'radio', label: 'Radio Group', icon: '⭕' },
+  { type: 'input', label: 'Text Input', icon: <TextIcon className="w-4 h-4" /> },
+  { type: 'textarea', label: 'Text Block', icon: <AlignLeft className="w-4 h-4" /> },
+  { type: 'checkbox', label: 'Checkbox', icon: <CheckSquare className="w-4 h-4" /> },
+  { type: 'phone', label: 'Phone Input', icon: <Phone className="w-4 h-4" /> },
+  { type: 'email', label: 'Email Input', icon: <Mail className="w-4 h-4" /> },
+  { type: 'number', label: 'Number Input', icon: <Hash className="w-4 h-4" /> },
 ];
 
 interface ComponentPaletteProps {
