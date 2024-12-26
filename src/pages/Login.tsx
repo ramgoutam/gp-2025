@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
@@ -9,22 +9,23 @@ import { useToast } from "@/hooks/use-toast";
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log("Login component mounted");
-    
-    // Check if user is already logged in
-    const checkUser = async () => {
+    let mounted = true;
+
+    const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("Current session check:", session?.user?.id);
-        
+        console.log("Checking current session:", session?.user?.id);
+
         if (error) {
           console.error("Session check error:", error);
           throw error;
         }
-        
-        if (session) {
+
+        if (session && mounted) {
           console.log("Active session found, redirecting to dashboard");
           navigate("/", { replace: true });
         }
@@ -35,37 +36,46 @@ const Login = () => {
           title: "Authentication Error",
           description: "There was a problem checking your login status.",
         });
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
-    
-    // Run initial session check
-    checkUser();
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session?.user?.id);
-        
-        if (event === "SIGNED_IN" && session) {
+
+        if (event === "SIGNED_IN" && session && mounted) {
           console.log("Sign in detected, redirecting to dashboard");
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          // Use setTimeout to ensure state updates are processed
-          setTimeout(() => {
-            navigate("/", { replace: true });
-          }, 100);
+          navigate("/", { replace: true });
         }
       }
     );
 
-    // Cleanup subscription on unmount
+    checkSession();
+
+    // Cleanup function
     return () => {
-      console.log("Cleaning up auth subscription");
+      console.log("Cleaning up Login component");
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
