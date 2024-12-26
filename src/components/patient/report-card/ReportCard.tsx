@@ -55,7 +55,7 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1,
   });
 
   useEffect(() => {
@@ -88,6 +88,42 @@ export const ReportCard = ({
       supabase.removeChannel(channel);
     };
   }, [script.id, queryClient]);
+
+  const handleDesignInfo = () => {
+    console.log("Checking lab script status for design info:", script.status);
+    if (script.status !== 'completed') {
+      toast({
+        title: "Cannot Add Design Info",
+        description: "Please mark the lab request as completed before adding design information.",
+        variant: "destructive"
+      });
+      return;
+    }
+    onDesignInfo(script);
+  };
+
+  const handleClinicalInfo = () => {
+    console.log("Checking conditions for clinical info");
+    if (script.status !== 'completed') {
+      toast({
+        title: "Cannot Add Clinical Info",
+        description: "Please mark the lab request as completed before adding clinical information.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (designInfoStatus !== 'completed') {
+      toast({
+        title: "Cannot Add Clinical Info",
+        description: "Please complete the design information first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onClinicalInfo();
+  };
 
   const handleComplete = async () => {
     console.log("Completing report card");
@@ -134,8 +170,8 @@ export const ReportCard = ({
           <div className="flex gap-3">
             <ActionButtons
               script={script}
-              onDesignInfo={onDesignInfo}
-              onClinicalInfo={onClinicalInfo}
+              onDesignInfo={handleDesignInfo}
+              onClinicalInfo={handleClinicalInfo}
               onComplete={handleComplete}
               designInfoStatus={designInfoStatus}
               clinicalInfoStatus={clinicalInfoStatus}
