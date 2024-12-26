@@ -2,7 +2,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StyleControlsProps {
   selectedComponent: any;
@@ -15,9 +17,9 @@ export const StyleControls = ({
 }: StyleControlsProps) => {
   if (!selectedComponent) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Style Controls</CardTitle>
+      <Card className="bg-white shadow-md">
+        <CardHeader className="border-b">
+          <CardTitle className="text-lg font-semibold">Style Controls</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Select a component to edit its properties</p>
@@ -57,12 +59,20 @@ export const StyleControls = ({
     });
   };
 
+  const handleOptionsChange = (value: string) => {
+    const options = value.split('\n').filter(option => option.trim() !== '');
+    onUpdateComponent({
+      ...selectedComponent,
+      options,
+    });
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Style Controls</CardTitle>
+    <Card className="bg-white shadow-md">
+      <CardHeader className="border-b">
+        <CardTitle className="text-lg font-semibold">Style Controls</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4">
         <div className="space-y-2">
           <Label>Label</Label>
           <Input
@@ -71,13 +81,27 @@ export const StyleControls = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Placeholder</Label>
-          <Input
-            value={selectedComponent.placeholder}
-            onChange={(e) => handlePlaceholderChange(e.target.value)}
-          />
-        </div>
+        {!['checkbox', 'radio', 'toggle'].includes(selectedComponent.type) && (
+          <div className="space-y-2">
+            <Label>Placeholder</Label>
+            <Input
+              value={selectedComponent.placeholder}
+              onChange={(e) => handlePlaceholderChange(e.target.value)}
+            />
+          </div>
+        )}
+
+        {['select', 'radio'].includes(selectedComponent.type) && (
+          <div className="space-y-2">
+            <Label>Options (one per line)</Label>
+            <Textarea
+              value={selectedComponent.options?.join('\n') || ''}
+              onChange={(e) => handleOptionsChange(e.target.value)}
+              placeholder="Option 1&#10;Option 2&#10;Option 3"
+              className="min-h-[100px]"
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label>Width</Label>
@@ -115,7 +139,7 @@ export const StyleControls = ({
           </Select>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 pt-2">
           <Switch
             checked={selectedComponent.required}
             onCheckedChange={handleRequiredChange}
