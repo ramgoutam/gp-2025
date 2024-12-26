@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
@@ -8,17 +8,32 @@ import { AuthChangeEvent } from "@supabase/supabase-js";
 const Login = () => {
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session);
+      if (session) {
+        console.log("User already logged in, redirecting to dashboard");
+        navigate("/");
+      }
+    };
+    
+    checkUser();
+
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
         switch (event) {
           case "SIGNED_IN":
             if (session) {
+              console.log("User signed in, redirecting to dashboard");
               navigate("/");
             }
             break;
           case "SIGNED_OUT":
+            console.log("User signed out, staying on login page");
             navigate("/login");
             break;
           case "USER_UPDATED":
