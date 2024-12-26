@@ -25,10 +25,6 @@ export const ActionButtons = ({
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
-  
-  console.log("ActionButtons - Lab Script Status:", script.status);
-  console.log("ActionButtons - Design Info Status:", designInfoStatus);
-  console.log("ActionButtons - Clinical Info Status:", clinicalInfoStatus);
 
   return (
     <div className="flex gap-3">
@@ -36,12 +32,7 @@ export const ActionButtons = ({
         variant="outline"
         size="sm"
         onClick={() => onDesignInfo(script)}
-        disabled={script.status !== 'completed'}
-        className={`flex items-center gap-2 transition-all duration-300 ${
-          script.status === 'completed' 
-            ? 'hover:bg-primary/5 group-hover:border-primary/30' 
-            : 'opacity-50 cursor-not-allowed'
-        }`}
+        className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         {isDesignInfoCompleted ? (
           <PenTool className="h-4 w-4" />
@@ -55,12 +46,7 @@ export const ActionButtons = ({
         variant="outline"
         size="sm"
         onClick={onClinicalInfo}
-        disabled={!isDesignInfoCompleted || script.status !== 'completed'}
-        className={`flex items-center gap-2 transition-all duration-300 ${
-          isDesignInfoCompleted && script.status === 'completed'
-            ? 'hover:bg-primary/5 group-hover:border-primary/30'
-            : 'opacity-50 cursor-not-allowed'
-        }`}
+        className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         <Stethoscope className="h-4 w-4" />
         {isClinicalInfoCompleted ? 'Edit Clinical Info' : 'Add Clinical Info'}
