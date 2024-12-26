@@ -3,8 +3,8 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PatientProfile from "./pages/PatientProfile";
-import FormBuilder from "./pages/FormBuilder";
-import FormBuilderEditor from "./pages/FormBuilderEditor";
+import { FormBuilder } from "./pages/FormBuilder";
+import { FormBuilderEditor } from "./pages/FormBuilderEditor";
 import Profile from "./pages/Profile";
 
 export const router = createBrowserRouter([
