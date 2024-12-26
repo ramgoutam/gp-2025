@@ -134,9 +134,41 @@ export const LabScriptsTab = ({
     setIsEditing(false);
   };
 
-  const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
+  const handleStatusChange = async (script: LabScript, newStatus: LabScript['status']): Promise<boolean> => {
     console.log("Status changed for script:", script.id, newStatus);
-    // The UI will be updated through the real-time subscription
+    try {
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .update({ status: newStatus })
+        .eq('id', script.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating status:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update status",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      console.log("Status updated successfully:", data);
+      toast({
+        title: "Success",
+        description: "Status updated successfully"
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive"
+      });
+      return false;
+    }
   };
 
   const patientName = patientData 
