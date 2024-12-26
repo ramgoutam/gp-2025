@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
+import { useEffect } from "react";
 
 interface DatabaseLabScript {
   id: string;
@@ -51,6 +52,33 @@ const mapDatabaseToLabScript = (dbScript: DatabaseLabScript): LabScript => {
 
 export const useScriptQuery = (statusFilter: string | null) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Set up real-time subscription
+  useEffect(() => {
+    console.log("Setting up real-time subscription for lab scripts");
+    const channel = supabase
+      .channel('lab-scripts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'lab_scripts'
+        },
+        (payload) => {
+          console.log("Real-time update received:", payload);
+          // Invalidate and refetch the query
+          queryClient.invalidateQueries({ queryKey: ['labScripts', statusFilter] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log("Cleaning up real-time subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [statusFilter, queryClient]);
 
   return useQuery({
     queryKey: ['labScripts', statusFilter],
@@ -88,6 +116,7 @@ export const useScriptQuery = (statusFilter: string | null) => {
         throw error;
       }
     },
+    refetchInterval: 1, // Refetch every millisecond for real-time updates
     retry: 3,
     retryDelay: 1000,
   });
