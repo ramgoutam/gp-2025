@@ -4,6 +4,7 @@ import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { mapDatabaseLabScript } from "@/types/labScript";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -14,7 +15,7 @@ interface StatusButtonProps {
 export const StatusButton = ({ script, status: initialStatus, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
 
-  // Add real-time query for script status
+  // Add real-time query for script status with proper type handling
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
     queryFn: async () => {
@@ -25,7 +26,7 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
         .single();
 
       if (error) throw error;
-      return data;
+      return mapDatabaseLabScript(data);
     },
     refetchInterval: 1,
     initialData: script,
