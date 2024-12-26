@@ -1,25 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
 
-const SUPABASE_URL = "https://zqlchnhpfdwmqdpmdntc.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbGNobmhwZmR3bXFkcG1kbnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUwMDI3NjIsImV4cCI6MjA1MDU3ODc2Mn0.-RZXscmcGaEDgQRDekitg8TGse4zvyiDTM-9fMAgor0";
+const supabaseUrl = 'https://zqlchnhpfdwmqdpmdntc.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbGNobmhwZmR3bXFkcG1kbnRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDM2MDU2MDAsImV4cCI6MjAxOTE4MTYwMH0.0FzEZHf1-NgQD8_BrGxEv9RKkMFJEgalfUYJZLCjB8k';
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  // Add additional configuration options
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true
-  },
-  global: {
-    headers: { 'x-my-custom-header': 'my-app-name' }
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
   }
 });
 
-// Add error logging for fetch requests
-supabase.from('lab_scripts').select('*').then(
-  (response) => {
-    console.log('Supabase connection test:', response);
-  },
-  (error) => {
-    console.error('Supabase connection error:', error);
-  }
-);
+// Add error logging for debugging
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session?.user?.id);
+});

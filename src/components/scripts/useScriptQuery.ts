@@ -96,6 +96,13 @@ export const useScriptQuery = (statusFilter: string | null) => {
     queryFn: async () => {
       console.log("Fetching lab scripts with filter:", statusFilter);
       try {
+        // First check if we have an active session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.error("No active session found");
+          throw new Error("Authentication required");
+        }
+
         let query = supabase
           .from('lab_scripts')
           .select(`
