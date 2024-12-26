@@ -8,27 +8,94 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
-  const [labScripts, setLabScripts] = useState<LabScript[]>([]);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleNewScriptSubmit = (formData: LabScript) => {
+  // Query for lab scripts with real-time updates
+  const { data: labScripts = [] } = useQuery({
+    queryKey: ['labScripts'],
+    queryFn: async () => {
+      console.log("Fetching all lab scripts");
+      const { data: scripts, error } = await supabase
+        .from('lab_scripts')
+        .select(`
+          *,
+          patient:patients(first_name, last_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching lab scripts:", error);
+        throw error;
+      }
+
+      // Map the database response to include patient names
+      return scripts.map(script => ({
+        ...script,
+        patientFirstName: script.patient?.first_name,
+        patientLastName: script.patient?.last_name,
+      }));
+    },
+    refetchInterval: 1000 // Refetch every second for real-time updates
+  });
+
+  // Set up real-time subscription
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('lab-scripts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes
+          schema: 'public',
+          table: 'lab_scripts'
+        },
+        (payload) => {
+          console.log("Lab script change detected:", payload);
+          // Invalidate and refetch the lab scripts query
+          queryClient.invalidateQueries({ queryKey: ['labScripts'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  const handleNewScriptSubmit = async (formData: LabScript) => {
     try {
       console.log("Creating new lab script:", formData);
-      const newScript = {
-        ...formData,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      
-      setLabScripts(prev => [newScript, ...prev]);
-      setShowNewScriptDialog(false);
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .insert([{
+          patient_id: formData.patientId,
+          doctor_name: formData.doctorName,
+          clinic_name: formData.clinicName,
+          request_date: formData.requestDate,
+          due_date: formData.dueDate,
+          upper_treatment: formData.upperTreatment,
+          lower_treatment: formData.lowerTreatment,
+          upper_design_name: formData.upperDesignName,
+          lower_design_name: formData.lowerDesignName,
+          appliance_type: formData.applianceType,
+          screw_type: formData.screwType,
+          vdo_option: formData.vdoOption,
+          specific_instructions: formData.specificInstructions,
+        }])
+        .select()
+        .single();
 
+      if (error) throw error;
+
+      setShowNewScriptDialog(false);
       toast({
         title: "Lab Script Created",
         description: "The lab script has been successfully created.",
@@ -43,17 +110,31 @@ const Scripts = () => {
     }
   };
 
-  const handleScriptEdit = (updatedScript: LabScript) => {
+  const handleScriptEdit = async (updatedScript: LabScript) => {
     try {
       console.log("Editing script:", updatedScript);
-      setLabScripts(prev => 
-        prev.map(script => 
-          script.id === updatedScript.id ? updatedScript : script
-        )
-      );
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({
+          doctor_name: updatedScript.doctorName,
+          clinic_name: updatedScript.clinicName,
+          request_date: updatedScript.requestDate,
+          due_date: updatedScript.dueDate,
+          upper_treatment: updatedScript.upperTreatment,
+          lower_treatment: updatedScript.lowerTreatment,
+          upper_design_name: updatedScript.upperDesignName,
+          lower_design_name: updatedScript.lowerDesignName,
+          appliance_type: updatedScript.applianceType,
+          screw_type: updatedScript.screwType,
+          vdo_option: updatedScript.vdoOption,
+          specific_instructions: updatedScript.specificInstructions,
+        })
+        .eq('id', updatedScript.id);
+
+      if (error) throw error;
+
       setSelectedScript(null);
       setIsEditing(false);
-
       toast({
         title: "Lab Script Updated",
         description: "The lab script has been successfully updated.",
@@ -68,10 +149,15 @@ const Scripts = () => {
     }
   };
 
-  const handleScriptDelete = (scriptToDelete: LabScript) => {
+  const handleScriptDelete = async (scriptToDelete: LabScript) => {
     try {
       console.log("Deleting script:", scriptToDelete);
-      setLabScripts(prev => prev.filter(script => script.id !== scriptToDelete.id));
+      const { error } = await supabase
+        .from('lab_scripts')
+        .delete()
+        .eq('id', scriptToDelete.id);
+
+      if (error) throw error;
 
       toast({
         title: "Lab Script Deleted",
