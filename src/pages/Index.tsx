@@ -23,7 +23,7 @@ const Index = () => {
         
         if (!session) {
           console.log("No active session, redirecting to login");
-          navigate("/login");
+          navigate("/login", { replace: true });
           return;
         }
       } catch (error) {
@@ -33,7 +33,7 @@ const Index = () => {
           title: "Authentication Error",
           description: "Please try logging in again.",
         });
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     };
 
@@ -43,7 +43,7 @@ const Index = () => {
       async (event, session) => {
         console.log("Auth state changed:", event, session);
         if (!session) {
-          navigate("/login");
+          navigate("/login", { replace: true });
         }
       }
     );

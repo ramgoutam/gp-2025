@@ -20,13 +20,19 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
+      console.log("Attempting to sign out...");
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        throw error;
+      }
       
       console.log("Successfully signed out, redirecting to login");
-      navigate("/login", { replace: true });
+      // Force a hard navigation to clear any stale state
+      window.location.href = "/login";
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Error during sign out:", error);
       toast({
         variant: "destructive",
         title: "Sign Out Error",
