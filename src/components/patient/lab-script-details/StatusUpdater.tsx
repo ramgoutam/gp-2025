@@ -7,7 +7,7 @@ export const useStatusUpdater = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
-  const updateStatus = async (script: LabScript, newStatus: LabScript['status']) => {
+  const updateStatus = async (script: LabScript, newStatus: LabScript['status']): Promise<boolean> => {
     if (isUpdating || !script?.id) {
       console.log("Cannot update status: either already updating or missing script ID");
       return false;
@@ -17,6 +17,29 @@ export const useStatusUpdater = () => {
     console.log("Updating lab script status:", script.id, newStatus);
 
     try {
+      // First check if the script exists
+      const { data: existingScript, error: checkError } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error("Error checking lab script:", checkError);
+        throw checkError;
+      }
+
+      if (!existingScript) {
+        console.error("Lab script not found:", script.id);
+        toast({
+          title: "Error",
+          description: "Lab script not found. It may have been deleted.",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // If script exists, proceed with update
       const { data, error } = await supabase
         .from('lab_scripts')
         .update({ status: newStatus })
@@ -27,6 +50,11 @@ export const useStatusUpdater = () => {
       if (error) {
         console.error("Error updating status:", error);
         throw error;
+      }
+
+      if (!data) {
+        console.error("No data returned after update");
+        throw new Error("Failed to update status");
       }
 
       console.log("Status updated successfully:", data);
