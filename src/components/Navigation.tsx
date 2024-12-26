@@ -41,21 +41,26 @@ export const Navigation = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="container mx-auto max-w-[1600px]">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-8">
-            <div className="text-primary font-bold text-xl">NYDI</div>
-            <div className="hidden md:flex space-x-1">
+          <div className="flex items-center gap-12">
+            <Link 
+              to="/" 
+              className="text-primary font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+            >
+              NYDI
+            </Link>
+            <div className="hidden md:flex items-center gap-2">
               {links.map(({ to, label, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
                   className={cn(
-                    "flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-50",
                     location.pathname === to
-                      ? "bg-primary text-white shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-primary text-white shadow-sm hover:bg-primary/90"
+                      : "text-gray-600 hover:text-gray-900"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -68,9 +73,9 @@ export const Navigation = () => {
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
-            className="text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors gap-2"
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="w-4 h-4" />
             <span className="hidden sm:inline">Sign Out</span>
           </Button>
         </div>
