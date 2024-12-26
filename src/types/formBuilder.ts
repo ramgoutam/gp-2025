@@ -10,6 +10,9 @@ export type FormComponent = {
   children?: FormComponent[];
   style?: {
     width?: string;
+    height?: string;
+    textAlign?: 'left' | 'center' | 'right';
+    fontSize?: string;
     [key: string]: string | undefined;
   };
 };
