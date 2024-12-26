@@ -1,96 +1,103 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { FormBuilderCanvas } from "@/components/form-builder/FormBuilderCanvas";
-import { ComponentPalette } from "@/components/form-builder/ComponentPalette";
-import { StyleControls } from "@/components/form-builder/StyleControls";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Plus, Search, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const FormBuilder = () => {
-  const { toast } = useToast();
-  const [formName, setFormName] = useState("");
-  const [formDescription, setFormDescription] = useState("");
-  const [components, setComponents] = useState<any[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<any>(null);
+interface FormTemplate {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+}
 
-  const handleSaveForm = async () => {
+export const FormBuilder = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [forms, setForms] = useState<FormTemplate[]>([]);
+
+  const fetchForms = async () => {
     try {
-      const { error } = await supabase.from('form_templates').insert({
-        name: formName,
-        description: formDescription,
-        config: { components }
-      });
+      const { data, error } = await supabase
+        .from('form_templates')
+        .select('*')
+        .ilike('name', `%${searchQuery}%`);
 
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Form template saved successfully",
-      });
+      setForms(data || []);
     } catch (error) {
-      console.error('Error saving form template:', error);
+      console.error('Error fetching forms:', error);
       toast({
         title: "Error",
-        description: "Failed to save form template",
+        description: "Failed to fetch forms",
         variant: "destructive",
       });
     }
   };
 
+  const handleBuildNewForm = () => {
+    navigate("/form-builder/new");
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Form Builder</h1>
-          <p className="text-muted-foreground">Create and customize your forms</p>
-        </div>
-        <Button onClick={handleSaveForm}>Save Form</Button>
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">Form Templates</h1>
+        <Button 
+          onClick={handleBuildNewForm}
+          className="bg-primary hover:bg-primary/90"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Build New Form
+        </Button>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-3 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="formName">Form Name</Label>
-            <Input
-              id="formName"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="Enter form name"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="formDescription">Description</Label>
-            <Input
-              id="formDescription"
-              value={formDescription}
-              onChange={(e) => setFormDescription(e.target.value)}
-              placeholder="Enter form description"
-            />
-          </div>
-          <ComponentPalette onAddComponent={(component) => setComponents([...components, component])} />
-        </div>
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <Input
+          type="text"
+          placeholder="Search forms..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
 
-        <div className="col-span-6">
-          <FormBuilderCanvas
-            components={components}
-            onSelectComponent={setSelectedComponent}
-            onUpdateComponents={setComponents}
-          />
-        </div>
-
-        <div className="col-span-3">
-          <StyleControls
-            selectedComponent={selectedComponent}
-            onUpdateComponent={(updatedComponent) => {
-              const newComponents = components.map(c =>
-                c.id === updatedComponent.id ? updatedComponent : c
-              );
-              setComponents(newComponents);
-            }}
-          />
-        </div>
+      <div className="grid gap-4">
+        {forms.map((form) => (
+          <Card key={form.id} className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <span>{form.name}</span>
+                </div>
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/form-builder/${form.id}`)}
+              >
+                Edit
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{form.description}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Created: {new Date(form.created_at).toLocaleDateString()}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+        {forms.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            No forms found. Click "Build New Form" to create one.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import { FormBuilder } from "@/pages/FormBuilder";
+import { FormBuilderEditor } from "@/pages/FormBuilderEditor";
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
               <Route path="/patient/:id" element={<PatientProfile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/form-builder" element={<FormBuilder />} />
+              <Route path="/form-builder/new" element={<FormBuilderEditor />} />
+              <Route path="/form-builder/:id" element={<FormBuilderEditor />} />
             </Routes>
           </main>
         </div>
