@@ -1,23 +1,19 @@
+import React, { useEffect } from "react";
 import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface StatusCardProps {
+type StatusCardProps = {
   title: string;
   count: number;
+  Icon: React.ElementType;
   color: string;
-  Icon: any;
-  onClick?: () => void;
-}
+};
 
-const StatusCard = ({ title, count, color, Icon, onClick }: StatusCardProps) => (
-  <Card
-    className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-      onClick ? 'hover:scale-[1.02]' : ''
-    }`}
-    onClick={onClick}
-  >
+const StatusCard = ({ title, count, Icon, color }: StatusCardProps) => (
+  <Card className="p-6 hover:shadow-lg transition-all duration-300">
     <div className="flex flex-col h-full">
       <div className="flex items-start justify-between mb-6">
         <div className={`p-3 rounded-lg ${color} bg-opacity-10`}>
@@ -41,21 +37,56 @@ const StatusCard = ({ title, count, color, Icon, onClick }: StatusCardProps) => 
 );
 
 const ReportCard = () => {
-  const { data: reportCards, isLoading } = useQuery({
+  const queryClient = useQueryClient();
+
+  // Query for report cards with millisecond refresh
+  const { data: reportCards = [] } = useQuery({
     queryKey: ['reportCards'],
     queryFn: async () => {
+      console.log("Fetching report cards data");
       const { data, error } = await supabase
         .from('report_cards')
-        .select('*');
-      
+        .select(`
+          *,
+          design_info:design_info_id(*),
+          clinical_info:clinical_info_id(*)
+        `);
+
       if (error) {
         console.error("Error fetching report cards:", error);
         throw error;
       }
-      
-      return data || [];
-    }
+
+      console.log("Report cards data:", data);
+      return data;
+    },
+    refetchInterval: 1, // Refetch every millisecond
   });
+
+  // Set up real-time subscription for report card updates
+  useEffect(() => {
+    console.log("Setting up real-time subscription for report cards");
+    const channel = supabase
+      .channel('report-cards-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'report_cards'
+        },
+        (payload) => {
+          console.log("Report card change detected:", payload);
+          queryClient.invalidateQueries({ queryKey: ['reportCards'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log("Cleaning up report cards subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const reportCardCounts = {
     pendingDesign: reportCards?.filter(card => card.design_info_status === 'pending').length || 0,
@@ -67,17 +98,14 @@ const ReportCard = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <FileText className="w-5 h-5 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Report Cards</h1>
+    <main className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Report Cards</h1>
+          <p className="text-gray-500 mt-2">
+            Monitor and manage report cards status
+          </p>
         </div>
-        <p className="text-gray-500">
-          Manage and track all report cards and their current status
-        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -107,15 +135,14 @@ const ReportCard = () => {
         />
       </div>
 
-      {/* Table section will be added in future iterations */}
-      <Card className="p-6">
-        <div className="text-center py-12">
-          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No report cards to display</h3>
-          <p className="text-sm text-gray-500">Report cards will appear here once they are created</p>
-        </div>
-      </Card>
-    </div>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <ScrollArea className="h-[500px]">
+          <div className="text-gray-600">
+            Report card list will be implemented here
+          </div>
+        </ScrollArea>
+      </div>
+    </main>
   );
 };
 
