@@ -3,6 +3,7 @@ import { Play, Pause, PauseCircle, CheckSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LabScript } from "@/types/labScript";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface StatusActionsProps {
   script: LabScript;
@@ -11,9 +12,12 @@ interface StatusActionsProps {
 
 export const StatusActions = ({ script, onStatusUpdate }: StatusActionsProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleStatusUpdate = async (newStatus: LabScript["status"]) => {
     try {
+      console.log("Updating status for script:", script.id, "to:", newStatus);
+      
       const { data, error } = await supabase
         .from('lab_scripts')
         .update({ status: newStatus })
@@ -22,6 +26,12 @@ export const StatusActions = ({ script, onStatusUpdate }: StatusActionsProps) =>
         .single();
 
       if (error) throw error;
+
+      console.log("Status updated successfully:", data);
+
+      // Invalidate and refetch queries that depend on this lab script
+      queryClient.invalidateQueries({ queryKey: ['labScripts'] });
+      queryClient.invalidateQueries({ queryKey: ['labScript', script.id] });
 
       toast({
         title: "Status Updated",
