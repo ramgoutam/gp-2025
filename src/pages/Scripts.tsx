@@ -9,8 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
-import { useLabScripts } from "@/hooks/useLabScripts";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -18,12 +18,83 @@ const Scripts = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { toast } = useToast();
-  const { labScripts } = useLabScripts(statusFilter);
+  const queryClient = useQueryClient();
+
+  const { data: labScripts = [] } = useQuery({
+    queryKey: ['labScripts', statusFilter],
+    queryFn: async () => {
+      console.log("Fetching lab scripts with filter:", statusFilter);
+      let query = supabase
+        .from('lab_scripts')
+        .select(`
+          *,
+          patient:patients(first_name, last_name)
+        `);
+
+      if (statusFilter) {
+        query = query.eq('status', statusFilter);
+      }
+
+      const { data: scripts, error } = await query.order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching lab scripts:", error);
+        throw error;
+      }
+
+      console.log("Raw database response:", scripts);
+
+      return scripts.map(script => ({
+        id: script.id,
+        requestNumber: script.request_number,
+        patientId: script.patient_id,
+        patientFirstName: script.patient?.first_name,
+        patientLastName: script.patient?.last_name,
+        doctorName: script.doctor_name,
+        clinicName: script.clinic_name,
+        requestDate: script.request_date,
+        dueDate: script.due_date,
+        status: script.status as LabScript["status"],
+        upperTreatment: script.upper_treatment,
+        lowerTreatment: script.lower_treatment,
+        upperDesignName: script.upper_design_name,
+        lowerDesignName: script.lower_design_name,
+        applianceType: script.appliance_type,
+        screwType: script.screw_type,
+        vdoOption: script.vdo_option,
+        specificInstructions: script.specific_instructions,
+      } as LabScript));
+    },
+    refetchInterval: 1000
+  });
+
+  // Set up real-time subscription
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('lab-scripts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lab_scripts'
+        },
+        (payload) => {
+          console.log("Lab script change detected:", payload);
+          queryClient.invalidateQueries({ queryKey: ['labScripts'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleNewScriptSubmit = async (formData: LabScript) => {
     try {
       console.log("Creating new lab script:", formData);
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('lab_scripts')
         .insert([{
           patient_id: formData.patientId,
@@ -39,7 +110,9 @@ const Scripts = () => {
           screw_type: formData.screwType,
           vdo_option: formData.vdoOption,
           specific_instructions: formData.specificInstructions,
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -53,6 +126,45 @@ const Scripts = () => {
       toast({
         title: "Error",
         description: "Failed to create lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleScriptEdit = async (updatedScript: LabScript) => {
+    try {
+      console.log("Editing script:", updatedScript);
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({
+          doctor_name: updatedScript.doctorName,
+          clinic_name: updatedScript.clinicName,
+          request_date: updatedScript.requestDate,
+          due_date: updatedScript.dueDate,
+          upper_treatment: updatedScript.upperTreatment,
+          lower_treatment: updatedScript.lowerTreatment,
+          upper_design_name: updatedScript.upperDesignName,
+          lower_design_name: updatedScript.lowerDesignName,
+          appliance_type: updatedScript.applianceType,
+          screw_type: updatedScript.screwType,
+          vdo_option: updatedScript.vdoOption,
+          specific_instructions: updatedScript.specificInstructions,
+        })
+        .eq('id', updatedScript.id);
+
+      if (error) throw error;
+
+      setSelectedScript(null);
+      setIsEditing(false);
+      toast({
+        title: "Lab Script Updated",
+        description: "The lab script has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error updating lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lab script. Please try again.",
         variant: "destructive"
       });
     }
@@ -138,10 +250,7 @@ const Scripts = () => {
             setIsEditing(false);
           }
         }}
-        onEdit={(updatedScript) => {
-          setSelectedScript(null);
-          setIsEditing(false);
-        }}
+        onEdit={handleScriptEdit}
         isEditing={isEditing}
       />
     </main>
