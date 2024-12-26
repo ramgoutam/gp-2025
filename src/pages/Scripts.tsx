@@ -31,7 +31,9 @@ const Scripts = () => {
           patient:patients(first_name, last_name)
         `);
 
-      if (statusFilter) {
+      if (statusFilter === 'incomplete') {
+        query = query.neq('status', 'completed');
+      } else if (statusFilter) {
         query = query.eq('status', statusFilter);
       }
 

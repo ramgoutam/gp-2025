@@ -85,8 +85,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       const paused = scripts.filter(s => s.status === 'paused').length;
       const hold = scripts.filter(s => s.status === 'hold').length;
       
-      // Update incomplete count to include pending, in_progress, paused, and hold statuses
-      const incomplete = pending + inProcess + paused + hold;
+      // Calculate incomplete count (all non-completed scripts)
+      const incomplete = scripts.filter(s => s.status !== 'completed').length;
 
       const counts = {
         pending,
@@ -104,10 +104,6 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
     refetchInterval: 1000
   });
 
-  const handleCardClick = (status: string | null) => {
-    onFilterChange(activeFilter === status ? null : status);
-  };
-
   return (
     <div className="grid grid-cols-7 gap-4 mb-6">
       <StatusCard
@@ -115,7 +111,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.pending}
         icon={Clock}
         color="bg-yellow-500"
-        onClick={() => handleCardClick('pending')}
+        onClick={() => onFilterChange('pending')}
         isActive={activeFilter === 'pending'}
       />
       <StatusCard
@@ -123,7 +119,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.inProcess}
         icon={Loader2}
         color="bg-blue-500"
-        onClick={() => handleCardClick('in_progress')}
+        onClick={() => onFilterChange('in_progress')}
         isActive={activeFilter === 'in_progress'}
       />
       <StatusCard
@@ -131,7 +127,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.paused}
         icon={PauseCircle}
         color="bg-orange-500"
-        onClick={() => handleCardClick('paused')}
+        onClick={() => onFilterChange('paused')}
         isActive={activeFilter === 'paused'}
       />
       <StatusCard
@@ -139,7 +135,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.hold}
         icon={StopCircle}
         color="bg-red-500"
-        onClick={() => handleCardClick('hold')}
+        onClick={() => onFilterChange('hold')}
         isActive={activeFilter === 'hold'}
       />
       <StatusCard
@@ -147,7 +143,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.incomplete}
         icon={AlertTriangle}
         color="bg-purple-500"
-        onClick={() => handleCardClick('incomplete')}
+        onClick={() => onFilterChange('incomplete')}
         isActive={activeFilter === 'incomplete'}
       />
       <StatusCard
@@ -155,7 +151,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.completed}
         icon={CheckCircle2}
         color="bg-green-500"
-        onClick={() => handleCardClick('completed')}
+        onClick={() => onFilterChange('completed')}
         isActive={activeFilter === 'completed'}
       />
       <StatusCard
@@ -163,7 +159,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         count={scriptCounts.total}
         icon={Files}
         color="bg-gray-500"
-        onClick={() => handleCardClick(null)}
+        onClick={() => onFilterChange(null)}
         isActive={activeFilter === null}
       />
     </div>
