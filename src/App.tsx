@@ -17,37 +17,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Error checking auth status:", error);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.log("No active session, redirecting to login");
           toast({
-            title: "Session Expired",
-            description: "Please sign in again",
-            variant: "destructive",
+            title: "Please Sign In",
+            description: "You need to be signed in to access this page",
           });
-          setIsAuthenticated(false);
-          await supabase.auth.signOut({ scope: 'local' });
-        } else {
-          console.log("Protected route - session check:", currentSession?.user?.id);
-          setIsAuthenticated(!!currentSession);
-          
-          if (!currentSession) {
-            console.log("No active session found");
-            toast({
-              title: "Please Sign In",
-              description: "You need to be signed in to access this page",
-            });
-          }
         }
       } catch (error) {
-        console.error("Error in auth check:", error);
-        setIsAuthenticated(false);
+        console.error("Error checking auth:", error);
         toast({
           title: "Authentication Error",
           description: "Please sign in again",
@@ -59,32 +42,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event, currentSession?.user?.id);
-        
-        if (event === 'SIGNED_OUT') {
-          console.log("User signed out");
-          setIsAuthenticated(false);
-          toast({
-            title: "Signed Out",
-            description: "You have been signed out",
-          });
-        } else if (event === 'SIGNED_IN') {
-          console.log("User signed in");
-          setIsAuthenticated(true);
-          toast({
-            title: "Welcome Back",
-            description: "You have successfully signed in",
-          });
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [toast]);
 
   if (isLoading) {
@@ -93,8 +50,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     </div>;
   }
 
-  if (!isAuthenticated) {
-    console.log("No authenticated session found, redirecting to login");
+  if (!session) {
     return <Navigate to="/login" replace />;
   }
 
@@ -106,62 +62,77 @@ function App() {
     <SessionContextProvider supabaseClient={supabase}>
       <Router>
         <div className="min-h-screen bg-gray-50">
-          <Navigation />
-          <main className="container mx-auto py-8 px-4">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patients"
-                element={
-                  <ProtectedRoute>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patients"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patient/:id"
-                element={
-                  <ProtectedRoute>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patient/:id"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <PatientProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/scripts"
-                element={
-                  <ProtectedRoute>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scripts"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <Scripts />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/report-card"
-                element={
-                  <ProtectedRoute>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/report-card"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <ReportCard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manufacturing"
-                element={
-                  <ProtectedRoute>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manufacturing"
+              element={
+                <ProtectedRoute>
+                  <Navigation />
+                  <main className="container mx-auto py-8 px-4">
                     <Manufacturing />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Toaster />
         </div>
-        <Toaster />
       </Router>
     </SessionContextProvider>
   );
