@@ -39,8 +39,8 @@ const Index = () => {
         
       } catch (error) {
         console.error("Authentication error:", error);
-        // Clear any stale session data
-        await supabase.auth.clearSession();
+        // Sign out to clear the session
+        await supabase.auth.signOut();
         toast({
           variant: "destructive",
           title: "Authentication Error",

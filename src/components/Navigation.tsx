@@ -22,9 +22,6 @@ export const Navigation = () => {
     try {
       console.log("Starting sign out process");
       
-      // Clear any existing session first
-      await supabase.auth.clearSession();
-      
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Sign out error:", error);
