@@ -4,7 +4,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthChangeEvent } from "@supabase/supabase-js";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,12 +33,23 @@ const Login = () => {
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session) => {
+      async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
         switch (event) {
           case "SIGNED_IN":
             if (session) {
               console.log("User signed in, redirecting to dashboard");
+              // Refresh the session to ensure we have the latest token
+              const { error: refreshError } = await supabase.auth.refreshSession();
+              if (refreshError) {
+                console.error("Error refreshing session:", refreshError);
+                toast({
+                  variant: "destructive",
+                  title: "Session Error",
+                  description: "There was a problem with your session. Please try logging in again.",
+                });
+                return;
+              }
               toast({
                 title: "Welcome back!",
                 description: "You have successfully signed in.",
