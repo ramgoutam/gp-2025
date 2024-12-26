@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, FileSpreadsheet } from "lucide-react";
+import { LayoutDashboard, Users } from "lucide-react";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -8,7 +8,6 @@ export const Navigation = () => {
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/form-builder", label: "Form Builder", icon: FileSpreadsheet },
   ];
 
   return (
