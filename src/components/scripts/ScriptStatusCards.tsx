@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Clock, Loader2, CheckCircle2, Files } from "lucide-react";
+import { Clock, Loader2, CheckCircle2, Files, Pause, StopCircle } from "lucide-react";
 
 type StatusCardProps = {
   title: string;
@@ -37,7 +37,7 @@ type ScriptStatusCardsProps = {
 };
 
 export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
-  const { data: scriptCounts = { pending: 0, inProcess: 0, completed: 0, total: 0 } } = useQuery({
+  const { data: scriptCounts = { pending: 0, inProcess: 0, paused: 0, hold: 0, completed: 0, total: 0 } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
       console.log('Fetching script status counts');
@@ -54,6 +54,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       const counts = {
         pending: scripts.filter(s => s.status === 'pending').length,
         inProcess: scripts.filter(s => s.status === 'in_progress').length,
+        paused: scripts.filter(s => s.status === 'paused').length,
+        hold: scripts.filter(s => s.status === 'hold').length,
         completed: scripts.filter(s => s.status === 'completed').length,
         total: scripts.length
       };
@@ -69,7 +71,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
       <StatusCard
         title="Pending Scripts"
         count={scriptCounts.pending}
@@ -85,6 +87,22 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         color="bg-blue-500"
         onClick={() => handleCardClick('in_progress')}
         isActive={activeFilter === 'in_progress'}
+      />
+      <StatusCard
+        title="Paused"
+        count={scriptCounts.paused}
+        icon={Pause}
+        color="bg-orange-500"
+        onClick={() => handleCardClick('paused')}
+        isActive={activeFilter === 'paused'}
+      />
+      <StatusCard
+        title="On Hold"
+        count={scriptCounts.hold}
+        icon={StopCircle}
+        color="bg-red-500"
+        onClick={() => handleCardClick('hold')}
+        isActive={activeFilter === 'hold'}
       />
       <StatusCard
         title="Completed"
