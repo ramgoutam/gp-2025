@@ -83,8 +83,6 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
           <TableHead>Appliance Type</TableHead>
           <TableHead>Request Date</TableHead>
           <TableHead>Due Date</TableHead>
-          <TableHead>Doctor</TableHead>
-          <TableHead>Clinic</TableHead>
           <TableHead>Treatments</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Actions</TableHead>
@@ -114,8 +112,6 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
               </TableCell>
               <TableCell>{formatDate(script.requestDate)}</TableCell>
               <TableCell>{formatDate(script.dueDate)}</TableCell>
-              <TableCell>{script.doctorName}</TableCell>
-              <TableCell>{script.clinicName}</TableCell>
               <TableCell>
                 <div className="space-y-1">
                   {treatments.upper.length > 0 && (
