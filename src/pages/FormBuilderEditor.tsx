@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { FormComponent, FormTemplate } from "@/types/formBuilder";
 
 export const FormBuilderEditor = () => {
   const { id } = useParams();
@@ -18,8 +19,8 @@ export const FormBuilderEditor = () => {
   
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
-  const [components, setComponents] = useState<any[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<any>(null);
+  const [components, setComponents] = useState<FormComponent[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState<FormComponent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -39,9 +40,10 @@ export const FormBuilderEditor = () => {
       if (error) throw error;
 
       if (data) {
-        setFormName(data.name);
-        setFormDescription(data.description || '');
-        setComponents(data.config?.components || []);
+        const template = data as FormTemplate;
+        setFormName(template.name);
+        setFormDescription(template.description || '');
+        setComponents(template.config.components || []);
       }
     } catch (error) {
       console.error('Error fetching form template:', error);
@@ -83,7 +85,6 @@ export const FormBuilderEditor = () => {
   };
 
   const handlePreview = () => {
-    // TODO: Implement form preview functionality
     toast({
       title: "Coming Soon",
       description: "Form preview feature is under development",

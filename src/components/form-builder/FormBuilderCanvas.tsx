@@ -8,13 +8,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FormComponent } from "@/types/formBuilder";
 
 interface FormBuilderCanvasProps {
-  components: any[];
-  onSelectComponent: (component: any) => void;
-  onUpdateComponents: (components: any[]) => void;
+  components: FormComponent[];
+  onSelectComponent: (component: FormComponent) => void;
+  onUpdateComponents: (components: FormComponent[]) => void;
 }
 
 export const FormBuilderCanvas = ({
