@@ -13,9 +13,14 @@ import Manufacturing from "@/pages/Manufacturing";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
+  console.log("ProtectedRoute - Current session:", session);
+  
   if (!session) {
+    console.log("No session found, redirecting to login");
     return <Navigate to="/login" replace />;
   }
+  
+  console.log("Session found, rendering protected content");
   return children;
 };
 

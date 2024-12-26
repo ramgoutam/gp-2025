@@ -12,9 +12,19 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
+    console.log("Login component mounted");
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Checking session");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Session check error:", error);
+        return;
+      }
+      
+      console.log("Current session:", session);
       if (session) {
+        console.log("Active session found, redirecting to home");
         navigate("/", { replace: true });
       }
     };
@@ -22,25 +32,38 @@ const Login = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
       if (event === 'SIGNED_IN' && session) {
+        console.log("Sign in detected, redirecting to home");
         navigate("/", { replace: true });
+      }
+      if (event === 'SIGNED_OUT') {
+        console.log("Sign out detected, staying on login page");
       }
     });
 
     return () => {
+      console.log("Login component unmounting, cleaning up subscription");
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Login attempt started");
     try {
+      console.log("Attempting to sign in with email:", email);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+      
+      console.log("Login successful");
     } catch (error) {
       console.error("Error logging in:", error);
       toast({

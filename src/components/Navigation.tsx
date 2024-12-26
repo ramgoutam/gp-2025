@@ -17,9 +17,21 @@ export const Navigation = () => {
   ];
 
   const handleSignOut = async () => {
+    console.log("Sign out process started");
     try {
-      await supabase.auth.signOut();
+      console.log("Attempting to sign out from Supabase");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Supabase sign out error:", error);
+        throw error;
+      }
+      
+      console.log("Successfully signed out from Supabase");
+      console.log("Navigating to login page");
       navigate('/login', { replace: true });
+      console.log("Navigation completed");
+      
     } catch (error) {
       console.error('Sign out error:', error);
       toast({
