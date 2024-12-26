@@ -32,7 +32,7 @@ export const ReportCard = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for report card status with millisecond refresh
+  // Query for report card status with 1 second refresh instead of millisecond
   const { data: reportCard } = useQuery({
     queryKey: ['reportCard', script.id],
     queryFn: async () => {
@@ -55,7 +55,7 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1000, // Changed from 1 to 1000 (1 second)
   });
 
   useEffect(() => {
