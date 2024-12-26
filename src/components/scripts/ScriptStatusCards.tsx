@@ -17,8 +17,12 @@ const AnimatedNumber = ({ number }: { number: number }) => {
   const { number: animatedNumber } = useSpring({
     from: { number: 0 },
     number: number,
-    delay: 200,
-    config: { mass: 1, tension: 20, friction: 10 }
+    delay: 50, // Reduced delay for quicker animation
+    config: { 
+      mass: 1, 
+      tension: 170, // Increased tension for faster animation
+      friction: 26  // Reduced friction for smoother, quicker movement
+    }
   });
 
   return (
@@ -121,7 +125,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       console.log('Script counts:', counts);
       return counts;
     },
-    refetchInterval: 1000
+    refetchInterval: 500 // Reduced to 500ms for quicker updates
   });
 
   const handleCardClick = (status: string | null) => {
