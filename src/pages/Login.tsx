@@ -5,15 +5,25 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       console.log("Current session:", session);
+      if (error) {
+        console.error("Error checking session:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to check authentication status",
+        });
+      }
       if (session) {
         console.log("User already logged in, redirecting to dashboard");
         navigate("/");
@@ -24,7 +34,7 @@ const Login = () => {
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session) => {
+      async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
         switch (event) {
           case "SIGNED_IN":
@@ -55,7 +65,7 @@ const Login = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen w-full flex">
@@ -71,13 +81,6 @@ const Login = () => {
                 Welcome back! Please sign in to continue.
               </p>
             </div>
-            <button 
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
           </div>
 
           <div className="mt-10">
@@ -132,7 +135,7 @@ const Login = () => {
                 },
               }}
               providers={["google"]}
-              redirectTo={`${window.location.origin}/auth/callback`}
+              redirectTo={window.location.origin + "/auth/callback"}
               theme="custom"
             />
           </div>
