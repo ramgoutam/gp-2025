@@ -10,6 +10,11 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Hide navigation on login page
+  if (location.pathname === "/login") {
+    return null;
+  }
+
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
