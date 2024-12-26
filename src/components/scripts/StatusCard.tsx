@@ -6,6 +6,7 @@ type StatusCardProps = {
   count: number;
   icon: React.ElementType;
   color: string;
+  iconColor: string;
   onClick: () => void;
   isActive: boolean;
   progressColor: string;
@@ -27,6 +28,7 @@ export const StatusCard = ({
   count, 
   icon: Icon, 
   color, 
+  iconColor,
   onClick, 
   isActive,
   progressColor 
@@ -44,6 +46,8 @@ export const StatusCard = ({
       bg-white
       dark:bg-gray-800
       p-4
+      backdrop-blur-sm
+      hover:bg-opacity-90
     `}
     onClick={onClick}
   >
@@ -59,8 +63,9 @@ export const StatusCard = ({
         transition-transform
         duration-300
         hover:scale-110
+        shadow-sm
       `}>
-        <Icon className="w-6 h-6 text-white" />
+        <Icon className={`w-6 h-6 ${iconColor}`} />
       </div>
       <div className="text-right">
         <p className={`
@@ -74,10 +79,10 @@ export const StatusCard = ({
     </div>
     
     <div className="space-y-2">
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
         {title}
       </p>
-      <div className="relative h-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+      <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
         <div
           className={`
             absolute 

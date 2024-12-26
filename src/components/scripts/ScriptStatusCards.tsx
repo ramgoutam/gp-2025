@@ -60,15 +60,17 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "Pending Scripts",
       count: scriptCounts.pending,
       icon: Clock,
-      color: "bg-amber-100",
-      progressColor: "bg-gradient-to-r from-amber-200 to-amber-300",
+      color: "bg-amber-50",
+      iconColor: "text-amber-500",
+      progressColor: "bg-gradient-to-r from-amber-400 to-amber-500",
       status: 'pending'
     },
     {
       title: "In Process",
       count: scriptCounts.inProcess,
       icon: Loader2,
-      color: "bg-blue-100",
+      color: "bg-blue-50",
+      iconColor: "text-blue-500",
       progressColor: "bg-gradient-to-r from-blue-400 to-blue-500",
       status: 'in_progress'
     },
@@ -76,7 +78,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "Paused",
       count: scriptCounts.paused,
       icon: PauseCircle,
-      color: "bg-orange-100",
+      color: "bg-orange-50",
+      iconColor: "text-orange-500",
       progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
       status: 'paused'
     },
@@ -84,7 +87,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "On Hold",
       count: scriptCounts.hold,
       icon: StopCircle,
-      color: "bg-red-100",
+      color: "bg-red-50",
+      iconColor: "text-red-500",
       progressColor: "bg-gradient-to-r from-red-400 to-red-500",
       status: 'hold'
     },
@@ -92,7 +96,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "Incomplete",
       count: scriptCounts.incomplete,
       icon: AlertTriangle,
-      color: "bg-pink-100",
+      color: "bg-pink-50",
+      iconColor: "text-pink-500",
       progressColor: "bg-gradient-to-r from-pink-400 to-pink-500",
       status: 'incomplete'
     },
@@ -100,7 +105,8 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "Completed",
       count: scriptCounts.completed,
       icon: CheckCircle2,
-      color: "bg-green-100",
+      color: "bg-green-50",
+      iconColor: "text-green-500",
       progressColor: "bg-gradient-to-r from-green-400 to-green-500",
       status: 'completed'
     },
@@ -108,14 +114,15 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       title: "All Scripts",
       count: scriptCounts.total,
       icon: Files,
-      color: "bg-purple-100",
+      color: "bg-purple-50",
+      iconColor: "text-purple-500",
       progressColor: "bg-gradient-to-r from-purple-400 to-purple-500",
       status: null
     }
   ];
 
   return (
-    <div className="grid grid-cols-7 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
       {cards.map((card) => (
         <StatusCard
           key={card.title}
@@ -123,6 +130,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
           count={card.count}
           icon={card.icon}
           color={card.color}
+          iconColor={card.iconColor}
           progressColor={card.progressColor}
           onClick={() => handleCardClick(card.status)}
           isActive={activeFilter === card.status}
