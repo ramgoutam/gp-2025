@@ -52,7 +52,7 @@ const Login = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
       <div className="w-full max-w-md">
         <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-lg p-8 space-y-6">
           {/* Auth Tabs */}
