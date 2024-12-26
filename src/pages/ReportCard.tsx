@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,14 +58,12 @@ const ReportCard = () => {
   });
 
   const reportCardCounts = {
-    pending: reportCards?.filter(card => card.status === 'pending').length || 0,
-    inProgress: reportCards?.filter(card => card.status === 'in_progress').length || 0,
-    completed: reportCards?.filter(card => card.status === 'completed').length || 0,
-    paused: reportCards?.filter(card => card.status === 'paused').length || 0,
-    hold: reportCards?.filter(card => card.status === 'hold').length || 0,
+    pendingDesign: reportCards?.filter(card => card.design_info_status === 'pending').length || 0,
+    pendingClinical: reportCards?.filter(card => card.clinical_info_status === 'pending').length || 0,
     incomplete: reportCards?.filter(card => 
-      !card.design_info_id || !card.clinical_info_id
+      card.design_info_status === 'pending' && card.clinical_info_status === 'pending'
     ).length || 0,
+    completed: reportCards?.filter(card => card.status === 'completed').length || 0,
   };
 
   return (
@@ -82,42 +80,30 @@ const ReportCard = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatusCard
-          title="Pending"
-          count={reportCardCounts.pending}
+          title="Pending Design Info"
+          count={reportCardCounts.pendingDesign}
           color="bg-yellow-500"
           Icon={FileText}
         />
         <StatusCard
-          title="In Progress"
-          count={reportCardCounts.inProgress}
+          title="Pending Clinical Info"
+          count={reportCardCounts.pendingClinical}
           color="bg-blue-500"
-          Icon={FileText}
-        />
-        <StatusCard
-          title="Completed"
-          count={reportCardCounts.completed}
-          color="bg-green-500"
-          Icon={FileText}
-        />
-        <StatusCard
-          title="Paused"
-          count={reportCardCounts.paused}
-          color="bg-orange-500"
-          Icon={FileText}
-        />
-        <StatusCard
-          title="On Hold"
-          count={reportCardCounts.hold}
-          color="bg-red-500"
           Icon={FileText}
         />
         <StatusCard
           title="Incomplete"
           count={reportCardCounts.incomplete}
-          color="bg-gray-500"
-          Icon={FileText}
+          color="bg-red-500"
+          Icon={AlertCircle}
+        />
+        <StatusCard
+          title="Completed"
+          count={reportCardCounts.completed}
+          color="bg-green-500"
+          Icon={CheckCircle}
         />
       </div>
 
