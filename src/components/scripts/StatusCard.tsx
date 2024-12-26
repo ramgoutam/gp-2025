@@ -96,13 +96,16 @@ export const StatusCard = ({
             ${progressColor}
           `}
           style={{
-            width: '100%',
-            transform: useSpring({
-              from: { transform: 'translateX(-100%)' },
-              to: { transform: 'translateX(0)' },
-              delay: 200,
-              config: { tension: 120, friction: 14 }
-            }).transform
+            width: useSpring({
+              from: { width: '0%' },
+              to: { width: '100%' },
+              delay: 100,
+              config: { 
+                tension: 60,
+                friction: 15,
+                clamp: true
+              }
+            }).width
           }}
         />
       </div>
