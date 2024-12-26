@@ -32,13 +32,23 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             variant: "destructive",
           });
           setIsAuthenticated(false);
+          // Clear any existing session on error
+          await supabase.auth.signOut();
         } else {
           console.log("Protected route - session check:", currentSession?.user?.id);
           setIsAuthenticated(!!currentSession);
+          
+          if (!currentSession) {
+            console.log("No active session found");
+            // Ensure clean logout if no session exists
+            await supabase.auth.signOut();
+          }
         }
       } catch (error) {
         console.error("Error in auth check:", error);
         setIsAuthenticated(false);
+        // Clear session on any error
+        await supabase.auth.signOut();
       } finally {
         setIsLoading(false);
       }
@@ -46,13 +56,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     checkAuth();
 
+    // Set up real-time auth state monitoring
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
-        setIsAuthenticated(!!currentSession);
         
-        if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          console.log("User signed out or deleted");
           setIsAuthenticated(false);
+          // Clear any remaining session data
+          await supabase.auth.signOut({ scope: 'local' });
+        } else if (event === 'SIGNED_IN') {
+          console.log("User signed in");
+          setIsAuthenticated(true);
         }
       }
     );
