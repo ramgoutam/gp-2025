@@ -67,6 +67,14 @@ const Login = () => {
           appearance={{ theme: ThemeSupa }}
           providers={[]}
           redirectTo={`${window.location.origin}/`}
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: "Email address",
+                password_label: "Password",
+              },
+            },
+          }}
         />
       </div>
     </div>

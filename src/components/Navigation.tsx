@@ -4,11 +4,13 @@ import { LayoutDashboard, Users, TestTube, Factory, LogOut } from "lucide-react"
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const session = useSession();
 
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -19,18 +21,42 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
+      console.log("Starting sign out process");
+      console.log("Current session:", session);
+
+      if (!session) {
+        console.log("No active session found, redirecting to login");
+        navigate("/login");
+        return;
+      }
+
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        // Even if there's an error, we'll redirect to login
+        toast({
+          variant: "destructive",
+          title: "Sign out issue",
+          description: "You have been signed out, but there was an issue. Please sign in again if needed.",
+        });
+      } else {
+        console.log("Successfully signed out");
+        toast({
+          title: "Signed out",
+          description: "You have been successfully signed out.",
+        });
+      }
+
+      // Always navigate to login after sign out attempt
       navigate("/login");
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Unexpected error during sign out:", error);
+      navigate("/login");
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to sign out. Please try again.",
+        description: "An unexpected error occurred. Please try signing in again.",
       });
     }
   };
