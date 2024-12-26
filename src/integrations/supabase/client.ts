@@ -19,8 +19,17 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   },
 });
 
-// Set up auth state change listener
+// Set up auth state change listener with more detailed logging
 supabase.auth.onAuthStateChange((event, session) => {
   console.log('Supabase auth event:', event);
   console.log('Session state:', session ? 'Authenticated' : 'Not authenticated');
+  console.log('Session details:', session);
+  
+  if (!session) {
+    console.log('No active session found. User needs to sign in.');
+    // Redirect to login if needed
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login';
+    }
+  }
 });
