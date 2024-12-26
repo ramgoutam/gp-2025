@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Clock, CheckCircle2, Loader2, PauseCircle, StopCircle } from 'lucide-react';
+import { Clock, CheckCircle2, Loader2, PauseCircle, StopCircle, Files } from 'lucide-react';
 
 export const DashboardCharts = () => {
   const { data: scriptCounts = { 
@@ -89,6 +89,15 @@ export const DashboardCharts = () => {
       bgColor: "bg-red-50",
       borderColor: "border-red-200",
       size: "col-span-2"
+    },
+    {
+      title: "Total Scripts",
+      count: scriptCounts.total,
+      icon: Files,
+      color: "text-purple-500",
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-200",
+      size: "col-span-4"
     }
   ];
 
