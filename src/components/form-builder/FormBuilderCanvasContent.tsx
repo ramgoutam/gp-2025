@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FormComponent } from "@/types/formBuilder";
 import { PopupComponent } from "./PopupComponent";
+import { ComponentSettings } from "./ComponentSettings";
 
 interface FormBuilderCanvasContentProps {
   components: FormComponent[];
@@ -26,6 +27,14 @@ export const FormBuilderCanvasContent = ({
   onUpdateComponents,
   isNested = false,
 }: FormBuilderCanvasContentProps) => {
+  const handleUpdateComponent = (index: number, updatedComponent: FormComponent) => {
+    if (!onUpdateComponents) return;
+    
+    const newComponents = [...components];
+    newComponents[index] = updatedComponent;
+    onUpdateComponents(newComponents);
+  };
+
   const renderComponent = (component: FormComponent) => {
     const commonProps = {
       placeholder: component.placeholder,
@@ -136,9 +145,7 @@ export const FormBuilderCanvasContent = ({
             </div>
           </div>
         );
-      default:
-        return null;
-    }
+    };
   };
 
   const handleDragEnd = (result: any) => {
@@ -173,10 +180,14 @@ export const FormBuilderCanvasContent = ({
                     {...provided.dragHandleProps}
                     onClick={() => onSelectComponent?.(component)}
                     className={cn(
-                      "border p-4 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white shadow-sm",
+                      "relative border p-4 rounded-lg cursor-pointer hover:border-primary transition-colors bg-white shadow-sm",
                       !isNested && "animate-fade-in"
                     )}
                   >
+                    <ComponentSettings 
+                      component={component}
+                      onUpdateComponent={(updatedComponent) => handleUpdateComponent(index, updatedComponent)}
+                    />
                     <label className="block mb-2 text-sm font-medium text-gray-700">
                       {component.label}
                       {component.required && <span className="text-destructive ml-1">*</span>}
