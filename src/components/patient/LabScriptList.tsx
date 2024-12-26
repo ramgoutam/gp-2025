@@ -1,13 +1,10 @@
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { format, parseISO } from "date-fns";
-import { getStatusBadge } from "./lab-script/StatusBadge";
-import { TreatmentInfo } from "./lab-script/TreatmentInfo";
-import { ActionButtons } from "./lab-script/ActionButtons";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -16,10 +13,40 @@ interface LabScriptListProps {
   onDeleteClick?: (script: LabScript) => void;
 }
 
+const getStatusBadge = (status: LabScript["status"]) => {
+  const styles = {
+    pending: "bg-yellow-100 text-yellow-800",
+    in_progress: "bg-blue-100 text-blue-800",
+    completed: "bg-green-100 text-green-800",
+  };
+
+  return (
+    <Badge variant="secondary" className={styles[status]}>
+      {status?.replace("_", " ") || "pending"}
+    </Badge>
+  );
+};
+
+const getTreatments = (script: LabScript) => {
+  if (script.treatments) {
+    return script.treatments;
+  }
+  
+  return {
+    upper: script.upperTreatment && script.upperTreatment !== "None" ? [script.upperTreatment] : [],
+    lower: script.lowerTreatment && script.lowerTreatment !== "None" ? [script.lowerTreatment] : []
+  };
+};
+
 const formatDate = (dateString: string) => {
   try {
+    // Ensure we have a valid date string
     if (!dateString) return "N/A";
+    
+    // Log the date string for debugging
     console.log("Formatting date:", dateString);
+    
+    // Parse the date string and format it
     const date = parseISO(dateString);
     return format(date, "MMM dd, yyyy");
   } catch (error) {
@@ -63,6 +90,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
       </TableHeader>
       <TableBody>
         {labScripts.map((script) => {
+          const treatments = getTreatments(script);
           const patientName = `${script.patientFirstName || ''} ${script.patientLastName || ''}`.trim() || 'N/A';
           
           return (
@@ -85,32 +113,38 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
               <TableCell>{formatDate(script.requestDate)}</TableCell>
               <TableCell>{formatDate(script.dueDate)}</TableCell>
               <TableCell>
-                <TreatmentInfo script={script} />
+                <div className="space-y-1">
+                  {treatments.upper.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Upper:</span> {treatments.upper.join(", ")}
+                    </div>
+                  )}
+                  {treatments.lower.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Lower:</span> {treatments.lower.join(", ")}
+                    </div>
+                  )}
+                </div>
               </TableCell>
               <TableCell>{getStatusBadge(script.status)}</TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <ActionButtons script={script} />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => handleEditClick(e, script)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={(e) => handleDeleteClick(e, script)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleDeleteClick(e, script)}
+                    className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleEditClick(e, script)}
+                    className="p-0 h-auto hover:bg-transparent"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
