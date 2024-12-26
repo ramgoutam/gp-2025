@@ -22,14 +22,14 @@ export const Navigation = () => {
     try {
       console.log("Starting sign out process...");
       
-      // First clear local storage
+      // First navigate to login page
+      navigate('/login', { replace: true });
+      
+      // Then clear local storage and sign out
       localStorage.clear();
       console.log("Cleared local storage");
       
-      // Then attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut({
-        scope: 'local'
-      });
+      const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Error during sign out:", error);
@@ -38,23 +38,17 @@ export const Navigation = () => {
 
       console.log("Successfully signed out");
       
-      // Show success message
       toast({
         title: "Signed out successfully",
         description: "You have been signed out of your account",
       });
       
-      // Navigate to login page
-      navigate('/login', { replace: true });
-      
     } catch (error) {
       console.error("Sign out error:", error);
-      // Even if there's an error, we want to clear everything and redirect
       toast({
         title: "Signing out",
         description: "Redirecting to login page",
       });
-      navigate('/login', { replace: true });
     }
   };
 

@@ -11,9 +11,6 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Clear any existing session data on mount
-    localStorage.clear();
-    
     // Check if user is already logged in
     const checkUser = async () => {
       try {
@@ -26,7 +23,7 @@ const Login = () => {
         
         if (session) {
           console.log("User already logged in, redirecting to dashboard");
-          navigate("/");
+          navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Error checking session:", error);
@@ -50,7 +47,7 @@ const Login = () => {
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          navigate("/");
+          navigate("/", { replace: true });
         }
       }
     );
