@@ -18,38 +18,20 @@ export const Navigation = () => {
   ];
 
   const handleSignOut = async () => {
-    console.log("Starting sign out process");
-    
     try {
-      // Force sign out without checking session
-      await supabase.auth.signOut({ scope: 'local' });
-      
-      console.log("Local sign out successful");
-      
-      // Clear any local storage or state if needed
-      localStorage.clear();
-      
+      await supabase.auth.signOut();
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-      
-      // Always redirect to login
       navigate("/login");
-      
     } catch (error) {
-      console.error("Error during sign out:", error);
-      
-      // Even if there's an error, we want to clear local state and redirect
-      localStorage.clear();
-      
+      console.error("Error signing out:", error);
       toast({
         variant: "destructive",
-        title: "Sign out issue",
-        description: "There was an issue signing out, but you've been redirected to login.",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
       });
-      
-      navigate("/login");
     }
   };
 
