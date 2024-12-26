@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, CheckCircle, Edit } from "lucide-react";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -27,7 +27,10 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         .single();
 
       if (error) throw error;
-      return mapDatabaseLabScript(data);
+      
+      // Ensure status is a valid LabScriptStatus before mapping
+      const validStatus = data.status as LabScriptStatus;
+      return mapDatabaseLabScript({ ...data, status: validStatus });
     },
     refetchInterval: 1,
     initialData: script,
