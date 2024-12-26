@@ -3,6 +3,8 @@ import { Settings, ArrowRight, Stethoscope, CheckCircle, PenTool } from "lucide-
 import { LabScript } from "@/types/labScript";
 import { InfoStatus } from "@/types/reportCard";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ActionButtonsProps {
   script: LabScript;
@@ -24,12 +26,40 @@ export const ActionButtons = ({
   isCompleted = false
 }: ActionButtonsProps) => {
   const { toast } = useToast();
+  const [currentScript, setCurrentScript] = useState(script);
   const isDesignInfoCompleted = designInfoStatus === 'completed';
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
+  // Set up real-time subscription for script status updates
+  useEffect(() => {
+    console.log("Setting up real-time subscription for script:", script.id);
+    
+    const channel = supabase
+      .channel('lab-script-status')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'lab_scripts',
+          filter: `id=eq.${script.id}`
+        },
+        (payload) => {
+          console.log("Real-time update received:", payload);
+          setCurrentScript(prev => ({ ...prev, ...payload.new }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log("Cleaning up real-time subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [script.id]);
+
   const handleDesignInfoClick = () => {
-    if (script.status !== 'completed') {
+    if (currentScript.status !== 'completed') {
       toast({
         title: "Lab Script Incomplete",
         description: "Please complete the lab script before adding design information.",
@@ -37,11 +67,11 @@ export const ActionButtons = ({
       });
       return;
     }
-    onDesignInfo(script);
+    onDesignInfo(currentScript);
   };
 
   const handleClinicalInfoClick = () => {
-    if (script.status !== 'completed') {
+    if (currentScript.status !== 'completed') {
       toast({
         title: "Lab Script Incomplete",
         description: "Please complete the lab script before adding clinical information.",
