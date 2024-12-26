@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LabScriptList } from "@/components/patient/LabScriptList";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
-import { ScriptList } from "@/components/scripts/ScriptList";
-import { useScriptQuery } from "@/components/scripts/useScriptQuery";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
@@ -17,14 +18,78 @@ const Scripts = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { 
-    data: labScripts = [], 
-    isError,
-    error,
-    refetch,
-    isLoading 
-  } = useScriptQuery(statusFilter);
+  const { data: labScripts = [] } = useQuery({
+    queryKey: ['labScripts', statusFilter],
+    queryFn: async () => {
+      console.log("Fetching lab scripts with filter:", statusFilter);
+      let query = supabase
+        .from('lab_scripts')
+        .select(`
+          *,
+          patient:patients(first_name, last_name)
+        `);
+
+      if (statusFilter) {
+        query = query.eq('status', statusFilter);
+      }
+
+      const { data: scripts, error } = await query.order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching lab scripts:", error);
+        throw error;
+      }
+
+      console.log("Raw database response:", scripts);
+
+      return scripts.map(script => ({
+        id: script.id,
+        requestNumber: script.request_number,
+        patientId: script.patient_id,
+        patientFirstName: script.patient?.first_name,
+        patientLastName: script.patient?.last_name,
+        doctorName: script.doctor_name,
+        clinicName: script.clinic_name,
+        requestDate: script.request_date,
+        dueDate: script.due_date,
+        status: script.status as LabScript["status"],
+        upperTreatment: script.upper_treatment,
+        lowerTreatment: script.lower_treatment,
+        upperDesignName: script.upper_design_name,
+        lowerDesignName: script.lower_design_name,
+        applianceType: script.appliance_type,
+        screwType: script.screw_type,
+        vdoOption: script.vdo_option,
+        specificInstructions: script.specific_instructions,
+      } as LabScript));
+    },
+    refetchInterval: 1000
+  });
+
+  // Set up real-time subscription
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('lab-scripts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lab_scripts'
+        },
+        (payload) => {
+          console.log("Lab script change detected:", payload);
+          queryClient.invalidateQueries({ queryKey: ['labScripts'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleNewScriptSubmit = async (formData: LabScript) => {
     try {
@@ -147,22 +212,22 @@ const Scripts = () => {
         activeFilter={statusFilter}
       />
 
-      <ScriptList
-        isLoading={isLoading}
-        isError={isError}
-        error={error as Error}
-        labScripts={labScripts}
-        onRefetch={refetch}
-        onScriptSelect={(script) => {
-          setSelectedScript(script);
-          setIsEditing(false);
-        }}
-        onScriptEdit={(script) => {
-          setSelectedScript(script);
-          setIsEditing(true);
-        }}
-        onScriptDelete={handleScriptDelete}
-      />
+      <div className="bg-white p-6 rounded-lg shadow">
+        <ScrollArea className="h-[500px]">
+          <LabScriptList 
+            labScripts={labScripts}
+            onRowClick={(script) => {
+              setSelectedScript(script);
+              setIsEditing(false);
+            }}
+            onEditClick={(script) => {
+              setSelectedScript(script);
+              setIsEditing(true);
+            }}
+            onDeleteClick={handleScriptDelete}
+          />
+        </ScrollArea>
+      </div>
 
       <Dialog 
         open={showNewScriptDialog} 
