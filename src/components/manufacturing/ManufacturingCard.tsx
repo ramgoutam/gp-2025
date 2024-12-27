@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSpring, animated } from "@react-spring/web";
 import { LucideIcon } from "lucide-react";
 import { LabScript } from "@/types/labScript";
@@ -54,7 +53,7 @@ export const ManufacturingCard = ({
         </div>
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-2 pb-4">
         <p className="text-sm text-gray-500 font-medium">
           {title}
         </p>
@@ -65,32 +64,6 @@ export const ManufacturingCard = ({
           />
         </div>
       </div>
-
-      <ScrollArea className="h-[100px] mt-4">
-        <div className="space-y-2">
-          {scripts.map((script) => (
-            <div 
-              key={script.id} 
-              className="p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-sm">#{script.requestNumber}</span>
-                <span className={`px-2 py-0.5 rounded text-xs ${
-                  script.status === 'completed' ? 'bg-green-100 text-green-800' :
-                  script.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {script.status}
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mt-0.5">Dr. {script.doctorName}</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Due: {new Date(script.dueDate).toLocaleDateString()}
-              </p>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
     </Card>
   );
 };
