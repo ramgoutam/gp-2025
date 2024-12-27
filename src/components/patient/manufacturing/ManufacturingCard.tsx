@@ -1,27 +1,93 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { LabScript } from "@/types/labScript";
-import { Check, Circle, CircleDot } from "lucide-react";
+import { Check, Circle, CircleDot, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingCardProps {
   script: LabScript;
   children?: React.ReactNode;
 }
 
-export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) => {
-  const steps = [
-    { name: 'Milling', status: 'completed' },
-    { name: 'Sintering', status: 'current' },
-    { name: 'Miyo', status: 'upcoming' }
-  ];
+type StepStatus = 'completed' | 'current' | 'upcoming';
+type Step = { name: string; status: StepStatus };
 
-  const getStepIcon = (status: string) => {
-    switch (status) {
+export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) => {
+  const { toast } = useToast();
+  const [steps, setSteps] = useState<Step[]>([
+    { name: 'Milling', status: 'upcoming' },
+    { name: 'Sintering', status: 'upcoming' },
+    { name: 'Miyo', status: 'upcoming' }
+  ]);
+
+  useEffect(() => {
+    // Initialize steps based on script status
+    if (script.status === 'completed') {
+      setSteps(steps.map(step => ({ ...step, status: 'completed' as StepStatus })));
+    } else {
+      const currentStepIndex = steps.findIndex(step => step.status === 'current');
+      if (currentStepIndex === -1) {
+        setSteps(prev => [
+          { ...prev[0], status: 'current' },
+          ...prev.slice(1)
+        ]);
+      }
+    }
+  }, [script.status]);
+
+  const handleStepClick = async (clickedStep: Step, index: number) => {
+    const currentStepIndex = steps.findIndex(s => s.status === 'current');
+    
+    // Only allow clicking the current step
+    if (clickedStep.status !== 'current') {
+      return;
+    }
+
+    try {
+      // Mark current step as completed
+      const newSteps = [...steps];
+      newSteps[index].status = 'completed';
+      
+      // Set next step as current if available
+      if (index < steps.length - 1) {
+        newSteps[index + 1].status = 'current';
+      }
+      
+      setSteps(newSteps);
+
+      // If all steps are completed, update the script status
+      const allCompleted = newSteps.every(step => step.status === 'completed');
+      if (allCompleted) {
+        const { error } = await supabase
+          .from('lab_scripts')
+          .update({ status: 'completed' })
+          .eq('id', script.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Manufacturing Complete",
+          description: "All manufacturing steps have been completed.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating step status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update manufacturing status.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStepIcon = (step: Step) => {
+    switch (step.status) {
       case 'completed':
         return <Check className="h-4 w-4 text-green-600" />;
       case 'current':
-        return <CircleDot className="h-4 w-4 text-blue-600" />;
+        return <Play className="h-4 w-4 text-blue-600 animate-pulse" />;
       default:
         return <Circle className="h-4 w-4 text-gray-400" />;
     }
@@ -64,17 +130,25 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                 index < steps.length - 1 && "flex-1"
               )}
             >
-              <div className="flex items-center">
-                {getStepIcon(step.status)}
+              <button
+                onClick={() => handleStepClick(step, index)}
+                disabled={step.status !== 'current'}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-md transition-all",
+                  step.status === 'current' && "hover:bg-blue-50 cursor-pointer",
+                  step.status !== 'current' && "cursor-default"
+                )}
+              >
+                {getStepIcon(step)}
                 <span className={cn(
-                  "ml-2 text-sm font-medium",
+                  "text-sm font-medium",
                   step.status === 'completed' && "text-green-600",
                   step.status === 'current' && "text-blue-600",
                   step.status === 'upcoming' && "text-gray-400"
                 )}>
                   {step.name}
                 </span>
-              </div>
+              </button>
               {index < steps.length - 1 && (
                 <div className="flex-1 h-[1px] bg-gray-200 mx-2" />
               )}
