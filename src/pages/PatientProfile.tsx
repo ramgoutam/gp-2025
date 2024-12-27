@@ -132,8 +132,6 @@ const PatientProfile = () => {
     <div className="h-screen flex flex-col overflow-hidden bg-gray-50 animate-fade-in">
       <main className="flex-1 overflow-hidden">
         <div className="container mx-auto py-8 px-4 h-full flex flex-col">
-          {/* Removed breadcrumb div */}
-
           <div className="bg-white rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border">
             <PatientHeader 
               patientData={patientData}
@@ -143,11 +141,11 @@ const PatientProfile = () => {
 
             <div className="flex-1 overflow-hidden">
               <PatientTabs
+                patient={patientData}
                 labScripts={labScripts}
                 onCreateLabScript={() => setShowLabScriptDialog(true)}
                 onEditLabScript={handleEditLabScript}
                 onDeleteLabScript={handleDeleteLabScript}
-                patientData={patientData}
               />
             </div>
           </div>
