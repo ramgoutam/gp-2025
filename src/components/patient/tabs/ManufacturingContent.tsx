@@ -41,6 +41,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   }
 
   const handleStartManufacturing = (scriptId: string) => {
+    console.log('Starting manufacturing for script:', scriptId);
     setActiveScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -57,42 +58,42 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: false
     }));
-    console.log('Starting manufacturing process for script:', scriptId);
   };
 
   const handlePause = (scriptId: string) => {
+    console.log('Pausing manufacturing for script:', scriptId);
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
     }));
-    console.log('Pausing manufacturing process for script:', scriptId);
   };
 
   const handleHold = (scriptId: string) => {
+    console.log('Holding manufacturing for script:', scriptId);
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
     }));
-    console.log('Holding manufacturing process for script:', scriptId);
   };
 
   const handleResume = (scriptId: string) => {
+    console.log('Resuming manufacturing for script:', scriptId);
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: false
     }));
-    console.log('Resuming manufacturing process for script:', scriptId);
   };
 
   const handleComplete = (scriptId: string) => {
+    console.log('Completing manufacturing for script:', scriptId);
     setCompletedScripts(prev => ({
       ...prev,
       [scriptId]: true
     }));
-    console.log('Completing manufacturing process for script:', scriptId);
   };
 
   const handleStartSintering = (scriptId: string) => {
+    console.log('Starting sintering for script:', scriptId);
     setSinteringScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -101,34 +102,34 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: false
     }));
-    console.log('Starting sintering process for script:', scriptId);
   };
 
   const handlePauseSintering = (scriptId: string) => {
+    console.log('Pausing sintering for script:', scriptId);
     setPausedSinteringScripts(prev => ({
       ...prev,
       [scriptId]: true
     }));
-    console.log('Pausing sintering process for script:', scriptId);
   };
 
   const handleHoldSintering = (scriptId: string) => {
+    console.log('Holding sintering for script:', scriptId);
     setPausedSinteringScripts(prev => ({
       ...prev,
       [scriptId]: true
     }));
-    console.log('Holding sintering process for script:', scriptId);
   };
 
   const handleResumeSintering = (scriptId: string) => {
+    console.log('Resuming sintering for script:', scriptId);
     setPausedSinteringScripts(prev => ({
       ...prev,
       [scriptId]: false
     }));
-    console.log('Resuming sintering process for script:', scriptId);
   };
 
   const handleCompleteSintering = (scriptId: string) => {
+    console.log('Completing sintering for script:', scriptId);
     setSinteringScripts(prev => ({
       ...prev,
       [scriptId]: false
@@ -141,7 +142,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: true
     }));
-    console.log('Completing sintering process for script:', scriptId);
   };
 
   return (

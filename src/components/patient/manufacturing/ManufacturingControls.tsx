@@ -37,6 +37,8 @@ export const ManufacturingControls = ({
   onResumeSintering,
   onCompleteSintering,
 }: ManufacturingControlsProps) => {
+  console.log("Manufacturing Controls State:", { isActive, isPaused, isCompleted, isSintering });
+
   if (!isActive && !isPaused && !isCompleted) {
     return (
       <Button 
@@ -53,7 +55,7 @@ export const ManufacturingControls = ({
     );
   }
 
-  if (isPaused) {
+  if (isPaused && !isSintering) {
     return (
       <Button 
         variant="outline"
@@ -72,6 +74,18 @@ export const ManufacturingControls = ({
 
   if (isCompleted) {
     if (isSintering) {
+      if (isPaused) {
+        return (
+          <Button 
+            variant="outline"
+            className="hover:bg-primary/5 group animate-fade-in"
+            onClick={onResumeSintering}
+          >
+            <Play className="w-4 h-4 mr-2 text-primary" />
+            Resume Sintering
+          </Button>
+        );
+      }
       return (
         <div className="flex gap-2">
           <Button 
