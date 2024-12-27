@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Stethoscope, ArrowRight, Trash2, Pencil } from "lucide-react";
+import { Stethoscope, ArrowRight, Trash2 } from "lucide-react";
 
 interface CardActionsProps {
   onView: () => void;
   onDelete: () => void;
-  onEdit: () => void;
 }
 
-export const CardActions = ({ onView, onDelete, onEdit }: CardActionsProps) => {
+export const CardActions = ({ onView, onDelete }: CardActionsProps) => {
   return (
     <div className="flex gap-2">
       <Button
@@ -18,15 +17,6 @@ export const CardActions = ({ onView, onDelete, onEdit }: CardActionsProps) => {
       >
         <Trash2 className="h-4 w-4 text-destructive" />
         Delete
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onEdit}
-        className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-      >
-        <Pencil className="h-4 w-4" />
-        Edit
       </Button>
       <Button
         variant="outline"
