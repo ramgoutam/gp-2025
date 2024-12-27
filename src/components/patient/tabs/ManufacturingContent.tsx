@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -13,8 +15,30 @@ interface ManufacturingContentProps {
   };
 }
 
-export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const manufacturingScripts = labScripts.filter(script => 
+export const ManufacturingContent = ({ labScripts: initialScripts, patientData }: ManufacturingContentProps) => {
+  // Add real-time query for script status
+  const { data: updatedScripts } = useQuery({
+    queryKey: ['manufacturingScripts', initialScripts.map(s => s.id)],
+    queryFn: async () => {
+      console.log("Fetching manufacturing scripts status");
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .in('id', initialScripts.map(s => s.id));
+
+      if (error) {
+        console.error("Error fetching scripts:", error);
+        throw error;
+      }
+
+      console.log("Fetched updated scripts:", data);
+      return data;
+    },
+    refetchInterval: 1000, // Poll every second
+    initialData: initialScripts,
+  });
+
+  const manufacturingScripts = (updatedScripts || []).filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
 
