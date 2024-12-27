@@ -95,10 +95,10 @@ export const DesignNameSection = ({
       <div className="grid grid-cols-2 gap-8">
         {upperTreatment !== "None" && upperOptions.length > 0 && (
           <div className="space-y-2">
-            <Label htmlFor="upperDesignName">Upper Design Name</Label>
+            <Label htmlFor="upperDesignName">Upper Appliance Number</Label>
             <Select value={upperDesignName} onValueChange={onUpperDesignNameChange}>
               <SelectTrigger>
-                <SelectValue placeholder="Select upper design name" />
+                <SelectValue placeholder="Select upper appliance number" />
               </SelectTrigger>
               <SelectContent className="bg-white z-[200]">
                 {upperOptions.map((name) => (
@@ -113,10 +113,10 @@ export const DesignNameSection = ({
         
         {lowerTreatment !== "None" && lowerOptions.length > 0 && (
           <div className="space-y-2">
-            <Label htmlFor="lowerDesignName">Lower Design Name</Label>
+            <Label htmlFor="lowerDesignName">Lower Appliance Number</Label>
             <Select value={lowerDesignName} onValueChange={onLowerDesignNameChange}>
               <SelectTrigger>
-                <SelectValue placeholder="Select lower design name" />
+                <SelectValue placeholder="Select lower appliance number" />
               </SelectTrigger>
               <SelectContent className="bg-white z-[200]">
                 {lowerOptions.map((name) => (
