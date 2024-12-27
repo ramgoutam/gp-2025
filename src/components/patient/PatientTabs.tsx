@@ -8,7 +8,7 @@ import { ManufacturingContent } from "./tabs/ManufacturingContent";
 import { Patient } from "@/types/patient";
 import { LabScript } from "@/types/labScript";
 
-interface PatientTabsProps {
+export interface PatientTabsProps {
   patient: Patient;
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
@@ -33,7 +33,18 @@ export const PatientTabs = ({
       </TabsList>
 
       <TabsContent value="information">
-        <PatientInformationContent patient={patient} />
+        <PatientInformationContent 
+          firstName={patient.firstName}
+          lastName={patient.lastName}
+          email={patient.email}
+          phone={patient.phone}
+          sex={patient.sex}
+          dob={patient.dob}
+          address={patient.address}
+          treatmentType={patient.treatmentType}
+          upperTreatment={patient.upperTreatment}
+          lowerTreatment={patient.lowerTreatment}
+        />
       </TabsContent>
 
       <TabsContent value="medical-forms">
@@ -62,7 +73,10 @@ export const PatientTabs = ({
       </TabsContent>
 
       <TabsContent value="treatment-status">
-        <TreatmentStatusContent patient={patient} />
+        <TreatmentStatusContent 
+          patientData={patient}
+          labScripts={patient.labScripts || []}
+        />
       </TabsContent>
     </Tabs>
   );
