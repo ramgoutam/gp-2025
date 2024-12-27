@@ -8,8 +8,9 @@ import { ManufacturingContent } from "./tabs/ManufacturingContent";
 import { Patient } from "@/types/patient";
 import { LabScript } from "@/types/labScript";
 
-interface PatientTabsProps {
+export interface PatientTabsProps {
   patient: Patient;
+  labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
@@ -17,6 +18,7 @@ interface PatientTabsProps {
 
 export const PatientTabs = ({
   patient,
+  labScripts,
   onCreateLabScript,
   onEditLabScript,
   onDeleteLabScript,
@@ -33,7 +35,18 @@ export const PatientTabs = ({
       </TabsList>
 
       <TabsContent value="information">
-        <PatientInformationContent patient={patient} />
+        <PatientInformationContent 
+          firstName={patient.firstName}
+          lastName={patient.lastName}
+          email={patient.email}
+          phone={patient.phone}
+          sex={patient.sex}
+          dob={patient.dob}
+          address={patient.address}
+          treatmentType={patient.treatment_type}
+          upperTreatment={patient.upper_treatment}
+          lowerTreatment={patient.lower_treatment}
+        />
       </TabsContent>
 
       <TabsContent value="medical-forms">
@@ -42,7 +55,7 @@ export const PatientTabs = ({
 
       <TabsContent value="lab-scripts">
         <LabScriptsContent
-          labScripts={patient.labScripts || []}
+          labScripts={labScripts}
           onCreateLabScript={onCreateLabScript}
           onEditLabScript={onEditLabScript}
           onDeleteLabScript={onDeleteLabScript}
@@ -54,7 +67,14 @@ export const PatientTabs = ({
       </TabsContent>
 
       <TabsContent value="report-card">
-        <ReportCardContent patientId={patient.id} />
+        <ReportCardContent 
+          patientData={{
+            firstName: patient.firstName,
+            lastName: patient.lastName,
+            id: patient.id
+          }}
+          labScripts={labScripts}
+        />
       </TabsContent>
 
       <TabsContent value="manufacturing">
@@ -62,7 +82,16 @@ export const PatientTabs = ({
       </TabsContent>
 
       <TabsContent value="treatment-status">
-        <TreatmentStatusContent patient={patient} />
+        <TreatmentStatusContent 
+          labScripts={labScripts}
+          patientData={{
+            id: patient.id,
+            treatment_type: patient.treatment_type,
+            upper_treatment: patient.upper_treatment,
+            lower_treatment: patient.lower_treatment,
+            surgery_date: patient.surgery_date
+          }}
+        />
       </TabsContent>
     </Tabs>
   );
