@@ -83,12 +83,6 @@ export const PatientTabs = ({
           Report Card
         </TabsTrigger>
         <TabsTrigger
-          value="manufacturing"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
-        >
-          Manufacturing
-        </TabsTrigger>
-        <TabsTrigger
           value="next-treatment"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
@@ -141,12 +135,6 @@ export const PatientTabs = ({
             patientData={patientData} 
             labScripts={labScripts}
           />
-        </TabsContent>
-
-        <TabsContent value="manufacturing">
-          <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-            Manufacturing details will go here
-          </div>
         </TabsContent>
 
         <TabsContent value="next-treatment">
