@@ -3,7 +3,6 @@ import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -44,11 +43,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
-                <Badge 
-                  variant={script.status === 'completed' ? "default" : "secondary"}
-                >
-                  {script.status === 'completed' ? 'Design-Info Pending' : 'Design Pending'}
-                </Badge>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
