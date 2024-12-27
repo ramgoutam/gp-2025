@@ -66,12 +66,26 @@ export const EditLabScriptForm = ({
       if (error) throw error;
 
       console.log("Lab script updated successfully:", data);
+      
+      // Map database response to LabScript type
+      const updatedScript: LabScript = {
+        ...script,
+        doctorName: data.doctor_name,
+        clinicName: data.clinic_name,
+        requestDate: data.request_date,
+        dueDate: data.due_date,
+        applianceType: data.appliance_type,
+        upperTreatment: data.upper_treatment,
+        lowerTreatment: data.lower_treatment,
+        specificInstructions: data.specific_instructions,
+      };
+
       toast({
         title: "Success",
         description: "Lab script updated successfully",
       });
 
-      onUpdate(data as LabScript);
+      onUpdate(updatedScript);
       onClose();
     } catch (error) {
       console.error("Error updating lab script:", error);

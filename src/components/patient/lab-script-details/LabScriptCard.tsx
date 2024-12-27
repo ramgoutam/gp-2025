@@ -15,6 +15,7 @@ interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;
   onDelete: () => void;
+  onEdit: () => void;
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
 }
 
@@ -22,6 +23,7 @@ export const LabScriptCard = ({
   script,
   onClick,
   onDelete,
+  onEdit,
   onStatusChange,
 }: LabScriptCardProps) => {
   const [showEditForm, setShowEditForm] = React.useState(false);
@@ -61,6 +63,7 @@ export const LabScriptCard = ({
       title: "Success",
       description: "Lab script updated successfully",
     });
+    onEdit();
   };
 
   return (
@@ -96,6 +99,7 @@ export const LabScriptCard = ({
                 <CardActions
                   onView={onClick}
                   onDelete={onDelete}
+                  onEdit={handleEditClick}
                 />
               </div>
               <StatusButton 
