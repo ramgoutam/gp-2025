@@ -4,6 +4,9 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { HeaderSection } from "./HeaderSection";
 import { TreatmentsSection } from "./TreatmentsSection";
+import { ManufacturingSection } from "./sections/ManufacturingSection";
+import { ApplianceSection } from "./sections/ApplianceSection";
+import { ApplianceNumberSection } from "./sections/ApplianceNumberSection";
 
 interface LabScriptContentProps {
   script: LabScript;
@@ -36,47 +39,42 @@ export const LabScriptContent = ({ script, handlePreview }: LabScriptContentProp
   return (
     <div className="space-y-6 p-6">
       <HeaderSection script={script} />
-
+      
       <Separator />
-
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm text-gray-500">Appliance Type</h4>
-        <p className="text-lg">{script.applianceType || "N/A"}</p>
-      </div>
-
+      
+      <ApplianceSection script={script} />
+      
       <Separator />
-
+      
+      <ApplianceNumberSection script={script} />
+      
+      <Separator />
+      
       <TreatmentsSection script={script} />
-
+      
       <Separator />
+      
+      <ManufacturingSection script={script} />
 
-      <div className="space-y-4">
-        <h4 className="font-medium text-sm text-gray-500">Manufacturing Details</h4>
-        <div className="grid grid-cols-2 gap-6">
+      {script.vdoOption && (
+        <>
+          <Separator />
           <div className="space-y-2">
-            <h5 className="font-medium">Manufacturing Source</h5>
-            <p>{script.manufacturingSource || "Not specified"}</p>
+            <h4 className="font-medium text-sm text-gray-500">VDO Option</h4>
+            <p className="text-lg">{script.vdoOption}</p>
           </div>
+        </>
+      )}
+
+      {script.screwType && (
+        <>
+          <Separator />
           <div className="space-y-2">
-            <h5 className="font-medium">Manufacturing Type</h5>
-            <p>{script.manufacturingType || "Not specified"}</p>
+            <h4 className="font-medium text-sm text-gray-500">Screw Type</h4>
+            <p className="text-lg">{script.screwType}</p>
           </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm text-gray-500">Screw Type</h4>
-        <p className="text-lg">{script.screwType || "N/A"}</p>
-      </div>
-
-      <Separator />
-
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm text-gray-500">VDO Option</h4>
-        <p className="text-lg">{script.vdoOption || "N/A"}</p>
-      </div>
+        </>
+      )}
 
       {script.fileUploads && Object.keys(script.fileUploads).length > 0 && (
         <>
