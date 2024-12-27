@@ -136,10 +136,6 @@ const Scripts = () => {
           setSelectedScript(script);
           setIsEditing(false);
         }}
-        onScriptEdit={(script) => {
-          setSelectedScript(script);
-          setIsEditing(true);
-        }}
         onScriptDelete={handleScriptDelete}
       />
 
