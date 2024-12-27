@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, Pause, StopCircle, Flame } from "lucide-react";
+import { Factory, Play, Pause, StopCircle, Flame, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -15,6 +15,7 @@ interface ManufacturingContentProps {
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
   const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
+  const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
 
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -45,6 +46,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: false
     }));
+    setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
     console.log('Starting manufacturing process for script:', scriptId);
   };
 
@@ -70,6 +75,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       [scriptId]: false
     }));
     console.log('Resuming manufacturing process for script:', scriptId);
+  };
+
+  const handleComplete = (scriptId: string) => {
+    setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+    console.log('Completing manufacturing process for script:', scriptId);
   };
 
   const handleStartSintering = (scriptId: string) => {
@@ -126,13 +139,32 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     className="hover:bg-primary/5 group animate-fade-in"
                     onClick={() => handleResume(script.id)}
                   >
-                    <PlayCircle className="w-4 h-4 mr-2 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
+                    <Play className="w-4 h-4 mr-2 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
                     {script.manufacturingType === 'Milling' 
                       ? 'Resume Milling' 
                       : script.manufacturingType === 'Printing' 
                       ? 'Resume Printing' 
                       : 'Resume'}
                   </Button>
+                ) : completedScripts[script.id] ? (
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
+                      onClick={() => handleStartManufacturing(script.id)}
+                    >
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      Edit {script.manufacturingType} Status
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="hover:bg-orange-50 text-orange-600 border-orange-200"
+                      onClick={() => handleStartSintering(script.id)}
+                    >
+                      <Flame className="w-4 h-4 mr-2" />
+                      Start Sintering
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex gap-2">
                     <Button 
@@ -154,7 +186,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     <Button 
                       variant="outline"
                       className="hover:bg-orange-50 text-orange-600 border-orange-200"
-                      onClick={() => handleStartSintering(script.id)}
+                      onClick={() => handleComplete(script.id)}
                     >
                       <Flame className="w-4 h-4 mr-2" />
                       {script.manufacturingType === 'Milling' 
