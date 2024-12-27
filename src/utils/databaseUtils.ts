@@ -46,7 +46,7 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
 
   const { data, error } = await supabase
     .from('lab_scripts')
-    .insert([insertData])
+    .insert(insertData)
     .select(`
       *,
       patient:patients(first_name, last_name)
