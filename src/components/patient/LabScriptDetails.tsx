@@ -122,7 +122,12 @@ export const LabScriptDetails = ({
           <LabScriptForm
             initialData={currentScript || undefined}
             onSubmit={handleEdit}
+            isEditing={true}
             patientId={currentScript?.patientId}
+            patientData={{
+              firstName: currentScript?.patientFirstName || "",
+              lastName: currentScript?.patientLastName || ""
+            }}
           />
         ) : currentScript ? (
           <LabScriptContent script={currentScript} handlePreview={() => {}} />
