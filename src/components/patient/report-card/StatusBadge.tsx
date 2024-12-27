@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 
 interface StatusBadgeProps {
-  status: string;
+  status?: string; // Make status optional
 }
 
-export const StatusBadge = ({ status }: StatusBadgeProps) => {
+export const StatusBadge = ({ status = 'pending' }: StatusBadgeProps) => { // Add default value
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -38,7 +38,7 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
       case 'completed':
         return 'Completed';
       default:
-        return status.replace('_', ' ');
+        return status ? status.replace('_', ' ') : 'Unknown';
     }
   };
 
