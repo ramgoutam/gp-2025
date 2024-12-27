@@ -7,7 +7,6 @@ import { StatusButton } from "./StatusButton";
 import { LabScript, DatabaseLabScript, mapDatabaseLabScript } from "@/types/labScript";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface LabScriptCardProps {
   script: LabScript;
@@ -24,44 +23,26 @@ export const LabScriptCard = ({
   onDelete,
   onStatusChange,
 }: LabScriptCardProps) => {
-  const { toast } = useToast();
-
-  // Query for real-time script updates with better error handling
+  // Query for real-time script updates
   const { data: updatedScript } = useQuery({
     queryKey: ['labScript', script.id],
     queryFn: async () => {
       console.log("Fetching real-time updates for script:", script.id);
-      
-      try {
-        const { data, error } = await supabase
-          .from('lab_scripts')
-          .select('*')
-          .eq('id', script.id)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching script:", error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch lab script updates",
-            variant: "destructive",
-          });
-          return script;
-        }
-
-        if (!data) {
-          console.log("No data found for script:", script.id);
-          return script;
-        }
-
-        console.log("Successfully fetched script data:", data);
-        return mapDatabaseLabScript(data as DatabaseLabScript);
-      } catch (error) {
-        console.error("Unexpected error fetching script:", error);
+      if (error) {
+        console.error("Error fetching script:", error);
         return script;
       }
+
+      // Map the database response to our LabScript type
+      return data ? mapDatabaseLabScript(data as DatabaseLabScript) : script;
     },
-    refetchInterval: 1000,
+    refetchInterval: 1, // Updated to 1ms for real-time updates
     initialData: script,
   });
 
@@ -122,7 +103,6 @@ export const LabScriptCard = ({
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Not set";
     try {
       return format(new Date(dateString), "MMM dd, yyyy");
     } catch (error) {

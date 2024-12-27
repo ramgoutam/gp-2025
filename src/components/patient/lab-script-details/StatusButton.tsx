@@ -15,37 +15,23 @@ interface StatusButtonProps {
 export const StatusButton = ({ script, status: initialStatus, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
 
-  // Add real-time query for script status with proper type handling and error management
+  // Add real-time query for script status with proper type handling
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
     queryFn: async () => {
-      console.log("Fetching status for script:", script.id);
-      try {
-        const { data, error } = await supabase
-          .from('lab_scripts')
-          .select('*')
-          .eq('id', script.id)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .single();
 
-        if (error) {
-          console.error("Error fetching script status:", error);
-          throw error;
-        }
-
-        if (!data) {
-          console.log("No data found for script status:", script.id);
-          return script;
-        }
-
-        // Ensure status is a valid LabScriptStatus before mapping
-        const validStatus = data.status as LabScriptStatus;
-        return mapDatabaseLabScript({ ...data, status: validStatus });
-      } catch (error) {
-        console.error("Unexpected error fetching script status:", error);
-        return script;
-      }
+      if (error) throw error;
+      
+      // Ensure status is a valid LabScriptStatus before mapping
+      const validStatus = data.status as LabScriptStatus;
+      return mapDatabaseLabScript({ ...data, status: validStatus });
     },
-    refetchInterval: 1000,
+    refetchInterval: 1,
     initialData: script,
   });
 
@@ -53,17 +39,12 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
     try {
-      console.log("Updating status for script:", script.id, "to:", newStatus);
       const { error } = await supabase
         .from('lab_scripts')
         .update({ status: newStatus })
         .eq('id', script.id);
 
-      if (error) {
-        console.error("Error updating status:", error);
-        throw error;
-      }
-
+      if (error) throw error;
       onStatusChange(newStatus);
       
       toast({

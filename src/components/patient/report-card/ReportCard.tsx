@@ -137,9 +137,15 @@ export const ReportCard = ({
   return (
     <>
       <Card className="p-4 space-y-4 relative bg-white hover:shadow-md transition-shadow duration-300">
+        {patientName && (
+          <div className="text-sm font-medium text-gray-500">
+            Patient: {patientName}
+          </div>
+        )}
+        
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <ScriptTitle script={script} patientName={patientName} />
+            <ScriptTitle script={script} />
           </div>
           <div className="flex-shrink-0">
             <ActionButtons
