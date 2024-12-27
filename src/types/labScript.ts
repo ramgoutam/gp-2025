@@ -64,8 +64,9 @@ export interface LabScript {
     upper: string[];
     lower: string[];
   };
-  manufacturingSource?: string;  // Added this property
-  manufacturingType?: string;    // Added this property
+  manufacturingSource?: string;
+  manufacturingType?: string;
+  shade?: string; // Added this property
 }
 
 export interface DatabaseLabScript {
@@ -87,8 +88,9 @@ export interface DatabaseLabScript {
   specific_instructions?: string;
   created_at: string;
   updated_at: string;
-  manufacturing_source?: string;  // Added this property
-  manufacturing_type?: string;    // Added this property
+  manufacturing_source?: string;
+  manufacturing_type?: string;
+  shade?: string; // Added this property
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -109,8 +111,9 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     screwType: dbScript.screw_type,
     vdoOption: dbScript.vdo_option,
     specificInstructions: dbScript.specific_instructions,
-    manufacturingSource: dbScript.manufacturing_source,  // Added this mapping
-    manufacturingType: dbScript.manufacturing_type,      // Added this mapping
+    manufacturingSource: dbScript.manufacturing_source,
+    manufacturingType: dbScript.manufacturing_type,
+    shade: dbScript.shade, // Added this mapping
   };
 };
 
@@ -132,7 +135,8 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     screw_type: script.screwType,
     vdo_option: script.vdoOption,
     specific_instructions: script.specificInstructions,
-    manufacturing_source: script.manufacturingSource,  // Added this mapping
-    manufacturing_type: script.manufacturingType,      // Added this mapping
+    manufacturing_source: script.manufacturingSource,
+    manufacturing_type: script.manufacturingType,
+    shade: script.shade, // Added this mapping
   };
 };
