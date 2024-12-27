@@ -34,8 +34,8 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   // Create a properly typed object with required fields
   const insertData = {
     patient_id: dbScript.patient_id,
-    clinic_name: dbScript.clinic_name || 'Default Clinic', // Provide default or throw error if needed
-    doctor_name: dbScript.doctor_name || 'Default Doctor', // Provide default or throw error if needed
+    clinic_name: dbScript.clinic_name || 'Default Clinic',
+    doctor_name: dbScript.doctor_name || 'Default Doctor',
     request_date: dbScript.request_date || new Date().toISOString().split('T')[0],
     due_date: dbScript.due_date || new Date().toISOString().split('T')[0],
     status: dbScript.status || 'pending',
@@ -76,10 +76,13 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript> => 
 
   const dbScript = mapLabScriptToDatabase(script);
   console.log("Mapped database script for update:", dbScript);
+
+  // Remove id from update payload since it's used in the where clause
+  const { id, ...updateData } = dbScript;
   
   const { data, error } = await supabase
     .from('lab_scripts')
-    .update(dbScript)
+    .update(updateData)
     .eq('id', script.id)
     .select(`
       *,
