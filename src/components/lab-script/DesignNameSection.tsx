@@ -91,7 +91,7 @@ export const DesignNameSection = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-lg">Design Names</h3>
+      <h3 className="font-semibold text-lg">Appliance number</h3>
       <div className="grid grid-cols-2 gap-8">
         {upperTreatment !== "None" && upperOptions.length > 0 && (
           <div className="space-y-2">
