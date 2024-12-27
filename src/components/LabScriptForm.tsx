@@ -137,7 +137,7 @@ export const LabScriptForm = ({
     }));
   };
 
-  const isManufacturingEditable = !["Surgical Day appliance", "Printed Try-in", "Nightguard"].includes(formData.applianceType);
+  const isManufacturingEditable = true;
 
   return (
     <form onSubmit={onFormSubmit} className="space-y-6">

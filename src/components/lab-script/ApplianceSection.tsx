@@ -10,7 +10,7 @@ const APPLIANCE_TYPES = [
   "Ti-Bar and Superstructure"
 ] as const;
 
-const FIXED_MANUFACTURING_APPLIANCES = [
+const DEFAULT_MANUFACTURING_APPLIANCES = [
   "Surgical Day appliance",
   "Printed Try-in",
   "Nightguard"
@@ -31,8 +31,8 @@ export const ApplianceSection = ({
     onChange(newValue);
     
     // Set default manufacturing values for specific appliance types
-    if (FIXED_MANUFACTURING_APPLIANCES.includes(newValue)) {
-      console.log("Setting fixed manufacturing values for:", newValue);
+    if (DEFAULT_MANUFACTURING_APPLIANCES.includes(newValue)) {
+      console.log("Setting default manufacturing values for:", newValue);
       onManufacturingChange?.("Inhouse", "Printing");
     }
   };
