@@ -118,17 +118,9 @@ export const LabScriptsTab = ({
     setIsEditing(false);
   };
 
-  const handleEditClick = (script: LabScript) => {
-    console.log("Edit clicked, script:", script);
-    setSelectedScript(script);
-    setIsEditing(true);
-  };
-
-  const handleScriptEdit = (updatedScript: LabScript) => {
-    console.log("Handling script edit:", updatedScript);
-    onEditLabScript(updatedScript);
-    setSelectedScript(null);
-    setIsEditing(false);
+  const handleDeleteClick = (script: LabScript) => {
+    console.log("Delete clicked, script:", script);
+    onDeleteLabScript(script);
   };
 
   const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
@@ -181,8 +173,7 @@ export const LabScriptsTab = ({
                   key={script.id}
                   script={script}
                   onClick={() => handleRowClick(script)}
-                  onEdit={() => handleEditClick(script)}
-                  onDelete={() => onDeleteLabScript(script)}
+                  onDelete={() => handleDeleteClick(script)}
                   onStatusChange={handleStatusChange}
                 />
               ))
@@ -200,7 +191,7 @@ export const LabScriptsTab = ({
             setIsEditing(false);
           }
         }}
-        onEdit={handleScriptEdit}
+        onEdit={handleEditLabScript}
         isEditing={isEditing}
       />
     </div>
