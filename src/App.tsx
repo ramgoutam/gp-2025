@@ -10,6 +10,7 @@ import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import Manufacturing from "@/pages/Manufacturing";
+import Reports from "@/pages/Reports";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -62,6 +63,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Scripts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <ProtectedRoute>
+                      <Reports />
                     </ProtectedRoute>
                   }
                 />
