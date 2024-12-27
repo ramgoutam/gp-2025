@@ -112,7 +112,7 @@ export const ManufacturingControls = ({
   }
 
   // During Sintering
-  if (isSintering && !isMiyo) {
+  if (isSintering) {
     if (isPaused) {
       return (
         <Button 
@@ -125,29 +125,35 @@ export const ManufacturingControls = ({
         </Button>
       );
     }
-    return <SinteringStage 
-      onPauseSintering={onPauseSintering}
-      onHoldSintering={onHoldSintering}
-      onCompleteSintering={onCompleteSintering}
-    />;
+    return (
+      <SinteringStage 
+        onPauseSintering={onPauseSintering}
+        onHoldSintering={onHoldSintering}
+        onCompleteSintering={onCompleteSintering}
+      />
+    );
   }
 
   // After Sintering completed, show Miyo stage
-  if (isCompleted && !isMiyo) {
-    return <MiyoStage 
-      onStartMiyo={onStartMiyo}
-      onCompleteMiyo={onCompleteMiyo}
-      isMiyoStarted={false}
-    />;
+  if (!isMiyo && isCompleted) {
+    return (
+      <MiyoStage 
+        onStartMiyo={onStartMiyo}
+        onCompleteMiyo={onCompleteMiyo}
+        isMiyoStarted={false}
+      />
+    );
   }
 
   // During Miyo
   if (isMiyo) {
-    return <MiyoStage 
-      onStartMiyo={onStartMiyo}
-      onCompleteMiyo={onCompleteMiyo}
-      isMiyoStarted={true}
-    />;
+    return (
+      <MiyoStage 
+        onStartMiyo={onStartMiyo}
+        onCompleteMiyo={onCompleteMiyo}
+        isMiyoStarted={true}
+      />
+    );
   }
 
   // Ready to Insert (Final stage)
