@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ReportCard } from "@/components/patient/report-card/ReportCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader } from "lucide-react";
+import { mapDatabaseLabScript } from "@/types/labScript";
 
 interface ReportCardListProps {
   filter?: string;
@@ -84,7 +85,7 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
             </div>
             {report.lab_script && (
               <ReportCard
-                script={report.lab_script}
+                script={mapDatabaseLabScript(report.lab_script)}
                 onDesignInfo={() => {}}
                 onClinicalInfo={() => {}}
               />
