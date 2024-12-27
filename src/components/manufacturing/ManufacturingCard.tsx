@@ -3,6 +3,7 @@ import { useSpring, animated } from "@react-spring/web";
 import { LucideIcon } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface ManufacturingCardProps {
   title: string;
@@ -45,6 +46,24 @@ export const ManufacturingCard = ({
     config: { tension: 60, friction: 15 }
   });
 
+  // Get the first script to check its design info status
+  const firstScript = scripts[0];
+  const designInfoStatus = firstScript?.designInfoStatus;
+
+  const getStatusBadge = () => {
+    if (designInfoStatus === 'completed') {
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-green-100 text-green-800 border-green-200"
+        >
+          Design Info Completed
+        </Badge>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card 
       className={cn(
@@ -65,9 +84,12 @@ export const ManufacturingCard = ({
       </div>
       
       <div className="space-y-2 pb-4">
-        <p className="text-sm text-gray-500 font-medium">
-          {title}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 font-medium">
+            {title}
+          </p>
+          {getStatusBadge()}
+        </div>
         <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100">
           <animated.div
             className={`absolute inset-y-0 left-0 ${progressColor}`}
