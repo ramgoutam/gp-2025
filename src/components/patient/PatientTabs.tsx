@@ -6,6 +6,7 @@ import { PatientInformationContent } from "./tabs/PatientInformationContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
 import { TreatmentStatusContent } from "./tabs/TreatmentStatusContent";
 import { MedicalFormsContent } from "./tabs/MedicalFormsContent";
+import { ManufacturingContent } from "./tabs/ManufacturingContent";
 import { LabScript } from "@/types/labScript";
 
 interface PatientTabsProps {
@@ -83,6 +84,12 @@ export const PatientTabs = ({
           Report Card
         </TabsTrigger>
         <TabsTrigger
+          value="manufacturing"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Manufacturing
+        </TabsTrigger>
+        <TabsTrigger
           value="next-treatment"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
@@ -133,6 +140,13 @@ export const PatientTabs = ({
         <TabsContent value="report-card">
           <ReportCardContent 
             patientData={patientData} 
+            labScripts={labScripts}
+          />
+        </TabsContent>
+
+        <TabsContent value="manufacturing">
+          <ManufacturingContent 
+            patientData={patientData}
             labScripts={labScripts}
           />
         </TabsContent>
