@@ -3,6 +3,17 @@ import { Printer, CircuitBoard, Factory, Cog } from "lucide-react";
 import { useSpring, animated } from "@react-spring/web";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface LabScript {
+  id: string;
+  request_number: string;
+  doctor_name: string;
+  manufacturing_source: string;
+  manufacturing_type: string;
+  due_date: string;
+  status: string;
+}
 
 const AnimatedNumber = ({ number }: { number: number }) => {
   const { number: animatedNumber } = useSpring({
@@ -21,7 +32,8 @@ const ManufacturingCard = ({
   icon: Icon,
   color,
   bgColor,
-  progressColor
+  progressColor,
+  scripts
 }: {
   title: string;
   count: number;
@@ -29,6 +41,7 @@ const ManufacturingCard = ({
   color: string;
   bgColor: string;
   progressColor: string;
+  scripts: LabScript[];
 }) => {
   const width = useSpring({
     from: { width: '0%' },
@@ -38,7 +51,7 @@ const ManufacturingCard = ({
   });
 
   return (
-    <Card className="relative p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group animate-fade-in">
+    <Card className="relative p-6 hover:shadow-lg transition-all duration-300 group animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <div className={`${bgColor} w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
           <Icon className={`w-6 h-6 ${color}`} />
@@ -61,55 +74,85 @@ const ManufacturingCard = ({
           />
         </div>
       </div>
+
+      <ScrollArea className="h-[200px] mt-4">
+        <div className="space-y-2">
+          {scripts.map((script) => (
+            <div 
+              key={script.id} 
+              className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-sm">#{script.request_number}</span>
+                <span className={`px-2 py-1 rounded text-xs ${
+                  script.status === 'completed' ? 'bg-green-100 text-green-800' :
+                  script.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {script.status}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">Dr. {script.doctor_name}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Due: {new Date(script.due_date).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     </Card>
   );
 };
 
 const Manufacturing = () => {
-  const { data: manufacturingCounts = {
-    inhousePrinting: 0,
-    inhouseMilling: 0,
-    outsourcePrinting: 0,
-    outsourceMilling: 0,
-    total: 0
+  const { data: manufacturingData = {
+    counts: {
+      inhousePrinting: 0,
+      inhouseMilling: 0,
+      outsourcePrinting: 0,
+      outsourceMilling: 0,
+      total: 0
+    },
+    scripts: []
   }} = useQuery({
-    queryKey: ['manufacturingCounts'],
+    queryKey: ['manufacturingData'],
     queryFn: async () => {
-      console.log('Fetching manufacturing counts');
+      console.log('Fetching manufacturing data');
       
       const { data: scripts, error } = await supabase
         .from('lab_scripts')
-        .select('manufacturing_source, manufacturing_type');
+        .select('id, request_number, doctor_name, manufacturing_source, manufacturing_type, due_date, status');
 
       if (error) {
-        console.error("Error fetching manufacturing counts:", error);
+        console.error("Error fetching manufacturing data:", error);
         throw error;
       }
 
       const inhousePrinting = scripts.filter(s => 
         s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'printing'
-      ).length;
+      );
 
       const inhouseMilling = scripts.filter(s => 
         s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'milling'
-      ).length;
+      );
 
       const outsourcePrinting = scripts.filter(s => 
         s.manufacturing_source === 'outsource' && s.manufacturing_type === 'printing'
-      ).length;
+      );
 
       const outsourceMilling = scripts.filter(s => 
         s.manufacturing_source === 'outsource' && s.manufacturing_type === 'milling'
-      ).length;
-
-      const total = scripts.length;
+      );
 
       return {
-        inhousePrinting,
-        inhouseMilling,
-        outsourcePrinting,
-        outsourceMilling,
-        total
+        counts: {
+          inhousePrinting: inhousePrinting.length,
+          inhouseMilling: inhouseMilling.length,
+          outsourcePrinting: outsourcePrinting.length,
+          outsourceMilling: outsourceMilling.length,
+          total: scripts.length
+        },
+        scripts
       };
     },
     refetchInterval: 1000
@@ -118,35 +161,47 @@ const Manufacturing = () => {
   const cards = [
     {
       title: "Inhouse Printing",
-      count: manufacturingCounts.inhousePrinting,
+      count: manufacturingData.counts.inhousePrinting,
       icon: Printer,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      progressColor: "bg-blue-500"
+      progressColor: "bg-blue-500",
+      scripts: manufacturingData.scripts.filter(s => 
+        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'printing'
+      )
     },
     {
       title: "Inhouse Milling",
-      count: manufacturingCounts.inhouseMilling,
+      count: manufacturingData.counts.inhouseMilling,
       icon: CircuitBoard,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      progressColor: "bg-purple-500"
+      progressColor: "bg-purple-500",
+      scripts: manufacturingData.scripts.filter(s => 
+        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'milling'
+      )
     },
     {
       title: "Outsource Printing",
-      count: manufacturingCounts.outsourcePrinting,
+      count: manufacturingData.counts.outsourcePrinting,
       icon: Factory,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
-      progressColor: "bg-orange-500"
+      progressColor: "bg-orange-500",
+      scripts: manufacturingData.scripts.filter(s => 
+        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'printing'
+      )
     },
     {
       title: "Outsource Milling",
-      count: manufacturingCounts.outsourceMilling,
+      count: manufacturingData.counts.outsourceMilling,
       icon: Cog,
       color: "text-green-600",
       bgColor: "bg-green-50",
-      progressColor: "bg-green-500"
+      progressColor: "bg-green-500",
+      scripts: manufacturingData.scripts.filter(s => 
+        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'milling'
+      )
     }
   ];
 
