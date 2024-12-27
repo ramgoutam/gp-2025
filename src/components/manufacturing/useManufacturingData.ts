@@ -54,9 +54,9 @@ export const useManufacturingData = () => {
         };
       });
 
-      // Filter scripts that have completed design info but are not yet completed
+      // Filter scripts that have completed design info
       const manufacturingQueue = mappedScripts.filter(s => 
-        s.report_cards?.[0]?.design_info_status === 'completed' && 
+        s.designInfoStatus === 'completed' && 
         s.status !== 'completed'
       );
 
