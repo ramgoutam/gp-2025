@@ -1,10 +1,11 @@
+import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LabScriptsContent } from "./tabs/LabScriptsContent";
+import { MedicalRecordContent } from "./tabs/MedicalRecordContent";
 import { PatientInformationContent } from "./tabs/PatientInformationContent";
-import { MedicalFormsContent } from "./tabs/MedicalFormsContent";
 import { ReportCardContent } from "./tabs/ReportCardContent";
-import { ManufacturingContent } from "./tabs/ManufacturingContent";
 import { TreatmentStatusContent } from "./tabs/TreatmentStatusContent";
+import { MedicalFormsContent } from "./tabs/MedicalFormsContent";
 import { LabScript } from "@/types/labScript";
 
 interface PatientTabsProps {
@@ -12,39 +13,18 @@ interface PatientTabsProps {
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
-  patientData?: {
-    id?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-    sex?: string;
-    dob?: string;
-    address?: string;
-    treatmentType?: string;
-    upperTreatment?: string;
-    lowerTreatment?: string;
+  patientData: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    sex: string;
+    dob: string;
+    treatment_type?: string;
+    upper_treatment?: string;
+    lower_treatment?: string;
   };
-}
-
-// Define interfaces for child components
-interface MedicalFormsContentProps {
-  patientId: string;
-}
-
-interface ReportCardContentProps {
-  patientId: string;
-  patientName: string;
-}
-
-interface TreatmentStatusProps {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  treatmentType?: string;
-  upperTreatment?: string;
-  lowerTreatment?: string;
-  labScripts?: LabScript[];
 }
 
 export const PatientTabs = ({
@@ -54,20 +34,24 @@ export const PatientTabs = ({
   onDeleteLabScript,
   patientData,
 }: PatientTabsProps) => {
-  // Default values for patient name to handle undefined cases
-  const firstName = patientData?.firstName || '';
-  const lastName = patientData?.lastName || '';
-  const patientId = patientData?.id || '';
+  const handleCreateLabScript = () => {
+    console.log("Creating lab script in PatientTabs");
+    onCreateLabScript();
+  };
+
+  const handleEditLabScript = (updatedScript: LabScript) => {
+    console.log("Handling lab script edit in PatientTabs:", updatedScript);
+    onEditLabScript(updatedScript);
+  };
+
+  const handleDeleteLabScript = (script: LabScript) => {
+    console.log("Handling lab script delete in PatientTabs:", script);
+    onDeleteLabScript(script);
+  };
 
   return (
-    <Tabs defaultValue="lab-scripts" className="w-full">
-      <TabsList className="w-full justify-start border-b rounded-none p-0 h-auto gap-6">
-        <TabsTrigger
-          value="lab-scripts"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
-        >
-          Lab Scripts
-        </TabsTrigger>
+    <Tabs defaultValue="patient-information" className="w-full animate-fade-in">
+      <TabsList className="w-full justify-start border-b mb-6 bg-transparent h-auto p-0 space-x-6">
         <TabsTrigger
           value="patient-information"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
@@ -75,10 +59,22 @@ export const PatientTabs = ({
           Patient Information
         </TabsTrigger>
         <TabsTrigger
-          value="medical-forms"
+          value="treatment-status"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
-          Medical Forms
+          Treatment Status
+        </TabsTrigger>
+        <TabsTrigger
+          value="appointment-history"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Appointment History
+        </TabsTrigger>
+        <TabsTrigger
+          value="lab-scripts"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Lab Scripts
         </TabsTrigger>
         <TabsTrigger
           value="report-card"
@@ -87,58 +83,72 @@ export const PatientTabs = ({
           Report Card
         </TabsTrigger>
         <TabsTrigger
-          value="manufacturing"
-          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
-        >
-          Manufacturing
-        </TabsTrigger>
-        <TabsTrigger
           value="next-treatment"
           className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
         >
           Next Treatment
         </TabsTrigger>
+        <TabsTrigger
+          value="medical-record"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Medical Record
+        </TabsTrigger>
+        <TabsTrigger
+          value="medical-forms"
+          className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 pb-4 rounded-none transition-all duration-300 hover:text-primary"
+        >
+          Medical Forms
+        </TabsTrigger>
       </TabsList>
 
-      <div className="mt-6">
-        <TabsContent value="lab-scripts">
-          <LabScriptsContent
-            labScripts={labScripts}
-            onCreateLabScript={onCreateLabScript}
-            onEditLabScript={onEditLabScript}
-            onDeleteLabScript={onDeleteLabScript}
-            patientData={patientData}
-          />
-        </TabsContent>
-
+      <div className="animate-fade-in">
         <TabsContent value="patient-information">
           <PatientInformationContent {...patientData} />
         </TabsContent>
 
-        <TabsContent value="medical-forms">
-          <MedicalFormsContent patientId={patientId} />
-        </TabsContent>
-
-        <TabsContent value="report-card">
-          <ReportCardContent
-            patientId={patientId}
-            patientName={`${firstName} ${lastName}`}
+        <TabsContent value="treatment-status">
+          <TreatmentStatusContent 
+            labScripts={labScripts} 
+            patientData={patientData}
           />
         </TabsContent>
 
-        <TabsContent value="manufacturing">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <ManufacturingContent patientId={patientId} />
+        <TabsContent value="appointment-history">
+          <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
+            Appointment history will go here
           </div>
+        </TabsContent>
+
+        <TabsContent value="lab-scripts">
+          <LabScriptsContent
+            labScripts={labScripts}
+            onCreateLabScript={handleCreateLabScript}
+            onEditLabScript={handleEditLabScript}
+            onDeleteLabScript={handleDeleteLabScript}
+            patientData={patientData}
+          />
+        </TabsContent>
+
+        <TabsContent value="report-card">
+          <ReportCardContent 
+            patientData={patientData} 
+            labScripts={labScripts}
+          />
         </TabsContent>
 
         <TabsContent value="next-treatment">
           <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-            <TreatmentStatusContent 
-              {...patientData} 
-              labScripts={labScripts}
-            />
+            Next treatment details will go here
           </div>
+        </TabsContent>
+
+        <TabsContent value="medical-record">
+          <MedicalRecordContent />
+        </TabsContent>
+
+        <TabsContent value="medical-forms">
+          <MedicalFormsContent />
         </TabsContent>
       </div>
     </Tabs>

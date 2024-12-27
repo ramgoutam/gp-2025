@@ -54,12 +54,10 @@ export const useManufacturingData = () => {
         };
       });
 
-      // Filter scripts that have completed design info and are not completed
+      // Filter scripts that have completed design info
       const manufacturingQueue = mappedScripts.filter(s => 
         s.designInfoStatus === 'completed' && 
-        s.status !== 'completed' &&
-        s.manufacturingSource && // Ensure manufacturing source is set
-        s.manufacturingType // Ensure manufacturing type is set
+        s.status !== 'completed'
       );
 
       console.log("Manufacturing queue:", manufacturingQueue);
