@@ -8,8 +8,8 @@ export interface PatientAvatarProps {
 
 export const PatientAvatar = ({ firstName, lastName, avatar }: PatientAvatarProps) => {
   // Add null checks and provide default values
-  const firstInitial = firstName ? firstName[0] : '';
-  const lastInitial = lastName ? lastName[0] : '';
+  const firstInitial = firstName ? firstName[0].toUpperCase() : '';
+  const lastInitial = lastName ? lastName[0].toUpperCase() : '';
 
   return avatar ? (
     <img
