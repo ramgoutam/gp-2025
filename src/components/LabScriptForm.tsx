@@ -202,8 +202,7 @@ export const LabScriptForm = ({
         {shouldShowVDOSection() && (
           <VDOSection
             value={formData.vdoOption}
-            onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))
-            }
+            onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))}
           />
         )}
       </div>
