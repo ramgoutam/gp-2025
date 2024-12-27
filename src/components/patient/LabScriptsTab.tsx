@@ -191,7 +191,7 @@ export const LabScriptsTab = ({
             setIsEditing(false);
           }
         }}
-        onEdit={handleEditLabScript}
+        onEdit={onEditLabScript}
         isEditing={isEditing}
       />
     </div>
