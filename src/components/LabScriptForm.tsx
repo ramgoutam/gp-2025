@@ -22,6 +22,7 @@ export const LabScriptForm = ({
 }: LabScriptFormProps) => {
   const {
     formData,
+    setFormData,
     fileUploads,
     isSubmitting,
     handleChange,
@@ -46,13 +47,7 @@ export const LabScriptForm = ({
         handleChange={handleChange}
         handleFileChange={handleFileChange}
         handleManufacturingChange={handleManufacturingChange}
-        setFormData={(newData) => {
-          if (typeof newData === 'function') {
-            setFormData((prev: any) => ({ ...prev, ...newData(prev) }));
-          } else {
-            setFormData((prev: any) => ({ ...prev, ...newData }));
-          }
-        }}
+        setFormData={setFormData}
       />
     </form>
   );

@@ -1,11 +1,6 @@
 import React from "react";
 import { useLabScriptSubmit } from "@/hooks/useLabScriptSubmit";
 
-type FileUpload = {
-  id: string;
-  files: File[];
-};
-
 interface UseLabScriptFormProps {
   onSubmit?: (data: any) => void;
   initialData?: any;
@@ -24,7 +19,6 @@ export const useLabScriptForm = ({
   patientData,
   patientId
 }: UseLabScriptFormProps) => {
-  const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
   const [formData, setFormData] = React.useState({
     requestDate: initialData?.requestDate || "",
     dueDate: initialData?.dueDate || "",
@@ -44,33 +38,8 @@ export const useLabScriptForm = ({
     manufacturingType: initialData?.manufacturingType || "",
   });
 
-  const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
-    if (initialData?.fileUploads) {
-      const formattedUploads: Record<string, FileUpload> = {};
-      Object.entries(initialData.fileUploads).forEach(([key, files]: [string, any]) => {
-        const fileArray = Array.isArray(files) ? files : [files];
-        const validFiles = fileArray
-          .map(file => {
-            if (file instanceof File) return file;
-            if (file.name && file.type && file.size) {
-              return new File([file], file.name, {
-                type: file.type,
-                lastModified: file.lastModified || Date.now()
-              });
-            }
-            return null;
-          })
-          .filter(Boolean);
-
-        formattedUploads[key] = {
-          id: key,
-          files: validFiles
-        };
-      });
-      return formattedUploads;
-    }
-    return {};
-  });
+  const [fileUploads, setFileUploads] = React.useState<Record<string, { id: string; files: File[] }>>({});
+  const { handleSubmit, isSubmitting } = useLabScriptSubmit(onSubmit, isEditing);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -121,6 +90,7 @@ export const useLabScriptForm = ({
 
   return {
     formData,
+    setFormData,
     fileUploads,
     isSubmitting,
     handleChange,
