@@ -25,13 +25,28 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Error checking session:", sessionError);
+        throw sessionError;
+      }
+
+      if (!session) {
+        console.log("No active session found, redirecting to login");
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Error signing out:", error);
         throw error;
       }
       
-      // Clear any local storage or state if needed
+      // Clear any local storage
       localStorage.clear();
       
       toast({
@@ -48,6 +63,8 @@ export const Navigation = () => {
         title: "Error",
         description: "Failed to sign out. Please try again.",
       });
+      // Force navigation to login on error to ensure user can retry
+      navigate("/login", { replace: true });
     }
   };
 
