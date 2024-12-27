@@ -37,7 +37,7 @@ export const PopupComponent = ({ component, onUpdateComponents, isPreview = fals
 
   return (
     <Dialog>
-      <DialogContent className={`${getMaxWidth()} bg-white max-h-[90vh] overflow-hidden`}>
+      <DialogContent className={`${getMaxWidth()} bg-white`}>
         <DialogHeader>
           <DialogTitle>{component.label}</DialogTitle>
           {component.placeholder && (
@@ -47,7 +47,7 @@ export const PopupComponent = ({ component, onUpdateComponents, isPreview = fals
           )}
         </DialogHeader>
         {component.children && component.children.length > 0 && (
-          <div className="flex-1 overflow-auto">
+          <div className="mt-4">
             <FormBuilderCanvasContent
               components={component.children}
               onUpdateComponents={onUpdateComponents}

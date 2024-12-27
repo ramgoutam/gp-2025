@@ -85,7 +85,7 @@ export const PatientList = () => {
   };
 
   const renderViewToggle = () => (
-    <div className="flex justify-end mb-4">
+    <div className="flex justify-end mb-4 px-4">
       <Button
         variant="outline"
         size="sm"
@@ -108,7 +108,7 @@ export const PatientList = () => {
   );
 
   const renderCardView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-[calc(100vh-300px)] overflow-auto p-1">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredPatients.length > 0 ? (
         filteredPatients.map((patient) => (
           <Card key={patient.id} className="p-4 hover:shadow-md transition-shadow">
@@ -184,13 +184,13 @@ export const PatientList = () => {
   );
 
   const renderListView = () => (
-    <div className="h-[calc(100vh-300px)] overflow-auto rounded-md border">
+    <div className="rounded-md border">
       <DataTable columns={columns} data={filteredPatients} />
     </div>
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="p-4">
       {renderViewToggle()}
       {viewMode === 'card' ? renderCardView() : renderListView()}
     </div>
