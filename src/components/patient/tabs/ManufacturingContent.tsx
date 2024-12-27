@@ -44,7 +44,9 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
-                <Badge variant={script.status === 'completed' ? "success" : "secondary"}>
+                <Badge 
+                  variant={script.status === 'completed' ? "default" : "secondary"}
+                >
                   {script.status === 'completed' ? 'Design-Info Pending' : 'Design Pending'}
                 </Badge>
               </div>
