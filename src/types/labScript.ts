@@ -39,29 +39,36 @@ export interface ReportCard {
 
 export interface LabScript {
   id: string;
-  request_number?: string;
-  patient_id?: string;
-  doctor_name: string;
-  clinic_name: string;
-  request_date: string;
-  due_date: string;
+  requestNumber?: string;
+  patientId?: string;
+  patientFirstName?: string;
+  patientLastName?: string;
+  doctorName: string;
+  clinicName: string;
+  requestDate: string;
+  dueDate: string;
   status: LabScriptStatus;
-  upper_treatment?: string;
-  lower_treatment?: string;
-  upper_design_name?: string;
-  lower_design_name?: string;
-  appliance_type?: string;
-  screw_type?: string;
-  vdo_option?: string;
-  specific_instructions?: string;
-  manufacturing_source?: string;
-  manufacturing_type?: string;
+  upperTreatment?: string;
+  lowerTreatment?: string;
+  upperDesignName?: string;
+  lowerDesignName?: string;
+  applianceType?: string;
+  screwType?: string;
+  vdoOption?: string;
+  specificInstructions?: string;
+  designInfo?: DesignInfo;
+  clinicalInfo?: ClinicalInfo;
+  reportCard?: ReportCard;
+  fileUploads?: Record<string, File>;
+  treatments?: {
+    upper: string[];
+    lower: string[];
+  };
+  manufacturingSource?: string;
+  manufacturingType?: string;
   material?: string;
   shade?: string;
-  design_info?: DesignInfo;
-  clinical_info?: ClinicalInfo;
-  report_card?: ReportCard;
-  file_uploads?: Record<string, File>;
+  designInfoStatus?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {
@@ -92,23 +99,23 @@ export interface DatabaseLabScript {
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
   return {
     id: dbScript.id,
-    request_number: dbScript.request_number,
-    patient_id: dbScript.patient_id,
-    doctor_name: dbScript.doctor_name,
-    clinic_name: dbScript.clinic_name,
-    request_date: dbScript.request_date,
-    due_date: dbScript.due_date,
+    requestNumber: dbScript.request_number,
+    patientId: dbScript.patient_id,
+    doctorName: dbScript.doctor_name,
+    clinicName: dbScript.clinic_name,
+    requestDate: dbScript.request_date,
+    dueDate: dbScript.due_date,
     status: dbScript.status as LabScriptStatus,
-    upper_treatment: dbScript.upper_treatment,
-    lower_treatment: dbScript.lower_treatment,
-    upper_design_name: dbScript.upper_design_name,
-    lower_design_name: dbScript.lower_design_name,
-    appliance_type: dbScript.appliance_type,
-    screw_type: dbScript.screw_type,
-    vdo_option: dbScript.vdo_option,
-    specific_instructions: dbScript.specific_instructions,
-    manufacturing_source: dbScript.manufacturing_source,
-    manufacturing_type: dbScript.manufacturing_type,
+    upperTreatment: dbScript.upper_treatment,
+    lowerTreatment: dbScript.lower_treatment,
+    upperDesignName: dbScript.upper_design_name,
+    lowerDesignName: dbScript.lower_design_name,
+    applianceType: dbScript.appliance_type,
+    screwType: dbScript.screw_type,
+    vdoOption: dbScript.vdo_option,
+    specificInstructions: dbScript.specific_instructions,
+    manufacturingSource: dbScript.manufacturing_source,
+    manufacturingType: dbScript.manufacturing_type,
     material: dbScript.material,
     shade: dbScript.shade,
   };
@@ -117,23 +124,23 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
 export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabScript> => {
   return {
     id: script.id,
-    request_number: script.request_number,
-    patient_id: script.patient_id,
-    doctor_name: script.doctor_name,
-    clinic_name: script.clinic_name,
-    request_date: script.request_date,
-    due_date: script.due_date,
+    request_number: script.requestNumber,
+    patient_id: script.patientId,
+    doctor_name: script.doctorName,
+    clinic_name: script.clinicName,
+    request_date: script.requestDate,
+    due_date: script.dueDate,
     status: script.status,
-    upper_treatment: script.upper_treatment,
-    lower_treatment: script.lower_treatment,
-    upper_design_name: script.upper_design_name,
-    lower_design_name: script.lower_design_name,
-    appliance_type: script.appliance_type,
-    screw_type: script.screw_type,
-    vdo_option: script.vdo_option,
-    specific_instructions: script.specific_instructions,
-    manufacturing_source: script.manufacturing_source,
-    manufacturing_type: script.manufacturing_type,
+    upper_treatment: script.upperTreatment,
+    lower_treatment: script.lowerTreatment,
+    upper_design_name: script.upperDesignName,
+    lower_design_name: script.lowerDesignName,
+    appliance_type: script.applianceType,
+    screw_type: script.screwType,
+    vdo_option: script.vdoOption,
+    specific_instructions: script.specificInstructions,
+    manufacturing_source: script.manufacturingSource,
+    manufacturing_type: script.manufacturingType,
     material: script.material,
     shade: script.shade,
   };

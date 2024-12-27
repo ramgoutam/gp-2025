@@ -11,7 +11,7 @@ export const ApplianceSection = ({ script }: ApplianceSectionProps) => {
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-2">
           <h5 className="font-medium">Appliance Type</h5>
-          <p>{script.appliance_type || "N/A"}</p>
+          <p>{script.applianceType || "N/A"}</p>
         </div>
         <div className="space-y-2">
           <h5 className="font-medium">Shade</h5>

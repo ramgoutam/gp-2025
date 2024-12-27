@@ -5,7 +5,7 @@ interface ManufacturingSectionProps {
 }
 
 export const ManufacturingSection = ({ script }: ManufacturingSectionProps) => {
-  if (!script.manufacturing_source && !script.manufacturing_type) return null;
+  if (!script.manufacturingSource && !script.manufacturingType) return null;
 
   return (
     <div className="space-y-4">
@@ -13,11 +13,11 @@ export const ManufacturingSection = ({ script }: ManufacturingSectionProps) => {
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-2">
           <h5 className="font-medium">Manufacturing Source</h5>
-          <p>{script.manufacturing_source || "Not specified"}</p>
+          <p>{script.manufacturingSource || "Not specified"}</p>
         </div>
         <div className="space-y-2">
           <h5 className="font-medium">Manufacturing Type</h5>
-          <p>{script.manufacturing_type || "Not specified"}</p>
+          <p>{script.manufacturingType || "Not specified"}</p>
         </div>
       </div>
     </div>
