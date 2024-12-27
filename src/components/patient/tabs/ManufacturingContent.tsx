@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
+import { Factory } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, Pause, StopCircle, Flame, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ManufacturingCard } from "../manufacturing/ManufacturingCard";
+import { ManufacturingControls } from "../manufacturing/ManufacturingControls";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -16,6 +17,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
   const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
   const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
+  const [sinteringScripts, setSinteringScripts] = useState<{ [key: string]: boolean }>({});
 
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -47,6 +49,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       [scriptId]: false
     }));
     setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    setSinteringScripts(prev => ({
       ...prev,
       [scriptId]: false
     }));
@@ -86,120 +92,63 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   };
 
   const handleStartSintering = (scriptId: string) => {
+    setSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     console.log('Starting sintering process for script:', scriptId);
+  };
+
+  const handlePauseSintering = (scriptId: string) => {
+    setSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    console.log('Pausing sintering process for script:', scriptId);
+  };
+
+  const handleHoldSintering = (scriptId: string) => {
+    setSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    console.log('Holding sintering process for script:', scriptId);
+  };
+
+  const handleCompleteSintering = (scriptId: string) => {
+    setSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+    console.log('Completing sintering process for script:', scriptId);
   };
 
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
         {manufacturingScripts.map((script) => (
-          <Card key={script.id} className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">
-                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-                </h3>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Manufacturing Source</p>
-                  <p className="font-medium">{script.manufacturingSource}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Manufacturing Type</p>
-                  <p className="font-medium">{script.manufacturingType}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Material</p>
-                  <p className="font-medium">{script.material || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Shade</p>
-                  <p className="font-medium">{script.shade || 'N/A'}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                {!activeScripts[script.id] ? (
-                  <Button 
-                    className="bg-primary hover:bg-primary/90"
-                    onClick={() => handleStartManufacturing(script.id)}
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    {script.manufacturingType === 'Milling' 
-                      ? 'Start Milling' 
-                      : script.manufacturingType === 'Printing' 
-                      ? 'Start Printing' 
-                      : 'Start'}
-                  </Button>
-                ) : pausedScripts[script.id] ? (
-                  <Button 
-                    variant="outline"
-                    className="hover:bg-primary/5 group animate-fade-in"
-                    onClick={() => handleResume(script.id)}
-                  >
-                    <Play className="w-4 h-4 mr-2 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
-                    {script.manufacturingType === 'Milling' 
-                      ? 'Resume Milling' 
-                      : script.manufacturingType === 'Printing' 
-                      ? 'Resume Printing' 
-                      : 'Resume'}
-                  </Button>
-                ) : completedScripts[script.id] ? (
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline"
-                      className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-                      onClick={() => handleStartManufacturing(script.id)}
-                    >
-                      <AlertCircle className="w-4 h-4 mr-2" />
-                      Edit {script.manufacturingType} Status
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="hover:bg-orange-50 text-orange-600 border-orange-200"
-                      onClick={() => handleStartSintering(script.id)}
-                    >
-                      <Flame className="w-4 h-4 mr-2" />
-                      Start Sintering
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline"
-                      className="hover:bg-yellow-50 text-yellow-600 border-yellow-200"
-                      onClick={() => handlePause(script.id)}
-                    >
-                      <Pause className="w-4 h-4 mr-2" />
-                      Pause
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="hover:bg-red-50 text-red-600 border-red-200"
-                      onClick={() => handleHold(script.id)}
-                    >
-                      <StopCircle className="w-4 h-4 mr-2" />
-                      Hold
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="hover:bg-orange-50 text-orange-600 border-orange-200"
-                      onClick={() => handleComplete(script.id)}
-                    >
-                      <Flame className="w-4 h-4 mr-2" />
-                      {script.manufacturingType === 'Milling' 
-                        ? 'Complete Milling' 
-                        : script.manufacturingType === 'Printing' 
-                        ? 'Complete Printing' 
-                        : 'Complete'}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Card>
+          <ManufacturingCard key={script.id} script={script}>
+            <ManufacturingControls
+              manufacturingType={script.manufacturingType || ''}
+              isActive={activeScripts[script.id]}
+              isPaused={pausedScripts[script.id]}
+              isCompleted={completedScripts[script.id]}
+              isSintering={sinteringScripts[script.id]}
+              onStart={() => handleStartManufacturing(script.id)}
+              onPause={() => handlePause(script.id)}
+              onHold={() => handleHold(script.id)}
+              onResume={() => handleResume(script.id)}
+              onComplete={() => handleComplete(script.id)}
+              onStartSintering={() => handleStartSintering(script.id)}
+              onPauseSintering={() => handlePauseSintering(script.id)}
+              onHoldSintering={() => handleHoldSintering(script.id)}
+              onCompleteSintering={() => handleCompleteSintering(script.id)}
+            />
+          </ManufacturingCard>
         ))}
       </div>
     </div>
