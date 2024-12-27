@@ -164,6 +164,7 @@ export const LabScriptCard = ({
             <CardActions
               onView={onClick}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
             <StatusButton 
               script={updatedScript}

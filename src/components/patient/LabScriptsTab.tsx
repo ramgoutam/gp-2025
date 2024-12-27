@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-type LabScriptsTabProps = {
+interface LabScriptsTabProps {
   labScripts: LabScript[];
   onCreateLabScript: () => void;
   onEditLabScript: (updatedScript: LabScript) => void;
@@ -19,7 +19,7 @@ type LabScriptsTabProps = {
     firstName: string;
     lastName: string;
   };
-};
+}
 
 export const LabScriptsTab = ({ 
   labScripts: initialLabScripts, 
@@ -33,7 +33,6 @@ export const LabScriptsTab = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for enriched lab scripts with real-time updates
   const { data: enrichedLabScripts = [] } = useQuery({
     queryKey: ['enrichedLabScripts', initialLabScripts],
     queryFn: async () => {
