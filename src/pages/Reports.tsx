@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ReportStatusCards } from "@/components/reports/ReportStatusCards";
+import ReportCardList from "@/components/reports/ReportCardList";
 
 const Reports = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -15,7 +16,7 @@ const Reports = () => {
         activeFilter={activeFilter}
       />
 
-      {/* Content will be added based on your guidance */}
+      <ReportCardList filter={activeFilter} />
     </div>
   );
 };
