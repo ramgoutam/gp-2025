@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -13,10 +15,67 @@ interface ManufacturingContentProps {
   };
 }
 
-export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const manufacturingScripts = labScripts.filter(script => 
-    script.manufacturingSource && script.manufacturingType
-  );
+export const ManufacturingContent = ({ labScripts: initialScripts, patientData }: ManufacturingContentProps) => {
+  const queryClient = useQueryClient();
+
+  // Query for real-time script updates
+  const { data: manufacturingScripts = [] } = useQuery({
+    queryKey: ['manufacturingScripts', initialScripts],
+    queryFn: async () => {
+      console.log("Fetching manufacturing scripts status");
+      
+      try {
+        const { data: scripts, error } = await supabase
+          .from('lab_scripts')
+          .select('*')
+          .in('id', initialScripts.map(s => s.id));
+
+        if (error) {
+          console.error("Error fetching scripts:", error);
+          return initialScripts;
+        }
+
+        console.log("Fetched updated scripts:", scripts);
+        return scripts.filter(script => 
+          script.manufacturing_source && script.manufacturing_type
+        );
+      } catch (error) {
+        console.error("Error in manufacturing scripts query:", error);
+        return initialScripts;
+      }
+    },
+    refetchInterval: 1, // Refetch every millisecond
+    initialData: initialScripts.filter(script => 
+      script.manufacturingSource && script.manufacturingType
+    ),
+  });
+
+  // Set up real-time subscription
+  useEffect(() => {
+    console.log("Setting up real-time subscription for manufacturing scripts");
+    
+    const channel = supabase
+      .channel('manufacturing-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lab_scripts',
+          filter: `id=in.(${initialScripts.map(s => `'${s.id}'`).join(',')})`
+        },
+        (payload) => {
+          console.log("Real-time update received:", payload);
+          queryClient.invalidateQueries({ queryKey: ['manufacturingScripts'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log("Cleaning up real-time subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [initialScripts, queryClient]);
 
   if (manufacturingScripts.length === 0) {
     return (
