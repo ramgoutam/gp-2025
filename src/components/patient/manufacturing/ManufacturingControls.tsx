@@ -16,6 +16,7 @@ interface ManufacturingControlsProps {
   onStartSintering: () => void;
   onPauseSintering: () => void;
   onHoldSintering: () => void;
+  onResumeSintering: () => void;
   onCompleteSintering: () => void;
 }
 
@@ -33,6 +34,7 @@ export const ManufacturingControls = ({
   onStartSintering,
   onPauseSintering,
   onHoldSintering,
+  onResumeSintering,
   onCompleteSintering,
 }: ManufacturingControlsProps) => {
   if (!isActive && !isPaused && !isCompleted) {

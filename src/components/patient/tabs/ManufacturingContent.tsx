@@ -18,6 +18,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
   const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
   const [sinteringScripts, setSinteringScripts] = useState<{ [key: string]: boolean }>({});
+  const [pausedSinteringScripts, setPausedSinteringScripts] = useState<{ [key: string]: boolean }>({});
 
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -96,27 +97,43 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: true
     }));
+    setPausedSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
     console.log('Starting sintering process for script:', scriptId);
   };
 
   const handlePauseSintering = (scriptId: string) => {
-    setSinteringScripts(prev => ({
+    setPausedSinteringScripts(prev => ({
       ...prev,
-      [scriptId]: false
+      [scriptId]: true
     }));
     console.log('Pausing sintering process for script:', scriptId);
   };
 
   const handleHoldSintering = (scriptId: string) => {
-    setSinteringScripts(prev => ({
+    setPausedSinteringScripts(prev => ({
       ...prev,
-      [scriptId]: false
+      [scriptId]: true
     }));
     console.log('Holding sintering process for script:', scriptId);
   };
 
+  const handleResumeSintering = (scriptId: string) => {
+    setPausedSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    console.log('Resuming sintering process for script:', scriptId);
+  };
+
   const handleCompleteSintering = (scriptId: string) => {
     setSinteringScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    setPausedSinteringScripts(prev => ({
       ...prev,
       [scriptId]: false
     }));
@@ -146,6 +163,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               onStartSintering={() => handleStartSintering(script.id)}
               onPauseSintering={() => handlePauseSintering(script.id)}
               onHoldSintering={() => handleHoldSintering(script.id)}
+              onResumeSintering={() => handleResumeSintering(script.id)}
               onCompleteSintering={() => handleCompleteSintering(script.id)}
             />
           </ManufacturingCard>
