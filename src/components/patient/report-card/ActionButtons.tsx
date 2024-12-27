@@ -61,27 +61,44 @@ export const ActionButtons = ({
   const handleDesignInfoClick = async () => {
     console.log("Checking lab script status before proceeding:", currentScript.status);
     
-    // Check if the script exists and its status
-    if (!currentScript) {
+    try {
+      // Get the latest status directly from the database
+      const { data: latestScript, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .single();
+
+      if (error) throw error;
+
+      if (!latestScript) {
+        toast({
+          title: "Error",
+          description: "Lab script not found.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (latestScript.status !== 'completed') {
+        toast({
+          title: "Lab Script Incomplete",
+          description: "Please complete the lab script before adding design information.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // If we get here, the script is completed and we can proceed
+      onDesignInfo(currentScript);
+    } catch (error) {
+      console.error("Error checking lab script status:", error);
       toast({
         title: "Error",
-        description: "Lab script not found.",
+        description: "Failed to check lab script status. Please try again.",
         variant: "destructive"
       });
-      return;
     }
-
-    if (currentScript.status !== 'completed') {
-      toast({
-        title: "Lab Script Incomplete",
-        description: "Please complete the lab script before adding design information.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // If we get here, the script is completed and we can proceed
-    onDesignInfo(currentScript);
   };
 
   const handleClinicalInfoClick = () => {
