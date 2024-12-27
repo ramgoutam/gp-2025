@@ -2,6 +2,7 @@ import { ReportCardItem } from "./ReportCardItem";
 import { ReportCardData } from "@/types/reportCard";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FileText } from "lucide-react"; // Add this import
 
 interface ReportCardListProps {
   reportCards?: ReportCardData[];
