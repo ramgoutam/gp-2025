@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play } from "lucide-react";
+import { Factory, Play, Pause, StopCircle, Fire } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -13,6 +13,8 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
+  const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
+
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
@@ -32,6 +34,26 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       </Card>
     );
   }
+
+  const handleStartManufacturing = (scriptId: string) => {
+    setActiveScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+    console.log('Starting manufacturing process for script:', scriptId);
+  };
+
+  const handlePause = (scriptId: string) => {
+    console.log('Pausing manufacturing process for script:', scriptId);
+  };
+
+  const handleHold = (scriptId: string) => {
+    console.log('Holding manufacturing process for script:', scriptId);
+  };
+
+  const handleStartSintering = (scriptId: string) => {
+    console.log('Starting sintering process for script:', scriptId);
+  };
 
   return (
     <div className="space-y-6">
@@ -65,17 +87,46 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  {script.manufacturingType === 'Milling' 
-                    ? 'Start Milling' 
-                    : script.manufacturingType === 'Printing' 
-                    ? 'Start Printing' 
-                    : 'Start'}
-                </Button>
+                {!activeScripts[script.id] ? (
+                  <Button 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => handleStartManufacturing(script.id)}
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    {script.manufacturingType === 'Milling' 
+                      ? 'Start Milling' 
+                      : script.manufacturingType === 'Printing' 
+                      ? 'Start Printing' 
+                      : 'Start'}
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      className="hover:bg-yellow-50 text-yellow-600 border-yellow-200"
+                      onClick={() => handlePause(script.id)}
+                    >
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pause
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="hover:bg-red-50 text-red-600 border-red-200"
+                      onClick={() => handleHold(script.id)}
+                    >
+                      <StopCircle className="w-4 h-4 mr-2" />
+                      Hold
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="hover:bg-orange-50 text-orange-600 border-orange-200"
+                      onClick={() => handleStartSintering(script.id)}
+                    >
+                      <Fire className="w-4 h-4 mr-2" />
+                      Start Sintering
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
