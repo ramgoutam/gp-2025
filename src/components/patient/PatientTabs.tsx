@@ -54,6 +54,11 @@ export const PatientTabs = ({
   onDeleteLabScript,
   patientData,
 }: PatientTabsProps) => {
+  // Default values for patient name to handle undefined cases
+  const firstName = patientData?.firstName || '';
+  const lastName = patientData?.lastName || '';
+  const patientId = patientData?.id || '';
+
   return (
     <Tabs defaultValue="lab-scripts" className="w-full">
       <TabsList className="w-full justify-start border-b rounded-none p-0 h-auto gap-6">
@@ -111,19 +116,19 @@ export const PatientTabs = ({
         </TabsContent>
 
         <TabsContent value="medical-forms">
-          <MedicalFormsContent patientId={patientData?.id || ''} />
+          <MedicalFormsContent patientId={patientId} />
         </TabsContent>
 
         <TabsContent value="report-card">
           <ReportCardContent
-            patientId={patientData?.id || ''}
-            patientName={`${patientData?.firstName || ''} ${patientData?.lastName || ''}`}
+            patientId={patientId}
+            patientName={`${firstName} ${lastName}`}
           />
         </TabsContent>
 
         <TabsContent value="manufacturing">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <ManufacturingContent patientId={patientData?.id || ''} />
+            <ManufacturingContent patientId={patientId} />
           </div>
         </TabsContent>
 
