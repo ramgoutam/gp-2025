@@ -96,6 +96,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000
+    refetchInterval: 1000, // Poll every second
+    refetchIntervalInBackground: true // Continue polling even when tab is in background
   });
 };
