@@ -30,7 +30,8 @@ export const useLabScriptSubmit = (
         console.log("Updating existing lab script:", initialData.id);
         savedScript = await updateLabScript({
           ...formData,
-          id: initialData.id
+          id: initialData.id,
+          status: initialData.status // Preserve the existing status
         });
         console.log("Lab script updated successfully:", savedScript);
       } else {
