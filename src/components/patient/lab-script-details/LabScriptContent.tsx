@@ -48,6 +48,36 @@ export const LabScriptContent = ({ script, handlePreview }: LabScriptContentProp
 
       <TreatmentsSection script={script} />
 
+      <Separator />
+
+      <div className="space-y-4">
+        <h4 className="font-medium text-sm text-gray-500">Manufacturing Details</h4>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <h5 className="font-medium">Manufacturing Source</h5>
+            <p>{script.manufacturingSource || "Not specified"}</p>
+          </div>
+          <div className="space-y-2">
+            <h5 className="font-medium">Manufacturing Type</h5>
+            <p>{script.manufacturingType || "Not specified"}</p>
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-2">
+        <h4 className="font-medium text-sm text-gray-500">Screw Type</h4>
+        <p className="text-lg">{script.screwType || "N/A"}</p>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-2">
+        <h4 className="font-medium text-sm text-gray-500">VDO Option</h4>
+        <p className="text-lg">{script.vdoOption || "N/A"}</p>
+      </div>
+
       {script.fileUploads && Object.keys(script.fileUploads).length > 0 && (
         <>
           <Separator />
