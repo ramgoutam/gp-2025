@@ -64,9 +64,18 @@ const Login = () => {
         </div>
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          providers={[]}
+          appearance={{ 
+            theme: ThemeSupa,
+            style: {
+              button: { background: 'rgb(59 130 246)', color: 'white' },
+              anchor: { color: 'rgb(59 130 246)' },
+            }
+          }}
+          providers={["google", "github"]}
           redirectTo={`${window.location.origin}/`}
+          magicLink={true}
+          showLinks={true}
+          view="sign_in"
         />
       </div>
     </div>
