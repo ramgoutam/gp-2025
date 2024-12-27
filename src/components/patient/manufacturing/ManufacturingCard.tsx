@@ -3,9 +3,6 @@ import { Card } from "@/components/ui/card";
 import { LabScript } from "@/types/labScript";
 import { Check, Circle, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 
 interface ManufacturingCardProps {
   script: LabScript;
@@ -16,7 +13,6 @@ type StepStatus = 'completed' | 'current' | 'upcoming';
 type Step = { name: string; status: StepStatus };
 
 export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) => {
-  const { toast } = useToast();
   const [steps, setSteps] = useState<Step[]>([
     { name: 'Milling', status: 'upcoming' },
     { name: 'Sintering', status: 'upcoming' },
@@ -37,55 +33,6 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
       }
     }
   }, [script.status]);
-
-  const completeCurrentStep = async () => {
-    const currentStepIndex = steps.findIndex(step => step.status === 'current');
-    if (currentStepIndex === -1) return;
-
-    try {
-      const newSteps = [...steps];
-      newSteps[currentStepIndex].status = 'completed';
-      
-      // Set next step as current if available
-      if (currentStepIndex < steps.length - 1) {
-        newSteps[currentStepIndex + 1].status = 'current';
-      }
-      
-      setSteps(newSteps);
-
-      // If all steps are completed, update the script status
-      const allCompleted = newSteps.every(step => step.status === 'completed');
-      if (allCompleted) {
-        const { error } = await supabase
-          .from('lab_scripts')
-          .update({ status: 'completed' })
-          .eq('id', script.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Manufacturing Complete",
-          description: "All manufacturing steps have been completed.",
-        });
-      } else {
-        toast({
-          title: "Step Completed",
-          description: `${steps[currentStepIndex].name} has been completed.`,
-        });
-      }
-    } catch (error) {
-      console.error('Error updating step status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update manufacturing status.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getCurrentStep = () => {
-    return steps.find(step => step.status === 'current');
-  };
 
   const getStepIcon = (step: Step) => {
     switch (step.status) {
@@ -153,16 +100,6 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
               </div>
             ))}
           </div>
-          
-          {getCurrentStep() && (
-            <Button 
-              onClick={completeCurrentStep}
-              className="w-full"
-              variant="outline"
-            >
-              Complete {getCurrentStep()?.name}
-            </Button>
-          )}
         </div>
       </div>
     </Card>
