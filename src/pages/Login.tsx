@@ -15,10 +15,12 @@ const Login = () => {
     const checkUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       console.log("Current session:", session);
-      if (session) {
-        console.log("User already logged in, redirecting to dashboard");
+      
+      if (session?.access_token) {
+        console.log("Valid session found, redirecting to dashboard");
         navigate("/");
       }
+      
       if (error) {
         console.error("Error checking session:", error);
         toast({
@@ -35,13 +37,18 @@ const Login = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
-        if (event === "SIGNED_IN" && session) {
+        
+        if (event === "SIGNED_IN" && session?.access_token) {
           console.log("User signed in, redirecting to dashboard");
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          navigate("/");
+          navigate("/", { replace: true });
+        } else if (event === "SIGNED_OUT") {
+          console.log("User signed out");
+          // Ensure we're on the login page when signed out
+          navigate("/login", { replace: true });
         }
       }
     );
