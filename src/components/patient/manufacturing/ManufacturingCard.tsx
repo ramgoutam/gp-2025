@@ -35,10 +35,6 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
             <p className="font-medium">{script.shade || 'N/A'}</p>
           </div>
         </div>
-
-        <div className="flex justify-end pt-4">
-          {children}
-        </div>
       </div>
     </Card>
   );
