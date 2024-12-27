@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Printer, CircuitBoard, Factory, Cog } from "lucide-react";
 import { useSpring, animated } from "@react-spring/web";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const AnimatedNumber = ({ number }: { number: number }) => {
   const { number: animatedNumber } = useSpring({
@@ -64,10 +66,59 @@ const ManufacturingCard = ({
 };
 
 const Manufacturing = () => {
+  const { data: manufacturingCounts = {
+    inhousePrinting: 0,
+    inhouseMilling: 0,
+    outsourcePrinting: 0,
+    outsourceMilling: 0,
+    total: 0
+  }} = useQuery({
+    queryKey: ['manufacturingCounts'],
+    queryFn: async () => {
+      console.log('Fetching manufacturing counts');
+      
+      const { data: scripts, error } = await supabase
+        .from('lab_scripts')
+        .select('manufacturing_source, manufacturing_type');
+
+      if (error) {
+        console.error("Error fetching manufacturing counts:", error);
+        throw error;
+      }
+
+      const inhousePrinting = scripts.filter(s => 
+        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'printing'
+      ).length;
+
+      const inhouseMilling = scripts.filter(s => 
+        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'milling'
+      ).length;
+
+      const outsourcePrinting = scripts.filter(s => 
+        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'printing'
+      ).length;
+
+      const outsourceMilling = scripts.filter(s => 
+        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'milling'
+      ).length;
+
+      const total = scripts.length;
+
+      return {
+        inhousePrinting,
+        inhouseMilling,
+        outsourcePrinting,
+        outsourceMilling,
+        total
+      };
+    },
+    refetchInterval: 1000
+  });
+
   const cards = [
     {
       title: "Inhouse Printing",
-      count: 24,
+      count: manufacturingCounts.inhousePrinting,
       icon: Printer,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -75,7 +126,7 @@ const Manufacturing = () => {
     },
     {
       title: "Inhouse Milling",
-      count: 18,
+      count: manufacturingCounts.inhouseMilling,
       icon: CircuitBoard,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
@@ -83,7 +134,7 @@ const Manufacturing = () => {
     },
     {
       title: "Outsource Printing",
-      count: 12,
+      count: manufacturingCounts.outsourcePrinting,
       icon: Factory,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
@@ -91,7 +142,7 @@ const Manufacturing = () => {
     },
     {
       title: "Outsource Milling",
-      count: 15,
+      count: manufacturingCounts.outsourceMilling,
       icon: Cog,
       color: "text-green-600",
       bgColor: "bg-green-50",
