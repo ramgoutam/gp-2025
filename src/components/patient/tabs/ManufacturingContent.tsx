@@ -152,7 +152,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             <ManufacturingControls
               manufacturingType={script.manufacturingType || ''}
               isActive={activeScripts[script.id]}
-              isPaused={pausedScripts[script.id]}
+              isPaused={pausedSinteringScripts[script.id]}
               isCompleted={completedScripts[script.id]}
               isSintering={sinteringScripts[script.id]}
               onStart={() => handleStartManufacturing(script.id)}
