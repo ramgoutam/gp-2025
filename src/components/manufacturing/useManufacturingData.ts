@@ -21,7 +21,15 @@ export const useManufacturingData = () => {
           manufacturing_source,
           manufacturing_type,
           created_at,
-          updated_at
+          updated_at,
+          patients (
+            first_name,
+            last_name
+          ),
+          report_cards (
+            design_info:design_info_id(*),
+            clinical_info:clinical_info_id(*)
+          )
         `);
 
       if (error) {
@@ -29,7 +37,16 @@ export const useManufacturingData = () => {
         throw error;
       }
 
-      const mappedScripts = scripts.map(script => mapDatabaseLabScript(script));
+      const mappedScripts = scripts.map(script => {
+        const mappedScript = mapDatabaseLabScript(script);
+        return {
+          ...mappedScript,
+          patientFirstName: script.patients?.first_name,
+          patientLastName: script.patients?.last_name,
+          designInfo: script.report_cards?.[0]?.design_info,
+          clinicalInfo: script.report_cards?.[0]?.clinical_info
+        };
+      });
 
       const inhousePrinting = mappedScripts.filter(s => 
         s.manufacturingSource === 'inhouse' && s.manufacturingType === 'printing'

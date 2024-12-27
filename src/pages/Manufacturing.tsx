@@ -1,9 +1,14 @@
 import { Printer, CircuitBoard, Factory, Cog, CheckCircle } from "lucide-react";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
+import { ManufacturingTable } from "@/components/manufacturing/ManufacturingTable";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
+import { LabScript } from "@/types/labScript";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Manufacturing = () => {
+  const { toast } = useToast();
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -15,6 +20,57 @@ const Manufacturing = () => {
     },
     scripts: []
   }} = useManufacturingData();
+
+  const handleStatusUpdate = async (script: LabScript, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({ status: newStatus })
+        .eq('id', script.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: "The lab script status has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update the status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (script: LabScript) => {
+    console.log("Edit script:", script);
+    // Implement edit functionality
+  };
+
+  const handleDelete = async (script: LabScript) => {
+    try {
+      const { error } = await supabase
+        .from('lab_scripts')
+        .delete()
+        .eq('id', script.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Lab Script Deleted",
+        description: "The lab script has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting lab script:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the lab script. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const cards = [
     {
@@ -76,6 +132,11 @@ const Manufacturing = () => {
     }
   ];
 
+  // Filter scripts that have completed design info
+  const manufacturingScripts = manufacturingData.scripts.filter(script => 
+    script.designInfo && script.status !== 'completed'
+  );
+
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
@@ -86,6 +147,15 @@ const Manufacturing = () => {
             {...card}
           />
         ))}
+      </div>
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">Manufacturing Queue</h2>
+        <ManufacturingTable
+          scripts={manufacturingScripts}
+          onStatusUpdate={handleStatusUpdate}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
