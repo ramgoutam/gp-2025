@@ -2,6 +2,7 @@ import React from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -15,6 +16,38 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
+
+  const getManufacturingStatus = (script: LabScript) => {
+    // If lab script is not complete
+    if (script.status !== 'completed') {
+      return "Design Pending";
+    }
+    
+    // If lab script is complete but design report card is not
+    if (script.status === 'completed' && (!script.designInfoStatus || script.designInfoStatus !== 'completed')) {
+      return "Design report-card pending";
+    }
+    
+    // If design report card is completed
+    if (script.designInfoStatus === 'completed') {
+      return `${script.manufacturingType} pending`;
+    }
+
+    return "Status unknown";
+  };
+
+  const getStatusColor = (status: string) => {
+    if (status === "Design Pending") {
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    }
+    if (status === "Design report-card pending") {
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    }
+    if (status.includes("pending")) {
+      return "bg-purple-100 text-purple-800 border-purple-200";
+    }
+    return "bg-gray-100 text-gray-800 border-gray-200";
+  };
 
   if (manufacturingScripts.length === 0) {
     return (
@@ -42,6 +75,12 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
+                <Badge 
+                  variant="outline" 
+                  className={`${getStatusColor(getManufacturingStatus(script))} px-3 py-1`}
+                >
+                  {getManufacturingStatus(script)}
+                </Badge>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
