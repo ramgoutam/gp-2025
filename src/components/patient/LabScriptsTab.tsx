@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
@@ -81,10 +81,9 @@ export const LabScriptsTab = ({
         return initialLabScripts;
       }
     },
-    refetchInterval: 1, // Updated to 1ms for real-time updates
+    refetchInterval: 1,
   });
 
-  // Set up real-time subscription for lab script status updates
   useEffect(() => {
     const channel = supabase
       .channel('lab-scripts-status')
@@ -98,7 +97,6 @@ export const LabScriptsTab = ({
         },
         (payload) => {
           console.log("Lab script updated:", payload);
-          // Update the specific script in the cache
           queryClient.setQueryData(['enrichedLabScripts', initialLabScripts], (old: any) => {
             if (!old) return old;
             return old.map((script: LabScript) => 
@@ -135,7 +133,6 @@ export const LabScriptsTab = ({
 
   const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
     console.log("Status changed for script:", script.id, newStatus);
-    // The UI will be updated through the real-time subscription
   };
 
   const patientName = patientData 
