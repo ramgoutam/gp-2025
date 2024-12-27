@@ -135,7 +135,7 @@ export const ManufacturingControls = ({
   }
 
   // After Sintering completed, before Miyo
-  if (!isSintering && isCompleted && !isMiyo) {
+  if (isCompleted && !isMiyo) {
     return (
       <MiyoStage 
         onStartMiyo={onStartMiyo}
