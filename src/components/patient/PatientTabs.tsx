@@ -21,6 +21,11 @@ export const PatientTabs = ({
   onEditLabScript,
   onDeleteLabScript,
 }: PatientTabsProps) => {
+  if (!patient) {
+    console.log("Patient data is undefined in PatientTabs");
+    return null;
+  }
+
   return (
     <Tabs defaultValue="information" className="w-full">
       <TabsList>

@@ -1,3 +1,5 @@
+import { LabScript } from "./labScript";
+
 export interface Patient {
   id: string;
   firstName: string;
