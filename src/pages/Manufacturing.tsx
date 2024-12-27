@@ -51,23 +51,23 @@ const ManufacturingCard = ({
   });
 
   return (
-    <Card className="relative p-6 hover:shadow-lg transition-all duration-300 group animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`${bgColor} w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
-          <Icon className={`w-6 h-6 ${color}`} />
+    <Card className="relative p-4 hover:shadow-lg transition-all duration-300 group animate-fade-in">
+      <div className="flex items-center justify-between mb-2">
+        <div className={`${bgColor} w-10 h-10 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
+          <Icon className={`w-5 h-5 ${color}`} />
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-gray-900">
             <AnimatedNumber number={count} />
           </p>
         </div>
       </div>
       
-      <div className="space-y-2">
-        <p className="text-sm text-gray-500 font-medium">
+      <div className="space-y-1">
+        <p className="text-xs text-gray-500 font-medium">
           {title}
         </p>
-        <div className="relative h-2 rounded-full overflow-hidden bg-gray-100">
+        <div className="relative h-1 rounded-full overflow-hidden bg-gray-100">
           <animated.div
             className={`absolute inset-y-0 left-0 ${progressColor}`}
             style={width}
@@ -75,16 +75,16 @@ const ManufacturingCard = ({
         </div>
       </div>
 
-      <ScrollArea className="h-[200px] mt-4">
-        <div className="space-y-2">
+      <ScrollArea className="h-[120px] mt-2">
+        <div className="space-y-1">
           {scripts.map((script) => (
             <div 
               key={script.id} 
-              className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="flex justify-between items-center">
-                <span className="font-medium text-sm">#{script.request_number}</span>
-                <span className={`px-2 py-1 rounded text-xs ${
+                <span className="font-medium text-xs">#{script.request_number}</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
                   script.status === 'completed' ? 'bg-green-100 text-green-800' :
                   script.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
                   'bg-yellow-100 text-yellow-800'
@@ -92,8 +92,8 @@ const ManufacturingCard = ({
                   {script.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mt-1">Dr. {script.doctor_name}</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-0.5">Dr. {script.doctor_name}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">
                 Due: {new Date(script.due_date).toLocaleDateString()}
               </p>
             </div>
@@ -207,8 +207,8 @@ const Manufacturing = () => {
 
   return (
     <div className="container mx-auto p-8 space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 animate-fade-in">Manufacturing</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4 animate-fade-in">Manufacturing</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card, index) => (
           <ManufacturingCard
             key={card.title}
