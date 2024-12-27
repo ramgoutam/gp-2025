@@ -6,9 +6,11 @@ import { useManufacturingData } from "@/components/manufacturing/useManufacturin
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 const Manufacturing = () => {
   const { toast } = useToast();
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -37,9 +39,9 @@ const Manufacturing = () => {
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
+        variant: "destructive",
         title: "Error",
         description: "Failed to update the status. Please try again.",
-        variant: "destructive",
       });
     }
   };
@@ -64,12 +66,37 @@ const Manufacturing = () => {
     } catch (error) {
       console.error("Error deleting lab script:", error);
       toast({
+        variant: "destructive",
         title: "Error",
         description: "Failed to delete the lab script. Please try again.",
-        variant: "destructive",
       });
     }
   };
+
+  const handleCardClick = (filter: string | null) => {
+    setActiveFilter(filter === activeFilter ? null : filter);
+  };
+
+  const filteredScripts = activeFilter
+    ? manufacturingData.scripts.filter(script => {
+        switch (activeFilter) {
+          case 'inhouse-printing':
+            return script.manufacturingSource === 'inhouse' && script.manufacturingType === 'printing';
+          case 'inhouse-milling':
+            return script.manufacturingSource === 'inhouse' && script.manufacturingType === 'milling';
+          case 'outsource-printing':
+            return script.manufacturingSource === 'outsource' && script.manufacturingType === 'printing';
+          case 'outsource-milling':
+            return script.manufacturingSource === 'outsource' && script.manufacturingType === 'milling';
+          case 'completed':
+            return script.manufacturingSource === 'outsource' && 
+                   script.manufacturingType === 'milling' && 
+                   script.status === 'completed';
+          default:
+            return true;
+        }
+      })
+    : manufacturingData.scripts;
 
   const cards = [
     {
@@ -79,6 +106,7 @@ const Manufacturing = () => {
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       progressColor: "bg-blue-500",
+      filter: "inhouse-printing",
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'inhouse' && s.manufacturingType === 'printing'
       )
@@ -90,6 +118,7 @@ const Manufacturing = () => {
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       progressColor: "bg-purple-500",
+      filter: "inhouse-milling",
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'inhouse' && s.manufacturingType === 'milling'
       )
@@ -101,6 +130,7 @@ const Manufacturing = () => {
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       progressColor: "bg-orange-500",
+      filter: "outsource-printing",
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'outsource' && s.manufacturingType === 'printing'
       )
@@ -112,6 +142,7 @@ const Manufacturing = () => {
       color: "text-green-600",
       bgColor: "bg-green-50",
       progressColor: "bg-green-500",
+      filter: "outsource-milling",
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
       )
@@ -123,6 +154,7 @@ const Manufacturing = () => {
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
       progressColor: "bg-emerald-500",
+      filter: "completed",
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'outsource' && 
         s.manufacturingType === 'milling' && 
@@ -139,13 +171,15 @@ const Manufacturing = () => {
           <ManufacturingCard
             key={card.title}
             {...card}
+            isActive={activeFilter === card.filter}
+            onClick={() => handleCardClick(card.filter)}
           />
         ))}
       </div>
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">Manufacturing Queue</h2>
         <ManufacturingTable
-          scripts={manufacturingData.scripts}
+          scripts={filteredScripts}
           onStatusUpdate={handleStatusUpdate}
           onEdit={handleEdit}
           onDelete={handleDelete}

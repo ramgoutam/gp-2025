@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { useSpring, animated } from "@react-spring/web";
 import { LucideIcon } from "lucide-react";
 import { LabScript } from "@/types/labScript";
+import { cn } from "@/lib/utils";
 
 interface ManufacturingCardProps {
   title: string;
@@ -11,6 +12,8 @@ interface ManufacturingCardProps {
   bgColor: string;
   progressColor: string;
   scripts: LabScript[];
+  isActive?: boolean;
+  onClick?: () => void;
 }
 
 const AnimatedNumber = ({ number }: { number: number }) => {
@@ -31,7 +34,9 @@ export const ManufacturingCard = ({
   color,
   bgColor,
   progressColor,
-  scripts
+  scripts,
+  isActive = false,
+  onClick
 }: ManufacturingCardProps) => {
   const width = useSpring({
     from: { width: '0%' },
@@ -41,7 +46,13 @@ export const ManufacturingCard = ({
   });
 
   return (
-    <Card className="relative p-4 hover:shadow-lg transition-all duration-300 group animate-fade-in">
+    <Card 
+      className={cn(
+        "relative p-4 hover:shadow-lg transition-all duration-300 group animate-fade-in cursor-pointer",
+        isActive && "ring-2 ring-primary"
+      )}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className={`${bgColor} w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
           <Icon className={`w-6 h-6 ${color}`} />
