@@ -54,7 +54,7 @@ export const ManufacturingControls = ({
   });
 
   // Initial state - Start Printing/Milling
-  if (!isActive && !isPaused && !isCompleted) {
+  if (!isActive && !isPaused && !isCompleted && !isSintering && !isMiyo) {
     return (
       <Button 
         className="bg-primary hover:bg-primary/90"
