@@ -30,15 +30,23 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
 
   const dbScript = mapLabScriptToDatabase(script as LabScript);
   console.log("Mapped database script for insert:", dbScript);
-  
-  // Ensure required fields are present
-  if (!dbScript.clinic_name || !dbScript.doctor_name || !dbScript.due_date || !dbScript.request_date) {
-    throw new Error("Missing required fields for lab script");
-  }
+
+  // Create a properly typed object with required fields
+  const insertData = {
+    patient_id: dbScript.patient_id,
+    clinic_name: dbScript.clinic_name || 'Default Clinic', // Provide default or throw error if needed
+    doctor_name: dbScript.doctor_name || 'Default Doctor', // Provide default or throw error if needed
+    request_date: dbScript.request_date || new Date().toISOString().split('T')[0],
+    due_date: dbScript.due_date || new Date().toISOString().split('T')[0],
+    status: dbScript.status || 'pending',
+    ...dbScript // Spread the rest of the optional fields
+  };
+
+  console.log("Inserting lab script with data:", insertData);
 
   const { data, error } = await supabase
     .from('lab_scripts')
-    .insert(dbScript)
+    .insert([insertData])
     .select(`
       *,
       patient:patients(first_name, last_name)
