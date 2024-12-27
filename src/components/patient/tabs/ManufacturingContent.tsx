@@ -39,7 +39,9 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           <Card key={script.id} className="p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Lab Script #{script.requestNumber}</h3>
+                <h3 className="font-semibold">
+                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                </h3>
                 <span className={`px-3 py-1 rounded-full text-sm ${
                   script.status === 'completed' ? 'bg-green-100 text-green-800' :
                   script.status === 'processing' ? 'bg-blue-100 text-blue-800' :
