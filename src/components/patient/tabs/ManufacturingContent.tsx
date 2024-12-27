@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ManufacturingCard } from "../manufacturing/ManufacturingCard";
 import { ManufacturingControls } from "../manufacturing/ManufacturingControls";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -50,6 +51,31 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     });
   };
 
+  const handleManufacturingComplete = async (scriptId: string) => {
+    console.log('Manufacturing completed for script:', scriptId);
+    
+    try {
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({ status: 'completed' })
+        .eq('id', scriptId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Manufacturing Completed",
+        description: "The item is now ready to insert.",
+      });
+    } catch (error) {
+      console.error('Error updating lab script status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update manufacturing status.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -58,20 +84,8 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             <ManufacturingControls
               manufacturingType={script.manufacturingType || ''}
               isActive={activeScripts[script.id]}
-              isPaused={false}
-              isCompleted={false}
-              isSintering={false}
-              isMiyo={false}
               onStart={() => handleStartManufacturing(script.id)}
-              onPause={() => {}}
-              onHold={() => {}}
-              onResume={() => {}}
-              onComplete={() => {}}
-              onStartSintering={() => {}}
-              onCompleteSintering={() => {}}
-              onStartMiyo={() => {}}
-              onCompleteMiyo={() => {}}
-              onReadyToInsert={() => {}}
+              onComplete={() => handleManufacturingComplete(script.id)}
             />
           </ManufacturingCard>
         ))}
