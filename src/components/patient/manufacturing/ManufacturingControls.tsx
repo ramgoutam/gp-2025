@@ -105,7 +105,7 @@ export const ManufacturingControls = ({
           onClick={onStartSintering}
         >
           <AlertCircle className="w-4 h-4 mr-2" />
-          Start Sintering
+          Start Miyo
         </Button>
       </div>
     );
