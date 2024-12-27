@@ -4,6 +4,7 @@ import { Factory } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ManufacturingCard } from "../manufacturing/ManufacturingCard";
 import { ManufacturingControls } from "../manufacturing/ManufacturingControls";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -19,6 +20,8 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
   const [sinteringScripts, setSinteringScripts] = useState<{ [key: string]: boolean }>({});
   const [pausedSinteringScripts, setPausedSinteringScripts] = useState<{ [key: string]: boolean }>({});
+  const [miyoScripts, setMiyoScripts] = useState<{ [key: string]: boolean }>({});
+  const { toast } = useToast();
 
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -58,14 +61,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: false
     }));
+    setMiyoScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
   };
 
   const handlePause = (scriptId: string) => {
     console.log('Pausing manufacturing for script:', scriptId);
-    setActiveScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -74,10 +77,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleHold = (scriptId: string) => {
     console.log('Holding manufacturing for script:', scriptId);
-    setActiveScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -86,10 +85,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleResume = (scriptId: string) => {
     console.log('Resuming manufacturing for script:', scriptId);
-    setActiveScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: false
@@ -164,6 +159,38 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     }));
   };
 
+  const handleStartMiyo = (scriptId: string) => {
+    console.log('Starting Miyo for script:', scriptId);
+    setMiyoScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+  };
+
+  const handleCompleteMiyo = (scriptId: string) => {
+    console.log('Completing Miyo for script:', scriptId);
+    setMiyoScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+  };
+
+  const handleReadyToInsert = (scriptId: string) => {
+    console.log('Manufacturing completed, ready to insert for script:', scriptId);
+    setCompletedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
+    toast({
+      title: "Manufacturing Complete",
+      description: "The appliance is ready to insert",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -175,6 +202,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               isPaused={pausedScripts[script.id]}
               isCompleted={completedScripts[script.id]}
               isSintering={sinteringScripts[script.id]}
+              isMiyo={miyoScripts[script.id]}
               onStart={() => handleStartManufacturing(script.id)}
               onPause={() => handlePause(script.id)}
               onHold={() => handleHold(script.id)}
@@ -185,6 +213,9 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               onHoldSintering={() => handleHoldSintering(script.id)}
               onResumeSintering={() => handleResumeSintering(script.id)}
               onCompleteSintering={() => handleCompleteSintering(script.id)}
+              onStartMiyo={() => handleStartMiyo(script.id)}
+              onCompleteMiyo={() => handleCompleteMiyo(script.id)}
+              onReadyToInsert={() => handleReadyToInsert(script.id)}
             />
           </ManufacturingCard>
         ))}
