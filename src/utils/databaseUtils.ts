@@ -31,10 +31,18 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   const dbScript = mapLabScriptToDatabase(script as LabScript);
   console.log("Mapped database script for insert:", dbScript);
   
+  // Ensure required fields are present
+  if (!dbScript.clinic_name || !dbScript.doctor_name || !dbScript.due_date || !dbScript.request_date) {
+    throw new Error("Missing required fields for lab script");
+  }
+
   const { data, error } = await supabase
     .from('lab_scripts')
-    .insert([dbScript])
-    .select()
+    .insert(dbScript)
+    .select(`
+      *,
+      patient:patients(first_name, last_name)
+    `)
     .single();
 
   if (error) {
