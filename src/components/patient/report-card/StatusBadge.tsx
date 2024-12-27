@@ -6,7 +6,7 @@ interface StatusBadgeProps {
 
 export const StatusBadge = ({ status = 'pending' }: StatusBadgeProps) => { // Add default value
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) { // Add toLowerCase() to handle case variations
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'processing':
@@ -24,7 +24,11 @@ export const StatusBadge = ({ status = 'pending' }: StatusBadgeProps) => { // Ad
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
+    // First ensure we have a valid string to work with
+    if (!status) return 'Unknown';
+    
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
       case 'pending':
         return 'Pending';
       case 'processing':
@@ -38,7 +42,12 @@ export const StatusBadge = ({ status = 'pending' }: StatusBadgeProps) => { // Ad
       case 'completed':
         return 'Completed';
       default:
-        return status ? status.replace('_', ' ') : 'Unknown';
+        // Safely handle string replacement
+        return status.includes('_') ? 
+          status.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ') : 
+          status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
     }
   };
 
