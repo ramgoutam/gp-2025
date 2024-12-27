@@ -12,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;
-  onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
 }
@@ -20,7 +19,6 @@ interface LabScriptCardProps {
 export const LabScriptCard = ({
   script,
   onClick,
-  onEdit,
   onDelete,
   onStatusChange,
 }: LabScriptCardProps) => {
@@ -164,7 +162,6 @@ export const LabScriptCard = ({
             <CardActions
               onView={onClick}
               onDelete={onDelete}
-              onEdit={onEdit}
             />
             <StatusButton 
               script={updatedScript}
