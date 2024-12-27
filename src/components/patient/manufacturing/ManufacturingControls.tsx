@@ -30,7 +30,6 @@ export const ManufacturingControls = ({
       const newCompletedSteps = [...completedSteps, step];
       setCompletedSteps(newCompletedSteps);
       
-      // If all steps are completed, trigger the onComplete callback
       if (newCompletedSteps.length === 3) {
         onComplete();
       }
@@ -42,55 +41,83 @@ export const ManufacturingControls = ({
 
   if (areAllStepsCompleted) {
     return (
-      <div className="flex items-center gap-2 text-green-600 font-medium">
-        <Check className="w-5 h-5" />
-        Completed - Ready to Insert
+      <div className="flex items-center gap-2 px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-lg animate-fade-in">
+        <Check className="w-6 h-6 animate-bounce" />
+        <span className="text-lg font-medium">Completed - Ready to Insert</span>
       </div>
     );
   }
 
+  const getStepStyles = (step: string) => {
+    const baseStyles = "relative flex items-center gap-2 px-6 py-4 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-lg font-medium";
+    const completedStyles = "bg-gradient-to-r from-green-500 to-green-600 text-white";
+    const activeStyles = "bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white";
+    const disabledStyles = "bg-gray-100 text-gray-400 cursor-not-allowed hover:transform-none hover:shadow-lg";
+    
+    if (isStepCompleted(step)) return `${baseStyles} ${completedStyles}`;
+    if (step === 'milling' || (step === 'sintering' && isStepCompleted('milling')) || (step === 'miyo' && isStepCompleted('sintering'))) {
+      return `${baseStyles} ${activeStyles}`;
+    }
+    return `${baseStyles} ${disabledStyles}`;
+  };
+
   return (
     <div className="space-y-4">
-      <ToggleGroup type="single" className="flex gap-2">
-        <ToggleGroupItem 
-          value="milling" 
-          className={`flex items-center gap-2 ${
-            isStepCompleted('milling') 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'data-[state=on]:bg-primary data-[state=on]:text-white'
-          }`}
+      <div className="flex flex-col gap-4">
+        <button
+          className={getStepStyles('milling')}
           onClick={() => handleStepComplete('milling')}
+          disabled={isStepCompleted('milling')}
         >
-          {isStepCompleted('milling') && <Check className="w-4 h-4" />}
-          {manufacturingType === 'Milling' ? 'Milling' : 'Printing'}
-        </ToggleGroupItem>
-        <ToggleGroupItem 
-          value="sintering" 
-          className={`flex items-center gap-2 ${
-            isStepCompleted('sintering') 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'data-[state=on]:bg-primary data-[state=on]:text-white'
-          }`}
+          {isStepCompleted('milling') ? (
+            <Check className="w-6 h-6 animate-bounce" />
+          ) : (
+            <Play className="w-6 h-6 animate-pulse" />
+          )}
+          <span>{manufacturingType === 'Milling' ? 'Milling' : 'Printing'}</span>
+          {!isStepCompleted('milling') && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
+              Click to complete
+            </div>
+          )}
+        </button>
+
+        <button
+          className={getStepStyles('sintering')}
           onClick={() => handleStepComplete('sintering')}
-          disabled={!isStepCompleted('milling')}
+          disabled={!isStepCompleted('milling') || isStepCompleted('sintering')}
         >
-          {isStepCompleted('sintering') && <Check className="w-4 h-4" />}
-          Sintering
-        </ToggleGroupItem>
-        <ToggleGroupItem 
-          value="miyo" 
-          className={`flex items-center gap-2 ${
-            isStepCompleted('miyo') 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'data-[state=on]:bg-primary data-[state=on]:text-white'
-          }`}
+          {isStepCompleted('sintering') ? (
+            <Check className="w-6 h-6 animate-bounce" />
+          ) : (
+            <Play className="w-6 h-6 animate-pulse" />
+          )}
+          <span>Sintering</span>
+          {isStepCompleted('milling') && !isStepCompleted('sintering') && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
+              Click to complete
+            </div>
+          )}
+        </button>
+
+        <button
+          className={getStepStyles('miyo')}
           onClick={() => handleStepComplete('miyo')}
-          disabled={!isStepCompleted('sintering')}
+          disabled={!isStepCompleted('sintering') || isStepCompleted('miyo')}
         >
-          {isStepCompleted('miyo') && <Check className="w-4 h-4" />}
-          MIYO
-        </ToggleGroupItem>
-      </ToggleGroup>
+          {isStepCompleted('miyo') ? (
+            <Check className="w-6 h-6 animate-bounce" />
+          ) : (
+            <Play className="w-6 h-6 animate-pulse" />
+          )}
+          <span>MIYO</span>
+          {isStepCompleted('sintering') && !isStepCompleted('miyo') && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
+              Click to complete
+            </div>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
