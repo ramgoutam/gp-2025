@@ -1,5 +1,4 @@
 import React from "react";
-import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,7 +69,11 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                   onClick={() => console.log('Starting manufacturing process for script:', script.id)}
                 >
                   <Play className="w-4 h-4 mr-2" />
-                  Start
+                  {script.manufacturingType === 'Milling' 
+                    ? 'Start Milling' 
+                    : script.manufacturingType === 'Printing' 
+                    ? 'Start Printing' 
+                    : 'Start'}
                 </Button>
               </div>
             </div>
