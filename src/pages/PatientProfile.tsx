@@ -132,9 +132,7 @@ const PatientProfile = () => {
     <div className="h-screen flex flex-col overflow-hidden bg-gray-50 animate-fade-in">
       <main className="flex-1 overflow-hidden">
         <div className="container mx-auto py-8 px-4 h-full flex flex-col">
-          <div className="text-sm text-gray-500 mb-6 hover:text-primary transition-colors duration-300">
-            Patient list / Patient detail
-          </div>
+          {/* Removed breadcrumb div */}
 
           <div className="bg-white rounded-lg shadow-lg p-6 flex-1 flex flex-col overflow-hidden border">
             <PatientHeader 
