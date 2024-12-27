@@ -8,11 +8,9 @@ import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
 
 export const ScriptsContent = ({
   onScriptSelect,
-  onScriptEdit,
   onScriptDelete,
 }: {
   onScriptSelect: (script: LabScript) => void;
-  onScriptEdit: (script: LabScript) => void;
   onScriptDelete: (script: LabScript) => void;
 }) => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -104,7 +102,6 @@ export const ScriptsContent = ({
           <LabScriptList 
             labScripts={labScripts}
             onRowClick={onScriptSelect}
-            onEditClick={onScriptEdit}
             onDeleteClick={onScriptDelete}
           />
         </ScrollArea>
