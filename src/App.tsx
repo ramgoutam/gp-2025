@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,59 +25,61 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navigation />
-          <main className="container mx-auto py-8 px-4">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patients"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/patient/:id"
-                element={
-                  <ProtectedRoute>
-                    <PatientProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/scripts"
-                element={
-                  <ProtectedRoute>
-                    <Scripts />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manufacturing"
-                element={
-                  <ProtectedRoute>
-                    <Manufacturing />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
-        </div>
-        <Toaster />
-      </Router>
-    </SessionContextProvider>
+    <React.StrictMode>
+      <SessionContextProvider supabaseClient={supabase}>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Navigation />
+            <main className="container mx-auto py-8 px-4">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patients"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patient/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PatientProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/scripts"
+                  element={
+                    <ProtectedRoute>
+                      <Scripts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/manufacturing"
+                  element={
+                    <ProtectedRoute>
+                      <Manufacturing />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </main>
+          </div>
+          <Toaster />
+        </Router>
+      </SessionContextProvider>
+    </React.StrictMode>
   );
 }
 
