@@ -1,85 +1,30 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Scripts from "./pages/Scripts";
+import Calendar from "./pages/Calendar";
+import Manufacturing from "./pages/Manufacturing";
+import Reports from "./pages/Reports";
+import PatientProfile from "./pages/PatientProfile";
 import { Toaster } from "@/components/ui/toaster";
-import Index from "@/pages/Index";
-import Dashboard from "@/pages/Dashboard";
-import PatientProfile from "@/pages/PatientProfile";
-import Login from "@/pages/Login";
-import Scripts from "@/pages/Scripts";
-import Manufacturing from "@/pages/Manufacturing";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const session = useSession();
-  console.log("Protected route - session:", session);
-
-  if (!session) {
-    console.log("No session found, redirecting to login");
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <React.StrictMode>
-      <SessionContextProvider supabaseClient={supabase}>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navigation />
-            <main className="container mx-auto py-8 px-4">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/patients"
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/patient/:id"
-                  element={
-                    <ProtectedRoute>
-                      <PatientProfile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/scripts"
-                  element={
-                    <ProtectedRoute>
-                      <Scripts />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/manufacturing"
-                  element={
-                    <ProtectedRoute>
-                      <Manufacturing />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </main>
-          </div>
-          <Toaster />
-        </Router>
-      </SessionContextProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/scripts" element={<Scripts />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/manufacturing" element={<Manufacturing />} />
+          <Route path="/patient/:id" element={<PatientProfile />} />
+        </Routes>
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
   );
 }
 
