@@ -14,6 +14,7 @@ import { DataTable } from "./table/DataTable";
 import { columns } from "./table/columns";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { PatientSearch } from "./PatientSearch";
 
 export const PatientList = () => {
   const { toast } = useToast();
@@ -54,7 +55,7 @@ export const PatientList = () => {
       console.log('Fetched patients:', data.length);
       return data;
     },
-    refetchInterval: 1, // Refetch every millisecond
+    refetchInterval: 1,
     meta: {
       onError: (error: Error) => {
         console.error('Error fetching patients:', error);
@@ -85,26 +86,24 @@ export const PatientList = () => {
   };
 
   const renderViewToggle = () => (
-    <div className="flex justify-end items-center mb-4 px-4">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={toggleView}
-        className="flex items-center gap-2"
-      >
-        {viewMode === 'card' ? (
-          <>
-            <List className="h-4 w-4" />
-            List View
-          </>
-        ) : (
-          <>
-            <LayoutGrid className="h-4 w-4" />
-            Card View
-          </>
-        )}
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={toggleView}
+      className="flex items-center gap-2"
+    >
+      {viewMode === 'card' ? (
+        <>
+          <List className="h-4 w-4" />
+          List View
+        </>
+      ) : (
+        <>
+          <LayoutGrid className="h-4 w-4" />
+          Card View
+        </>
+      )}
+    </Button>
   );
 
   const renderCardView = () => (
@@ -191,7 +190,10 @@ export const PatientList = () => {
 
   return (
     <div className="p-4">
-      {renderViewToggle()}
+      <div className="flex justify-between items-center mb-6">
+        <PatientSearch />
+        {renderViewToggle()}
+      </div>
       {viewMode === 'card' ? renderCardView() : renderListView()}
     </div>
   );
