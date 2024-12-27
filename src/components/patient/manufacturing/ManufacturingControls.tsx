@@ -74,6 +74,7 @@ export const ManufacturingControls = ({
 
   if (isCompleted) {
     if (isSintering) {
+      // Show Resume Sintering button when sintering is paused
       if (isPaused) {
         return (
           <Button 
@@ -86,6 +87,7 @@ export const ManufacturingControls = ({
           </Button>
         );
       }
+      // Show Pause, Hold, Complete buttons for active sintering
       return (
         <div className="flex gap-2">
           <Button 
@@ -115,6 +117,7 @@ export const ManufacturingControls = ({
         </div>
       );
     }
+    // Show Edit Status and Start Miyo buttons after sintering is completed
     return (
       <div className="flex gap-2">
         <Button 
@@ -123,7 +126,7 @@ export const ManufacturingControls = ({
           onClick={onStart}
         >
           <AlertCircle className="w-4 h-4 mr-2" />
-          Edit {manufacturingType} Status
+          Edit Sintering Status
         </Button>
         <Button 
           variant="outline"
@@ -131,7 +134,7 @@ export const ManufacturingControls = ({
           onClick={onStartSintering}
         >
           <Flame className="w-4 h-4 mr-2" />
-          Start Sintering
+          Start Miyo
         </Button>
       </div>
     );
