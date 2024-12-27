@@ -117,19 +117,19 @@ export const ManufacturingControls = ({
         </div>
       );
     }
-    // Show Edit Status and Start Miyo buttons after sintering is completed
+    // Show Edit Status and Start Sintering buttons after manufacturing is completed
     return (
       <div className="flex gap-2">
         <Button 
           variant="outline"
           className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
           onClick={() => {
-            console.log("Edit Sintering Status clicked");
-            onStartSintering();
+            console.log("Edit Manufacturing Status clicked");
+            onStart();
           }}
         >
           <AlertCircle className="w-4 h-4 mr-2" />
-          Edit Sintering Status
+          Edit {manufacturingType} Status
         </Button>
         <Button 
           variant="outline"
@@ -137,7 +137,7 @@ export const ManufacturingControls = ({
           onClick={onStartSintering}
         >
           <Flame className="w-4 h-4 mr-2" />
-          Start Miyo
+          Start Sintering
         </Button>
       </div>
     );
