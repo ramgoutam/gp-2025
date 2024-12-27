@@ -18,6 +18,8 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   );
 
   const getManufacturingStatus = (script: LabScript) => {
+    console.log("Checking manufacturing status for script:", script);
+    
     // If lab script is not complete
     if (script.status !== 'completed') {
       return "Design Pending";
@@ -68,42 +70,47 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
-        {manufacturingScripts.map((script) => (
-          <Card key={script.id} className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">
-                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-                </h3>
-                <Badge 
-                  variant="outline" 
-                  className={`${getStatusColor(getManufacturingStatus(script))} px-3 py-1`}
-                >
-                  {getManufacturingStatus(script)}
-                </Badge>
+        {manufacturingScripts.map((script) => {
+          const status = getManufacturingStatus(script);
+          console.log("Manufacturing status for script:", script.id, status);
+          
+          return (
+            <Card key={script.id} className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">
+                    {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                  </h3>
+                  <Badge 
+                    variant="outline" 
+                    className={`${getStatusColor(status)} px-3 py-1`}
+                  >
+                    {status}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-500">Manufacturing Source</p>
+                    <p className="font-medium">{script.manufacturingSource}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Manufacturing Type</p>
+                    <p className="font-medium">{script.manufacturingType}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Material</p>
+                    <p className="font-medium">{script.material || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Shade</p>
+                    <p className="font-medium">{script.shade || 'N/A'}</p>
+                  </div>
+                </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Manufacturing Source</p>
-                  <p className="font-medium">{script.manufacturingSource}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Manufacturing Type</p>
-                  <p className="font-medium">{script.manufacturingType}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Material</p>
-                  <p className="font-medium">{script.material || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Shade</p>
-                  <p className="font-medium">{script.shade || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
