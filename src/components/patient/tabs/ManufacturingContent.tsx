@@ -15,7 +15,7 @@ interface ManufacturingContentProps {
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const manufacturingScripts = labScripts.filter(script => 
-    script.manufacturingSource && script.manufacturingType
+    script.manufacturing_source && script.manufacturing_type
   );
 
   if (manufacturingScripts.length === 0) {
@@ -42,7 +42,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">
-                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                  {script.appliance_type || 'N/A'} | {script.upper_design_name || 'No upper appliance'} | {script.lower_design_name || 'No lower appliance'}
                 </h3>
                 <Badge 
                   variant={script.status === 'completed' ? "default" : "secondary"}
@@ -54,11 +54,11 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500">Manufacturing Source</p>
-                  <p className="font-medium">{script.manufacturingSource}</p>
+                  <p className="font-medium">{script.manufacturing_source}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Manufacturing Type</p>
-                  <p className="font-medium">{script.manufacturingType}</p>
+                  <p className="font-medium">{script.manufacturing_type}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Material</p>
