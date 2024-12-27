@@ -10,10 +10,10 @@ export const InitialStage = ({ manufacturingType, onStart }: InitialStageProps) 
   return (
     <Button
       onClick={onStart}
-      className="bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-6 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl animate-fade-in group"
+      className="flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-0.5 group"
     >
-      <Play className="w-5 h-5 mr-3 animate-pulse group-hover:scale-110 transition-transform" />
-      <span className="text-lg font-medium">Start {manufacturingType}</span>
+      <Play className="w-4 h-4 transition-transform group-hover:scale-110" />
+      <span className="text-sm font-medium">Start {manufacturingType}</span>
     </Button>
   );
 };
