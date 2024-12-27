@@ -4,8 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -15,30 +13,9 @@ interface ManufacturingContentProps {
   };
 }
 
-export const ManufacturingContent = ({ labScripts: initialScripts, patientData }: ManufacturingContentProps) => {
-  const { data: updatedScripts } = useQuery({
-    queryKey: ['manufacturingScripts', initialScripts.map(s => s.id)],
-    queryFn: async () => {
-      console.log("Fetching manufacturing scripts status");
-      const { data, error } = await supabase
-        .from('lab_scripts')
-        .select('*')
-        .in('id', initialScripts.map(s => s.id));
-
-      if (error) {
-        console.error("Error fetching scripts:", error);
-        throw error;
-      }
-
-      console.log("Fetched updated scripts:", data);
-      return data;
-    },
-    refetchInterval: 1000,
-    initialData: initialScripts,
-  });
-
-  const manufacturingScripts = (updatedScripts || []).filter(script => 
-    script.manufacturing_source && script.manufacturing_type
+export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
+  const manufacturingScripts = labScripts.filter(script => 
+    script.manufacturingSource && script.manufacturingType
   );
 
   if (manufacturingScripts.length === 0) {
@@ -65,7 +42,7 @@ export const ManufacturingContent = ({ labScripts: initialScripts, patientData }
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">
-                  {script.appliance_type || 'N/A'} | {script.upper_design_name || 'No upper appliance'} | {script.lower_design_name || 'No lower appliance'}
+                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
                 <Badge 
                   variant={script.status === 'completed' ? "default" : "secondary"}
@@ -77,11 +54,11 @@ export const ManufacturingContent = ({ labScripts: initialScripts, patientData }
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500">Manufacturing Source</p>
-                  <p className="font-medium">{script.manufacturing_source}</p>
+                  <p className="font-medium">{script.manufacturingSource}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Manufacturing Type</p>
-                  <p className="font-medium">{script.manufacturing_type}</p>
+                  <p className="font-medium">{script.manufacturingType}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Material</p>
