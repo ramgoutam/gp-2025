@@ -29,7 +29,6 @@ export const useManufacturingData = () => {
         throw error;
       }
 
-      // Map database fields to LabScript type
       const mappedScripts = scripts.map(script => mapDatabaseLabScript(script));
 
       const inhousePrinting = mappedScripts.filter(s => 
@@ -48,12 +47,19 @@ export const useManufacturingData = () => {
         s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
       );
 
+      const completedOutsourceMilling = mappedScripts.filter(s => 
+        s.manufacturingSource === 'outsource' && 
+        s.manufacturingType === 'milling' && 
+        s.status === 'completed'
+      );
+
       return {
         counts: {
           inhousePrinting: inhousePrinting.length,
           inhouseMilling: inhouseMilling.length,
           outsourcePrinting: outsourcePrinting.length,
           outsourceMilling: outsourceMilling.length,
+          completedOutsourceMilling: completedOutsourceMilling.length,
           total: mappedScripts.length
         },
         scripts: mappedScripts

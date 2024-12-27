@@ -1,4 +1,4 @@
-import { Printer, CircuitBoard, Factory, Cog } from "lucide-react";
+import { Printer, CircuitBoard, Factory, Cog, CheckCircle } from "lucide-react";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
@@ -10,7 +10,8 @@ const Manufacturing = () => {
       inhouseMilling: 0,
       outsourcePrinting: 0,
       outsourceMilling: 0,
-      total: 0
+      total: 0,
+      completedOutsourceMilling: 0
     },
     scripts: []
   }} = useManufacturingData();
@@ -59,13 +60,26 @@ const Manufacturing = () => {
       scripts: manufacturingData.scripts.filter(s => 
         s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
       )
+    },
+    {
+      title: "Completed After Outsource Milling",
+      count: manufacturingData.counts.completedOutsourceMilling,
+      icon: CheckCircle,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+      progressColor: "bg-emerald-500",
+      scripts: manufacturingData.scripts.filter(s => 
+        s.manufacturingSource === 'outsource' && 
+        s.manufacturingType === 'milling' && 
+        s.status === 'completed'
+      )
     }
   ];
 
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {cards.map((card) => (
           <ManufacturingCard
             key={card.title}
