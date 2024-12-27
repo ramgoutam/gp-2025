@@ -127,7 +127,11 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     onClick={() => handleResume(script.id)}
                   >
                     <PlayCircle className="w-4 h-4 mr-2 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
-                    Resume
+                    {script.manufacturingType === 'Milling' 
+                      ? 'Resume Milling' 
+                      : script.manufacturingType === 'Printing' 
+                      ? 'Resume Printing' 
+                      : 'Resume'}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
