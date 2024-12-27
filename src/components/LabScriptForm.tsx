@@ -41,6 +41,7 @@ export const LabScriptForm = ({
     lastName: patientData?.lastName || initialData?.lastName || "",
     applianceType: initialData?.applianceType || "",
     shade: initialData?.shade || "",
+    material: initialData?.material || "",
     specificInstructions: initialData?.specificInstructions || "",
     upperTreatment: initialData?.upperTreatment || "None",
     lowerTreatment: initialData?.lowerTreatment || "None",
@@ -211,11 +212,19 @@ export const LabScriptForm = ({
         <ManufacturingSection
           manufacturingSource={formData.manufacturingSource}
           manufacturingType={formData.manufacturingType}
+          material={formData.material}
+          shade={formData.shade}
           onManufacturingSourceChange={(value) => 
             setFormData(prev => ({ ...prev, manufacturingSource: value }))
           }
           onManufacturingTypeChange={(value) =>
             setFormData(prev => ({ ...prev, manufacturingType: value }))
+          }
+          onMaterialChange={(value) =>
+            setFormData(prev => ({ ...prev, material: value }))
+          }
+          onShadeChange={(value) =>
+            setFormData(prev => ({ ...prev, shade: value }))
           }
           isEditable={isManufacturingEditable}
         />
