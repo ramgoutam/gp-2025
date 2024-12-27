@@ -162,7 +162,6 @@ export const LabScriptCard = ({
           </div>
           <div className="flex flex-col gap-3">
             <CardActions
-              onEdit={onEdit}
               onView={onClick}
               onDelete={onDelete}
             />
