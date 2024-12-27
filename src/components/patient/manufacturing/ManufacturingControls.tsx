@@ -117,7 +117,7 @@ export const ManufacturingControls = ({
         </div>
       );
     }
-    // Show Edit Status and Start Sintering buttons after manufacturing is completed
+    // Show Edit Status and Start Miyo buttons after manufacturing is completed
     return (
       <div className="flex gap-2">
         <Button 
@@ -137,7 +137,7 @@ export const ManufacturingControls = ({
           onClick={onStartSintering}
         >
           <Flame className="w-4 h-4 mr-2" />
-          Start Sintering
+          Start Miyo
         </Button>
       </div>
     );
