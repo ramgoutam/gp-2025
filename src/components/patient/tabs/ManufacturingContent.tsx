@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, Pause, StopCircle, Fire } from "lucide-react";
+import { Factory, Play, Pause, StopCircle, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -122,7 +122,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                       className="hover:bg-orange-50 text-orange-600 border-orange-200"
                       onClick={() => handleStartSintering(script.id)}
                     >
-                      <Fire className="w-4 h-4 mr-2" />
+                      <Flame className="w-4 h-4 mr-2" />
                       Start Sintering
                     </Button>
                   </div>
