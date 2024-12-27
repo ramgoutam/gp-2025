@@ -43,7 +43,7 @@ export const ManufacturingCard = ({
 
   return (
     <Card className="relative p-4 hover:shadow-lg transition-all duration-300 group animate-fade-in">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <div className={`${bgColor} w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
           <Icon className={`w-6 h-6 ${color}`} />
         </div>
@@ -58,7 +58,7 @@ export const ManufacturingCard = ({
         <p className="text-sm text-gray-500 font-medium">
           {title}
         </p>
-        <div className="relative h-2 rounded-full overflow-hidden bg-gray-100">
+        <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100">
           <animated.div
             className={`absolute inset-y-0 left-0 ${progressColor}`}
             style={width}
@@ -66,7 +66,7 @@ export const ManufacturingCard = ({
         </div>
       </div>
 
-      <ScrollArea className="h-[100px] mt-2">
+      <ScrollArea className="h-[100px] mt-4">
         <div className="space-y-2">
           {scripts.map((script) => (
             <div 
