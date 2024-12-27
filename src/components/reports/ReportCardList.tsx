@@ -4,12 +4,22 @@ import { ReportCard } from "@/components/patient/report-card/ReportCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader } from "lucide-react";
 import { mapDatabaseLabScript } from "@/types/labScript";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DesignInfoForm } from "@/components/patient/forms/DesignInfoForm";
+import { ClinicalInfoForm } from "@/components/patient/forms/ClinicalInfoForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReportCardListProps {
   filter?: string;
 }
 
 const ReportCardList = ({ filter }: ReportCardListProps) => {
+  const { toast } = useToast();
+  const [showDesignInfo, setShowDesignInfo] = useState(false);
+  const [showClinicalInfo, setShowClinicalInfo] = useState(false);
+  const [selectedScript, setSelectedScript] = useState<any>(null);
+
   const { data: reports, isLoading } = useQuery({
     queryKey: ['reports', filter],
     queryFn: async () => {
@@ -60,6 +70,52 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
     },
   });
 
+  const handleDesignInfo = (script: any) => {
+    console.log("Opening design info for script:", script);
+    if (script.status !== 'completed') {
+      toast({
+        title: "Lab Script Incomplete",
+        description: "Please complete the lab script before adding design information.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setSelectedScript(script);
+    setShowDesignInfo(true);
+  };
+
+  const handleClinicalInfo = (script: any) => {
+    console.log("Opening clinical info for script:", script);
+    if (script.status !== 'completed') {
+      toast({
+        title: "Lab Script Incomplete",
+        description: "Please complete the lab script before adding clinical information.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setSelectedScript(script);
+    setShowClinicalInfo(true);
+  };
+
+  const handleSaveDesignInfo = async (updatedScript: any) => {
+    console.log("Saving design info:", updatedScript);
+    setShowDesignInfo(false);
+    toast({
+      title: "Success",
+      description: "Design information has been saved successfully.",
+    });
+  };
+
+  const handleSaveClinicalInfo = async (updatedScript: any) => {
+    console.log("Saving clinical info:", updatedScript);
+    setShowClinicalInfo(false);
+    toast({
+      title: "Success",
+      description: "Clinical information has been saved successfully.",
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -77,22 +133,61 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-300px)]">
-      <div className="space-y-4 p-4">
-        {reports.map((report) => (
-          <div key={report.id}>
-            {report.lab_script && (
-              <ReportCard
-                script={mapDatabaseLabScript(report.lab_script)}
-                onDesignInfo={() => {}}
-                onClinicalInfo={() => {}}
-                patientName={`${report.patient?.first_name} ${report.patient?.last_name}`}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+    <>
+      <ScrollArea className="h-[calc(100vh-300px)]">
+        <div className="space-y-4 p-4">
+          {reports.map((report) => (
+            <div key={report.id}>
+              {report.lab_script && (
+                <ReportCard
+                  script={mapDatabaseLabScript(report.lab_script)}
+                  onDesignInfo={() => handleDesignInfo(report.lab_script)}
+                  onClinicalInfo={() => handleClinicalInfo(report.lab_script)}
+                  patientName={`${report.patient?.first_name} ${report.patient?.last_name}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      <Dialog open={showDesignInfo} onOpenChange={setShowDesignInfo}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Design Information</DialogTitle>
+            <DialogDescription>
+              Design details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedScript && (
+            <DesignInfoForm
+              onClose={() => setShowDesignInfo(false)}
+              scriptId={selectedScript.id}
+              script={selectedScript}
+              onSave={handleSaveDesignInfo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showClinicalInfo} onOpenChange={setShowClinicalInfo}>
+        <DialogContent className="max-w-[1200px] w-full">
+          <DialogHeader>
+            <DialogTitle>Clinical Information</DialogTitle>
+            <DialogDescription>
+              Clinical details for Lab Request #{selectedScript?.requestNumber}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedScript && (
+            <ClinicalInfoForm
+              onClose={() => setShowClinicalInfo(false)}
+              script={selectedScript}
+              onSave={handleSaveClinicalInfo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
