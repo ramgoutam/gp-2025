@@ -34,19 +34,30 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
   // Create a properly typed object with required fields
   const insertData = {
     patient_id: dbScript.patient_id,
-    clinic_name: dbScript.clinic_name || 'Default Clinic',
     doctor_name: dbScript.doctor_name || 'Default Doctor',
+    clinic_name: dbScript.clinic_name || 'Default Clinic',
     request_date: dbScript.request_date || new Date().toISOString().split('T')[0],
-    due_date: dbScript.due_date || new Date().toISOString().split('T')[0],
+    due_date: dbScript.due_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     status: dbScript.status || 'pending',
-    ...dbScript // Spread the rest of the optional fields
+    upper_treatment: dbScript.upper_treatment,
+    lower_treatment: dbScript.lower_treatment,
+    upper_design_name: dbScript.upper_design_name,
+    lower_design_name: dbScript.lower_design_name,
+    appliance_type: dbScript.appliance_type,
+    screw_type: dbScript.screw_type,
+    vdo_option: dbScript.vdo_option,
+    specific_instructions: dbScript.specific_instructions,
+    manufacturing_source: dbScript.manufacturing_source,
+    manufacturing_type: dbScript.manufacturing_type,
+    material: dbScript.material,
+    shade: dbScript.shade
   };
 
   console.log("Inserting lab script with data:", insertData);
 
   const { data, error } = await supabase
     .from('lab_scripts')
-    .insert(insertData)
+    .insert([insertData])
     .select(`
       *,
       patient:patients(first_name, last_name)
@@ -79,6 +90,14 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript> => 
 
   // Remove id from update payload since it's used in the where clause
   const { id, ...updateData } = dbScript;
+  
+  // Ensure required fields are present
+  if (!updateData.doctor_name) {
+    updateData.doctor_name = 'Default Doctor';
+  }
+  if (!updateData.clinic_name) {
+    updateData.clinic_name = 'Default Clinic';
+  }
   
   const { data, error } = await supabase
     .from('lab_scripts')
