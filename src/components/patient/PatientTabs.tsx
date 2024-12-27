@@ -13,9 +13,17 @@ interface PatientTabsProps {
   onEditLabScript: (updatedScript: LabScript) => void;
   onDeleteLabScript: (script: LabScript) => void;
   patientData?: {
-    firstName: string;
-    lastName: string;
     id?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    sex?: string;
+    dob?: string;
+    address?: string;
+    treatmentType?: string;
+    upperTreatment?: string;
+    lowerTreatment?: string;
   };
 }
 
@@ -79,17 +87,17 @@ export const PatientTabs = ({
         </TabsContent>
 
         <TabsContent value="patient-information">
-          <PatientInformationContent patientId={patientData?.id} />
+          <PatientInformationContent {...patientData} />
         </TabsContent>
 
         <TabsContent value="medical-forms">
-          <MedicalFormsContent patientId={patientData?.id} />
+          <MedicalFormsContent patientId={patientData?.id || ''} />
         </TabsContent>
 
         <TabsContent value="report-card">
           <ReportCardContent
-            patientId={patientData?.id}
-            patientName={`${patientData?.firstName} ${patientData?.lastName}`}
+            patientId={patientData?.id || ''}
+            patientName={`${patientData?.firstName || ''} ${patientData?.lastName || ''}`}
           />
         </TabsContent>
 
@@ -101,7 +109,7 @@ export const PatientTabs = ({
 
         <TabsContent value="next-treatment">
           <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-            <TreatmentStatusContent patientId={patientData?.id} />
+            <TreatmentStatusContent {...patientData} />
           </div>
         </TabsContent>
       </div>

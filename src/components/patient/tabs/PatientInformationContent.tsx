@@ -2,30 +2,30 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Mail, Phone, Calendar, MapPin, User2, Stethoscope } from "lucide-react";
 
-type PatientInformationProps = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  sex: string;
-  dob: string;
+interface PatientInformationProps {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  sex?: string;
+  dob?: string;
   address?: string;
   treatmentType?: string;
   upperTreatment?: string;
   lowerTreatment?: string;
-};
+}
 
 export const PatientInformationContent = ({
-  firstName,
-  lastName,
-  email,
-  phone,
-  sex,
-  dob,
-  address,
-  treatmentType,
-  upperTreatment,
-  lowerTreatment,
+  firstName = '',
+  lastName = '',
+  email = '',
+  phone = '',
+  sex = '',
+  dob = '',
+  address = '',
+  treatmentType = '',
+  upperTreatment = '',
+  lowerTreatment = '',
 }: PatientInformationProps) => {
   const InfoItem = ({ 
     icon: Icon, 
@@ -42,10 +42,28 @@ export const PatientInformationContent = ({
       </div>
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium">{value}</p>
+        <p className="text-sm font-medium">{value || 'Not provided'}</p>
       </div>
     </div>
   );
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Not provided';
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return 'Invalid date';
+    }
+  };
+
+  const capitalize = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   return (
     <Card className="overflow-hidden bg-white">
@@ -73,16 +91,12 @@ export const PatientInformationContent = ({
         <InfoItem 
           icon={User2}
           label="Sex" 
-          value={sex.charAt(0).toUpperCase() + sex.slice(1)} 
+          value={capitalize(sex)} 
         />
         <InfoItem 
           icon={Calendar}
           label="Date of Birth" 
-          value={new Date(dob).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })} 
+          value={formatDate(dob)} 
         />
         {address && (
           <div className="col-span-full">
@@ -99,7 +113,7 @@ export const PatientInformationContent = ({
               <InfoItem 
                 icon={Stethoscope}
                 label="Treatment Type" 
-                value={treatmentType.charAt(0).toUpperCase() + treatmentType.slice(1)}
+                value={capitalize(treatmentType)}
               />
               {upperTreatment && (
                 <InfoItem 
