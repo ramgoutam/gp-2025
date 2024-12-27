@@ -21,6 +21,18 @@ export const useDesignForm = (
     actions_taken: script.designInfo?.actions_taken || "",
   });
 
+  // Sync with lab script values when they change
+  useEffect(() => {
+    console.log("Syncing design data with lab script:", script);
+    setDesignData(prev => ({
+      ...prev,
+      appliance_type: script.applianceType || prev.appliance_type,
+      upper_treatment: script.upperTreatment || prev.upper_treatment,
+      lower_treatment: script.lowerTreatment || prev.lower_treatment,
+      screw: script.screwType || prev.screw,
+    }));
+  }, [script.applianceType, script.upperTreatment, script.lowerTreatment, script.screwType]);
+
   // Fetch latest design info data when form opens
   useEffect(() => {
     const fetchDesignInfo = async () => {
@@ -44,7 +56,12 @@ export const useDesignForm = (
         console.log("Found existing design info:", reportCard.design_info);
         setDesignData(prev => ({
           ...prev,
-          ...reportCard.design_info
+          ...reportCard.design_info,
+          // Keep lab script values if they exist and are different
+          appliance_type: script.applianceType || reportCard.design_info.appliance_type || prev.appliance_type,
+          upper_treatment: script.upperTreatment || reportCard.design_info.upper_treatment || prev.upper_treatment,
+          lower_treatment: script.lowerTreatment || reportCard.design_info.lower_treatment || prev.lower_treatment,
+          screw: script.screwType || reportCard.design_info.screw || prev.screw,
         }));
       }
     };
