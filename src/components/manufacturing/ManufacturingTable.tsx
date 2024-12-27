@@ -30,6 +30,11 @@ export const ManufacturingTable = ({
     }
   };
 
+  // Filter scripts that have completed design info
+  const manufacturingScripts = scripts.filter(script => 
+    script.designInfo && script.status !== 'completed'
+  );
+
   return (
     <div className="rounded-lg border bg-white">
       <Table>
@@ -46,7 +51,7 @@ export const ManufacturingTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {scripts.map((script) => (
+          {manufacturingScripts.map((script) => (
             <TableRow key={script.id}>
               <TableCell>
                 {script.patientFirstName} {script.patientLastName}

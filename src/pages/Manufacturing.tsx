@@ -46,7 +46,6 @@ const Manufacturing = () => {
 
   const handleEdit = (script: LabScript) => {
     console.log("Edit script:", script);
-    // Implement edit functionality
   };
 
   const handleDelete = async (script: LabScript) => {
@@ -132,11 +131,6 @@ const Manufacturing = () => {
     }
   ];
 
-  // Filter scripts that have completed design info
-  const manufacturingScripts = manufacturingData.scripts.filter(script => 
-    script.designInfo && script.status !== 'completed'
-  );
-
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
@@ -151,7 +145,7 @@ const Manufacturing = () => {
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4">Manufacturing Queue</h2>
         <ManufacturingTable
-          scripts={manufacturingScripts}
+          scripts={manufacturingData.scripts}
           onStatusUpdate={handleStatusUpdate}
           onEdit={handleEdit}
           onDelete={handleDelete}

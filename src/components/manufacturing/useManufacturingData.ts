@@ -28,9 +28,12 @@ export const useManufacturingData = () => {
           ),
           report_cards (
             design_info:design_info_id(*),
-            clinical_info:clinical_info_id(*)
+            clinical_info:clinical_info_id(*),
+            design_info_status,
+            clinical_info_status
           )
-        `);
+        `)
+        .eq('status', 'completed');
 
       if (error) {
         console.error("Error fetching manufacturing data:", error);
@@ -44,29 +47,31 @@ export const useManufacturingData = () => {
           patientFirstName: script.patients?.first_name,
           patientLastName: script.patients?.last_name,
           designInfo: script.report_cards?.[0]?.design_info,
-          clinicalInfo: script.report_cards?.[0]?.clinical_info
+          clinicalInfo: script.report_cards?.[0]?.clinical_info,
+          designInfoStatus: script.report_cards?.[0]?.design_info_status,
+          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status
         };
       });
 
       const inhousePrinting = mappedScripts.filter(s => 
-        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'printing'
+        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
       );
 
       const inhouseMilling = mappedScripts.filter(s => 
-        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'milling'
+        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
       );
 
       const outsourcePrinting = mappedScripts.filter(s => 
-        s.manufacturingSource === 'outsource' && s.manufacturingType === 'printing'
+        s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Printing'
       );
 
       const outsourceMilling = mappedScripts.filter(s => 
-        s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
+        s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
       );
 
       const completedOutsourceMilling = mappedScripts.filter(s => 
-        s.manufacturingSource === 'outsource' && 
-        s.manufacturingType === 'milling' && 
+        s.manufacturingSource === 'Outsource' && 
+        s.manufacturingType === 'Milling' && 
         s.status === 'completed'
       );
 
