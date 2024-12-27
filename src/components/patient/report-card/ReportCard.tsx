@@ -56,7 +56,7 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1,
+    refetchInterval: 1000,
   });
 
   useEffect(() => {
@@ -81,6 +81,11 @@ export const ReportCard = ({
         (payload: RealtimePostgresChangesPayload<ReportCardData>) => {
           console.log("Report card updated, payload:", payload);
           queryClient.invalidateQueries({ queryKey: ['reportCard', script.id] });
+          
+          // If design info is marked as completed, invalidate the reports list query
+          if (payload.new && payload.new.design_info_status === 'completed') {
+            queryClient.invalidateQueries({ queryKey: ['reports'] });
+          }
         }
       )
       .subscribe();
@@ -108,6 +113,9 @@ export const ReportCard = ({
         title: "Success",
         description: "Report card has been completed successfully.",
       });
+
+      // Invalidate queries to refresh the lists
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
     } catch (error) {
       console.error("Error completing report card:", error);
       toast({
