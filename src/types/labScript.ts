@@ -66,7 +66,8 @@ export interface LabScript {
   };
   manufacturingSource?: string;
   manufacturingType?: string;
-  shade?: string; // Added this property
+  material?: string;
+  shade?: string;
 }
 
 export interface DatabaseLabScript {
@@ -90,7 +91,8 @@ export interface DatabaseLabScript {
   updated_at: string;
   manufacturing_source?: string;
   manufacturing_type?: string;
-  shade?: string; // Added this property
+  material?: string;
+  shade?: string;
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -113,7 +115,8 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     specificInstructions: dbScript.specific_instructions,
     manufacturingSource: dbScript.manufacturing_source,
     manufacturingType: dbScript.manufacturing_type,
-    shade: dbScript.shade, // Added this mapping
+    material: dbScript.material,
+    shade: dbScript.shade,
   };
 };
 
@@ -137,6 +140,7 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     specific_instructions: script.specificInstructions,
     manufacturing_source: script.manufacturingSource,
     manufacturing_type: script.manufacturingType,
-    shade: script.shade, // Added this mapping
+    material: script.material,
+    shade: script.shade,
   };
 };
