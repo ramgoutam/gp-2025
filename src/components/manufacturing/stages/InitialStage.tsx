@@ -6,14 +6,12 @@ interface InitialStageProps {
   onStart: () => void;
 }
 
-export const InitialStage = ({ manufacturingType, onStart }: InitialStageProps) => {
-  return (
-    <Button
-      onClick={onStart}
-      className="flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-0.5 group"
-    >
-      <Play className="w-4 h-4 transition-transform group-hover:scale-110" />
-      <span className="text-sm font-medium">Start {manufacturingType}</span>
-    </Button>
-  );
-};
+export const InitialStage = ({ manufacturingType, onStart }: InitialStageProps) => (
+  <button
+    onClick={onStart}
+    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-all duration-200"
+  >
+    <Play className="w-4 h-4" />
+    <span>Start {manufacturingType}</span>
+  </button>
+);
