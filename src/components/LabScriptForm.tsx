@@ -128,6 +128,17 @@ export const LabScriptForm = ({
     return formData.applianceType !== "Nightguard";
   };
 
+  const handleManufacturingChange = (source: string, type: string) => {
+    console.log("Updating manufacturing details:", { source, type });
+    setFormData(prev => ({
+      ...prev,
+      manufacturingSource: source,
+      manufacturingType: type
+    }));
+  };
+
+  const isManufacturingEditable = !["Surgical Day appliance", "Printed Try-in", "Nightguard"].includes(formData.applianceType);
+
   return (
     <form onSubmit={onFormSubmit} className="space-y-6">
       <FormHeader
@@ -139,6 +150,7 @@ export const LabScriptForm = ({
       <ApplianceSection
         value={formData.applianceType}
         onChange={(value) => setFormData(prev => ({ ...prev, applianceType: value }))}
+        onManufacturingChange={handleManufacturingChange}
       />
 
       <div className="space-y-4">
@@ -195,16 +207,19 @@ export const LabScriptForm = ({
         )}
       </div>
 
-      <ManufacturingSection
-        manufacturingSource={formData.manufacturingSource}
-        manufacturingType={formData.manufacturingType}
-        onManufacturingSourceChange={(value) => 
-          setFormData(prev => ({ ...prev, manufacturingSource: value }))
-        }
-        onManufacturingTypeChange={(value) =>
-          setFormData(prev => ({ ...prev, manufacturingType: value }))
-        }
-      />
+      {formData.applianceType && (
+        <ManufacturingSection
+          manufacturingSource={formData.manufacturingSource}
+          manufacturingType={formData.manufacturingType}
+          onManufacturingSourceChange={(value) => 
+            setFormData(prev => ({ ...prev, manufacturingSource: value }))
+          }
+          onManufacturingTypeChange={(value) =>
+            setFormData(prev => ({ ...prev, manufacturingType: value }))
+          }
+          isEditable={isManufacturingEditable}
+        />
+      )}
 
       <DigitalDataSection
         uploads={fileUploads}

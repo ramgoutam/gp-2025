@@ -10,16 +10,37 @@ const APPLIANCE_TYPES = [
   "Ti-Bar and Superstructure"
 ] as const;
 
+const FIXED_MANUFACTURING_APPLIANCES = [
+  "Surgical Day appliance",
+  "Printed Try-in",
+  "Nightguard"
+];
+
 interface ApplianceSectionProps {
   value: string;
   onChange: (value: string) => void;
+  onManufacturingChange?: (source: string, type: string) => void;
 }
 
-export const ApplianceSection = ({ value, onChange }: ApplianceSectionProps) => {
+export const ApplianceSection = ({ 
+  value, 
+  onChange,
+  onManufacturingChange 
+}: ApplianceSectionProps) => {
+  const handleApplianceChange = (newValue: string) => {
+    onChange(newValue);
+    
+    // Set default manufacturing values for specific appliance types
+    if (FIXED_MANUFACTURING_APPLIANCES.includes(newValue)) {
+      console.log("Setting fixed manufacturing values for:", newValue);
+      onManufacturingChange?.("Inhouse", "Printing");
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor="applianceType">Appliance Type</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={handleApplianceChange}>
         <SelectTrigger id="applianceType">
           <SelectValue placeholder="Select appliance type" />
         </SelectTrigger>
