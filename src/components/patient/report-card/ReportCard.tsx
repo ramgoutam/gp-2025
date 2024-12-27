@@ -82,8 +82,9 @@ export const ReportCard = ({
           console.log("Report card updated, payload:", payload);
           queryClient.invalidateQueries({ queryKey: ['reportCard', script.id] });
           
-          // If design info is marked as completed, invalidate the reports list query
-          if (payload.new && payload.new.design_info_status === 'completed') {
+          // Type guard to ensure payload.new exists and has the correct type
+          if (payload.new && 'design_info_status' in payload.new && payload.new.design_info_status === 'completed') {
+            console.log("Design info marked as completed, invalidating reports query");
             queryClient.invalidateQueries({ queryKey: ['reports'] });
           }
         }
