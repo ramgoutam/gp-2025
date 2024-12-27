@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Play, AlertCircle, Check } from "lucide-react";
 import { InitialStage } from "./stages/InitialStage";
 import { ActiveStage } from "./stages/ActiveStage";
-import { SinteringStage } from "./stages/SinteringStage";
 import { MiyoStage } from "./stages/MiyoStage";
 
 interface ManufacturingControlsProps {
@@ -18,9 +17,6 @@ interface ManufacturingControlsProps {
   onResume: () => void;
   onComplete: () => void;
   onStartSintering: () => void;
-  onPauseSintering: () => void;
-  onHoldSintering: () => void;
-  onResumeSintering: () => void;
   onCompleteSintering: () => void;
   onStartMiyo: () => void;
   onCompleteMiyo: () => void;
@@ -40,9 +36,6 @@ export const ManufacturingControls = ({
   onResume,
   onComplete,
   onStartSintering,
-  onPauseSintering,
-  onHoldSintering,
-  onResumeSintering,
   onCompleteSintering,
   onStartMiyo,
   onCompleteMiyo,
@@ -103,46 +96,15 @@ export const ManufacturingControls = ({
 
   // During Sintering
   if (isSintering) {
-    if (isPaused) {
-      return (
-        <Button 
-          variant="outline"
-          className="hover:bg-primary/5 group animate-fade-in"
-          onClick={onResumeSintering}
-        >
-          <Play className="w-4 h-4 mr-2 text-primary" />
-          Resume Sintering
-        </Button>
-      );
-    }
     return (
-      <SinteringStage 
-        onPauseSintering={onPauseSintering}
-        onHoldSintering={onHoldSintering}
-        onCompleteSintering={onCompleteSintering}
-      />
-    );
-  }
-
-  // After Sintering completed, before Miyo
-  if (isCompleted && !isMiyo) {
-    return (
-      <MiyoStage 
-        onStartMiyo={onStartMiyo}
-        onCompleteMiyo={onCompleteMiyo}
-        isMiyoStarted={false}
-      />
-    );
-  }
-
-  // During Miyo
-  if (isMiyo) {
-    return (
-      <MiyoStage 
-        onStartMiyo={onStartMiyo}
-        onCompleteMiyo={onCompleteMiyo}
-        isMiyoStarted={true}
-      />
+      <Button 
+        variant="outline"
+        className="hover:bg-green-50 text-green-600 border-green-200"
+        onClick={onCompleteSintering}
+      >
+        <Check className="w-4 h-4 mr-2" />
+        Complete Sintering
+      </Button>
     );
   }
 
