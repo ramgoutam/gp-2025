@@ -8,6 +8,11 @@ interface CardActionsProps {
 }
 
 export const CardActions = ({ onView, onDelete, onEdit }: CardActionsProps) => {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    onEdit();
+  };
+
   return (
     <div className="flex gap-2">
       <Button
@@ -22,7 +27,7 @@ export const CardActions = ({ onView, onDelete, onEdit }: CardActionsProps) => {
       <Button
         variant="outline"
         size="sm"
-        onClick={onEdit}
+        onClick={handleEdit}
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
         <Pencil className="h-4 w-4" />
