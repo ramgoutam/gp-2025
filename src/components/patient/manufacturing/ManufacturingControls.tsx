@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { InitialStage } from "./stages/InitialStage";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface ManufacturingControlsProps {
   manufacturingType: string;
@@ -24,24 +25,27 @@ interface ManufacturingControlsProps {
 export const ManufacturingControls = ({
   manufacturingType,
   isActive,
-  isPaused,
-  isCompleted,
-  isSintering,
-  isMiyo,
   onStart,
 }: ManufacturingControlsProps) => {
-  console.log("Manufacturing Controls State:", { 
-    isActive, 
-    isPaused, 
-    isCompleted, 
-    isSintering,
-    isMiyo 
-  });
+  console.log("Manufacturing Controls State:", { isActive });
 
-  // Only show the initial start button
-  if (!isActive && !isPaused && !isCompleted && !isSintering && !isMiyo) {
+  if (!isActive) {
     return <InitialStage manufacturingType={manufacturingType} onStart={onStart} />;
   }
 
-  return null;
+  return (
+    <div className="space-y-4">
+      <ToggleGroup type="single" className="flex gap-2">
+        <ToggleGroupItem value="milling" className="flex items-center gap-2 data-[state=on]:bg-primary data-[state=on]:text-white">
+          {manufacturingType === 'Milling' ? 'Milling' : 'Printing'}
+        </ToggleGroupItem>
+        <ToggleGroupItem value="sintering" className="flex items-center gap-2 data-[state=on]:bg-primary data-[state=on]:text-white">
+          Sintering
+        </ToggleGroupItem>
+        <ToggleGroupItem value="miyo" className="flex items-center gap-2 data-[state=on]:bg-primary data-[state=on]:text-white">
+          MIYO
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </div>
+  );
 };

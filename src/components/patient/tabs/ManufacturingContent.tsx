@@ -16,10 +16,6 @@ interface ManufacturingContentProps {
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
-  const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
-  const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
-  const [sinteringScripts, setSinteringScripts] = useState<{ [key: string]: boolean }>({});
-  const [miyoScripts, setMiyoScripts] = useState<{ [key: string]: boolean }>({});
   const { toast } = useToast();
 
   const manufacturingScripts = labScripts.filter(script => 
@@ -54,31 +50,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     });
   };
 
-  // Keeping these handlers for state management, but they won't be exposed in the UI
-  const handlePause = (scriptId: string) => {
-    console.log('Pausing manufacturing for script:', scriptId);
-    setPausedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleHold = (scriptId: string) => {
-    console.log('Holding manufacturing for script:', scriptId);
-    setPausedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleResume = (scriptId: string) => {
-    console.log('Resuming manufacturing for script:', scriptId);
-    setPausedScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-  };
-
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -87,14 +58,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             <ManufacturingControls
               manufacturingType={script.manufacturingType || ''}
               isActive={activeScripts[script.id]}
-              isPaused={pausedScripts[script.id]}
-              isCompleted={completedScripts[script.id]}
-              isSintering={sinteringScripts[script.id]}
-              isMiyo={miyoScripts[script.id]}
+              isPaused={false}
+              isCompleted={false}
+              isSintering={false}
+              isMiyo={false}
               onStart={() => handleStartManufacturing(script.id)}
-              onPause={() => handlePause(script.id)}
-              onHold={() => handleHold(script.id)}
-              onResume={() => handleResume(script.id)}
+              onPause={() => {}}
+              onHold={() => {}}
+              onResume={() => {}}
               onComplete={() => {}}
               onStartSintering={() => {}}
               onCompleteSintering={() => {}}
