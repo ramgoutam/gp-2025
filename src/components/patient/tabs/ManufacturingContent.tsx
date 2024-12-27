@@ -16,7 +16,6 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ labScripts: initialScripts, patientData }: ManufacturingContentProps) => {
-  // Add real-time query for script status
   const { data: updatedScripts } = useQuery({
     queryKey: ['manufacturingScripts', initialScripts.map(s => s.id)],
     queryFn: async () => {
@@ -34,7 +33,7 @@ export const ManufacturingContent = ({ labScripts: initialScripts, patientData }
       console.log("Fetched updated scripts:", data);
       return data;
     },
-    refetchInterval: 1000, // Poll every second
+    refetchInterval: 1000,
     initialData: initialScripts,
   });
 

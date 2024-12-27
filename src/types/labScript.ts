@@ -39,36 +39,38 @@ export interface ReportCard {
 
 export interface LabScript {
   id: string;
-  requestNumber?: string;
-  patientId?: string;
-  patientFirstName?: string;
-  patientLastName?: string;
-  doctorName: string;
-  clinicName: string;
-  requestDate: string;
-  dueDate: string;
+  request_number?: string;
+  patient_id?: string;
+  patient_first_name?: string;
+  patient_last_name?: string;
+  doctor_name: string;
+  clinic_name: string;
+  request_date: string;
+  due_date: string;
   status: LabScriptStatus;
-  upperTreatment?: string;
-  lowerTreatment?: string;
-  upperDesignName?: string;
-  lowerDesignName?: string;
-  applianceType?: string;
-  screwType?: string;
-  vdoOption?: string;
-  specificInstructions?: string;
-  designInfo?: DesignInfo;
-  clinicalInfo?: ClinicalInfo;
-  reportCard?: ReportCard;
-  fileUploads?: Record<string, File>;
+  upper_treatment?: string;
+  lower_treatment?: string;
+  upper_design_name?: string;
+  lower_design_name?: string;
+  appliance_type?: string;
+  screw_type?: string;
+  vdo_option?: string;
+  specific_instructions?: string;
+  design_info?: DesignInfo;
+  clinical_info?: ClinicalInfo;
+  report_card?: ReportCard;
+  file_uploads?: Record<string, File>;
   treatments?: {
     upper: string[];
     lower: string[];
   };
-  manufacturingSource?: string;
-  manufacturingType?: string;
+  manufacturing_source?: string;
+  manufacturing_type?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;  // Added this property
+  design_info_status?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface DatabaseLabScript {
