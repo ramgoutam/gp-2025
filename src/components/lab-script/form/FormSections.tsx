@@ -17,7 +17,7 @@ interface FormSectionsProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleFileChange: (itemId: string, files: File[]) => void;
   handleManufacturingChange: (source: string, type: string) => void;
-  setFormData: (data: any) => void;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const FormSections: React.FC<FormSectionsProps> = ({
