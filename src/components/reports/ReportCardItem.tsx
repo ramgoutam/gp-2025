@@ -34,8 +34,10 @@ export const ReportCardItem = ({ reportCard }: ReportCardItemProps) => {
   };
 
   const handleViewClick = () => {
-    if (reportCard.lab_script) {
+    if (reportCard.lab_script?.patient_id) {
       navigate(`/patient/${reportCard.lab_script.patient_id}`);
+    } else if (reportCard.patient_id) {
+      navigate(`/patient/${reportCard.patient_id}`);
     }
   };
 

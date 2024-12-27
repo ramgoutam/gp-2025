@@ -3,6 +3,7 @@ import { ReportCardsList } from "@/components/reports/ReportCardsList";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ReportCardData } from "@/types/reportCard";
 
 const Reports = () => {
   const { data: reportCards, isLoading } = useQuery({
@@ -13,7 +14,7 @@ const Reports = () => {
         .from('report_cards')
         .select(`
           *,
-          lab_script:lab_scripts(*),
+          lab_script:lab_script_id(*),
           design_info:design_info_id(*),
           clinical_info:clinical_info_id(*)
         `)
@@ -25,7 +26,7 @@ const Reports = () => {
       }
 
       console.log("Retrieved report cards:", data);
-      return data;
+      return data as ReportCardData[];
     },
   });
 
