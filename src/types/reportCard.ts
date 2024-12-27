@@ -19,7 +19,7 @@ export interface DesignInfo {
 
 export interface ClinicalInfo {
   id?: string;
-  insertion_date: string | null;
+  insertion_date: string | null;  // Made optional by allowing null
   appliance_fit?: string;
   design_feedback?: string;
   occlusion?: string;
@@ -32,13 +32,13 @@ export interface ClinicalInfo {
   report_card_id: string;
 }
 
-export interface LabScript {
-  id: string;
-  request_number?: string;
-  patient_id: string;
-  status: string;
-  created_at: string;
-  // other lab script fields
+export interface ReportCardState {
+  isDesignInfoComplete: boolean;
+  isClinicalInfoComplete: boolean;
+  designInfo?: DesignInfo;
+  clinicalInfo?: ClinicalInfo;
+  designInfoStatus?: InfoStatus;
+  clinicalInfoStatus?: InfoStatus;
 }
 
 export interface ReportCardData {
@@ -54,5 +54,18 @@ export interface ReportCardData {
   status: InfoStatus;
   design_info?: DesignInfo;
   clinical_info?: ClinicalInfo;
-  lab_script?: LabScript;
+}
+
+export interface ReportCardProps {
+  script: {
+    id: string;
+    requestNumber?: string;
+    status: string;
+    requestDate: string;
+    designInfo?: DesignInfo;
+    clinicalInfo?: ClinicalInfo;
+  };
+  onDesignInfo: (script: { id: string }) => void;
+  onClinicalInfo: () => void;
+  onUpdateScript?: (script: { id: string }) => void;
 }
