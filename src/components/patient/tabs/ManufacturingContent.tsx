@@ -19,7 +19,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
   const [completedScripts, setCompletedScripts] = useState<{ [key: string]: boolean }>({});
   const [sinteringScripts, setSinteringScripts] = useState<{ [key: string]: boolean }>({});
-  const [pausedSinteringScripts, setPausedSinteringScripts] = useState<{ [key: string]: boolean }>({});
   const [miyoScripts, setMiyoScripts] = useState<{ [key: string]: boolean }>({});
   const { toast } = useToast();
 
@@ -49,24 +48,13 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: true
     }));
-    setPausedScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setCompletedScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setMiyoScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
+    toast({
+      title: "Manufacturing Started",
+      description: "The manufacturing process has been initiated.",
+    });
   };
 
+  // Keeping these handlers for state management, but they won't be exposed in the UI
   const handlePause = (scriptId: string) => {
     console.log('Pausing manufacturing for script:', scriptId);
     setPausedScripts(prev => ({
@@ -91,106 +79,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     }));
   };
 
-  const handleComplete = (scriptId: string) => {
-    console.log('Completing manufacturing for script:', scriptId);
-    setActiveScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setPausedScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setCompletedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleStartSintering = (scriptId: string) => {
-    console.log('Starting sintering for script:', scriptId);
-    setSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-    setPausedSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-  };
-
-  const handlePauseSintering = (scriptId: string) => {
-    console.log('Pausing sintering for script:', scriptId);
-    setPausedSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleHoldSintering = (scriptId: string) => {
-    console.log('Holding sintering for script:', scriptId);
-    setPausedSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleResumeSintering = (scriptId: string) => {
-    console.log('Resuming sintering for script:', scriptId);
-    setPausedSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-  };
-
-  const handleCompleteSintering = (scriptId: string) => {
-    console.log('Completing sintering for script:', scriptId);
-    setSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setPausedSinteringScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setCompletedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleStartMiyo = (scriptId: string) => {
-    console.log('Starting Miyo for script:', scriptId);
-    setMiyoScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleCompleteMiyo = (scriptId: string) => {
-    console.log('Completing Miyo for script:', scriptId);
-    setMiyoScripts(prev => ({
-      ...prev,
-      [scriptId]: false
-    }));
-    setCompletedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-  };
-
-  const handleReadyToInsert = (scriptId: string) => {
-    console.log('Manufacturing completed, ready to insert for script:', scriptId);
-    setCompletedScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-    toast({
-      title: "Manufacturing Complete",
-      description: "The appliance is ready to insert",
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -207,15 +95,12 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
               onPause={() => handlePause(script.id)}
               onHold={() => handleHold(script.id)}
               onResume={() => handleResume(script.id)}
-              onComplete={() => handleComplete(script.id)}
-              onStartSintering={() => handleStartSintering(script.id)}
-              onPauseSintering={() => handlePauseSintering(script.id)}
-              onHoldSintering={() => handleHoldSintering(script.id)}
-              onResumeSintering={() => handleResumeSintering(script.id)}
-              onCompleteSintering={() => handleCompleteSintering(script.id)}
-              onStartMiyo={() => handleStartMiyo(script.id)}
-              onCompleteMiyo={() => handleCompleteMiyo(script.id)}
-              onReadyToInsert={() => handleReadyToInsert(script.id)}
+              onComplete={() => {}}
+              onStartSintering={() => {}}
+              onCompleteSintering={() => {}}
+              onStartMiyo={() => {}}
+              onCompleteMiyo={() => {}}
+              onReadyToInsert={() => {}}
             />
           </ManufacturingCard>
         ))}
