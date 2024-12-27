@@ -1,4 +1,5 @@
 import React from "react";
+import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
