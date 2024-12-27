@@ -9,60 +9,81 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ patientId }: ManufacturingContentProps) => {
-  const { data: labScripts, isLoading } = useQuery({
-    queryKey: ['labScripts', patientId],
+  const { data: labScripts = [] } = useQuery({
+    queryKey: ['patientLabScripts', patientId],
     queryFn: async () => {
-      console.log('Fetching lab scripts for patient:', patientId);
+      console.log("Fetching lab scripts for manufacturing view:", patientId);
       const { data, error } = await supabase
         .from('lab_scripts')
-        .select('*')
+        .select(`
+          *,
+          report_cards (
+            design_info_status,
+            clinical_info_status
+          )
+        `)
         .eq('patient_id', patientId)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching lab scripts:', error);
+        console.error("Error fetching lab scripts:", error);
         throw error;
       }
 
-      console.log('Fetched lab scripts:', data);
+      console.log("Retrieved lab scripts:", data);
       return data;
     },
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (!labScripts.length) {
+    return (
+      <div className="text-center p-6 text-gray-500">
+        No lab scripts found for this patient.
+      </div>
+    );
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-300px)] w-full">
+    <ScrollArea className="h-[500px]">
       <div className="space-y-4 p-4">
-        {labScripts?.map((script) => (
-          <Card key={script.id} className="p-4">
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Appliance Type</p>
-                  <p>{script.appliance_type || 'N/A'}</p>
+        {labScripts.map((script) => (
+          <Card key={script.id} className="p-4 hover:shadow-md transition-shadow">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-medium text-gray-500">Appliance Type</h4>
+                <p className="text-lg">{script.appliance_type || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-500">Appliance Numbers</h4>
+                <div className="space-y-1">
+                  {script.upper_design_name && (
+                    <p>Upper: {script.upper_design_name}</p>
+                  )}
+                  {script.lower_design_name && (
+                    <p>Lower: {script.lower_design_name}</p>
+                  )}
+                  {!script.upper_design_name && !script.lower_design_name && (
+                    <p>Not specified</p>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Appliance Numbers</p>
-                  <div>
-                    {script.upper_design_name && (
-                      <p>Upper: {script.upper_design_name}</p>
-                    )}
-                    {script.lower_design_name && (
-                      <p>Lower: {script.lower_design_name}</p>
-                    )}
-                    {!script.upper_design_name && !script.lower_design_name && 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Material</p>
-                  <p>{script.material || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Shade</p>
-                  <p>{script.shade || 'N/A'}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-500">Material</h4>
+                <p>{script.material || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-500">Shade</h4>
+                <p>{script.shade || 'Not specified'}</p>
+              </div>
+              <div className="col-span-2">
+                <h4 className="text-sm font-medium text-gray-500">Manufacturing Details</h4>
+                <div className="flex gap-2 mt-1">
+                  <span className="text-sm bg-gray-100 px-2 py-1 rounded">
+                    {script.manufacturing_source || 'Not specified'}
+                  </span>
+                  <span className="text-sm bg-gray-100 px-2 py-1 rounded">
+                    {script.manufacturing_type || 'Not specified'}
+                  </span>
                 </div>
               </div>
             </div>

@@ -290,12 +290,10 @@ export type Database = {
           lower_treatment: string | null
           manufacturing_source: string | null
           manufacturing_type: string | null
-          material: string | null
           patient_id: string
           request_date: string
           request_number: string | null
           screw_type: string | null
-          shade: string | null
           specific_instructions: string | null
           status: string
           updated_at: string
@@ -314,12 +312,10 @@ export type Database = {
           lower_treatment?: string | null
           manufacturing_source?: string | null
           manufacturing_type?: string | null
-          material?: string | null
           patient_id: string
           request_date: string
           request_number?: string | null
           screw_type?: string | null
-          shade?: string | null
           specific_instructions?: string | null
           status?: string
           updated_at?: string
@@ -338,12 +334,10 @@ export type Database = {
           lower_treatment?: string | null
           manufacturing_source?: string | null
           manufacturing_type?: string | null
-          material?: string | null
           patient_id?: string
           request_date?: string
           request_number?: string | null
           screw_type?: string | null
-          shade?: string | null
           specific_instructions?: string | null
           status?: string
           updated_at?: string

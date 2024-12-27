@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Mail, Phone, Calendar, MapPin, User2, Stethoscope } from "lucide-react";
 
-export interface PatientInformationProps {
+type PatientInformationProps = {
   firstName: string;
   lastName: string;
   email: string;
@@ -13,7 +13,7 @@ export interface PatientInformationProps {
   treatmentType?: string;
   upperTreatment?: string;
   lowerTreatment?: string;
-}
+};
 
 export const PatientInformationContent = ({
   firstName,
