@@ -10,7 +10,19 @@ export const useManufacturingData = () => {
       
       const { data: scripts, error } = await supabase
         .from('lab_scripts')
-        .select('id, request_number, doctor_name, manufacturing_source, manufacturing_type, due_date, status');
+        .select(`
+          id,
+          request_number,
+          doctor_name,
+          clinic_name,
+          request_date,
+          due_date,
+          status,
+          manufacturing_source,
+          manufacturing_type,
+          created_at,
+          updated_at
+        `);
 
       if (error) {
         console.error("Error fetching manufacturing data:", error);
