@@ -97,7 +97,7 @@ export const ManufacturingControls = ({
           onClick={onStart}
         >
           <AlertCircle className="w-4 h-4 mr-2" />
-          Edit {manufacturingType} Status
+          Edit Sintering Status
         </Button>
         <Button 
           variant="outline"
