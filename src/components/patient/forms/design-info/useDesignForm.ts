@@ -21,18 +21,6 @@ export const useDesignForm = (
     actions_taken: script.designInfo?.actions_taken || "",
   });
 
-  // Sync with lab script values when they change
-  useEffect(() => {
-    console.log("Syncing design data with lab script:", script);
-    setDesignData(prev => ({
-      ...prev,
-      appliance_type: script.applianceType || prev.appliance_type,
-      upper_treatment: script.upperTreatment || prev.upper_treatment,
-      lower_treatment: script.lowerTreatment || prev.lower_treatment,
-      screw: script.screwType || prev.screw,
-    }));
-  }, [script.applianceType, script.upperTreatment, script.lowerTreatment, script.screwType]);
-
   // Fetch latest design info data when form opens
   useEffect(() => {
     const fetchDesignInfo = async () => {
@@ -53,21 +41,26 @@ export const useDesignForm = (
       }
 
       if (reportCard?.design_info) {
-        console.log("Found existing design info:", reportCard.design_info);
-        setDesignData(prev => ({
-          ...prev,
-          ...reportCard.design_info,
-          // Keep lab script values if they exist and are different
-          appliance_type: script.applianceType || reportCard.design_info.appliance_type || prev.appliance_type,
-          upper_treatment: script.upperTreatment || reportCard.design_info.upper_treatment || prev.upper_treatment,
-          lower_treatment: script.lowerTreatment || reportCard.design_info.lower_treatment || prev.lower_treatment,
-          screw: script.screwType || reportCard.design_info.screw || prev.screw,
-        }));
+        console.log("Fetched design info:", reportCard.design_info);
+        setDesignData({
+          design_date: reportCard.design_info.design_date || new Date().toISOString().split('T')[0],
+          appliance_type: reportCard.design_info.appliance_type || script.applianceType || "",
+          upper_treatment: reportCard.design_info.upper_treatment || script.upperTreatment || "None",
+          lower_treatment: reportCard.design_info.lower_treatment || script.lowerTreatment || "None",
+          upper_design_name: reportCard.design_info.upper_design_name || script.upperDesignName || "",
+          lower_design_name: reportCard.design_info.lower_design_name || script.lowerDesignName || "",
+          screw: reportCard.design_info.screw || script.screwType || "",
+          implant_library: reportCard.design_info.implant_library || "",
+          teeth_library: reportCard.design_info.teeth_library || "",
+          actions_taken: reportCard.design_info.actions_taken || "",
+        });
       }
     };
 
     fetchDesignInfo();
   }, [script.id]);
+
+  console.log("Current design data:", designData);
 
   const handleDesignDataChange = (field: string, value: string) => {
     console.log(`Updating ${field} to:`, value);
@@ -80,7 +73,6 @@ export const useDesignForm = (
     try {
       setIsSubmitting(true);
       
-      // First, get or create report card
       const { data: reportCard, error: reportCardError } = await supabase
         .from('report_cards')
         .select('*')
@@ -88,68 +80,11 @@ export const useDesignForm = (
         .maybeSingle();
 
       if (reportCardError) throw reportCardError;
-
-      let reportCardId;
-      if (reportCard) {
-        reportCardId = reportCard.id;
-      } else {
-        const { data: newReportCard, error: createError } = await supabase
-          .from('report_cards')
-          .insert({
-            lab_script_id: scriptId,
-            patient_id: script.patientId,
-            design_info_status: 'completed',
-            clinical_info_status: 'pending'
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        reportCardId = newReportCard.id;
-      }
-
-      // Save design info
-      const designInfoData = {
-        ...designData,
-        report_card_id: reportCardId
-      };
+      if (!reportCard) throw new Error("No report card found for this lab script");
 
       let designInfo;
-      if (reportCard?.design_info_id) {
-        console.log("Updating existing design info:", reportCard.design_info_id);
-        const { data: updatedInfo, error: updateError } = await supabase
-          .from('design_info')
-          .update(designInfoData)
-          .eq('id', reportCard.design_info_id)
-          .select()
-          .single();
 
-        if (updateError) throw updateError;
-        designInfo = updatedInfo;
-      } else {
-        console.log("Creating new design info");
-        const { data: newInfo, error: createError } = await supabase
-          .from('design_info')
-          .insert(designInfoData)
-          .select()
-          .single();
-
-        if (createError) throw createError;
-
-        // Update report card with design_info_id
-        const { error: updateError } = await supabase
-          .from('report_cards')
-          .update({ 
-            design_info_id: newInfo.id,
-            design_info_status: 'completed'
-          })
-          .eq('id', reportCardId);
-
-        if (updateError) throw updateError;
-        designInfo = newInfo;
-      }
-
-      // Update lab script with latest values
+      // Update the lab script with the latest values
       const { error: labScriptError } = await supabase
         .from('lab_scripts')
         .update({
@@ -164,6 +99,42 @@ export const useDesignForm = (
         .eq('id', scriptId);
 
       if (labScriptError) throw labScriptError;
+
+      if (reportCard.design_info_id) {
+        console.log("Updating existing design info:", reportCard.design_info_id);
+        const { data: updatedInfo, error: updateError } = await supabase
+          .from('design_info')
+          .update(designData)
+          .eq('id', reportCard.design_info_id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        designInfo = updatedInfo;
+      } else {
+        console.log("Creating new design info");
+        const { data: newInfo, error: createError } = await supabase
+          .from('design_info')
+          .insert({
+            ...designData,
+            report_card_id: reportCard.id
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        const { error: updateError } = await supabase
+          .from('report_cards')
+          .update({ 
+            design_info_id: newInfo.id,
+            design_info_status: 'completed'
+          })
+          .eq('id', reportCard.id);
+
+        if (updateError) throw updateError;
+        designInfo = newInfo;
+      }
 
       const updatedScript: LabScript = {
         ...script,

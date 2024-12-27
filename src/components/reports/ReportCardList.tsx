@@ -68,7 +68,6 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
       console.log("Fetched reports:", data);
       return data;
     },
-    refetchInterval: 1000, // Added real-time updates
   });
 
   const handleDesignInfo = (script: any) => {
@@ -81,18 +80,7 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
       });
       return;
     }
-    
-    // Transform the script data to match the expected format
-    const transformedScript = {
-      ...script,
-      applianceType: script.appliance_type,
-      upperTreatment: script.upper_treatment,
-      lowerTreatment: script.lower_treatment,
-      screwType: script.screw_type,
-      designInfo: reports?.find(r => r.lab_script_id === script.id)?.design_info
-    };
-    
-    setSelectedScript(transformedScript);
+    setSelectedScript(script);
     setShowDesignInfo(true);
   };
 
@@ -168,7 +156,7 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
           <DialogHeader>
             <DialogTitle>Design Information</DialogTitle>
             <DialogDescription>
-              Design details for Lab Request #{selectedScript?.request_number}
+              Design details for Lab Request #{selectedScript?.requestNumber}
             </DialogDescription>
           </DialogHeader>
           {selectedScript && (
@@ -187,7 +175,7 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
           <DialogHeader>
             <DialogTitle>Clinical Information</DialogTitle>
             <DialogDescription>
-              Clinical details for Lab Request #{selectedScript?.request_number}
+              Clinical details for Lab Request #{selectedScript?.requestNumber}
             </DialogDescription>
           </DialogHeader>
           {selectedScript && (
