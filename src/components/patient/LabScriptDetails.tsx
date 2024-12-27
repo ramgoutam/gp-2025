@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { LabScriptContent } from "./lab-script-details/LabScriptContent";
 import { LabScriptForm } from "@/components/LabScriptForm";
 import { useToast } from "@/hooks/use-toast";
@@ -57,9 +57,16 @@ export const LabScriptDetails = ({
         }
 
         console.log("Found script data:", data);
+        // Ensure status is properly typed as LabScriptStatus
+        const status = data.status as LabScriptStatus;
+        if (!isValidLabScriptStatus(status)) {
+          throw new Error(`Invalid status: ${status}`);
+        }
+
         setCurrentScript({
           ...script,
           ...data,
+          status, // Use the validated status
           patientFirstName: data.patient?.first_name,
           patientLastName: data.patient?.last_name
         });
@@ -85,6 +92,19 @@ export const LabScriptDetails = ({
     if (onEdit) {
       onEdit(updatedScript);
     }
+  };
+
+  // Helper function to validate LabScriptStatus
+  const isValidLabScriptStatus = (status: string): status is LabScriptStatus => {
+    const validStatuses: LabScriptStatus[] = [
+      "pending",
+      "processing",
+      "in_progress",
+      "paused",
+      "hold",
+      "completed"
+    ];
+    return validStatuses.includes(status as LabScriptStatus);
   };
 
   return (
