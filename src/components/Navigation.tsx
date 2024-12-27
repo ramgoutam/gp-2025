@@ -25,24 +25,14 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error signing out:", error);
-        throw error;
-      }
-      
-      // Clear any local storage or state if needed
-      localStorage.clear();
-      
+      await supabase.auth.signOut();
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-      
-      // Force navigation to login
-      navigate("/login", { replace: true });
+      navigate("/login");
     } catch (error) {
-      console.error("Error during sign out:", error);
+      console.error("Error signing out:", error);
       toast({
         variant: "destructive",
         title: "Error",
