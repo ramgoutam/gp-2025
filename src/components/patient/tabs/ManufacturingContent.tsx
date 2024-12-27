@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, Pause, StopCircle, Flame } from "lucide-react";
+import { Factory, Play, Pause, StopCircle, Flame, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -14,6 +14,7 @@ interface ManufacturingContentProps {
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
+  const [pausedScripts, setPausedScripts] = useState<{ [key: string]: boolean }>({});
 
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -40,15 +41,35 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       ...prev,
       [scriptId]: true
     }));
+    setPausedScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
     console.log('Starting manufacturing process for script:', scriptId);
   };
 
   const handlePause = (scriptId: string) => {
+    setPausedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     console.log('Pausing manufacturing process for script:', scriptId);
   };
 
   const handleHold = (scriptId: string) => {
+    setPausedScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     console.log('Holding manufacturing process for script:', scriptId);
+  };
+
+  const handleResume = (scriptId: string) => {
+    setPausedScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    console.log('Resuming manufacturing process for script:', scriptId);
   };
 
   const handleStartSintering = (scriptId: string) => {
@@ -98,6 +119,15 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                       : script.manufacturingType === 'Printing' 
                       ? 'Start Printing' 
                       : 'Start'}
+                  </Button>
+                ) : pausedScripts[script.id] ? (
+                  <Button 
+                    variant="outline"
+                    className="hover:bg-primary/5 group animate-fade-in"
+                    onClick={() => handleResume(script.id)}
+                  >
+                    <PlayCircle className="w-4 h-4 mr-2 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
+                    Resume
                   </Button>
                 ) : (
                   <div className="flex gap-2">
