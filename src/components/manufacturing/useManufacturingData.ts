@@ -32,13 +32,14 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           )
-        `)
-        .eq('status', 'completed');
+        `);
 
       if (error) {
         console.error("Error fetching manufacturing data:", error);
         throw error;
       }
+
+      console.log("Fetched scripts:", scripts);
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
@@ -53,19 +54,27 @@ export const useManufacturingData = () => {
         };
       });
 
-      const inhousePrinting = mappedScripts.filter(s => 
+      // Filter scripts that have completed design info but are not yet completed
+      const manufacturingQueue = mappedScripts.filter(s => 
+        s.report_cards?.[0]?.design_info_status === 'completed' && 
+        s.status !== 'completed'
+      );
+
+      console.log("Manufacturing queue:", manufacturingQueue);
+
+      const inhousePrinting = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
       );
 
-      const inhouseMilling = mappedScripts.filter(s => 
+      const inhouseMilling = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
       );
 
-      const outsourcePrinting = mappedScripts.filter(s => 
+      const outsourcePrinting = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Printing'
       );
 
-      const outsourceMilling = mappedScripts.filter(s => 
+      const outsourceMilling = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
       );
 
@@ -82,9 +91,9 @@ export const useManufacturingData = () => {
           outsourcePrinting: outsourcePrinting.length,
           outsourceMilling: outsourceMilling.length,
           completedOutsourceMilling: completedOutsourceMilling.length,
-          total: mappedScripts.length
+          total: manufacturingQueue.length
         },
-        scripts: mappedScripts
+        scripts: manufacturingQueue
       };
     },
     refetchInterval: 1000
