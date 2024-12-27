@@ -62,6 +62,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handlePause = (scriptId: string) => {
     console.log('Pausing manufacturing for script:', scriptId);
+    setActiveScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -70,6 +74,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleHold = (scriptId: string) => {
     console.log('Holding manufacturing for script:', scriptId);
+    setActiveScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -78,6 +86,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleResume = (scriptId: string) => {
     console.log('Resuming manufacturing for script:', scriptId);
+    setActiveScripts(prev => ({
+      ...prev,
+      [scriptId]: true
+    }));
     setPausedScripts(prev => ({
       ...prev,
       [scriptId]: false
@@ -86,6 +98,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleComplete = (scriptId: string) => {
     console.log('Completing manufacturing for script:', scriptId);
+    setActiveScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
+    setPausedScripts(prev => ({
+      ...prev,
+      [scriptId]: false
+    }));
     setCompletedScripts(prev => ({
       ...prev,
       [scriptId]: true
@@ -152,7 +172,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             <ManufacturingControls
               manufacturingType={script.manufacturingType || ''}
               isActive={activeScripts[script.id]}
-              isPaused={pausedSinteringScripts[script.id]}
+              isPaused={pausedScripts[script.id]}
               isCompleted={completedScripts[script.id]}
               isSintering={sinteringScripts[script.id]}
               onStart={() => handleStartManufacturing(script.id)}
