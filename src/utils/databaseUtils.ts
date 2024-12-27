@@ -6,28 +6,8 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
   const { data: scripts, error } = await supabase
     .from('lab_scripts')
     .select(`
-      id,
-      request_number,
-      patient_id,
-      doctor_name,
-      clinic_name,
-      request_date,
-      due_date,
-      status,
-      upper_treatment,
-      lower_treatment,
-      upper_design_name,
-      lower_design_name,
-      appliance_type,
-      screw_type,
-      vdo_option,
-      specific_instructions,
-      manufacturing_source,
-      manufacturing_type,
-      material,
-      shade,
-      created_at,
-      updated_at
+      *,
+      patient:patients(first_name, last_name)
     `)
     .order('created_at', { ascending: false });
 
@@ -41,35 +21,15 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
 };
 
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
-  console.log("Saving lab script to database:", script);
+  console.log("Saving new lab script to database:", script);
   
   if (!script.patientId) {
     console.error("Cannot create lab script without patient ID");
     throw new Error("Patient ID is required to create a lab script");
   }
 
-  const dbScript = {
-    patient_id: script.patientId,
-    doctor_name: script.doctorName || "Default Doctor",
-    clinic_name: script.clinicName || "Default Clinic",
-    request_date: script.requestDate,
-    due_date: script.dueDate,
-    status: script.status || "pending",
-    upper_treatment: script.upperTreatment,
-    lower_treatment: script.lowerTreatment,
-    upper_design_name: script.upperDesignName,
-    lower_design_name: script.lowerDesignName,
-    appliance_type: script.applianceType,
-    screw_type: script.screwType,
-    vdo_option: script.vdoOption,
-    specific_instructions: script.specificInstructions,
-    manufacturing_source: script.manufacturingSource,
-    manufacturing_type: script.manufacturingType,
-    material: script.material,
-    shade: script.shade
-  };
-  
-  console.log("Mapped database script:", dbScript);
+  const dbScript = mapLabScriptToDatabase(script as LabScript);
+  console.log("Mapped database script for insert:", dbScript);
   
   const { data, error } = await supabase
     .from('lab_scripts')
@@ -91,40 +51,33 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
 };
 
 export const updateLabScript = async (script: LabScript): Promise<LabScript> => {
-  console.log("Updating lab script in database:", script);
-  const dbScript = {
-    patient_id: script.patientId,
-    doctor_name: script.doctorName,
-    clinic_name: script.clinicName,
-    request_date: script.requestDate,
-    due_date: script.dueDate,
-    status: script.status,
-    upper_treatment: script.upperTreatment,
-    lower_treatment: script.lowerTreatment,
-    upper_design_name: script.upperDesignName,
-    lower_design_name: script.lowerDesignName,
-    appliance_type: script.applianceType,
-    screw_type: script.screwType,
-    vdo_option: script.vdoOption,
-    specific_instructions: script.specificInstructions,
-    manufacturing_source: script.manufacturingSource,
-    manufacturing_type: script.manufacturingType,
-    material: script.material,
-    shade: script.shade
-  };
-  
+  console.log("Updating lab script in database. Script ID:", script.id);
+  console.log("Update payload:", script);
+
+  if (!script.id) {
+    throw new Error("Cannot update lab script without ID");
+  }
+
+  const dbScript = mapLabScriptToDatabase(script);
   console.log("Mapped database script for update:", dbScript);
   
   const { data, error } = await supabase
     .from('lab_scripts')
     .update(dbScript)
     .eq('id', script.id)
-    .select()
+    .select(`
+      *,
+      patient:patients(first_name, last_name)
+    `)
     .single();
 
   if (error) {
     console.error("Error updating lab script:", error);
     throw error;
+  }
+
+  if (!data) {
+    throw new Error("No data returned after updating lab script");
   }
 
   console.log("Successfully updated lab script:", data);
