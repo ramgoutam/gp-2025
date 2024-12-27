@@ -53,15 +53,17 @@ export const PageHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center bg-white p-6 rounded-lg shadow-md border border-gray-100 mb-6">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
-        <p className="text-gray-500">Manage and view all patient records</p>
+    <div className="flex justify-between items-center bg-gradient-to-r from-white to-primary-50 p-4 rounded-lg shadow-sm border border-primary-100 mb-4 animate-fade-in">
+      <div className="space-y-0.5">
+        <h1 className="text-2xl font-semibold text-gray-900 animate-slide-in">Patients</h1>
+        <p className="text-sm text-gray-500">Manage and view all patient records</p>
       </div>
       <div className="flex gap-4">
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button 
+              className="bg-primary hover:bg-primary-600 text-white gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+            >
               <Plus className="h-4 w-4" />
               Add New Patient
             </Button>
