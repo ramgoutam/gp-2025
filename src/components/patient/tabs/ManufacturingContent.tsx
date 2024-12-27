@@ -42,13 +42,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
-                <span className={`px-3 py-1 rounded-full text-sm ${
-                  script.status === 'completed' ? 'bg-green-100 text-green-800' :
-                  script.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {script.status.charAt(0).toUpperCase() + script.status.slice(1)}
-                </span>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
