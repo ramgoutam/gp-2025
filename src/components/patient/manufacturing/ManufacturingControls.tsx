@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Play, Check } from "lucide-react";
+import { Play, Check, ChevronRight } from "lucide-react";
 import { InitialStage } from "./stages/InitialStage";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 
 interface ManufacturingControlsProps {
@@ -41,80 +40,93 @@ export const ManufacturingControls = ({
 
   if (areAllStepsCompleted) {
     return (
-      <div className="flex items-center gap-2 px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-lg animate-fade-in">
-        <Check className="w-6 h-6 animate-bounce" />
-        <span className="text-lg font-medium">Completed - Ready to Insert</span>
+      <div className="flex items-center justify-center gap-3 px-8 py-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl shadow-lg animate-fade-in">
+        <Check className="w-7 h-7 animate-bounce" />
+        <span className="text-xl font-semibold tracking-wide">
+          Completed - Ready to Insert
+        </span>
       </div>
     );
   }
 
   const getStepStyles = (step: string) => {
-    const baseStyles = "relative flex items-center gap-2 px-6 py-4 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl text-lg font-medium";
-    const completedStyles = "bg-gradient-to-r from-green-500 to-green-600 text-white";
-    const activeStyles = "bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white";
-    const disabledStyles = "bg-gray-100 text-gray-400 cursor-not-allowed hover:transform-none hover:shadow-lg";
+    const baseStyles = "relative flex items-center justify-between w-full px-8 py-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl";
+    const iconBaseStyles = "w-6 h-6 transition-transform duration-300 group-hover:scale-110";
     
-    if (isStepCompleted(step)) return `${baseStyles} ${completedStyles}`;
-    if (step === 'milling' || (step === 'sintering' && isStepCompleted('milling')) || (step === 'miyo' && isStepCompleted('sintering'))) {
-      return `${baseStyles} ${activeStyles}`;
+    if (isStepCompleted(step)) {
+      return `${baseStyles} bg-gradient-to-br from-green-500 to-green-600 text-white`;
     }
-    return `${baseStyles} ${disabledStyles}`;
+    
+    if (step === 'milling' || (step === 'sintering' && isStepCompleted('milling')) || (step === 'miyo' && isStepCompleted('sintering'))) {
+      return `${baseStyles} bg-gradient-to-br from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white group`;
+    }
+    
+    return `${baseStyles} bg-gray-100 text-gray-400 cursor-not-allowed hover:transform-none`;
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-2xl mx-auto">
       <div className="flex flex-col gap-4">
+        {/* Milling/Printing Step */}
         <button
           className={getStepStyles('milling')}
           onClick={() => handleStepComplete('milling')}
           disabled={isStepCompleted('milling')}
         >
-          {isStepCompleted('milling') ? (
-            <Check className="w-6 h-6 animate-bounce" />
-          ) : (
-            <Play className="w-6 h-6 animate-pulse" />
-          )}
-          <span>{manufacturingType === 'Milling' ? 'Milling' : 'Printing'}</span>
+          <div className="flex items-center gap-3">
+            {isStepCompleted('milling') ? (
+              <Check className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6 animate-pulse" />
+            )}
+            <span className="text-lg font-semibold tracking-wide">
+              {manufacturingType === 'Milling' ? 'Milling' : 'Printing'}
+            </span>
+          </div>
           {!isStepCompleted('milling') && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
-              Click to complete
-            </div>
+            <ChevronRight className="w-6 h-6 opacity-75 group-hover:translate-x-1 transition-transform duration-300" />
           )}
         </button>
 
+        {/* Sintering Step */}
         <button
           className={getStepStyles('sintering')}
           onClick={() => handleStepComplete('sintering')}
           disabled={!isStepCompleted('milling') || isStepCompleted('sintering')}
         >
-          {isStepCompleted('sintering') ? (
-            <Check className="w-6 h-6 animate-bounce" />
-          ) : (
-            <Play className="w-6 h-6 animate-pulse" />
-          )}
-          <span>Sintering</span>
+          <div className="flex items-center gap-3">
+            {isStepCompleted('sintering') ? (
+              <Check className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6 animate-pulse" />
+            )}
+            <span className="text-lg font-semibold tracking-wide">
+              Sintering
+            </span>
+          </div>
           {isStepCompleted('milling') && !isStepCompleted('sintering') && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
-              Click to complete
-            </div>
+            <ChevronRight className="w-6 h-6 opacity-75 group-hover:translate-x-1 transition-transform duration-300" />
           )}
         </button>
 
+        {/* MIYO Step */}
         <button
           className={getStepStyles('miyo')}
           onClick={() => handleStepComplete('miyo')}
           disabled={!isStepCompleted('sintering') || isStepCompleted('miyo')}
         >
-          {isStepCompleted('miyo') ? (
-            <Check className="w-6 h-6 animate-bounce" />
-          ) : (
-            <Play className="w-6 h-6 animate-pulse" />
-          )}
-          <span>MIYO</span>
+          <div className="flex items-center gap-3">
+            {isStepCompleted('miyo') ? (
+              <Check className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6 animate-pulse" />
+            )}
+            <span className="text-lg font-semibold tracking-wide">
+              MIYO
+            </span>
+          </div>
           {isStepCompleted('sintering') && !isStepCompleted('miyo') && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-75">
-              Click to complete
-            </div>
+            <ChevronRight className="w-6 h-6 opacity-75 group-hover:translate-x-1 transition-transform duration-300" />
           )}
         </button>
       </div>
