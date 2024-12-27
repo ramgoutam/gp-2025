@@ -85,7 +85,7 @@ export const PatientList = () => {
   };
 
   const renderViewToggle = () => (
-    <div className="flex justify-end mb-4 px-4">
+    <div className="flex justify-end items-center mb-4 px-4">
       <Button
         variant="outline"
         size="sm"
