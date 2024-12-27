@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Stethoscope, ArrowRight, Trash2, Edit } from "lucide-react";
+import { Stethoscope, ArrowRight, Trash2, Pencil } from "lucide-react";
 
 interface CardActionsProps {
   onView: () => void;
@@ -25,7 +25,7 @@ export const CardActions = ({ onView, onDelete, onEdit }: CardActionsProps) => {
         onClick={onEdit}
         className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
       >
-        <Edit className="h-4 w-4" />
+        <Pencil className="h-4 w-4" />
         Edit
       </Button>
       <Button

@@ -2,7 +2,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
 import { StatusButtons } from "./lab-script/StatusButtons";
@@ -10,6 +10,7 @@ import { StatusButtons } from "./lab-script/StatusButtons";
 interface LabScriptListProps {
   labScripts: LabScript[];
   onRowClick: (script: LabScript) => void;
+  onEditClick: (script: LabScript) => void;
   onDeleteClick?: (script: LabScript) => void;
 }
 
@@ -52,8 +53,13 @@ const formatDate = (dateString: string) => {
   }
 };
 
-export const LabScriptList = ({ labScripts, onRowClick, onDeleteClick }: LabScriptListProps) => {
+export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
+
+  const handleEditClick = (e: React.MouseEvent, script: LabScript) => {
+    e.stopPropagation();
+    onEditClick(script);
+  };
 
   const handleDeleteClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
@@ -134,6 +140,14 @@ export const LabScriptList = ({ labScripts, onRowClick, onDeleteClick }: LabScri
                     className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
                   >
                     <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleEditClick(e, script)}
+                    className="p-0 h-auto hover:bg-transparent"
+                  >
+                    <Pencil className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>

@@ -31,7 +31,7 @@ export const FormFooter = ({
 
       <div className="flex justify-end space-x-2">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Processing...' : isEditing ? 'Save' : 'Submit Lab Script'}
+          {isSubmitting ? 'Processing...' : isEditing ? 'Update' : 'Submit'} Lab Script
         </Button>
       </div>
     </>
