@@ -22,14 +22,24 @@ export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatus
       
       const { data: reports, error } = await supabase
         .from('report_cards')
-        .select('design_info_status, clinical_info_status');
+        .select(`
+          design_info_status,
+          clinical_info_status,
+          lab_script:lab_scripts(
+            status
+          )
+        `);
 
       if (error) {
         console.error("Error fetching report counts:", error);
         throw error;
       }
 
-      const designPending = reports.filter(r => r.design_info_status === 'pending').length;
+      const designPending = reports.filter(r => 
+        r.design_info_status === 'pending' && 
+        r.lab_script?.status === 'completed'
+      ).length;
+      
       const designCompleted = reports.filter(r => r.design_info_status === 'completed').length;
       const clinicalPending = reports.filter(r => r.clinical_info_status === 'pending').length;
       const clinicalCompleted = reports.filter(r => r.clinical_info_status === 'completed').length;
