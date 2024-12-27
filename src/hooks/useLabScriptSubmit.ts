@@ -26,26 +26,24 @@ export const useLabScriptSubmit = (
       }
 
       let savedScript;
+      const scriptData = {
+        ...formData,
+        manufacturing_source: formData.manufacturingSource,
+        manufacturing_type: formData.manufacturingType,
+        material: formData.material,
+        shade: formData.shade
+      };
+
       if (isEditing && initialData?.id) {
         console.log("Updating existing lab script:", initialData.id);
         savedScript = await updateLabScript({
-          ...formData,
+          ...scriptData,
           id: initialData.id,
-          manufacturingSource: formData.manufacturingSource,
-          manufacturingType: formData.manufacturingType,
-          material: formData.material,
-          shade: formData.shade
         });
         console.log("Lab script updated successfully:", savedScript);
       } else {
         console.log("Creating new lab script for patient:", formData.patientId);
-        savedScript = await saveLabScript({
-          ...formData,
-          manufacturingSource: formData.manufacturingSource,
-          manufacturingType: formData.manufacturingType,
-          material: formData.material,
-          shade: formData.shade
-        });
+        savedScript = await saveLabScript(scriptData);
         console.log("Lab script created successfully:", savedScript);
       }
 

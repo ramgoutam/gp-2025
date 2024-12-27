@@ -23,7 +23,11 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
       vdo_option,
       specific_instructions,
       created_at,
-      updated_at
+      updated_at,
+      manufacturing_source,
+      manufacturing_type,
+      material,
+      shade
     `)
     .order('created_at', { ascending: false });
 
@@ -39,7 +43,6 @@ export const getLabScripts = async (): Promise<LabScript[]> => {
 export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScript> => {
   console.log("Saving lab script to database:", script);
   
-  // Validate patient ID exists
   if (!script.patientId) {
     console.error("Cannot create lab script without patient ID");
     throw new Error("Patient ID is required to create a lab script");
@@ -59,7 +62,11 @@ export const saveLabScript = async (script: Partial<LabScript>): Promise<LabScri
     appliance_type: script.applianceType,
     screw_type: script.screwType,
     vdo_option: script.vdoOption,
-    specific_instructions: script.specificInstructions
+    specific_instructions: script.specificInstructions,
+    manufacturing_source: script.manufacturingSource,
+    manufacturing_type: script.manufacturingType,
+    material: script.material,
+    shade: script.shade
   };
   
   console.log("Mapped database script:", dbScript);
