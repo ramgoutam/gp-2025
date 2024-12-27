@@ -58,7 +58,19 @@ export const ActionButtons = ({
     };
   }, [script.id]);
 
-  const handleDesignInfoClick = () => {
+  const handleDesignInfoClick = async () => {
+    console.log("Checking lab script status before proceeding:", currentScript.status);
+    
+    // Check if the script exists and its status
+    if (!currentScript) {
+      toast({
+        title: "Error",
+        description: "Lab script not found.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (currentScript.status !== 'completed') {
       toast({
         title: "Lab Script Incomplete",
@@ -67,6 +79,8 @@ export const ActionButtons = ({
       });
       return;
     }
+
+    // If we get here, the script is completed and we can proceed
     onDesignInfo(currentScript);
   };
 
