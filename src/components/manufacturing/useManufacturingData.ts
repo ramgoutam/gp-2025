@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { mapDatabaseLabScript } from "@/types/labScript";
 
 export const useManufacturingData = () => {
   return useQuery({
@@ -16,20 +17,23 @@ export const useManufacturingData = () => {
         throw error;
       }
 
-      const inhousePrinting = scripts.filter(s => 
-        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'printing'
+      // Map database fields to LabScript type
+      const mappedScripts = scripts.map(script => mapDatabaseLabScript(script));
+
+      const inhousePrinting = mappedScripts.filter(s => 
+        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'printing'
       );
 
-      const inhouseMilling = scripts.filter(s => 
-        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'milling'
+      const inhouseMilling = mappedScripts.filter(s => 
+        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'milling'
       );
 
-      const outsourcePrinting = scripts.filter(s => 
-        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'printing'
+      const outsourcePrinting = mappedScripts.filter(s => 
+        s.manufacturingSource === 'outsource' && s.manufacturingType === 'printing'
       );
 
-      const outsourceMilling = scripts.filter(s => 
-        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'milling'
+      const outsourceMilling = mappedScripts.filter(s => 
+        s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
       );
 
       return {
@@ -38,9 +42,9 @@ export const useManufacturingData = () => {
           inhouseMilling: inhouseMilling.length,
           outsourcePrinting: outsourcePrinting.length,
           outsourceMilling: outsourceMilling.length,
-          total: scripts.length
+          total: mappedScripts.length
         },
-        scripts
+        scripts: mappedScripts
       };
     },
     refetchInterval: 1000

@@ -24,7 +24,7 @@ const Manufacturing = () => {
       bgColor: "bg-blue-50",
       progressColor: "bg-blue-500",
       scripts: manufacturingData.scripts.filter(s => 
-        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'printing'
+        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'printing'
       )
     },
     {
@@ -35,7 +35,7 @@ const Manufacturing = () => {
       bgColor: "bg-purple-50",
       progressColor: "bg-purple-500",
       scripts: manufacturingData.scripts.filter(s => 
-        s.manufacturing_source === 'inhouse' && s.manufacturing_type === 'milling'
+        s.manufacturingSource === 'inhouse' && s.manufacturingType === 'milling'
       )
     },
     {
@@ -46,7 +46,7 @@ const Manufacturing = () => {
       bgColor: "bg-orange-50",
       progressColor: "bg-orange-500",
       scripts: manufacturingData.scripts.filter(s => 
-        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'printing'
+        s.manufacturingSource === 'outsource' && s.manufacturingType === 'printing'
       )
     },
     {
@@ -57,7 +57,7 @@ const Manufacturing = () => {
       bgColor: "bg-green-50",
       progressColor: "bg-green-500",
       scripts: manufacturingData.scripts.filter(s => 
-        s.manufacturing_source === 'outsource' && s.manufacturing_type === 'milling'
+        s.manufacturingSource === 'outsource' && s.manufacturingType === 'milling'
       )
     }
   ];
