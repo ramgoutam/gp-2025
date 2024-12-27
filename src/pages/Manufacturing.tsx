@@ -62,7 +62,7 @@ const Manufacturing = () => {
       )
     },
     {
-      title: "Completed After Outsource Milling",
+      title: "Completed",
       count: manufacturingData.counts.completedOutsourceMilling,
       icon: CheckCircle,
       color: "text-emerald-600",
