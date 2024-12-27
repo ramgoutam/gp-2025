@@ -74,7 +74,7 @@ export interface DatabaseLabScript {
   clinic_name: string;
   request_date: string;
   due_date: string;
-  status: LabScriptStatus;
+  status: string;  // Changed from LabScriptStatus to string to match database
   upper_treatment?: string;
   lower_treatment?: string;
   upper_design_name?: string;
@@ -96,7 +96,7 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     clinicName: dbScript.clinic_name,
     requestDate: dbScript.request_date,
     dueDate: dbScript.due_date,
-    status: dbScript.status,
+    status: dbScript.status as LabScriptStatus, // Type assertion here
     upperTreatment: dbScript.upper_treatment,
     lowerTreatment: dbScript.lower_treatment,
     upperDesignName: dbScript.upper_design_name,
