@@ -95,12 +95,7 @@ export const LabScriptForm = ({
           acc[key] = upload.files;
         }
         return acc;
-      }, {} as Record<string, File[]>),
-      // Explicitly include manufacturing fields in submission data
-      manufacturingSource: formData.manufacturingSource,
-      manufacturingType: formData.manufacturingType,
-      material: formData.material,
-      shade: formData.shade
+      }, {} as Record<string, File[]>)
     };
 
     console.log("Submitting form with data:", submissionData);
@@ -207,7 +202,8 @@ export const LabScriptForm = ({
         {shouldShowVDOSection() && (
           <VDOSection
             value={formData.vdoOption}
-            onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))}
+            onChange={(value) => setFormData(prev => ({ ...prev, vdoOption: value }))
+            }
           />
         )}
       </div>

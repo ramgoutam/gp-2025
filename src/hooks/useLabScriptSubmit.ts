@@ -17,9 +17,7 @@ export const useLabScriptSubmit = (
     }
 
     setIsSubmitting(true);
-    console.log("Processing lab script submission. Is editing?", isEditing);
-    console.log("Form data:", formData);
-    console.log("Initial data:", initialData);
+    console.log("Processing lab script submission with data:", formData);
 
     try {
       if (!formData.patientId) {
@@ -29,21 +27,19 @@ export const useLabScriptSubmit = (
 
       let savedScript;
       if (isEditing && initialData?.id) {
-        console.log("Updating existing lab script with ID:", initialData.id);
+        console.log("Updating existing lab script:", initialData.id);
         savedScript = await updateLabScript({
           ...formData,
-          id: initialData.id,
-          status: initialData.status || 'pending'
+          id: initialData.id
         });
         console.log("Lab script updated successfully:", savedScript);
       } else {
         console.log("Creating new lab script for patient:", formData.patientId);
         savedScript = await saveLabScript(formData);
-        console.log("New lab script created successfully:", savedScript);
+        console.log("Lab script created successfully:", savedScript);
       }
 
       if (onSubmit) {
-        console.log("Calling onSubmit callback with saved script");
         await onSubmit(savedScript);
       }
 
