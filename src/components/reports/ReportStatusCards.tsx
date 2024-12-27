@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, CheckCircle2, Files, AlertTriangle } from "lucide-react";
+import { Clock, CheckCircle2, Files, AlertTriangle, ClipboardCheck } from "lucide-react";
 import { StatusCard } from "../scripts/StatusCard";
 
 type ReportStatusCardsProps = {
@@ -10,9 +10,10 @@ type ReportStatusCardsProps = {
 
 export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatusCardsProps) => {
   const { data: reportCounts = { 
-    pending: 0, 
-    completed: 0,
-    incomplete: 0,
+    designPending: 0,
+    designCompleted: 0,
+    clinicalPending: 0,
+    clinicalCompleted: 0,
     total: 0 
   } } = useQuery({
     queryKey: ['reportStatusCounts'],
@@ -21,24 +22,23 @@ export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatus
       
       const { data: reports, error } = await supabase
         .from('report_cards')
-        .select('status, design_info_status, clinical_info_status');
+        .select('design_info_status, clinical_info_status');
 
       if (error) {
         console.error("Error fetching report counts:", error);
         throw error;
       }
 
-      const pending = reports.filter(r => r.status === 'pending').length;
-      const completed = reports.filter(r => r.status === 'completed').length;
-      const incomplete = reports.filter(r => 
-        r.design_info_status === 'pending' || 
-        r.clinical_info_status === 'pending'
-      ).length;
+      const designPending = reports.filter(r => r.design_info_status === 'pending').length;
+      const designCompleted = reports.filter(r => r.design_info_status === 'completed').length;
+      const clinicalPending = reports.filter(r => r.clinical_info_status === 'pending').length;
+      const clinicalCompleted = reports.filter(r => r.clinical_info_status === 'completed').length;
 
       return {
-        pending,
-        completed,
-        incomplete,
+        designPending,
+        designCompleted,
+        clinicalPending,
+        clinicalCompleted,
         total: reports.length
       };
     },
@@ -51,31 +51,40 @@ export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatus
 
   const cards = [
     {
-      title: "Pending Reports",
-      count: reportCounts.pending,
+      title: "Design Info Pending",
+      count: reportCounts.designPending,
       icon: Clock,
       color: "bg-amber-50",
       iconColor: "text-amber-500",
       progressColor: "bg-gradient-to-r from-amber-400 to-amber-500",
-      status: 'pending'
+      status: 'design_pending'
     },
     {
-      title: "Incomplete Reports",
-      count: reportCounts.incomplete,
-      icon: AlertTriangle,
-      color: "bg-orange-50",
-      iconColor: "text-orange-500",
-      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
-      status: 'incomplete'
-    },
-    {
-      title: "Completed Reports",
-      count: reportCounts.completed,
+      title: "Design Info Completed",
+      count: reportCounts.designCompleted,
       icon: CheckCircle2,
       color: "bg-green-50",
       iconColor: "text-green-500",
       progressColor: "bg-gradient-to-r from-green-400 to-green-500",
-      status: 'completed'
+      status: 'design_completed'
+    },
+    {
+      title: "Clinical Info Pending",
+      count: reportCounts.clinicalPending,
+      icon: AlertTriangle,
+      color: "bg-orange-50",
+      iconColor: "text-orange-500",
+      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
+      status: 'clinical_pending'
+    },
+    {
+      title: "Clinical Info Completed",
+      count: reportCounts.clinicalCompleted,
+      icon: ClipboardCheck,
+      color: "bg-teal-50",
+      iconColor: "text-teal-500",
+      progressColor: "bg-gradient-to-r from-teal-400 to-teal-500",
+      status: 'clinical_completed'
     },
     {
       title: "All Reports",
@@ -89,7 +98,7 @@ export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatus
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-in">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 animate-fade-in">
       {cards.map((card, index) => (
         <div
           key={card.title}
