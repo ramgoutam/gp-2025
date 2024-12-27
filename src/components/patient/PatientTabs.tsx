@@ -27,6 +27,26 @@ interface PatientTabsProps {
   };
 }
 
+// Define interfaces for child components
+interface MedicalFormsContentProps {
+  patientId: string;
+}
+
+interface ReportCardContentProps {
+  patientId: string;
+  patientName: string;
+}
+
+interface TreatmentStatusProps {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  treatmentType?: string;
+  upperTreatment?: string;
+  lowerTreatment?: string;
+  labScripts?: LabScript[];
+}
+
 export const PatientTabs = ({
   labScripts,
   onCreateLabScript,
@@ -109,7 +129,10 @@ export const PatientTabs = ({
 
         <TabsContent value="next-treatment">
           <div className="text-gray-600 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-            <TreatmentStatusContent {...patientData} />
+            <TreatmentStatusContent 
+              {...patientData} 
+              labScripts={labScripts}
+            />
           </div>
         </TabsContent>
       </div>
