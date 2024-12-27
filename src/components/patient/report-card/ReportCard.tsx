@@ -18,6 +18,7 @@ interface ReportCardProps {
   onDesignInfo: (script: { id: string }) => void;
   onClinicalInfo: () => void;
   onUpdateScript?: (script: LabScript) => void;
+  patientName?: string;
 }
 
 export const ReportCard = ({
@@ -25,6 +26,7 @@ export const ReportCard = ({
   onDesignInfo,
   onClinicalInfo,
   onUpdateScript,
+  patientName,
 }: ReportCardProps) => {
   const [designInfoStatus, setDesignInfoStatus] = useState<InfoStatus>("pending");
   const [clinicalInfoStatus, setClinicalInfoStatus] = useState<InfoStatus>("pending");
@@ -32,7 +34,6 @@ export const ReportCard = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for report card status with millisecond refresh
   const { data: reportCard } = useQuery({
     queryKey: ['reportCard', script.id],
     queryFn: async () => {
@@ -55,7 +56,7 @@ export const ReportCard = ({
       console.log("Found report card:", data);
       return data;
     },
-    refetchInterval: 1, // Updated to 1ms for real-time updates
+    refetchInterval: 1,
   });
 
   useEffect(() => {
@@ -126,12 +127,18 @@ export const ReportCard = ({
 
   return (
     <>
-      <Card className="p-6 space-y-6 relative">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
+      <Card className="p-4 space-y-4 relative bg-white hover:shadow-md transition-shadow duration-300">
+        {patientName && (
+          <div className="text-sm font-medium text-gray-500">
+            Patient: {patientName}
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
             <ScriptTitle script={script} />
           </div>
-          <div className="flex gap-3">
+          <div className="flex-shrink-0">
             <ActionButtons
               script={script}
               onDesignInfo={onDesignInfo}
@@ -152,14 +159,14 @@ export const ReportCard = ({
         />
 
         {isCompleted && (
-          <div className="absolute bottom-6 right-6">
+          <div className="absolute top-4 right-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleViewReport}
-              className="rounded-full hover:bg-primary/5 w-12 h-12"
+              className="rounded-full hover:bg-primary/5 w-8 h-8"
             >
-              <FileText className="h-8 w-8 text-primary" />
+              <FileText className="h-5 w-5 text-primary" />
             </Button>
           </div>
         )}

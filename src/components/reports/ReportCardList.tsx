@@ -29,7 +29,6 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
           clinical_info:clinical_info_id(*)
         `);
 
-      // Apply filters if specified
       if (filter) {
         switch (filter) {
           case 'design_pending':
@@ -79,15 +78,13 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
     <ScrollArea className="h-[calc(100vh-300px)]">
       <div className="space-y-4 p-4">
         {reports.map((report) => (
-          <div key={report.id} className="space-y-2">
-            <div className="text-sm text-gray-500">
-              Patient: {report.patient?.first_name} {report.patient?.last_name}
-            </div>
+          <div key={report.id}>
             {report.lab_script && (
               <ReportCard
                 script={mapDatabaseLabScript(report.lab_script)}
                 onDesignInfo={() => {}}
                 onClinicalInfo={() => {}}
+                patientName={`${report.patient?.first_name} ${report.patient?.last_name}`}
               />
             )}
           </div>
