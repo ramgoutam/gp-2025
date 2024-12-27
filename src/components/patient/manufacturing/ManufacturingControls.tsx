@@ -90,24 +90,14 @@ export const ManufacturingControls = ({
   // After Printing/Milling completed, before Sintering
   if (isCompleted && !isSintering && !isMiyo) {
     return (
-      <div className="flex gap-2">
-        <Button 
-          variant="outline"
-          className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-          onClick={onStart}
-        >
-          <AlertCircle className="w-4 h-4 mr-2" />
-          Edit Sintering Status
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-orange-50 text-orange-600 border-orange-200"
-          onClick={onStartSintering}
-        >
-          <AlertCircle className="w-4 h-4 mr-2" />
-          Start Miyo
-        </Button>
-      </div>
+      <Button 
+        variant="outline"
+        className="hover:bg-orange-50 text-orange-600 border-orange-200"
+        onClick={onStartSintering}
+      >
+        <AlertCircle className="w-4 h-4 mr-2" />
+        Start Sintering
+      </Button>
     );
   }
 
