@@ -32,7 +32,9 @@ const ReportCardList = ({ filter }: ReportCardListProps) => {
       if (filter) {
         switch (filter) {
           case 'design_pending':
-            query = query.eq('design_info_status', 'pending');
+            query = query
+              .eq('design_info_status', 'pending')
+              .eq('lab_script.status', 'completed');
             break;
           case 'design_completed':
             query = query.eq('design_info_status', 'completed');
