@@ -1,6 +1,9 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, Flame, AlertCircle, Check } from "lucide-react";
+import { Play, AlertCircle, Check } from "lucide-react";
+import { InitialStage } from "./stages/InitialStage";
+import { ActiveStage } from "./stages/ActiveStage";
+import { SinteringStage } from "./stages/SinteringStage";
+import { MiyoStage } from "./stages/MiyoStage";
 
 interface ManufacturingControlsProps {
   manufacturingType: string;
@@ -55,15 +58,7 @@ export const ManufacturingControls = ({
 
   // Initial state - Start Printing/Milling
   if (!isActive && !isPaused && !isCompleted && !isSintering && !isMiyo) {
-    return (
-      <Button 
-        className="bg-primary hover:bg-primary/90"
-        onClick={onStart}
-      >
-        <Play className="w-4 h-4 mr-2" />
-        {manufacturingType === 'Milling' ? 'Start Milling' : 'Start Printing'}
-      </Button>
-    );
+    return <InitialStage manufacturingType={manufacturingType} onStart={onStart} />;
   }
 
   // Paused state during Printing/Milling
@@ -83,32 +78,12 @@ export const ManufacturingControls = ({
   // Active Printing/Milling state
   if (isActive && !isCompleted && !isSintering && !isMiyo) {
     return (
-      <div className="flex gap-2">
-        <Button 
-          variant="outline"
-          className="hover:bg-yellow-50 text-yellow-600 border-yellow-200 group"
-          onClick={onPause}
-        >
-          <Pause className="w-4 h-4 mr-2" />
-          Pause
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-red-50 text-red-600 border-red-200 group"
-          onClick={onHold}
-        >
-          <StopCircle className="w-4 h-4 mr-2" />
-          Hold
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-orange-50 text-orange-600 border-orange-200"
-          onClick={onComplete}
-        >
-          <Flame className="w-4 h-4 mr-2" />
-          Complete {manufacturingType}
-        </Button>
-      </div>
+      <ActiveStage 
+        manufacturingType={manufacturingType}
+        onPause={onPause}
+        onHold={onHold}
+        onComplete={onComplete}
+      />
     );
   }
 
@@ -129,7 +104,7 @@ export const ManufacturingControls = ({
           className="hover:bg-orange-50 text-orange-600 border-orange-200"
           onClick={onStartSintering}
         >
-          <Flame className="w-4 h-4 mr-2" />
+          <AlertCircle className="w-4 h-4 mr-2" />
           Start Sintering
         </Button>
       </div>
@@ -150,85 +125,32 @@ export const ManufacturingControls = ({
         </Button>
       );
     }
-    return (
-      <div className="flex gap-2">
-        <Button 
-          variant="outline"
-          className="hover:bg-yellow-50 text-yellow-600 border-yellow-200 group"
-          onClick={onPauseSintering}
-        >
-          <Pause className="w-4 h-4 mr-2" />
-          Pause Sintering
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-red-50 text-red-600 border-red-200 group"
-          onClick={onHoldSintering}
-        >
-          <StopCircle className="w-4 h-4 mr-2" />
-          Hold Sintering
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-green-50 text-green-600 border-green-200"
-          onClick={onCompleteSintering}
-        >
-          <Check className="w-4 h-4 mr-2" />
-          Complete Sintering
-        </Button>
-      </div>
-    );
+    return <SinteringStage 
+      onPauseSintering={onPauseSintering}
+      onHoldSintering={onHoldSintering}
+      onCompleteSintering={onCompleteSintering}
+    />;
   }
 
-  // After Sintering completed, before Miyo
+  // After Sintering completed, show Miyo stage
   if (isCompleted && !isMiyo) {
-    return (
-      <div className="flex gap-2">
-        <Button 
-          variant="outline"
-          className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-          onClick={onStartSintering}
-        >
-          <AlertCircle className="w-4 h-4 mr-2" />
-          Edit Sintering Status
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-orange-50 text-orange-600 border-orange-200"
-          onClick={onStartMiyo}
-        >
-          <Flame className="w-4 h-4 mr-2" />
-          Start Miyo
-        </Button>
-      </div>
-    );
+    return <MiyoStage 
+      onStartMiyo={onStartMiyo}
+      onCompleteMiyo={onCompleteMiyo}
+      isMiyoStarted={false}
+    />;
   }
 
   // During Miyo
   if (isMiyo) {
-    return (
-      <div className="flex gap-2">
-        <Button 
-          variant="outline"
-          className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-          onClick={onStartMiyo}
-        >
-          <AlertCircle className="w-4 h-4 mr-2" />
-          Edit Miyo Status
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover:bg-green-50 text-green-600 border-green-200"
-          onClick={onCompleteMiyo}
-        >
-          <Check className="w-4 h-4 mr-2" />
-          Complete Miyo
-        </Button>
-      </div>
-    );
+    return <MiyoStage 
+      onStartMiyo={onStartMiyo}
+      onCompleteMiyo={onCompleteMiyo}
+      isMiyoStarted={true}
+    />;
   }
 
-  // After Miyo completed, Ready to Insert
+  // Ready to Insert (Final stage)
   if (isCompleted) {
     return (
       <Button 
