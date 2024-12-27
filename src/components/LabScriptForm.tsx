@@ -7,6 +7,7 @@ import { VDOSection } from "./lab-script/VDOSection";
 import { DesignNameSection } from "./lab-script/DesignNameSection";
 import { FormHeader } from "./lab-script/FormHeader";
 import { FormFooter } from "./lab-script/FormFooter";
+import { ManufacturingSection } from "./lab-script/ManufacturingSection";
 import { useLabScriptSubmit } from "@/hooks/useLabScriptSubmit";
 
 type FileUpload = {
@@ -47,6 +48,8 @@ export const LabScriptForm = ({
     vdoOption: initialData?.vdoOption || "",
     upperDesignName: initialData?.upperDesignName || "",
     lowerDesignName: initialData?.lowerDesignName || "",
+    manufacturingSource: initialData?.manufacturingSource || "",
+    manufacturingType: initialData?.manufacturingType || "",
   });
 
   const [fileUploads, setFileUploads] = React.useState<Record<string, FileUpload>>(() => {
@@ -99,7 +102,6 @@ export const LabScriptForm = ({
       await handleSubmit(submissionData, initialData);
     } catch (error) {
       console.error("Form submission failed:", error);
-      // Error is already handled by useLabScriptSubmit
     }
   };
 
@@ -192,6 +194,17 @@ export const LabScriptForm = ({
           />
         )}
       </div>
+
+      <ManufacturingSection
+        manufacturingSource={formData.manufacturingSource}
+        manufacturingType={formData.manufacturingType}
+        onManufacturingSourceChange={(value) => 
+          setFormData(prev => ({ ...prev, manufacturingSource: value }))
+        }
+        onManufacturingTypeChange={(value) =>
+          setFormData(prev => ({ ...prev, manufacturingType: value }))
+        }
+      />
 
       <DigitalDataSection
         uploads={fileUploads}

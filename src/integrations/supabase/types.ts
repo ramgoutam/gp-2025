@@ -288,6 +288,8 @@ export type Database = {
           id: string
           lower_design_name: string | null
           lower_treatment: string | null
+          manufacturing_source: string | null
+          manufacturing_type: string | null
           patient_id: string
           request_date: string
           request_number: string | null
@@ -308,6 +310,8 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
+          manufacturing_source?: string | null
+          manufacturing_type?: string | null
           patient_id: string
           request_date: string
           request_number?: string | null
@@ -328,6 +332,8 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
+          manufacturing_source?: string | null
+          manufacturing_type?: string | null
           patient_id?: string
           request_date?: string
           request_number?: string | null
