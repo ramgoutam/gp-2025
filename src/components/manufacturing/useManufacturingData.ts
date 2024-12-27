@@ -49,8 +49,8 @@ export const useManufacturingData = () => {
           patientLastName: script.patients?.last_name,
           designInfo: script.report_cards?.[0]?.design_info,
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
-          designInfoStatus: script.report_cards?.[0]?.design_info_status,
-          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status
+          designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
+          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending'
         };
       });
 
