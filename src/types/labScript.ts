@@ -68,6 +68,7 @@ export interface LabScript {
   manufacturingType?: string;
   material?: string;
   shade?: string;
+  designInfoStatus?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {
