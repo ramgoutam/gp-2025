@@ -123,7 +123,10 @@ export const ManufacturingControls = ({
         <Button 
           variant="outline"
           className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-          onClick={onStart}
+          onClick={() => {
+            console.log("Edit Sintering Status clicked");
+            onStartSintering();
+          }}
         >
           <AlertCircle className="w-4 h-4 mr-2" />
           Edit Sintering Status
