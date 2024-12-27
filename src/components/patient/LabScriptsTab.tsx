@@ -123,6 +123,12 @@ export const LabScriptsTab = ({
     onDeleteLabScript(script);
   };
 
+  const handleEditClick = (script: LabScript) => {
+    console.log("Edit clicked, script:", script);
+    setSelectedScript(script);
+    setIsEditing(true);
+  };
+
   const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
     console.log("Status changed for script:", script.id, newStatus);
   };
@@ -174,6 +180,7 @@ export const LabScriptsTab = ({
                   script={script}
                   onClick={() => handleRowClick(script)}
                   onDelete={() => handleDeleteClick(script)}
+                  onEdit={() => handleEditClick(script)}
                   onStatusChange={handleStatusChange}
                 />
               ))
