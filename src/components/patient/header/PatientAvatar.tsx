@@ -15,10 +15,10 @@ export const PatientAvatar = ({ firstName, lastName, avatar }: PatientAvatarProp
     <img
       src={avatar}
       alt={`${firstName} ${lastName}`}
-      className="w-16 h-16 rounded-full object-cover bg-gray-100"
+      className="w-10 h-10 rounded-full object-cover bg-gray-100"
     />
   ) : (
-    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl">
+    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-base">
       {firstInitial}
       {lastInitial}
     </div>
