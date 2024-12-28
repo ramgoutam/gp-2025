@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 interface ManufacturingStageProps {
   scriptId: string;
   status: string;
-  manufacturingType: string;
   onStart: () => void;
   onComplete: () => void;
   onHold: () => void;
@@ -18,7 +17,6 @@ interface ManufacturingStageProps {
 export const ManufacturingStage = ({
   scriptId,
   status,
-  manufacturingType,
   onStart,
   onComplete,
   onHold,
@@ -105,14 +103,14 @@ export const ManufacturingStage = ({
         className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
       >
         <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-        Start {manufacturingType}
+        Start Manufacturing
       </Button>
     );
   }
 
   if (status === 'in_progress') {
     return (
-      <div className="flex flex-col gap-2 animate-fade-in">
+      <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -121,7 +119,7 @@ export const ManufacturingStage = ({
             className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Complete {manufacturingType}
+            Complete Manufacturing
           </Button>
           <Button
             variant="outline"
@@ -130,7 +128,7 @@ export const ManufacturingStage = ({
             className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
           >
             <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Hold {manufacturingType}
+            Hold Manufacturing
           </Button>
         </div>
         {showReasonInput && (
@@ -166,7 +164,7 @@ export const ManufacturingStage = ({
           className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
         >
           <PlayCircle className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-          Resume {manufacturingType}
+          Resume Manufacturing
         </Button>
         {savedHoldReason && (
           <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">

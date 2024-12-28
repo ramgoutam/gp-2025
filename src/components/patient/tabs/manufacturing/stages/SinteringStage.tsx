@@ -99,7 +99,7 @@ export const SinteringStage = ({
       <Button
         variant="outline"
         size="sm"
-        onClick={onStart}
+        onClick={handleStart}
         className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
       >
         <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
@@ -115,7 +115,7 @@ export const SinteringStage = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={onComplete}
+            onClick={handleComplete}
             className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
@@ -160,7 +160,7 @@ export const SinteringStage = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={onResume}
+          onClick={handleResume}
           className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
         >
           <PlayCircle className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
