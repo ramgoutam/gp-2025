@@ -7,14 +7,6 @@ import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
 
-interface ManufacturingLog {
-  lab_script_id: string;
-  manufacturing_status: string | null;
-  sintering_status: string | null;
-  miyo_status: string | null;
-  inspection_status: string | null;
-}
-
 interface ManufacturingContentProps {
   labScripts: LabScript[];
   patientData: {
@@ -44,7 +36,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
         if (error) throw error;
 
-        const statusMap = (data as ManufacturingLog[]).reduce((acc, log) => {
+        const statusMap = data.reduce((acc, log) => {
           acc[log.lab_script_id] = {
             manufacturing: log.manufacturing_status,
             sintering: log.sintering_status,
@@ -52,12 +44,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
             inspection: log.inspection_status,
           };
           return acc;
-        }, {} as { [key: string]: { 
-          manufacturing: string | null;
-          sintering: string | null;
-          miyo: string | null;
-          inspection: string | null;
-        }});
+        }, {});
 
         // Update all statuses
         setManufacturingStatus(prev => ({
