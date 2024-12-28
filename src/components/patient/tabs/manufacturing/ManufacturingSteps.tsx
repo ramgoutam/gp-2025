@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp, Pause, PlayCircle } from "lucide-react";
+import { Search, ThumbsDown, ThumbsUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -14,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { ManufacturingActionButtons } from "./buttons/ManufacturingActionButtons";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -126,127 +126,87 @@ export const ManufacturingSteps = ({
   return (
     <>
       <div className="flex gap-2">
-        {!manufacturingStatus[scriptId] && (
+        <ManufacturingActionButtons
+          scriptId={scriptId}
+          manufacturingStatus={manufacturingStatus}
+          currentManufacturingStatus={currentManufacturingStatus}
+          manufacturingType={manufacturingType}
+          onStartManufacturing={onStartManufacturing}
+          onCompleteManufacturing={onCompleteManufacturing}
+          onHoldManufacturing={() => setIsHoldDialogOpen(true)}
+          onResumeManufacturing={handleResumeManufacturing}
+        />
+
+        {sinteringStatus[scriptId] === 'in_progress' && (
           <Button 
             variant="outline"
-            className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => onStartManufacturing(scriptId)}
+            className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onCompleteSintering(scriptId)}
+          >
+            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Complete Sintering
+          </Button>
+        )}
+        {sinteringStatus[scriptId] === 'completed' && !miyoStatus[scriptId] && (
+          <Button 
+            variant="outline"
+            className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onStartMiyo(scriptId)}
           >
             <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-            Start {manufacturingType}
+            Start Miyo
           </Button>
         )}
-        {manufacturingStatus[scriptId] === 'in_progress' && (
-          <>
+        {miyoStatus[scriptId] === 'in_progress' && (
+          <Button 
+            variant="outline"
+            className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onCompleteMiyo(scriptId)}
+          >
+            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Complete Miyo
+          </Button>
+        )}
+        {miyoStatus[scriptId] === 'completed' && !inspectionStatus[scriptId] && (
+          <Button 
+            variant="outline"
+            className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onStartInspection(scriptId)}
+          >
+            <Search className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Start Inspection
+          </Button>
+        )}
+        {inspectionStatus[scriptId] === 'in_progress' && (
+          <div className="flex gap-2">
             <Button 
               variant="outline"
-              className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-              onClick={() => onCompleteManufacturing(scriptId)}
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transform hover:scale-105 transition-all duration-300 group"
+              onClick={() => onRejectInspection(scriptId)}
             >
-              <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-              Complete {manufacturingType}
+              <ThumbsDown className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
+              Rejected
             </Button>
-            <Button
+            <Button 
               variant="outline"
-              className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
-              onClick={() => setIsHoldDialogOpen(true)}
+              className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transform hover:scale-105 transition-all duration-300 group"
+              onClick={() => onApproveInspection(scriptId)}
             >
-              <Pause className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-              Hold
+              <ThumbsUp className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
+              Approved
             </Button>
-          </>
+          </div>
         )}
-        {currentManufacturingStatus === 'on_hold' && (
-          <Button 
-            variant="outline"
-            className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={handleResumeManufacturing}
-          >
-            <PlayCircle className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-            Resume {manufacturingType}
-          </Button>
+        {inspectionStatus[scriptId] === 'approved' && (
+          <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
+            Ready to Insert
+          </div>
         )}
-
-      {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
-        <Button 
-          variant="outline"
-          className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onStartSintering(scriptId)}
-        >
-          <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-          Start Sintering
-        </Button>
-      )}
-      {sinteringStatus[scriptId] === 'in_progress' && (
-        <Button 
-          variant="outline"
-          className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteSintering(scriptId)}
-        >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Sintering
-        </Button>
-      )}
-      {sinteringStatus[scriptId] === 'completed' && !miyoStatus[scriptId] && (
-        <Button 
-          variant="outline"
-          className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onStartMiyo(scriptId)}
-        >
-          <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-          Start Miyo
-        </Button>
-      )}
-      {miyoStatus[scriptId] === 'in_progress' && (
-        <Button 
-          variant="outline"
-          className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteMiyo(scriptId)}
-        >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Miyo
-        </Button>
-      )}
-      {miyoStatus[scriptId] === 'completed' && !inspectionStatus[scriptId] && (
-        <Button 
-          variant="outline"
-          className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onStartInspection(scriptId)}
-        >
-          <Search className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Start Inspection
-        </Button>
-      )}
-      {inspectionStatus[scriptId] === 'in_progress' && (
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => onRejectInspection(scriptId)}
-          >
-            <ThumbsDown className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
-            Rejected
-          </Button>
-          <Button 
-            variant="outline"
-            className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => onApproveInspection(scriptId)}
-          >
-            <ThumbsUp className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
-            Approved
-          </Button>
-        </div>
-      )}
-      {inspectionStatus[scriptId] === 'approved' && (
-        <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
-          Ready to Insert
-        </div>
-      )}
-      {inspectionStatus[scriptId] === 'rejected' && (
-        <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
-          Inspection Failed
-        </div>
-      )}
+        {inspectionStatus[scriptId] === 'rejected' && (
+          <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
+            Inspection Failed
+          </div>
+        )}
       </div>
 
       <AlertDialog open={isHoldDialogOpen} onOpenChange={setIsHoldDialogOpen}>
