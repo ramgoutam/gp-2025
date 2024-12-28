@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, CheckCircle, Ban } from "lucide-react";
+import { Play, CheckCircle, Ban, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -88,6 +88,11 @@ export const InspectionStage = ({
     }
   };
 
+  const handleResume = async () => {
+    await updateInspectionStatus('in_progress');
+    onResume();
+  };
+
   if (status === 'pending') {
     return (
       <Button
@@ -148,10 +153,23 @@ export const InspectionStage = ({
     );
   }
 
-  if (status === 'on_hold' && savedHoldReason) {
+  if (status === 'on_hold') {
     return (
-      <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">
-        Appliance Rejected: {savedHoldReason}
+      <div className="space-y-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleResume}
+          className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+        >
+          <PlayCircle className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
+          Resume Inspection
+        </Button>
+        {savedHoldReason && (
+          <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">
+            Rejected: {savedHoldReason}
+          </div>
+        )}
       </div>
     );
   }
