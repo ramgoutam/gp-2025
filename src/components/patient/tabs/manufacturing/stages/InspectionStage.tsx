@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Search, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Search, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,13 +50,13 @@ export const InspectionStage = ({
     }
   };
 
-  const handleApproveInspection = async () => {
+  const handleCompleteInspection = async () => {
     try {
-      console.log("Approving inspection for script:", scriptId);
+      console.log("Completing inspection for script:", scriptId);
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
-          inspection_status: 'approved',
+          inspection_status: 'completed',
           inspection_completed_at: new Date().toISOString()
         })
         .eq('lab_script_id', scriptId);
@@ -65,48 +65,18 @@ export const InspectionStage = ({
 
       onApprove();
       toast({
-        title: "Inspection Approved",
-        description: "The appliance has passed inspection.",
+        title: "Inspection Completed",
+        description: "The inspection has been completed successfully.",
       });
     } catch (error) {
-      console.error("Error approving inspection:", error);
+      console.error("Error completing inspection:", error);
       toast({
         title: "Error",
-        description: "Failed to approve inspection. Please try again.",
+        description: "Failed to complete inspection. Please try again.",
         variant: "destructive"
       });
     }
   };
-
-  const handleRejectInspection = async () => {
-    try {
-      console.log("Rejecting inspection for script:", scriptId);
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({
-          inspection_status: 'rejected',
-          inspection_completed_at: new Date().toISOString()
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      onReject();
-      toast({
-        title: "Inspection Rejected",
-        description: "The appliance has failed inspection.",
-      });
-    } catch (error) {
-      console.error("Error rejecting inspection:", error);
-      toast({
-        title: "Error",
-        description: "Failed to reject inspection. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  console.log("Current inspection status:", status); // Debug log
 
   if (status === 'pending') {
     return (
@@ -123,43 +93,23 @@ export const InspectionStage = ({
   }
 
   if (status === 'in_progress') {
-    console.log("Rendering approve/reject buttons"); // Debug log
     return (
-      <div className="flex gap-2 animate-fade-in">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleApproveInspection}
-          className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
-        >
-          <ThumbsUp className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
-          Pass Inspection
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRejectInspection}
-          className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
-        >
-          <ThumbsDown className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
-          Fail Inspection
-        </Button>
-      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleCompleteInspection}
+        className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
+      >
+        <CheckCircle className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
+        Complete Inspection
+      </Button>
     );
   }
 
-  if (status === 'approved') {
+  if (status === 'completed') {
     return (
       <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
-        Ready to Insert
-      </div>
-    );
-  }
-
-  if (status === 'rejected') {
-    return (
-      <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
-        Appliance Failed Inspection
+        Inspection Completed
       </div>
     );
   }
