@@ -1,8 +1,8 @@
 import React from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Factory } from "lucide-react";
+import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -37,44 +37,17 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     <div className="space-y-6">
       <div className="grid gap-6">
         {manufacturingScripts.map((script) => (
-          <Card key={script.id} className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">
-                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-                </h3>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Manufacturing Source</p>
-                  <p className="font-medium">{script.manufacturingSource}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Manufacturing Type</p>
-                  <p className="font-medium">{script.manufacturingType}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Material</p>
-                  <p className="font-medium">{script.material || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Shade</p>
-                  <p className="font-medium">{script.shade || 'N/A'}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Start
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <ManufacturingCard
+            key={script.id}
+            title={`${script.applianceType || 'N/A'} | ${script.upperDesignName || 'No upper appliance'} | ${script.lowerDesignName || 'No lower appliance'}`}
+            count={1}
+            icon={Factory}
+            color="text-blue-600"
+            bgColor="bg-blue-100"
+            progressColor="bg-blue-500"
+            scripts={[script]}
+            onStart={() => console.log('Starting manufacturing process for script:', script.id)}
+          />
         ))}
       </div>
     </div>
