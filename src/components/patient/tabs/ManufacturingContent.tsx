@@ -51,7 +51,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           <Card key={script.id} className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-base">
+                <h3 className="font-semibold text-lg">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
                 {script.manufacturingSource === 'Inhouse' && (
