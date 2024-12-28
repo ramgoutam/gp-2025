@@ -23,7 +23,15 @@ export const ManufacturingActionButtons = ({
   onHoldManufacturing,
   onResumeManufacturing,
 }: ManufacturingActionButtonsProps) => {
-  const processType = manufacturingType ? manufacturingType.toLowerCase() === 'milling' ? 'Milling' : 'Printing' : 'Manufacturing';
+  const getProcessType = () => {
+    if (!manufacturingType) return 'Manufacturing';
+    const type = manufacturingType.toLowerCase();
+    if (type === 'milling') return 'Milling';
+    if (type === 'printing') return 'Printing';
+    return 'Manufacturing';
+  };
+
+  const processType = getProcessType();
 
   if (!manufacturingStatus[scriptId] && currentManufacturingStatus !== 'on_hold') {
     return (
