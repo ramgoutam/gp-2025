@@ -373,6 +373,71 @@ export type Database = {
           },
         ]
       }
+      manufacturing_logs: {
+        Row: {
+          created_at: string
+          id: string
+          lab_script_id: string
+          manufacturing_completed_at: string | null
+          manufacturing_hold_at: string | null
+          manufacturing_started_at: string | null
+          manufacturing_status: string | null
+          miyo_completed_at: string | null
+          miyo_hold_at: string | null
+          miyo_started_at: string | null
+          miyo_status: string | null
+          sintering_completed_at: string | null
+          sintering_hold_at: string | null
+          sintering_started_at: string | null
+          sintering_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lab_script_id: string
+          manufacturing_completed_at?: string | null
+          manufacturing_hold_at?: string | null
+          manufacturing_started_at?: string | null
+          manufacturing_status?: string | null
+          miyo_completed_at?: string | null
+          miyo_hold_at?: string | null
+          miyo_started_at?: string | null
+          miyo_status?: string | null
+          sintering_completed_at?: string | null
+          sintering_hold_at?: string | null
+          sintering_started_at?: string | null
+          sintering_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lab_script_id?: string
+          manufacturing_completed_at?: string | null
+          manufacturing_hold_at?: string | null
+          manufacturing_started_at?: string | null
+          manufacturing_status?: string | null
+          miyo_completed_at?: string | null
+          miyo_hold_at?: string | null
+          miyo_started_at?: string | null
+          miyo_status?: string | null
+          sintering_completed_at?: string | null
+          sintering_hold_at?: string | null
+          sintering_started_at?: string | null
+          sintering_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturing_logs_lab_script_id_fkey"
+            columns: ["lab_script_id"]
+            isOneToOne: true
+            referencedRelation: "lab_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address: string | null
