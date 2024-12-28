@@ -6,6 +6,8 @@ import { Play, Search, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StepButtons } from "./buttons/StepButtons";
+import { HoldButton } from "./buttons/HoldButton";
+import { ResumeButton } from "./buttons/ResumeButton";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -106,7 +108,7 @@ export const ManufacturingSteps = ({
           scriptId={scriptId}
           step="manufacturing"
           status={manufacturingStatus[scriptId]}
-          onComplete={onCompleteManufacturing}
+          onComplete={() => onCompleteManufacturing(scriptId)}
           onHold={handleHold}
         />
       )}
@@ -127,7 +129,7 @@ export const ManufacturingSteps = ({
           scriptId={scriptId}
           step="sintering"
           status={sinteringStatus[scriptId]}
-          onComplete={onCompleteSintering}
+          onComplete={() => onCompleteSintering(scriptId)}
           onHold={handleHold}
         />
       )}
@@ -148,7 +150,7 @@ export const ManufacturingSteps = ({
           scriptId={scriptId}
           step="miyo"
           status={miyoStatus[scriptId]}
-          onComplete={onCompleteMiyo}
+          onComplete={() => onCompleteMiyo(scriptId)}
           onHold={handleHold}
         />
       )}
@@ -188,8 +190,8 @@ export const ManufacturingSteps = ({
 
       {inspectionStatus[scriptId] === 'hold' && (
         <ResumeButton 
-          onResume={() => onStartInspection(scriptId)}
-          holdReason={holdReason} 
+          onResume={() => onStartInspection(scriptId)} 
+          holdReason={holdReason}
         />
       )}
 
