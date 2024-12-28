@@ -6,6 +6,7 @@ export const useManufacturingData = () => {
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: async () => {
+      console.log("Fetching all manufacturing data");
       const { data: scripts, error } = await supabase
         .from('lab_scripts')
         .select(`
@@ -30,11 +31,15 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           )
-        `);
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) {
+        console.error("Error fetching manufacturing data:", error);
         throw error;
       }
+
+      console.log("Retrieved scripts:", scripts);
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
