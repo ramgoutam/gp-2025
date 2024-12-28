@@ -3,6 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp, Pause } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -38,12 +49,19 @@ export const ManufacturingSteps = ({
   onApproveInspection,
 }: ManufacturingStepsProps) => {
   const [isHoldDialogOpen, setIsHoldDialogOpen] = useState(false);
+  const [holdReason, setHoldReason] = useState("");
   const { toast } = useToast();
 
   const handleHoldManufacturing = async () => {
     try {
-      const holdReason = prompt("Please enter the reason for holding manufacturing:");
-      if (!holdReason) return;
+      if (!holdReason.trim()) {
+        toast({
+          title: "Error",
+          description: "Please provide a reason for holding manufacturing.",
+          variant: "destructive"
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('manufacturing_logs')
@@ -56,6 +74,9 @@ export const ManufacturingSteps = ({
 
       if (error) throw error;
 
+      setIsHoldDialogOpen(false);
+      setHoldReason("");
+      
       toast({
         title: "Manufacturing On Hold",
         description: "Manufacturing process has been put on hold.",
@@ -71,37 +92,38 @@ export const ManufacturingSteps = ({
   };
 
   return (
-    <div className="flex gap-2">
-      {!manufacturingStatus[scriptId] && (
-        <Button 
-          variant="outline"
-          className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onStartManufacturing(scriptId)}
-        >
-          <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-          Start Manufacturing
-        </Button>
-      )}
-      {manufacturingStatus[scriptId] === 'in_progress' && (
-        <>
+    <>
+      <div className="flex gap-2">
+        {!manufacturingStatus[scriptId] && (
           <Button 
             variant="outline"
-            className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => onCompleteManufacturing(scriptId)}
+            className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onStartManufacturing(scriptId)}
           >
-            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-            Complete Manufacturing
+            <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
+            Start Manufacturing
           </Button>
-          <Button
-            variant="outline"
-            className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={handleHoldManufacturing}
-          >
-            <Pause className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-            Hold
-          </Button>
-        </>
-      )}
+        )}
+        {manufacturingStatus[scriptId] === 'in_progress' && (
+          <>
+            <Button 
+              variant="outline"
+              className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
+              onClick={() => onCompleteManufacturing(scriptId)}
+            >
+              <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+              Complete Manufacturing
+            </Button>
+            <Button
+              variant="outline"
+              className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
+              onClick={() => setIsHoldDialogOpen(true)}
+            >
+              <Pause className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+              Hold
+            </Button>
+          </>
+        )}
       {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
         <Button 
           variant="outline"
@@ -182,6 +204,37 @@ export const ManufacturingSteps = ({
           Inspection Failed
         </div>
       )}
-    </div>
+      </div>
+
+      <AlertDialog open={isHoldDialogOpen} onOpenChange={setIsHoldDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hold Manufacturing</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please provide a reason for holding the manufacturing process.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <Textarea
+              value={holdReason}
+              onChange={(e) => setHoldReason(e.target.value)}
+              placeholder="Enter reason for hold..."
+              className="min-h-[100px]"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setHoldReason("");
+              setIsHoldDialogOpen(false);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleHoldManufacturing}>
+              Hold Manufacturing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
