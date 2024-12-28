@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -25,6 +26,76 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     script.manufacturingSource && script.manufacturingType
   );
 
+  useEffect(() => {
+    // Initial fetch of manufacturing logs
+    const fetchManufacturingLogs = async () => {
+      try {
+        const { data: logs, error } = await supabase
+          .from('manufacturing_logs')
+          .select('*')
+          .in('lab_script_id', manufacturingScripts.map(s => s.id));
+
+        if (error) throw error;
+
+        const newManufacturingStatus: { [key: string]: string } = {};
+        const newSinteringStatus: { [key: string]: string } = {};
+        const newMiyoStatus: { [key: string]: string } = {};
+
+        logs.forEach(log => {
+          newManufacturingStatus[log.lab_script_id] = log.manufacturing_status;
+          newSinteringStatus[log.lab_script_id] = log.sintering_status;
+          newMiyoStatus[log.lab_script_id] = log.miyo_status;
+        });
+
+        setManufacturingStatus(newManufacturingStatus);
+        setSinteringStatus(newSinteringStatus);
+        setMiyoStatus(newMiyoStatus);
+      } catch (error) {
+        console.error('Error fetching manufacturing logs:', error);
+      }
+    };
+
+    fetchManufacturingLogs();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('manufacturing-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'manufacturing_logs',
+          filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
+        },
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          const { new: newData } = payload;
+          
+          if (newData) {
+            setManufacturingStatus(prev => ({
+              ...prev,
+              [newData.lab_script_id]: newData.manufacturing_status
+            }));
+            setSinteringStatus(prev => ({
+              ...prev,
+              [newData.lab_script_id]: newData.sintering_status
+            }));
+            setMiyoStatus(prev => ({
+              ...prev,
+              [newData.lab_script_id]: newData.miyo_status
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [manufacturingScripts]);
+
   const handleStartManufacturing = (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
@@ -43,74 +114,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const handleResumeManufacturing = (scriptId: string) => {
     console.log('Resuming manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleStartSintering = (scriptId: string) => {
-    console.log('Starting sintering process for script:', scriptId);
-    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleCompleteSintering = (scriptId: string) => {
-    console.log('Completing sintering process for script:', scriptId);
-    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
-  };
-
-  const handleHoldSintering = (scriptId: string) => {
-    console.log('Holding sintering process for script:', scriptId);
-    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
-  };
-
-  const handleResumeSintering = (scriptId: string) => {
-    console.log('Resuming sintering process for script:', scriptId);
-    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleStartMiyo = (scriptId: string) => {
-    console.log('Starting Miyo process for script:', scriptId);
-    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleCompleteMiyo = (scriptId: string) => {
-    console.log('Completing Miyo process for script:', scriptId);
-    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
-    toast({
-      title: "Miyo Process Completed",
-      description: "You can now start the inspection process",
-    });
-  };
-
-  const handleHoldMiyo = (scriptId: string) => {
-    console.log('Holding Miyo process for script:', scriptId);
-    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
-  };
-
-  const handleResumeMiyo = (scriptId: string) => {
-    console.log('Resuming Miyo process for script:', scriptId);
-    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleStartInspection = (scriptId: string) => {
-    console.log('Starting inspection process for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
-  };
-
-  const handleRejectInspection = (scriptId: string) => {
-    console.log('Rejecting inspection for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'rejected' }));
-    toast({
-      title: "Inspection Rejected",
-      description: "The appliance needs to be revised",
-      variant: "destructive"
-    });
-  };
-
-  const handleApproveInspection = (scriptId: string) => {
-    console.log('Approving inspection for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'approved' }));
-    toast({
-      title: "Inspection Approved",
-      description: "The appliance is ready to insert",
-    });
   };
 
   if (manufacturingScripts.length === 0) {
@@ -136,25 +139,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 {script.manufacturingSource === 'Inhouse' && (
                   <ManufacturingSteps
                     scriptId={script.id}
-                    manufacturingStatus={manufacturingStatus}
-                    sinteringStatus={sinteringStatus}
-                    miyoStatus={miyoStatus}
-                    inspectionStatus={inspectionStatus}
+                    manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
+                    sinteringStatus={sinteringStatus[script.id] || 'pending'}
+                    miyoStatus={miyoStatus[script.id] || 'pending'}
+                    inspectionStatus={inspectionStatus[script.id] || 'pending'}
                     onStartManufacturing={handleStartManufacturing}
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
                     onResumeManufacturing={handleResumeManufacturing}
-                    onStartSintering={handleStartSintering}
-                    onCompleteSintering={handleCompleteSintering}
-                    onHoldSintering={handleHoldSintering}
-                    onResumeSintering={handleResumeSintering}
-                    onStartMiyo={handleStartMiyo}
-                    onCompleteMiyo={handleCompleteMiyo}
-                    onHoldMiyo={handleHoldMiyo}
-                    onResumeMiyo={handleResumeMiyo}
-                    onStartInspection={handleStartInspection}
-                    onRejectInspection={handleRejectInspection}
-                    onApproveInspection={handleApproveInspection}
                     manufacturingType={script.manufacturingType}
                   />
                 )}
