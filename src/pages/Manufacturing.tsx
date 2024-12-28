@@ -3,6 +3,8 @@ import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard"
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -72,6 +74,11 @@ const Manufacturing = () => {
     }
   ];
 
+  const getFilteredScripts = () => {
+    if (!activeFilter) return manufacturingData.scripts;
+    return cards.find(card => card.filter === activeFilter)?.scripts || [];
+  };
+
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
@@ -84,6 +91,32 @@ const Manufacturing = () => {
             onClick={() => handleCardClick(card.filter)}
           />
         ))}
+      </div>
+      
+      <div className="mt-8">
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
+          <div className="space-y-4">
+            {getFilteredScripts().map((script) => (
+              <div 
+                key={script.id} 
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center space-x-4">
+                  <Badge variant="outline" className="bg-white">
+                    {script.manufacturingSource} - {script.manufacturingType}
+                  </Badge>
+                  <span className="font-medium">
+                    {script.patientFirstName} {script.patientLastName}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Request #{script.requestNumber}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
     </div>
   );
