@@ -383,6 +383,8 @@ export type Database = {
           inspection_status: string | null
           lab_script_id: string
           manufacturing_ended_at: string | null
+          manufacturing_hold_reason: string | null
+          manufacturing_hold_status: boolean | null
           manufacturing_notes: string | null
           manufacturing_started_at: string | null
           manufacturing_status: string | null
@@ -409,6 +411,8 @@ export type Database = {
           inspection_status?: string | null
           lab_script_id: string
           manufacturing_ended_at?: string | null
+          manufacturing_hold_reason?: string | null
+          manufacturing_hold_status?: boolean | null
           manufacturing_notes?: string | null
           manufacturing_started_at?: string | null
           manufacturing_status?: string | null
@@ -435,6 +439,8 @@ export type Database = {
           inspection_status?: string | null
           lab_script_id?: string
           manufacturing_ended_at?: string | null
+          manufacturing_hold_reason?: string | null
+          manufacturing_hold_status?: boolean | null
           manufacturing_notes?: string | null
           manufacturing_started_at?: string | null
           manufacturing_status?: string | null

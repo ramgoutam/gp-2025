@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp, Pause } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -35,6 +37,39 @@ export const ManufacturingSteps = ({
   onRejectInspection,
   onApproveInspection,
 }: ManufacturingStepsProps) => {
+  const [isHoldDialogOpen, setIsHoldDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleHoldManufacturing = async () => {
+    try {
+      const holdReason = prompt("Please enter the reason for holding manufacturing:");
+      if (!holdReason) return;
+
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .insert([{
+          lab_script_id: scriptId,
+          manufacturing_hold_status: true,
+          manufacturing_hold_reason: holdReason,
+          manufacturing_status: 'on_hold'
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Manufacturing On Hold",
+        description: "Manufacturing process has been put on hold.",
+      });
+    } catch (error) {
+      console.error("Error putting manufacturing on hold:", error);
+      toast({
+        title: "Error",
+        description: "Failed to put manufacturing on hold.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="flex gap-2">
       {!manufacturingStatus[scriptId] && (
@@ -48,14 +83,24 @@ export const ManufacturingSteps = ({
         </Button>
       )}
       {manufacturingStatus[scriptId] === 'in_progress' && (
-        <Button 
-          variant="outline"
-          className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteManufacturing(scriptId)}
-        >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Manufacturing
-        </Button>
+        <>
+          <Button 
+            variant="outline"
+            className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onCompleteManufacturing(scriptId)}
+          >
+            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Complete Manufacturing
+          </Button>
+          <Button
+            variant="outline"
+            className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={handleHoldManufacturing}
+          >
+            <Pause className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Hold
+          </Button>
+        </>
       )}
       {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
         <Button 
