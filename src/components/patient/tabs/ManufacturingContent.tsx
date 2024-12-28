@@ -15,7 +15,6 @@ interface ManufacturingContentProps {
   };
 }
 
-// Define types for the manufacturing log payload
 interface ManufacturingLogPayload {
   lab_script_id: string;
   manufacturing_status: string;
@@ -35,7 +34,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   );
 
   useEffect(() => {
-    // Initial fetch of manufacturing logs
     const fetchManufacturingLogs = async () => {
       try {
         const { data: logs, error } = await supabase
@@ -65,7 +63,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
     fetchManufacturingLogs();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('manufacturing-updates')
       .on(
