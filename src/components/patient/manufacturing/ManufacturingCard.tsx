@@ -79,7 +79,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
 
   return (
     <Card key={script.id} className="p-4">
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start">
         <h3 className="font-semibold">
           {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
         </h3>
@@ -112,7 +112,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="grid grid-cols-2 gap-4 text-sm mt-3">
         <div>
           <p className="text-gray-500">Manufacturing Source</p>
           <p className="font-medium">{script.manufacturingSource}</p>
