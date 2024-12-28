@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Play, CheckCircle, Pause, PlayCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SinteringStageProps {
   scriptId: string;
@@ -13,6 +15,7 @@ interface SinteringStageProps {
 }
 
 export const SinteringStage = ({
+  scriptId,
   status,
   onStart,
   onComplete,
@@ -22,15 +25,73 @@ export const SinteringStage = ({
   const [holdReason, setHoldReason] = useState("");
   const [showReasonInput, setShowReasonInput] = useState(false);
   const [savedHoldReason, setSavedHoldReason] = useState("");
+  const { toast } = useToast();
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
-  const handleHold = () => {
+  const updateSinteringStatus = async (newStatus: string, holdReason?: string) => {
+    try {
+      console.log("Updating sintering status:", newStatus, "for script:", scriptId);
+      const timestamp = new Date().toISOString();
+      
+      const updates: any = {
+        sintering_status: newStatus,
+      };
+
+      // Add appropriate timestamp based on status
+      if (newStatus === 'in_progress') {
+        updates.sintering_started_at = timestamp;
+      } else if (newStatus === 'completed') {
+        updates.sintering_completed_at = timestamp;
+      } else if (newStatus === 'on_hold') {
+        updates.sintering_hold_at = timestamp;
+        updates.sintering_hold_reason = holdReason;
+      }
+
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update(updates)
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      console.log("Sintering status updated successfully");
+      toast({
+        title: "Status Updated",
+        description: `Sintering ${newStatus.replace('_', ' ')}`
+      });
+    } catch (error) {
+      console.error("Error updating sintering status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update sintering status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStart = async () => {
+    await updateSinteringStatus('in_progress');
+    onStart();
+  };
+
+  const handleComplete = async () => {
+    await updateSinteringStatus('completed');
+    onComplete();
+  };
+
+  const handleHold = async () => {
     if (holdReason.trim()) {
+      await updateSinteringStatus('on_hold', holdReason);
       setSavedHoldReason(holdReason);
       onHold();
       setShowReasonInput(false);
       setHoldReason("");
     }
+  };
+
+  const handleResume = async () => {
+    await updateSinteringStatus('in_progress');
+    onResume();
   };
 
   if (status === 'pending') {

@@ -380,14 +380,17 @@ export type Database = {
           lab_script_id: string
           manufacturing_completed_at: string | null
           manufacturing_hold_at: string | null
+          manufacturing_hold_reason: string | null
           manufacturing_started_at: string | null
           manufacturing_status: string | null
           miyo_completed_at: string | null
           miyo_hold_at: string | null
+          miyo_hold_reason: string | null
           miyo_started_at: string | null
           miyo_status: string | null
           sintering_completed_at: string | null
           sintering_hold_at: string | null
+          sintering_hold_reason: string | null
           sintering_started_at: string | null
           sintering_status: string | null
           updated_at: string
@@ -398,14 +401,17 @@ export type Database = {
           lab_script_id: string
           manufacturing_completed_at?: string | null
           manufacturing_hold_at?: string | null
+          manufacturing_hold_reason?: string | null
           manufacturing_started_at?: string | null
           manufacturing_status?: string | null
           miyo_completed_at?: string | null
           miyo_hold_at?: string | null
+          miyo_hold_reason?: string | null
           miyo_started_at?: string | null
           miyo_status?: string | null
           sintering_completed_at?: string | null
           sintering_hold_at?: string | null
+          sintering_hold_reason?: string | null
           sintering_started_at?: string | null
           sintering_status?: string | null
           updated_at?: string
@@ -416,14 +422,17 @@ export type Database = {
           lab_script_id?: string
           manufacturing_completed_at?: string | null
           manufacturing_hold_at?: string | null
+          manufacturing_hold_reason?: string | null
           manufacturing_started_at?: string | null
           manufacturing_status?: string | null
           miyo_completed_at?: string | null
           miyo_hold_at?: string | null
+          miyo_hold_reason?: string | null
           miyo_started_at?: string | null
           miyo_status?: string | null
           sintering_completed_at?: string | null
           sintering_hold_at?: string | null
+          sintering_hold_reason?: string | null
           sintering_started_at?: string | null
           sintering_status?: string | null
           updated_at?: string
