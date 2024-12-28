@@ -25,11 +25,11 @@ export const useManufacturingData = () => {
             first_name,
             last_name
           ),
-          report_cards (
-            design_info:design_info_id(*),
-            clinical_info:clinical_info_id(*),
+          report_cards!inner (
             design_info_status,
-            clinical_info_status
+            clinical_info_status,
+            design_info:design_info_id(*),
+            clinical_info:clinical_info_id(*)
           )
         `)
         .order('created_at', { ascending: false });
