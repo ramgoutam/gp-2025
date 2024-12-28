@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { LabScript } from "@/types/labScript";
 import { ProgressBar } from "@/components/patient/ProgressBar";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +11,11 @@ interface ManufacturingCardProps {
   script: LabScript;
   children: React.ReactNode;
 }
+
+type Step = {
+  label: string;
+  status: "completed" | "current" | "upcoming";
+};
 
 export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) => {
   const { toast } = useToast();
@@ -73,8 +78,8 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
   };
 
   return (
-    <Card key={script.id} className="p-6">
-      <div className="flex justify-between items-start mb-6">
+    <Card key={script.id} className="p-4">
+      <div className="flex justify-between items-start mb-4">
         <h3 className="font-semibold">
           {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
         </h3>
@@ -89,10 +94,14 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                     key={stepKey}
                     size="sm"
                     variant="outline"
-                    className="text-xs"
+                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in"
                     onClick={() => handleStepComplete(stepKey)}
                   >
-                    <Check className="w-3 h-3 mr-1" />
+                    {completedSteps.includes(stepKey) ? (
+                      <Check className="w-3 h-3 mr-1 text-green-500" />
+                    ) : (
+                      <ArrowRight className="w-3 h-3 mr-1" />
+                    )}
                     Complete {step.label}
                   </Button>
                 );
