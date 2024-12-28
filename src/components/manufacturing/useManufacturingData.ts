@@ -78,25 +78,18 @@ export const useManufacturingData = () => {
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
       );
 
-      const completedOutsourceMilling = mappedScripts.filter(s => 
-        s.manufacturingSource === 'Outsource' && 
-        s.manufacturingType === 'Milling' && 
-        s.status === 'completed'
-      );
-
       return {
         counts: {
           inhousePrinting: inhousePrinting.length,
           inhouseMilling: inhouseMilling.length,
           outsourcePrinting: outsourcePrinting.length,
           outsourceMilling: outsourceMilling.length,
-          completedOutsourceMilling: completedOutsourceMilling.length,
           total: manufacturingQueue.length
         },
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000, // Poll every second
-    refetchIntervalInBackground: true // Continue polling even when tab is in background
+    refetchInterval: 1000,
+    refetchIntervalInBackground: true
   });
 };
