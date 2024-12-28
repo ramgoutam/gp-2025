@@ -17,6 +17,17 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     script.manufacturingSource && script.manufacturingType
   );
 
+  const getButtonText = (manufacturingType: string) => {
+    switch (manufacturingType) {
+      case 'Milling':
+        return 'Start Milling';
+      case 'Printing':
+        return 'Start Printing';
+      default:
+        return 'Start';
+    }
+  };
+
   if (manufacturingScripts.length === 0) {
     return (
       <Card className="p-6 text-center">
@@ -43,13 +54,15 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Start
-                </Button>
+                {script.manufacturingSource === 'Inhouse' && (
+                  <Button 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => console.log('Starting manufacturing process for script:', script.id)}
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    {getButtonText(script.manufacturingType || '')}
+                  </Button>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
