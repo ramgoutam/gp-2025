@@ -36,6 +36,11 @@ const Manufacturing = () => {
     }
   };
 
+  const formatStatus = (status: string | undefined) => {
+    if (!status) return 'Pending';
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
   const cards = [
     {
       title: "Inhouse Printing",
@@ -141,8 +146,8 @@ const Manufacturing = () => {
                     </div>
                   </div>
                   <div className="text-sm">
-                    <Badge className={getStatusColor(script.manufacturingStatus)}>
-                      {script.manufacturingStatus.charAt(0).toUpperCase() + script.manufacturingStatus.slice(1)}
+                    <Badge className={getStatusColor(script.manufacturingStatus || 'pending')}>
+                      {formatStatus(script.manufacturingStatus)}
                     </Badge>
                   </div>
                 </div>
