@@ -23,59 +23,72 @@ const Manufacturing = () => {
     setActiveFilter(filter === activeFilter ? null : filter);
   };
 
+  // Filter scripts to only show those with completed design info
+  const filteredScripts = manufacturingData.scripts.filter(script => 
+    script.designInfoStatus === 'completed'
+  );
+
   const cards = [
     {
       title: "Inhouse Printing",
-      count: manufacturingData.counts.inhousePrinting,
+      count: filteredScripts.filter(s => 
+        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
+      ).length,
       icon: Printer,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       progressColor: "bg-blue-500",
       filter: "inhouse-printing",
-      scripts: manufacturingData.scripts.filter(s => 
+      scripts: filteredScripts.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
       )
     },
     {
       title: "Inhouse Milling",
-      count: manufacturingData.counts.inhouseMilling,
+      count: filteredScripts.filter(s => 
+        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
+      ).length,
       icon: CircuitBoard,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       progressColor: "bg-purple-500",
       filter: "inhouse-milling",
-      scripts: manufacturingData.scripts.filter(s => 
+      scripts: filteredScripts.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
       )
     },
     {
       title: "Outsource Printing",
-      count: manufacturingData.counts.outsourcePrinting,
+      count: filteredScripts.filter(s => 
+        s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Printing'
+      ).length,
       icon: Factory,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       progressColor: "bg-orange-500",
       filter: "outsource-printing",
-      scripts: manufacturingData.scripts.filter(s => 
+      scripts: filteredScripts.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Printing'
       )
     },
     {
       title: "Outsource Milling",
-      count: manufacturingData.counts.outsourceMilling,
+      count: filteredScripts.filter(s => 
+        s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
+      ).length,
       icon: Cog,
       color: "text-green-600",
       bgColor: "bg-green-50",
       progressColor: "bg-green-500",
       filter: "outsource-milling",
-      scripts: manufacturingData.scripts.filter(s => 
+      scripts: filteredScripts.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
       )
     }
   ];
 
   const getFilteredScripts = () => {
-    if (!activeFilter) return manufacturingData.scripts;
+    if (!activeFilter) return filteredScripts;
     return cards.find(card => card.filter === activeFilter)?.scripts || [];
   };
 
