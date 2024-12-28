@@ -80,9 +80,9 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
         },
         (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
           console.log('Real-time update received:', payload);
-          const { new: newData } = payload;
-          
-          if (newData) {
+          if (payload.new && 'lab_script_id' in payload.new) {
+            const newData = payload.new as ManufacturingLog;
+            
             setManufacturingStatus(prev => ({
               ...prev,
               [newData.lab_script_id]: newData.manufacturing_status
