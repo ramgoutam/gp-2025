@@ -15,6 +15,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
   console.log("Progress bar steps:", steps, "Active step:", activeStep);
 
   const handleStepClick = (index: number, status: Step["status"]) => {
+    // Only allow clicking on completed steps or the current step
     if (status === "completed" || status === "current") {
       console.log("Navigating to step:", index);
       onStepClick?.(index);
@@ -22,20 +23,20 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
   };
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex items-start w-full">
       {steps.map((step, index) => (
         <div 
           key={step.label} 
-          className="flex items-center space-x-2"
+          className="flex-1 relative"
           onClick={() => handleStepClick(index, step.status)}
           role="button"
           tabIndex={0}
           style={{ cursor: step.status === "upcoming" ? "not-allowed" : "pointer" }}
         >
-          <div className="relative">
+          <div className="flex items-center justify-center">
             {index > 0 && (
               <div
-                className={`w-[2px] h-6 absolute -top-6 left-1/2 -translate-x-1/2 ${
+                className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
                   step.status === "completed"
                     ? "bg-primary"
                     : "bg-gray-200"
@@ -43,7 +44,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
               />
             )}
             <div
-              className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors duration-300 ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
                 step.status === "completed"
                   ? "bg-primary border-primary text-white"
                   : step.status === "current"
@@ -52,10 +53,10 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
               }`}
             >
               {step.status === "completed" ? (
-                <Check className="h-3 w-3 text-white" />
+                <Check className="h-4 w-4 text-white" />
               ) : (
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-sm font-medium ${
                     step.status === "current"
                       ? "text-primary"
                       : "text-gray-400"
@@ -66,15 +67,17 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
               )}
             </div>
           </div>
-          <span
-            className={`text-xs font-medium ${
-              step.status === "completed" || step.status === "current"
-                ? "text-gray-900"
-                : "text-gray-400"
-            }`}
-          >
-            {step.label}
-          </span>
+          <div className="mt-2 text-center">
+            <span
+              className={`text-xs font-medium ${
+                step.status === "completed" || step.status === "current"
+                  ? "text-gray-900"
+                  : "text-gray-400"
+              }`}
+            >
+              {step.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>

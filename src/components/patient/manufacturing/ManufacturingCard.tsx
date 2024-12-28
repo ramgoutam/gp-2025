@@ -46,12 +46,14 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
 
   const handleStepComplete = async (stepKey: string) => {
     try {
+      // Only allow completing steps in order
       if (stepKey === "sintering" && !completedSteps.includes("milling")) return;
       if (stepKey === "miyo" && !completedSteps.includes("sintering")) return;
 
       const newCompletedSteps = [...completedSteps, stepKey];
       setCompletedSteps(newCompletedSteps);
 
+      // Update lab script status if all steps are completed
       if (newCompletedSteps.length === 3) {
         const { error } = await supabase
           .from('lab_scripts')
@@ -76,34 +78,14 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
   };
 
   return (
-    <Card key={script.id} className="p-3">
-      <div className="flex flex-col space-y-4">
-        <div>
-          <h3 className="font-semibold text-sm mb-2">
-            {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-          </h3>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <p className="text-gray-500">Manufacturing Source</p>
-              <p className="font-medium">{script.manufacturingSource}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Manufacturing Type</p>
-              <p className="font-medium">{script.manufacturingType}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Material</p>
-              <p className="font-medium">{script.material || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Shade</p>
-              <p className="font-medium">{script.shade || 'N/A'}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col space-y-2">
+    <Card key={script.id} className="p-4">
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="font-semibold">
+          {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+        </h3>
+        <div className="w-64">
+          <ProgressBar steps={steps} />
+          <div className="flex gap-2 mt-2 justify-end">
             {steps.map((step, index) => {
               const stepKey = step.label.toLowerCase().split('/')[0];
               if (step.status === "current") {
@@ -112,7 +94,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                     key={stepKey}
                     size="sm"
                     variant="outline"
-                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in h-5 px-2 whitespace-nowrap"
+                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in"
                     onClick={() => handleStepComplete(stepKey)}
                   >
                     {completedSteps.includes(stepKey) ? (
@@ -127,9 +109,25 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
               return null;
             })}
           </div>
-          <div className="ml-6">
-            <ProgressBar steps={steps} />
-          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p className="text-gray-500">Manufacturing Source</p>
+          <p className="font-medium">{script.manufacturingSource}</p>
+        </div>
+        <div>
+          <p className="text-gray-500">Manufacturing Type</p>
+          <p className="font-medium">{script.manufacturingType}</p>
+        </div>
+        <div>
+          <p className="text-gray-500">Material</p>
+          <p className="font-medium">{script.material || 'N/A'}</p>
+        </div>
+        <div>
+          <p className="text-gray-500">Shade</p>
+          <p className="font-medium">{script.shade || 'N/A'}</p>
         </div>
       </div>
     </Card>
