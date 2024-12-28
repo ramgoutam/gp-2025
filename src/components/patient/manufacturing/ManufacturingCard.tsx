@@ -113,7 +113,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                     key={stepKey}
                     size="sm"
                     variant="outline"
-                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in h-6 px-2 whitespace-nowrap"
+                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in h-5 px-2 whitespace-nowrap"
                     onClick={() => handleStepComplete(stepKey)}
                   >
                     {completedSteps.includes(stepKey) ? (
