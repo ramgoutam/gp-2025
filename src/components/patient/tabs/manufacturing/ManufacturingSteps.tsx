@@ -30,6 +30,7 @@ interface ManufacturingStepsProps {
   onStartInspection: (scriptId: string) => void;
   onRejectInspection: (scriptId: string) => void;
   onApproveInspection: (scriptId: string) => void;
+  manufacturingType?: string;
 }
 
 export const ManufacturingSteps = ({
@@ -47,6 +48,7 @@ export const ManufacturingSteps = ({
   onStartInspection,
   onRejectInspection,
   onApproveInspection,
+  manufacturingType = 'Milling',
 }: ManufacturingStepsProps) => {
   const [isHoldDialogOpen, setIsHoldDialogOpen] = useState(false);
   const [holdReason, setHoldReason] = useState("");
@@ -131,7 +133,7 @@ export const ManufacturingSteps = ({
             onClick={() => onStartManufacturing(scriptId)}
           >
             <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-            Start Manufacturing
+            Start {manufacturingType}
           </Button>
         )}
         {manufacturingStatus[scriptId] === 'in_progress' && (
@@ -142,7 +144,7 @@ export const ManufacturingSteps = ({
               onClick={() => onCompleteManufacturing(scriptId)}
             >
               <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-              Complete Manufacturing
+              Complete {manufacturingType}
             </Button>
             <Button
               variant="outline"
@@ -161,9 +163,10 @@ export const ManufacturingSteps = ({
             onClick={handleResumeManufacturing}
           >
             <PlayCircle className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-            Resume Manufacturing
+            Resume {manufacturingType}
           </Button>
         )}
+
       {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
         <Button 
           variant="outline"
