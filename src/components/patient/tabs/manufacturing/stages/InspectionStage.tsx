@@ -118,7 +118,7 @@ export const InspectionStage = ({
             className={`${buttonClass} hover:bg-emerald-50 text-emerald-600 border-emerald-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Approve
+            Approve Appliance
           </Button>
           <Button
             variant="outline"
