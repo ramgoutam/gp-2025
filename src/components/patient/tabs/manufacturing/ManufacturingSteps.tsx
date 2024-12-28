@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Search, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Search, ThumbsDown, ThumbsUp, CheckCircle, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
