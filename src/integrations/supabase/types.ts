@@ -288,7 +288,11 @@ export type Database = {
           id: string
           lower_design_name: string | null
           lower_treatment: string | null
+          manufacturing_completed: boolean | null
           manufacturing_source: string | null
+          manufacturing_step_1_status: string | null
+          manufacturing_step_2_status: string | null
+          manufacturing_step_3_status: string | null
           manufacturing_type: string | null
           material: string | null
           patient_id: string
@@ -312,7 +316,11 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
+          manufacturing_completed?: boolean | null
           manufacturing_source?: string | null
+          manufacturing_step_1_status?: string | null
+          manufacturing_step_2_status?: string | null
+          manufacturing_step_3_status?: string | null
           manufacturing_type?: string | null
           material?: string | null
           patient_id: string
@@ -336,7 +344,11 @@ export type Database = {
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
+          manufacturing_completed?: boolean | null
           manufacturing_source?: string | null
+          manufacturing_step_1_status?: string | null
+          manufacturing_step_2_status?: string | null
+          manufacturing_step_3_status?: string | null
           manufacturing_type?: string | null
           material?: string | null
           patient_id?: string
