@@ -378,27 +378,21 @@ export type Database = {
           created_at: string
           id: string
           lab_script_id: string
-          notes: string | null
-          status: string
-          step_name: string
+          manufacturing_steps: Json
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           lab_script_id: string
-          notes?: string | null
-          status: string
-          step_name: string
+          manufacturing_steps?: Json
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           lab_script_id?: string
-          notes?: string | null
-          status?: string
-          step_name?: string
+          manufacturing_steps?: Json
           updated_at?: string
         }
         Relationships: [
