@@ -20,6 +20,8 @@ interface ManufacturingStepsProps {
   onResumeSintering: (scriptId: string) => void;
   onStartMiyo: (scriptId: string) => void;
   onCompleteMiyo: (scriptId: string) => void;
+  onHoldMiyo: (scriptId: string) => void;
+  onResumeMiyo: (scriptId: string) => void;
   onStartInspection: (scriptId: string) => void;
   onApproveInspection: (scriptId: string) => void;
   onRejectInspection: (scriptId: string) => void;
@@ -42,6 +44,8 @@ export const ManufacturingSteps = ({
   onResumeSintering,
   onStartMiyo,
   onCompleteMiyo,
+  onHoldMiyo,
+  onResumeMiyo,
   onStartInspection,
   onApproveInspection,
   onRejectInspection,
@@ -88,6 +92,8 @@ export const ManufacturingSteps = ({
         status={miyoCurrentStatus || 'pending'}
         onStart={() => onStartMiyo(scriptId)}
         onComplete={() => onCompleteMiyo(scriptId)}
+        onHold={() => onHoldMiyo(scriptId)}
+        onResume={() => onResumeMiyo(scriptId)}
       />
     );
   }

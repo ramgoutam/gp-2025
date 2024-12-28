@@ -35,6 +35,16 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
+  const handleHoldManufacturing = (scriptId: string) => {
+    console.log('Holding manufacturing process for script:', scriptId);
+    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
+  };
+
+  const handleResumeManufacturing = (scriptId: string) => {
+    console.log('Resuming manufacturing process for script:', scriptId);
+    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
   const handleStartSintering = (scriptId: string) => {
     console.log('Starting sintering process for script:', scriptId);
     setSinteringStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
@@ -43,6 +53,16 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const handleCompleteSintering = (scriptId: string) => {
     console.log('Completing sintering process for script:', scriptId);
     setSinteringStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
+  };
+
+  const handleHoldSintering = (scriptId: string) => {
+    console.log('Holding sintering process for script:', scriptId);
+    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
+  };
+
+  const handleResumeSintering = (scriptId: string) => {
+    console.log('Resuming sintering process for script:', scriptId);
+    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   const handleStartMiyo = (scriptId: string) => {
@@ -57,6 +77,16 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       title: "Miyo Process Completed",
       description: "You can now start the inspection process",
     });
+  };
+
+  const handleHoldMiyo = (scriptId: string) => {
+    console.log('Holding Miyo process for script:', scriptId);
+    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
+  };
+
+  const handleResumeMiyo = (scriptId: string) => {
+    console.log('Resuming Miyo process for script:', scriptId);
+    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   const handleStartInspection = (scriptId: string) => {
@@ -112,13 +142,20 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     inspectionStatus={inspectionStatus}
                     onStartManufacturing={handleStartManufacturing}
                     onCompleteManufacturing={handleCompleteManufacturing}
+                    onHoldManufacturing={handleHoldManufacturing}
+                    onResumeManufacturing={handleResumeManufacturing}
                     onStartSintering={handleStartSintering}
                     onCompleteSintering={handleCompleteSintering}
+                    onHoldSintering={handleHoldSintering}
+                    onResumeSintering={handleResumeSintering}
                     onStartMiyo={handleStartMiyo}
                     onCompleteMiyo={handleCompleteMiyo}
+                    onHoldMiyo={handleHoldMiyo}
+                    onResumeMiyo={handleResumeMiyo}
                     onStartInspection={handleStartInspection}
                     onRejectInspection={handleRejectInspection}
                     onApproveInspection={handleApproveInspection}
+                    manufacturingType={script.manufacturingType}
                   />
                 )}
               </div>
