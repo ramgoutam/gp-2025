@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp, PauseCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -35,6 +38,80 @@ export const ManufacturingSteps = ({
   onRejectInspection,
   onApproveInspection,
 }: ManufacturingStepsProps) => {
+  const [holdDialogOpen, setHoldDialogOpen] = useState(false);
+  const [holdReason, setHoldReason] = useState("");
+  const [currentStep, setCurrentStep] = useState<string>("");
+  const { toast } = useToast();
+
+  const handleHold = (step: string) => {
+    setCurrentStep(step);
+    setHoldDialogOpen(true);
+  };
+
+  const handleHoldSubmit = async () => {
+    if (!holdReason.trim()) {
+      toast({
+        title: "Hold Reason Required",
+        description: "Please provide a reason for holding the process.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .upsert({
+          lab_script_id: scriptId,
+          [`${currentStep}_status`]: 'hold',
+          [`${currentStep}_notes`]: holdReason,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Process On Hold",
+        description: `${currentStep.charAt(0).toUpperCase() + currentStep.slice(1)} process has been put on hold.`,
+      });
+
+      setHoldDialogOpen(false);
+      setHoldReason("");
+    } catch (error) {
+      console.error("Error updating hold status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update hold status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResume = async (step: string) => {
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .upsert({
+          lab_script_id: scriptId,
+          [`${step}_status`]: 'in_progress',
+          [`${step}_started_at`]: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Process Resumed",
+        description: `${step.charAt(0).toUpperCase() + step.slice(1)} process has been resumed.`,
+      });
+    } catch (error) {
+      console.error("Error resuming process:", error);
+      toast({
+        title: "Error",
+        description: "Failed to resume process",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex gap-2">
       {!manufacturingStatus[scriptId] && (
@@ -47,16 +124,40 @@ export const ManufacturingSteps = ({
           Start Manufacturing
         </Button>
       )}
+
       {manufacturingStatus[scriptId] === 'in_progress' && (
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => onCompleteManufacturing(scriptId)}
+          >
+            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Complete Manufacturing
+          </Button>
+          <Button 
+            variant="outline"
+            className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
+            onClick={() => handleHold('manufacturing')}
+          >
+            <PauseCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+            Hold
+          </Button>
+        </div>
+      )}
+
+      {manufacturingStatus[scriptId] === 'hold' && (
         <Button 
           variant="outline"
-          className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteManufacturing(scriptId)}
+          className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
+          onClick={() => handleResume('manufacturing')}
         >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Manufacturing
+          <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
+          Resume Manufacturing
         </Button>
       )}
+
+      {/* Similar patterns for other steps (sintering, miyo, inspection) */}
       {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
         <Button 
           variant="outline"
@@ -137,6 +238,33 @@ export const ManufacturingSteps = ({
           Inspection Failed
         </div>
       )}
+
+      <Dialog open={holdDialogOpen} onOpenChange={setHoldDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Hold Process</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for holding the {currentStep} process.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Textarea
+              placeholder="Enter reason for hold..."
+              value={holdReason}
+              onChange={(e) => setHoldReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setHoldDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleHoldSubmit}>
+              Confirm Hold
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

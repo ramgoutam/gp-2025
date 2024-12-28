@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
@@ -20,10 +21,65 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: string }>({});
   const [inspectionStatus, setInspectionStatus] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
-  
+
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
+
+  useEffect(() => {
+    const fetchManufacturingLogs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('manufacturing_logs')
+          .select('*')
+          .in('lab_script_id', manufacturingScripts.map(script => script.id));
+
+        if (error) throw error;
+
+        const statusMap = data.reduce((acc, log) => {
+          acc[log.lab_script_id] = {
+            manufacturing: log.manufacturing_status,
+            sintering: log.sintering_status,
+            miyo: log.miyo_status,
+            inspection: log.inspection_status,
+          };
+          return acc;
+        }, {});
+
+        // Update all statuses
+        setManufacturingStatus(prev => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(statusMap).map(([id, status]) => [id, status.manufacturing])
+          ),
+        }));
+        setSinteringStatus(prev => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(statusMap).map(([id, status]) => [id, status.sintering])
+          ),
+        }));
+        setMiyoStatus(prev => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(statusMap).map(([id, status]) => [id, status.miyo])
+          ),
+        }));
+        setInspectionStatus(prev => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(statusMap).map(([id, status]) => [id, status.inspection])
+          ),
+        }));
+      } catch (error) {
+        console.error("Error fetching manufacturing logs:", error);
+      }
+    };
+
+    if (manufacturingScripts.length > 0) {
+      fetchManufacturingLogs();
+    }
+  }, [manufacturingScripts]);
 
   const handleStartManufacturing = (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
