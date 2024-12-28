@@ -53,7 +53,7 @@ export const MiyoStage = ({
           className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
         >
           <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-          Hold
+          Hold Miyo
         </Button>
       </div>
     );
