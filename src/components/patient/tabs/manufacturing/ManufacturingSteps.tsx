@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, CheckCircle, Search, ThumbsDown, ThumbsUp, PauseCircle } from "lucide-react";
+import { Play, Search, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { StepButtons } from "./buttons/StepButtons";
 
 interface ManufacturingStepsProps {
   scriptId: string;
@@ -87,32 +88,6 @@ export const ManufacturingSteps = ({
     }
   };
 
-  const handleResume = async (step: string) => {
-    try {
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .upsert({
-          lab_script_id: scriptId,
-          [`${step}_status`]: 'in_progress',
-          [`${step}_started_at`]: new Date().toISOString(),
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Process Resumed",
-        description: `${step.charAt(0).toUpperCase() + step.slice(1)} process has been resumed.`,
-      });
-    } catch (error) {
-      console.error("Error resuming process:", error);
-      toast({
-        title: "Error",
-        description: "Failed to resume process",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="flex gap-2">
       {!manufacturingStatus[scriptId] && (
@@ -126,39 +101,16 @@ export const ManufacturingSteps = ({
         </Button>
       )}
 
-      {manufacturingStatus[scriptId] === 'in_progress' && (
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => onCompleteManufacturing(scriptId)}
-          >
-            <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-            Complete Manufacturing
-          </Button>
-          <Button 
-            variant="outline"
-            className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-300 transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => handleHold('manufacturing')}
-          >
-            <PauseCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-            Hold
-          </Button>
-        </div>
+      {manufacturingStatus[scriptId] && (
+        <StepButtons
+          scriptId={scriptId}
+          step="manufacturing"
+          status={manufacturingStatus[scriptId]}
+          onComplete={onCompleteManufacturing}
+          onHold={handleHold}
+        />
       )}
 
-      {manufacturingStatus[scriptId] === 'hold' && (
-        <Button 
-          variant="outline"
-          className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => handleResume('manufacturing')}
-        >
-          <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-          Resume Manufacturing
-        </Button>
-      )}
-
-      {/* Similar patterns for other steps (sintering, miyo, inspection) */}
       {manufacturingStatus[scriptId] === 'completed' && !sinteringStatus[scriptId] && (
         <Button 
           variant="outline"
@@ -169,16 +121,17 @@ export const ManufacturingSteps = ({
           Start Sintering
         </Button>
       )}
-      {sinteringStatus[scriptId] === 'in_progress' && (
-        <Button 
-          variant="outline"
-          className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteSintering(scriptId)}
-        >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Sintering
-        </Button>
+
+      {sinteringStatus[scriptId] && (
+        <StepButtons
+          scriptId={scriptId}
+          step="sintering"
+          status={sinteringStatus[scriptId]}
+          onComplete={onCompleteSintering}
+          onHold={handleHold}
+        />
       )}
+
       {sinteringStatus[scriptId] === 'completed' && !miyoStatus[scriptId] && (
         <Button 
           variant="outline"
@@ -189,16 +142,17 @@ export const ManufacturingSteps = ({
           Start Miyo
         </Button>
       )}
-      {miyoStatus[scriptId] === 'in_progress' && (
-        <Button 
-          variant="outline"
-          className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteMiyo(scriptId)}
-        >
-          <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete Miyo
-        </Button>
+
+      {miyoStatus[scriptId] && (
+        <StepButtons
+          scriptId={scriptId}
+          step="miyo"
+          status={miyoStatus[scriptId]}
+          onComplete={onCompleteMiyo}
+          onHold={handleHold}
+        />
       )}
+
       {miyoStatus[scriptId] === 'completed' && !inspectionStatus[scriptId] && (
         <Button 
           variant="outline"
@@ -209,6 +163,7 @@ export const ManufacturingSteps = ({
           Start Inspection
         </Button>
       )}
+
       {inspectionStatus[scriptId] === 'in_progress' && (
         <div className="flex gap-2">
           <Button 
@@ -227,13 +182,23 @@ export const ManufacturingSteps = ({
             <ThumbsUp className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
             Approved
           </Button>
+          <HoldButton onHold={() => handleHold('inspection')} />
         </div>
       )}
+
+      {inspectionStatus[scriptId] === 'hold' && (
+        <ResumeButton 
+          onResume={() => onStartInspection(scriptId)}
+          holdReason={holdReason} 
+        />
+      )}
+
       {inspectionStatus[scriptId] === 'approved' && (
         <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
           Ready to Insert
         </div>
       )}
+
       {inspectionStatus[scriptId] === 'rejected' && (
         <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
           Inspection Failed
