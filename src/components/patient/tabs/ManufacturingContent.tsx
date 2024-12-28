@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play } from "lucide-react";
+import { Factory, Play, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -13,7 +13,7 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const [showSintering, setShowSintering] = useState<{ [key: string]: boolean }>({});
+  const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -32,7 +32,12 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   const handleStartClick = (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
-    setShowSintering(prev => ({ ...prev, [scriptId]: true }));
+    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
+  const handleCompleteManufacturing = (scriptId: string) => {
+    console.log('Completing manufacturing process for script:', scriptId);
+    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
   const handleSinteringClick = (scriptId: string) => {
@@ -68,7 +73,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 </h3>
                 {script.manufacturingSource === 'Inhouse' && (
                   <div className="flex gap-2">
-                    {!showSintering[script.id] ? (
+                    {!manufacturingStatus[script.id] && (
                       <Button 
                         className="bg-primary hover:bg-primary/90"
                         onClick={() => handleStartClick(script.id)}
@@ -76,7 +81,17 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                         <Play className="w-4 h-4 mr-2" />
                         {getButtonText(script.manufacturingType || '')}
                       </Button>
-                    ) : (
+                    )}
+                    {manufacturingStatus[script.id] === 'in_progress' && (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleCompleteManufacturing(script.id)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Complete {script.manufacturingType}
+                      </Button>
+                    )}
+                    {manufacturingStatus[script.id] === 'completed' && (
                       <Button 
                         className="bg-primary hover:bg-primary/90"
                         onClick={() => handleSinteringClick(script.id)}
