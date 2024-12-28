@@ -5,10 +5,6 @@ import { useManufacturingData } from "@/components/manufacturing/useManufacturin
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ManufacturingStage } from "@/components/patient/tabs/manufacturing/stages/ManufacturingStage";
-import { SinteringStage } from "@/components/patient/tabs/manufacturing/stages/SinteringStage";
-import { MiyoStage } from "@/components/patient/tabs/manufacturing/stages/MiyoStage";
-import { InspectionStage } from "@/components/patient/tabs/manufacturing/stages/InspectionStage";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -134,56 +130,6 @@ const Manufacturing = () => {
                     </div>
                   </div>
                 </div>
-
-                {script.manufacturingSource === 'Inhouse' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Manufacturing</h3>
-                      <ManufacturingStage
-                        scriptId={script.id}
-                        status={script.manufacturing_logs?.manufacturing_status || 'pending'}
-                        onStart={() => {}}
-                        onComplete={() => {}}
-                        onHold={() => {}}
-                        onResume={() => {}}
-                        manufacturingType={script.manufacturingType}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Sintering</h3>
-                      <SinteringStage
-                        scriptId={script.id}
-                        status={script.manufacturing_logs?.sintering_status || 'pending'}
-                        onStart={() => {}}
-                        onComplete={() => {}}
-                        onHold={() => {}}
-                        onResume={() => {}}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">MIYO</h3>
-                      <MiyoStage
-                        scriptId={script.id}
-                        status={script.manufacturing_logs?.miyo_status || 'pending'}
-                        onStart={() => {}}
-                        onComplete={() => {}}
-                        onHold={() => {}}
-                        onResume={() => {}}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Inspection</h3>
-                      <InspectionStage
-                        scriptId={script.id}
-                        status={script.manufacturing_logs?.inspection_status || 'pending'}
-                        onStart={() => {}}
-                        onComplete={() => {}}
-                        onHold={() => {}}
-                        onResume={() => {}}
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
