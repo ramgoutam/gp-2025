@@ -34,6 +34,12 @@ export const useManufacturingData = () => {
             clinical_info:clinical_info_id(*),
             design_info_status,
             clinical_info_status
+          ),
+          manufacturing_logs (
+            manufacturing_status,
+            sintering_status,
+            miyo_status,
+            inspection_status
           )
         `)
         .eq('report_cards.design_info_status', 'completed')
@@ -48,6 +54,22 @@ export const useManufacturingData = () => {
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
+        const manufacturingLog = script.manufacturing_logs?.[0];
+        
+        // Get the latest status from manufacturing steps
+        let currentStatus = 'pending';
+        if (manufacturingLog) {
+          if (manufacturingLog.inspection_status !== 'pending') {
+            currentStatus = manufacturingLog.inspection_status;
+          } else if (manufacturingLog.miyo_status !== 'pending') {
+            currentStatus = manufacturingLog.miyo_status;
+          } else if (manufacturingLog.sintering_status !== 'pending') {
+            currentStatus = manufacturingLog.sintering_status;
+          } else if (manufacturingLog.manufacturing_status !== 'pending') {
+            currentStatus = manufacturingLog.manufacturing_status;
+          }
+        }
+
         return {
           ...mappedScript,
           patientFirstName: script.patients?.first_name,
@@ -55,7 +77,8 @@ export const useManufacturingData = () => {
           designInfo: script.report_cards?.[0]?.design_info,
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
-          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending'
+          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
+          manufacturingStatus: currentStatus
         };
       });
 
