@@ -127,7 +127,7 @@ export const InspectionStage = ({
             className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
           >
             <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Hold Inspection
+            Reject Appliance
           </Button>
         </div>
         {showReasonInput && (
@@ -167,7 +167,7 @@ export const InspectionStage = ({
         </Button>
         {savedHoldReason && (
           <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">
-            On hold: {savedHoldReason}
+            Rejected: {savedHoldReason}
           </div>
         )}
       </div>
