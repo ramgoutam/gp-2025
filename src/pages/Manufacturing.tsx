@@ -23,24 +23,6 @@ const Manufacturing = () => {
     setActiveFilter(filter === activeFilter ? null : filter);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'on_hold':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const formatStatus = (status: string | undefined) => {
-    if (!status) return 'Pending';
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
   const cards = [
     {
       title: "Inhouse Printing",
@@ -145,10 +127,8 @@ const Manufacturing = () => {
                       {script.shade || 'N/A'}
                     </div>
                   </div>
-                  <div className="text-sm">
-                    <Badge className={getStatusColor(script.manufacturingStatus || 'pending')}>
-                      {formatStatus(script.manufacturingStatus)}
-                    </Badge>
+                  <div className="text-sm text-gray-500">
+                    Status: {script.status}
                   </div>
                 </div>
               </div>
