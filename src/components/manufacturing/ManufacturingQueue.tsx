@@ -117,6 +117,321 @@ export const ManufacturingQueue = ({ scripts }: ManufacturingQueueProps) => {
     });
   };
 
+  // Handlers for sintering stage
+  const handleStartSintering = async (scriptId: string) => {
+    console.log('Starting sintering process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        sintering_status: 'in_progress',
+        sintering_started_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating sintering status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to start sintering process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Sintering process started"
+    });
+  };
+
+  const handleCompleteSintering = async (scriptId: string) => {
+    console.log('Completing sintering process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        sintering_status: 'completed',
+        sintering_completed_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating sintering status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to complete sintering process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Sintering process completed"
+    });
+  };
+
+  const handleHoldSintering = async (scriptId: string) => {
+    console.log('Holding sintering process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        sintering_status: 'on_hold',
+        sintering_hold_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating sintering status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to hold sintering process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Sintering process put on hold"
+    });
+  };
+
+  const handleResumeSintering = async (scriptId: string) => {
+    console.log('Resuming sintering process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        sintering_status: 'in_progress',
+        sintering_hold_at: null
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating sintering status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to resume sintering process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Sintering process resumed"
+    });
+  };
+
+  // Handlers for MIYO stage
+  const handleStartMiyo = async (scriptId: string) => {
+    console.log('Starting MIYO process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        miyo_status: 'in_progress',
+        miyo_started_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating MIYO status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to start MIYO process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "MIYO process started"
+    });
+  };
+
+  const handleCompleteMiyo = async (scriptId: string) => {
+    console.log('Completing MIYO process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        miyo_status: 'completed',
+        miyo_completed_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating MIYO status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to complete MIYO process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "MIYO process completed"
+    });
+  };
+
+  const handleHoldMiyo = async (scriptId: string) => {
+    console.log('Holding MIYO process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        miyo_status: 'on_hold',
+        miyo_hold_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating MIYO status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to hold MIYO process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "MIYO process put on hold"
+    });
+  };
+
+  const handleResumeMiyo = async (scriptId: string) => {
+    console.log('Resuming MIYO process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        miyo_status: 'in_progress',
+        miyo_hold_at: null
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating MIYO status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to resume MIYO process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "MIYO process resumed"
+    });
+  };
+
+  // Handlers for Inspection stage
+  const handleStartInspection = async (scriptId: string) => {
+    console.log('Starting inspection process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        inspection_status: 'in_progress',
+        inspection_started_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating inspection status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to start inspection process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Inspection process started"
+    });
+  };
+
+  const handleCompleteInspection = async (scriptId: string) => {
+    console.log('Completing inspection process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        inspection_status: 'completed',
+        inspection_completed_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating inspection status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to complete inspection process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Inspection process completed"
+    });
+  };
+
+  const handleHoldInspection = async (scriptId: string) => {
+    console.log('Holding inspection process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        inspection_status: 'on_hold',
+        inspection_hold_at: new Date().toISOString()
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating inspection status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to hold inspection process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Inspection process put on hold"
+    });
+  };
+
+  const handleResumeInspection = async (scriptId: string) => {
+    console.log('Resuming inspection process for script:', scriptId);
+    const { error } = await supabase
+      .from('manufacturing_logs')
+      .update({
+        inspection_status: 'in_progress',
+        inspection_hold_at: null
+      })
+      .eq('lab_script_id', scriptId);
+
+    if (error) {
+      console.error('Error updating inspection status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to resume inspection process"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Inspection process resumed"
+    });
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
@@ -168,6 +483,18 @@ export const ManufacturingQueue = ({ scripts }: ManufacturingQueueProps) => {
                   onCompleteManufacturing={handleCompleteManufacturing}
                   onHoldManufacturing={handleHoldManufacturing}
                   onResumeManufacturing={handleResumeManufacturing}
+                  onStartSintering={handleStartSintering}
+                  onCompleteSintering={handleCompleteSintering}
+                  onHoldSintering={handleHoldSintering}
+                  onResumeSintering={handleResumeSintering}
+                  onStartMiyo={handleStartMiyo}
+                  onCompleteMiyo={handleCompleteMiyo}
+                  onHoldMiyo={handleHoldMiyo}
+                  onResumeMiyo={handleResumeMiyo}
+                  onStartInspection={handleStartInspection}
+                  onCompleteInspection={handleCompleteInspection}
+                  onHoldInspection={handleHoldInspection}
+                  onResumeInspection={handleResumeInspection}
                 />
               </div>
             )}
