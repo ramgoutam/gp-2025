@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { LabScript } from "@/types/labScript";
-import { Factory } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { ManufacturingCard } from "../manufacturing/ManufacturingCard";
-import { ManufacturingControls } from "../manufacturing/ManufacturingControls";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Factory, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -16,9 +13,6 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const [activeScripts, setActiveScripts] = useState<{ [key: string]: boolean }>({});
-  const { toast } = useToast();
-
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
@@ -39,55 +33,48 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     );
   }
 
-  const handleStartManufacturing = (scriptId: string) => {
-    console.log('Starting manufacturing for script:', scriptId);
-    setActiveScripts(prev => ({
-      ...prev,
-      [scriptId]: true
-    }));
-    toast({
-      title: "Manufacturing Started",
-      description: "The manufacturing process has been initiated.",
-    });
-  };
-
-  const handleManufacturingComplete = async (scriptId: string) => {
-    console.log('Manufacturing completed for script:', scriptId);
-    
-    try {
-      const { error } = await supabase
-        .from('lab_scripts')
-        .update({ status: 'completed' })
-        .eq('id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Manufacturing Completed",
-        description: "The item is now ready to insert.",
-      });
-    } catch (error) {
-      console.error('Error updating lab script status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update manufacturing status.",
-        variant: "destructive"
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
         {manufacturingScripts.map((script) => (
-          <ManufacturingCard key={script.id} script={script}>
-            <ManufacturingControls
-              manufacturingType={script.manufacturingType || ''}
-              isActive={activeScripts[script.id]}
-              onStart={() => handleStartManufacturing(script.id)}
-              onComplete={() => handleManufacturingComplete(script.id)}
-            />
-          </ManufacturingCard>
+          <Card key={script.id} className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">
+                  {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Manufacturing Source</p>
+                  <p className="font-medium">{script.manufacturingSource}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Manufacturing Type</p>
+                  <p className="font-medium">{script.manufacturingType}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Material</p>
+                  <p className="font-medium">{script.material || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Shade</p>
+                  <p className="font-medium">{script.shade || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Start
+                </Button>
+              </div>
+            </div>
+          </Card>
         ))}
       </div>
     </div>
