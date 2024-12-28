@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { Factory, Play } from "lucide-react";
@@ -13,6 +13,8 @@ interface ManufacturingContentProps {
 }
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
+  const [showSintering, setShowSintering] = useState<{ [key: string]: boolean }>({});
+  
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
@@ -26,6 +28,16 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
       default:
         return 'Start';
     }
+  };
+
+  const handleStartClick = (scriptId: string) => {
+    console.log('Starting manufacturing process for script:', scriptId);
+    setShowSintering(prev => ({ ...prev, [scriptId]: true }));
+  };
+
+  const handleSinteringClick = (scriptId: string) => {
+    console.log('Starting sintering process for script:', scriptId);
+    // Add sintering logic here
   };
 
   if (manufacturingScripts.length === 0) {
@@ -55,13 +67,25 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
                 {script.manufacturingSource === 'Inhouse' && (
-                  <Button 
-                    className="bg-primary hover:bg-primary/90"
-                    onClick={() => console.log('Starting manufacturing process for script:', script.id)}
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    {getButtonText(script.manufacturingType || '')}
-                  </Button>
+                  <div className="flex gap-2">
+                    {!showSintering[script.id] ? (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleStartClick(script.id)}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        {getButtonText(script.manufacturingType || '')}
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleSinteringClick(script.id)}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Start Sintering
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
               
