@@ -17,6 +17,7 @@ interface ManufacturingContentProps {
 }
 
 interface ManufacturingLog {
+  id: string;
   lab_script_id: string;
   manufacturing_status: string;
   sintering_status: string;
@@ -24,11 +25,13 @@ interface ManufacturingLog {
   inspection_status: string;
 }
 
+type StatusMap = Record<string, string>;
+
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: string }>({});
-  const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: string }>({});
-  const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: string }>({});
-  const [inspectionStatus, setInspectionStatus] = useState<{ [key: string]: string }>({});
+  const [manufacturingStatus, setManufacturingStatus] = useState<StatusMap>({});
+  const [sinteringStatus, setSinteringStatus] = useState<StatusMap>({});
+  const [miyoStatus, setMiyoStatus] = useState<StatusMap>({});
+  const [inspectionStatus, setInspectionStatus] = useState<StatusMap>({});
   const { toast } = useToast();
   
   const manufacturingScripts = labScripts.filter(script => 
@@ -45,12 +48,12 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
         if (error) throw error;
 
-        const newManufacturingStatus: { [key: string]: string } = {};
-        const newSinteringStatus: { [key: string]: string } = {};
-        const newMiyoStatus: { [key: string]: string } = {};
-        const newInspectionStatus: { [key: string]: string } = {};
+        const newManufacturingStatus: StatusMap = {};
+        const newSinteringStatus: StatusMap = {};
+        const newMiyoStatus: StatusMap = {};
+        const newInspectionStatus: StatusMap = {};
 
-        logs.forEach(log => {
+        logs?.forEach(log => {
           newManufacturingStatus[log.lab_script_id] = log.manufacturing_status;
           newSinteringStatus[log.lab_script_id] = log.sintering_status;
           newMiyoStatus[log.lab_script_id] = log.miyo_status;
