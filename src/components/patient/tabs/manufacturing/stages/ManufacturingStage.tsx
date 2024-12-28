@@ -35,26 +35,61 @@ export const ManufacturingStage = ({
       console.log("Updating manufacturing status:", newStatus, "for script:", scriptId);
       const timestamp = new Date().toISOString();
       
-      const updates: any = {
-        manufacturing_status: newStatus,
-      };
+      // First check if a manufacturing log exists for this script
+      const { data: existingLog } = await supabase
+        .from('manufacturing_logs')
+        .select('*')
+        .eq('lab_script_id', scriptId)
+        .maybeSingle();
 
-      // Add appropriate timestamp based on status
-      if (newStatus === 'in_progress') {
-        updates.manufacturing_started_at = timestamp;
-      } else if (newStatus === 'completed') {
-        updates.manufacturing_completed_at = timestamp;
-      } else if (newStatus === 'on_hold') {
-        updates.manufacturing_hold_at = timestamp;
-        updates.manufacturing_hold_reason = holdReason;
+      if (!existingLog) {
+        console.log("Creating new manufacturing log for script:", scriptId);
+        const { error: insertError } = await supabase
+          .from('manufacturing_logs')
+          .insert([{
+            lab_script_id: scriptId,
+            manufacturing_status: newStatus,
+            manufacturing_started_at: newStatus === 'in_progress' ? timestamp : null,
+            manufacturing_completed_at: newStatus === 'completed' ? timestamp : null,
+            manufacturing_hold_at: newStatus === 'on_hold' ? timestamp : null,
+            manufacturing_hold_reason: holdReason
+          }]);
+
+        if (insertError) throw insertError;
+      } else {
+        console.log("Updating existing manufacturing log for script:", scriptId);
+        const updates: any = {
+          manufacturing_status: newStatus,
+        };
+
+        // Add appropriate timestamp based on status
+        if (newStatus === 'in_progress') {
+          updates.manufacturing_started_at = timestamp;
+        } else if (newStatus === 'completed') {
+          updates.manufacturing_completed_at = timestamp;
+        } else if (newStatus === 'on_hold') {
+          updates.manufacturing_hold_at = timestamp;
+          updates.manufacturing_hold_reason = holdReason;
+        }
+
+        const { error: updateError } = await supabase
+          .from('manufacturing_logs')
+          .update(updates)
+          .eq('lab_script_id', scriptId);
+
+        if (updateError) throw updateError;
       }
 
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update(updates)
-        .eq('lab_script_id', scriptId);
+      // Also update the lab script status
+      const { error: labScriptError } = await supabase
+        .from('lab_scripts')
+        .update({ 
+          manufacturing_step_1_status: newStatus,
+          manufacturing_completed: newStatus === 'completed'
+        })
+        .eq('id', scriptId);
 
-      if (error) throw error;
+      if (labScriptError) throw labScriptError;
 
       console.log("Manufacturing status updated successfully");
       toast({
