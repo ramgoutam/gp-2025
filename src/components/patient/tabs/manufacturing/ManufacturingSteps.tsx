@@ -2,12 +2,14 @@ import React from "react";
 import { ManufacturingStage } from "./stages/ManufacturingStage";
 import { SinteringStage } from "./stages/SinteringStage";
 import { MiyoStage } from "./stages/MiyoStage";
+import { InspectionStage } from "./stages/InspectionStage";
 
 interface ManufacturingStepsProps {
   scriptId: string;
   manufacturingStatus: string;
   sinteringStatus: string;
   miyoStatus: string;
+  inspectionStatus: string;
   onStartManufacturing: (scriptId: string) => void;
   onCompleteManufacturing: (scriptId: string) => void;
   onHoldManufacturing: (scriptId: string) => void;
@@ -20,6 +22,10 @@ interface ManufacturingStepsProps {
   onCompleteMiyo?: (scriptId: string) => void;
   onHoldMiyo?: (scriptId: string) => void;
   onResumeMiyo?: (scriptId: string) => void;
+  onStartInspection?: (scriptId: string) => void;
+  onCompleteInspection?: (scriptId: string) => void;
+  onHoldInspection?: (scriptId: string) => void;
+  onResumeInspection?: (scriptId: string) => void;
   manufacturingType?: string;
 }
 
@@ -28,6 +34,7 @@ export const ManufacturingSteps = ({
   manufacturingStatus,
   sinteringStatus,
   miyoStatus,
+  inspectionStatus,
   onStartManufacturing,
   onCompleteManufacturing,
   onHoldManufacturing,
@@ -40,6 +47,10 @@ export const ManufacturingSteps = ({
   onCompleteMiyo,
   onHoldMiyo,
   onResumeMiyo,
+  onStartInspection,
+  onCompleteInspection,
+  onHoldInspection,
+  onResumeInspection,
   manufacturingType = 'Milling'
 }: ManufacturingStepsProps) => {
   // Show manufacturing stage if not completed
@@ -81,6 +92,20 @@ export const ManufacturingSteps = ({
         onComplete={() => onCompleteMiyo?.(scriptId)}
         onHold={() => onHoldMiyo?.(scriptId)}
         onResume={() => onResumeMiyo?.(scriptId)}
+      />
+    );
+  }
+
+  // Show Inspection stage if Miyo is completed
+  if (inspectionStatus !== 'completed') {
+    return (
+      <InspectionStage
+        scriptId={scriptId}
+        status={inspectionStatus}
+        onStart={() => onStartInspection?.(scriptId)}
+        onComplete={() => onCompleteInspection?.(scriptId)}
+        onHold={() => onHoldInspection?.(scriptId)}
+        onResume={() => onResumeInspection?.(scriptId)}
       />
     );
   }

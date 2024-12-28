@@ -20,12 +20,14 @@ interface ManufacturingLogPayload {
   manufacturing_status: string;
   sintering_status: string;
   miyo_status: string;
+  inspection_status: string;
 }
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: string }>({});
   const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: string }>({});
   const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: string }>({});
+  const [inspectionStatus, setInspectionStatus] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
   
   const manufacturingScripts = labScripts.filter(script => 
@@ -45,16 +47,19 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
         const newManufacturingStatus: { [key: string]: string } = {};
         const newSinteringStatus: { [key: string]: string } = {};
         const newMiyoStatus: { [key: string]: string } = {};
+        const newInspectionStatus: { [key: string]: string } = {};
 
         logs.forEach(log => {
           newManufacturingStatus[log.lab_script_id] = log.manufacturing_status;
           newSinteringStatus[log.lab_script_id] = log.sintering_status;
           newMiyoStatus[log.lab_script_id] = log.miyo_status;
+          newInspectionStatus[log.lab_script_id] = log.inspection_status;
         });
 
         setManufacturingStatus(newManufacturingStatus);
         setSinteringStatus(newSinteringStatus);
         setMiyoStatus(newMiyoStatus);
+        setInspectionStatus(newInspectionStatus);
       } catch (error) {
         console.error('Error fetching manufacturing logs:', error);
       }
@@ -77,18 +82,21 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           const { new: newData } = payload;
           
           if (newData) {
-            const data = newData as ManufacturingLogPayload;
             setManufacturingStatus(prev => ({
               ...prev,
-              [data.lab_script_id]: data.manufacturing_status
+              [newData.lab_script_id]: newData.manufacturing_status
             }));
             setSinteringStatus(prev => ({
               ...prev,
-              [data.lab_script_id]: data.sintering_status
+              [newData.lab_script_id]: newData.sintering_status
             }));
             setMiyoStatus(prev => ({
               ...prev,
-              [data.lab_script_id]: data.miyo_status
+              [newData.lab_script_id]: newData.miyo_status
+            }));
+            setInspectionStatus(prev => ({
+              ...prev,
+              [newData.lab_script_id]: newData.inspection_status
             }));
           }
         }
@@ -121,6 +129,26 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
+  const handleStartInspection = async (scriptId: string) => {
+    console.log('Starting inspection process for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
+  const handleCompleteInspection = async (scriptId: string) => {
+    console.log('Completing inspection process for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
+  };
+
+  const handleHoldInspection = async (scriptId: string) => {
+    console.log('Holding inspection process for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
+  };
+
+  const handleResumeInspection = async (scriptId: string) => {
+    console.log('Resuming inspection process for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
   if (manufacturingScripts.length === 0) {
     return <EmptyManufacturingState firstName={patientData.firstName} lastName={patientData.lastName} />;
   }
@@ -147,10 +175,15 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
                     sinteringStatus={sinteringStatus[script.id] || 'pending'}
                     miyoStatus={miyoStatus[script.id] || 'pending'}
+                    inspectionStatus={inspectionStatus[script.id] || 'pending'}
                     onStartManufacturing={handleStartManufacturing}
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
                     onResumeManufacturing={handleResumeManufacturing}
+                    onStartInspection={handleStartInspection}
+                    onCompleteInspection={handleCompleteInspection}
+                    onHoldInspection={handleHoldInspection}
+                    onResumeInspection={handleResumeInspection}
                     manufacturingType={script.manufacturingType}
                   />
                 )}
