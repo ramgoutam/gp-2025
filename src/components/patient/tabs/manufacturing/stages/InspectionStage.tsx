@@ -114,9 +114,9 @@ export const InspectionStage = ({
         variant="outline"
         size="sm"
         onClick={handleStartInspection}
-        className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+        className={`${buttonClass} hover:bg-primary/5 group`}
       >
-        <Search className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
+        <Search className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
         Start Inspection
       </Button>
     );
@@ -143,6 +143,22 @@ export const InspectionStage = ({
           <ThumbsDown className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
           Fail Inspection
         </Button>
+      </div>
+    );
+  }
+
+  if (status === 'approved') {
+    return (
+      <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
+        Ready to Insert
+      </div>
+    );
+  }
+
+  if (status === 'rejected') {
+    return (
+      <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
+        Appliance Failed Inspection
       </div>
     );
   }
