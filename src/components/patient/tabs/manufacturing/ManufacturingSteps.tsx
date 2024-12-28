@@ -53,7 +53,7 @@ export const ManufacturingSteps = ({
         <Button 
           variant="outline"
           className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
-          onClick={() => onCompleteMiyo(scriptId)}
+          onClick={() => onCompleteManufacturing(scriptId)}
         >
           <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
           Complete {manufacturingType}
