@@ -4,7 +4,10 @@ import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHea
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ManufacturingStage } from "@/components/patient/tabs/manufacturing/stages/ManufacturingStage";
+import { SinteringStage } from "@/components/patient/tabs/manufacturing/stages/SinteringStage";
+import { MiyoStage } from "@/components/patient/tabs/manufacturing/stages/MiyoStage";
+import { InspectionStage } from "@/components/patient/tabs/manufacturing/stages/InspectionStage";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -98,39 +101,90 @@ const Manufacturing = () => {
           <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
           <div className="space-y-4">
             {getFilteredScripts().map((script) => (
-              <div 
+              <Card 
                 key={script.id} 
-                className="flex flex-col space-y-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-gradient-to-br from-white to-purple-50/30 animate-fade-in"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col space-y-2 flex-grow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <span className="font-medium">
-                          {script.patientFirstName} {script.patientLastName}
-                        </span>
-                        <Badge variant="outline" className="bg-white">
-                          {script.manufacturingSource} - {script.manufacturingType}
-                        </Badge>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
+                          <span className="text-sm text-gray-500">|</span>
+                          <span className="text-sm text-gray-600">Upper: {script.upperDesignName || "Not specified"}</span>
+                          <span className="text-sm text-gray-500">|</span>
+                          <span className="text-sm text-gray-600">Lower: {script.lowerDesignName || "Not specified"}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                      <div>
-                        <span className="font-medium">Appliance Numbers: </span>
-                        {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
-                      </div>
-                      <div>
-                        <span className="font-medium">Material: </span>
-                        {script.material || 'N/A'}
-                      </div>
-                      <div>
-                        <span className="font-medium">Shade: </span>
-                        {script.shade || 'N/A'}
+                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          <span>Patient: {script.patientFirstName} {script.patientLastName}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span>Doctor: {script.doctorName}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span>Material: {script.material || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span>Shade: {script.shade || 'N/A'}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {script.manufacturingSource === 'Inhouse' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
+                      <div>
+                        <h3 className="text-sm font-medium mb-2">Manufacturing</h3>
+                        <ManufacturingStage
+                          scriptId={script.id}
+                          status={script.manufacturing_logs?.manufacturing_status || 'pending'}
+                          onStart={() => {}}
+                          onComplete={() => {}}
+                          onHold={() => {}}
+                          onResume={() => {}}
+                          manufacturingType={script.manufacturingType}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium mb-2">Sintering</h3>
+                        <SinteringStage
+                          scriptId={script.id}
+                          status={script.manufacturing_logs?.sintering_status || 'pending'}
+                          onStart={() => {}}
+                          onComplete={() => {}}
+                          onHold={() => {}}
+                          onResume={() => {}}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium mb-2">MIYO</h3>
+                        <MiyoStage
+                          scriptId={script.id}
+                          status={script.manufacturing_logs?.miyo_status || 'pending'}
+                          onStart={() => {}}
+                          onComplete={() => {}}
+                          onHold={() => {}}
+                          onResume={() => {}}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium mb-2">Inspection</h3>
+                        <InspectionStage
+                          scriptId={script.id}
+                          status={script.manufacturing_logs?.inspection_status || 'pending'}
+                          onStart={() => {}}
+                          onComplete={() => {}}
+                          onHold={() => {}}
+                          onResume={() => {}}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>
