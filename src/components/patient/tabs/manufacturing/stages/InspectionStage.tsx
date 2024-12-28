@@ -106,8 +106,6 @@ export const InspectionStage = ({
     }
   };
 
-  console.log("Current inspection status:", status); // Debug log
-
   if (status === 'pending') {
     return (
       <Button
@@ -119,32 +117,6 @@ export const InspectionStage = ({
         <Search className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110 mr-2" />
         Start Inspection
       </Button>
-    );
-  }
-
-  if (status === 'in_progress') {
-    console.log("Rendering approve/reject buttons"); // Debug log
-    return (
-      <div className="flex gap-2 animate-fade-in">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleApproveInspection}
-          className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
-        >
-          <ThumbsUp className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
-          Pass Inspection
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRejectInspection}
-          className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
-        >
-          <ThumbsDown className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
-          Fail Inspection
-        </Button>
-      </div>
     );
   }
 
@@ -164,5 +136,27 @@ export const InspectionStage = ({
     );
   }
 
-  return null;
+  // Show approve/reject buttons for any other status (including in_progress)
+  return (
+    <div className="flex gap-2 animate-fade-in">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleApproveInspection}
+        className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
+      >
+        <ThumbsUp className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
+        Pass Inspection
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleRejectInspection}
+        className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
+      >
+        <ThumbsDown className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
+        Fail Inspection
+      </Button>
+    </div>
+  );
 };
