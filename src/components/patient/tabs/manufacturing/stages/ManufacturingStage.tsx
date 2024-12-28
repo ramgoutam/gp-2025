@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 interface ManufacturingStageProps {
   scriptId: string;
   status: string;
+  manufacturingType: string;
   onStart: () => void;
   onComplete: () => void;
   onHold: () => void;
@@ -17,6 +18,7 @@ interface ManufacturingStageProps {
 export const ManufacturingStage = ({
   scriptId,
   status,
+  manufacturingType,
   onStart,
   onComplete,
   onHold,
@@ -103,7 +105,7 @@ export const ManufacturingStage = ({
         className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
       >
         <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-        Start Manufacturing
+        Start {manufacturingType}
       </Button>
     );
   }
@@ -119,7 +121,7 @@ export const ManufacturingStage = ({
             className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Complete Manufacturing
+            Complete {manufacturingType}
           </Button>
           <Button
             variant="outline"
@@ -128,7 +130,7 @@ export const ManufacturingStage = ({
             className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
           >
             <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Hold Manufacturing
+            Hold {manufacturingType}
           </Button>
         </div>
         {showReasonInput && (
@@ -164,7 +166,7 @@ export const ManufacturingStage = ({
           className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
         >
           <PlayCircle className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-          Resume Manufacturing
+          Resume {manufacturingType}
         </Button>
         {savedHoldReason && (
           <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">
