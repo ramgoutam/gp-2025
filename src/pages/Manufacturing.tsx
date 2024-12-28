@@ -1,12 +1,10 @@
-import { useState } from "react";
-import { Printer, Grid, Factory, Settings } from "lucide-react";
+import { Printer, CircuitBoard, Factory, Cog } from "lucide-react";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -20,10 +18,27 @@ const Manufacturing = () => {
     },
     scripts: []
   }} = useManufacturingData();
-  const { toast } = useToast();
 
   const handleCardClick = (filter: string | null) => {
     setActiveFilter(filter === activeFilter ? null : filter);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'on_hold':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatStatus = (status: string | undefined) => {
+    if (!status) return 'Pending';
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   const cards = [
@@ -42,7 +57,7 @@ const Manufacturing = () => {
     {
       title: "Inhouse Milling",
       count: manufacturingData.counts.inhouseMilling,
-      icon: Grid,
+      icon: CircuitBoard,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       progressColor: "bg-purple-500",
@@ -66,7 +81,7 @@ const Manufacturing = () => {
     {
       title: "Outsource Milling",
       count: manufacturingData.counts.outsourceMilling,
-      icon: Settings,
+      icon: Cog,
       color: "text-green-600",
       bgColor: "bg-green-50",
       progressColor: "bg-green-500",
@@ -80,33 +95,6 @@ const Manufacturing = () => {
   const getFilteredScripts = () => {
     if (!activeFilter) return manufacturingData.scripts;
     return cards.find(card => card.filter === activeFilter)?.scripts || [];
-  };
-
-  const handleManufacturingAction = async (scriptId: string, action: 'complete' | 'hold') => {
-    try {
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({ 
-          manufacturing_status: action === 'complete' ? 'completed' : 'hold',
-          manufacturing_completed_at: action === 'complete' ? new Date().toISOString() : null,
-          manufacturing_hold_at: action === 'hold' ? new Date().toISOString() : null
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: action === 'complete' ? "Manufacturing Completed" : "Manufacturing On Hold",
-        description: `The manufacturing process has been ${action === 'complete' ? 'completed' : 'put on hold'}.`
-      });
-    } catch (error) {
-      console.error('Error updating manufacturing status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update manufacturing status",
-        variant: "destructive"
-      });
-    }
   };
 
   return (
@@ -128,52 +116,42 @@ const Manufacturing = () => {
           <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
           <div className="space-y-4">
             {getFilteredScripts().map((script) => (
-              <Card 
+              <div 
                 key={script.id} 
-                className="p-6 hover:shadow-lg transition-all duration-300"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      {script.applianceType} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Manufacturing Source</p>
-                      <p className="font-medium">{script.manufacturingSource}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Manufacturing Type</p>
-                      <p className="font-medium">{script.manufacturingType}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Material</p>
-                      <p className="font-medium">{script.material || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Shade</p>
-                      <p className="font-medium">{script.shade || 'N/A'}</p>
+                <div className="flex flex-col space-y-2 flex-grow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="font-medium">
+                        {script.patientFirstName} {script.patientLastName}
+                      </span>
+                      <Badge variant="outline" className="bg-white">
+                        {script.manufacturingSource} - {script.manufacturingType}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      className="text-green-600 border-green-200 hover:bg-green-50"
-                      onClick={() => handleManufacturingAction(script.id, 'complete')}
-                    >
-                      Complete Printing
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="text-orange-600 border-orange-200 hover:bg-orange-50"
-                      onClick={() => handleManufacturingAction(script.id, 'hold')}
-                    >
-                      Hold Printing
-                    </Button>
+                  <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div>
+                      <span className="font-medium">Appliance Numbers: </span>
+                      {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
+                    </div>
+                    <div>
+                      <span className="font-medium">Material: </span>
+                      {script.material || 'N/A'}
+                    </div>
+                    <div>
+                      <span className="font-medium">Shade: </span>
+                      {script.shade || 'N/A'}
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <Badge className={getStatusColor(script.manufacturingStatus || 'pending')}>
+                      {formatStatus(script.manufacturingStatus)}
+                    </Badge>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </Card>
