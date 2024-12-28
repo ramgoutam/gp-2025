@@ -3,6 +3,7 @@ import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard"
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { ManufacturingStatus } from "@/components/manufacturing/ManufacturingStatus";
+import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -101,44 +102,60 @@ const Manufacturing = () => {
             {getFilteredScripts().map((script) => (
               <div 
                 key={script.id} 
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex flex-col space-y-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="flex flex-col space-y-2 flex-grow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium">
-                        {script.patientFirstName} {script.patientLastName}
-                      </span>
-                      <Badge variant="outline" className="bg-white">
-                        {script.manufacturingSource} - {script.manufacturingType}
-                      </Badge>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-2 flex-grow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <span className="font-medium">
+                          {script.patientFirstName} {script.patientLastName}
+                        </span>
+                        <Badge variant="outline" className="bg-white">
+                          {script.manufacturingSource} - {script.manufacturingType}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                      <div>
+                        <span className="font-medium">Appliance Numbers: </span>
+                        {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
+                      </div>
+                      <div>
+                        <span className="font-medium">Material: </span>
+                        {script.material || 'N/A'}
+                      </div>
+                      <div>
+                        <span className="font-medium">Shade: </span>
+                        {script.shade || 'N/A'}
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                    <div>
-                      <span className="font-medium">Appliance Numbers: </span>
-                      {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
-                    </div>
-                    <div>
-                      <span className="font-medium">Material: </span>
-                      {script.material || 'N/A'}
-                    </div>
-                    <div>
-                      <span className="font-medium">Shade: </span>
-                      {script.shade || 'N/A'}
-                    </div>
-                  </div>
-                  <div className="text-sm">
-                    <ManufacturingStatus 
+                </div>
+
+                {script.manufacturingSource === 'Inhouse' && (
+                  <div className="border-t pt-4">
+                    <ManufacturingSteps
+                      scriptId={script.id}
+                      manufacturingStatus={script.manufacturing_logs?.manufacturing_status || 'pending'}
+                      sinteringStatus={script.manufacturing_logs?.sintering_status || 'pending'}
+                      miyoStatus={script.manufacturing_logs?.miyo_status || 'pending'}
+                      inspectionStatus={script.manufacturing_logs?.inspection_status || 'pending'}
                       manufacturingType={script.manufacturingType}
-                      manufacturingLogs={script.manufacturing_logs?.[0] || {
-                        manufacturing_status: 'pending',
-                        sintering_status: 'pending',
-                        miyo_status: 'pending',
-                        inspection_status: 'pending'
-                      }}
                     />
                   </div>
+                )}
+
+                <div className="text-sm">
+                  <ManufacturingStatus 
+                    manufacturingType={script.manufacturingType}
+                    manufacturingLogs={script.manufacturing_logs || {
+                      manufacturing_status: 'pending',
+                      sintering_status: 'pending',
+                      miyo_status: 'pending',
+                      inspection_status: 'pending'
+                    }}
+                  />
                 </div>
               </div>
             ))}
