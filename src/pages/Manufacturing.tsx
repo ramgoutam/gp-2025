@@ -1,14 +1,12 @@
-import { Printer, CircuitBoard, Factory, Cog } from "lucide-react";
+import { useState } from "react";
+import { Printer, Grid, Factory, Settings } from "lucide-react";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ManufacturingStage } from "@/components/patient/tabs/manufacturing/stages/ManufacturingStage";
-import { SinteringStage } from "@/components/patient/tabs/manufacturing/stages/SinteringStage";
-import { MiyoStage } from "@/components/patient/tabs/manufacturing/stages/MiyoStage";
-import { InspectionStage } from "@/components/patient/tabs/manufacturing/stages/InspectionStage";
-import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -22,6 +20,7 @@ const Manufacturing = () => {
     },
     scripts: []
   }} = useManufacturingData();
+  const { toast } = useToast();
 
   const handleCardClick = (filter: string | null) => {
     setActiveFilter(filter === activeFilter ? null : filter);
@@ -43,7 +42,7 @@ const Manufacturing = () => {
     {
       title: "Inhouse Milling",
       count: manufacturingData.counts.inhouseMilling,
-      icon: CircuitBoard,
+      icon: Grid,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       progressColor: "bg-purple-500",
@@ -67,7 +66,7 @@ const Manufacturing = () => {
     {
       title: "Outsource Milling",
       count: manufacturingData.counts.outsourceMilling,
-      icon: Cog,
+      icon: Settings,
       color: "text-green-600",
       bgColor: "bg-green-50",
       progressColor: "bg-green-500",
@@ -81,6 +80,33 @@ const Manufacturing = () => {
   const getFilteredScripts = () => {
     if (!activeFilter) return manufacturingData.scripts;
     return cards.find(card => card.filter === activeFilter)?.scripts || [];
+  };
+
+  const handleManufacturingAction = async (scriptId: string, action: 'complete' | 'hold') => {
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({ 
+          manufacturing_status: action === 'complete' ? 'completed' : 'hold',
+          manufacturing_completed_at: action === 'complete' ? new Date().toISOString() : null,
+          manufacturing_hold_at: action === 'hold' ? new Date().toISOString() : null
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      toast({
+        title: action === 'complete' ? "Manufacturing Completed" : "Manufacturing On Hold",
+        description: `The manufacturing process has been ${action === 'complete' ? 'completed' : 'put on hold'}.`
+      });
+    } catch (error) {
+      console.error('Error updating manufacturing status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update manufacturing status",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -104,86 +130,48 @@ const Manufacturing = () => {
             {getFilteredScripts().map((script) => (
               <Card 
                 key={script.id} 
-                className="p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group bg-gradient-to-br from-white to-purple-50/30 animate-fade-in"
+                className="p-6 hover:shadow-lg transition-all duration-300"
               >
-                <div className="space-y-6">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-semibold">{script.applianceType || "N/A"}</span>
-                          <span className="text-sm text-gray-500">|</span>
-                          <span className="text-sm text-gray-600">Upper: {script.upperDesignName || "Not specified"}</span>
-                          <span className="text-sm text-gray-500">|</span>
-                          <span className="text-sm text-gray-600">Lower: {script.lowerDesignName || "Not specified"}</span>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
-                        <div className="flex items-center space-x-2">
-                          <span>Patient: {script.patientFirstName} {script.patientLastName}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span>Doctor: {script.doctorName}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span>Material: {script.material || 'N/A'}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span>Shade: {script.shade || 'N/A'}</span>
-                        </div>
-                      </div>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {script.applianceType} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">Manufacturing Source</p>
+                      <p className="font-medium">{script.manufacturingSource}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Manufacturing Type</p>
+                      <p className="font-medium">{script.manufacturingType}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Material</p>
+                      <p className="font-medium">{script.material || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Shade</p>
+                      <p className="font-medium">{script.shade || 'N/A'}</p>
                     </div>
                   </div>
-
-                  {script.manufacturingSource === 'Inhouse' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
-                      <div>
-                        <h3 className="text-sm font-medium mb-2">Manufacturing</h3>
-                        <ManufacturingStage
-                          scriptId={script.id}
-                          status={script.manufacturing_logs?.manufacturing_status || 'pending'}
-                          onStart={() => {}}
-                          onComplete={() => {}}
-                          onHold={() => {}}
-                          onResume={() => {}}
-                          manufacturingType={script.manufacturingType}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium mb-2">Sintering</h3>
-                        <SinteringStage
-                          scriptId={script.id}
-                          status={script.manufacturing_logs?.sintering_status || 'pending'}
-                          onStart={() => {}}
-                          onComplete={() => {}}
-                          onHold={() => {}}
-                          onResume={() => {}}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium mb-2">MIYO</h3>
-                        <MiyoStage
-                          scriptId={script.id}
-                          status={script.manufacturing_logs?.miyo_status || 'pending'}
-                          onStart={() => {}}
-                          onComplete={() => {}}
-                          onHold={() => {}}
-                          onResume={() => {}}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium mb-2">Inspection</h3>
-                        <InspectionStage
-                          scriptId={script.id}
-                          status={script.manufacturing_logs?.inspection_status || 'pending'}
-                          onStart={() => {}}
-                          onComplete={() => {}}
-                          onHold={() => {}}
-                          onResume={() => {}}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      className="text-green-600 border-green-200 hover:bg-green-50"
+                      onClick={() => handleManufacturingAction(script.id, 'complete')}
+                    >
+                      Complete Printing
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                      onClick={() => handleManufacturingAction(script.id, 'hold')}
+                    >
+                      Hold Printing
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}
