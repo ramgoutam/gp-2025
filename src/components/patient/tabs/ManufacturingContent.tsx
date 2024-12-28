@@ -14,6 +14,7 @@ interface ManufacturingContentProps {
 
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
+  const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -40,9 +41,14 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
-  const handleSinteringClick = (scriptId: string) => {
+  const handleStartSintering = (scriptId: string) => {
     console.log('Starting sintering process for script:', scriptId);
-    // Add sintering logic here
+    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
+  const handleCompleteSintering = (scriptId: string) => {
+    console.log('Completing sintering process for script:', scriptId);
+    setSinteringStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
   if (manufacturingScripts.length === 0) {
@@ -91,13 +97,22 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                         Complete {script.manufacturingType}
                       </Button>
                     )}
-                    {manufacturingStatus[script.id] === 'completed' && (
+                    {manufacturingStatus[script.id] === 'completed' && !sinteringStatus[script.id] && (
                       <Button 
                         className="bg-primary hover:bg-primary/90"
-                        onClick={() => handleSinteringClick(script.id)}
+                        onClick={() => handleStartSintering(script.id)}
                       >
                         <Play className="w-4 h-4 mr-2" />
                         Start Sintering
+                      </Button>
+                    )}
+                    {sinteringStatus[script.id] === 'in_progress' && (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleCompleteSintering(script.id)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Complete Sintering
                       </Button>
                     )}
                   </div>
