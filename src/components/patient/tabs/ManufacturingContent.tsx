@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, CheckCircle } from "lucide-react";
+import { Factory, Play, CheckCircle, Pause, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ManufacturingContentProps {
@@ -92,55 +92,61 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                   <div className="flex gap-2">
                     {!manufacturingStatus[script.id] && (
                       <Button 
-                        className="bg-blue-600 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleStartClick(script.id)}
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
                         {getButtonText(script.manufacturingType || '')}
                       </Button>
                     )}
                     {manufacturingStatus[script.id] === 'in_progress' && (
                       <Button 
-                        className="bg-green-600 hover:bg-green-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleCompleteManufacturing(script.id)}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
                         Complete {script.manufacturingType}
                       </Button>
                     )}
                     {manufacturingStatus[script.id] === 'completed' && !sinteringStatus[script.id] && (
                       <Button 
-                        className="bg-purple-600 hover:bg-purple-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleStartSintering(script.id)}
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
                         Start Sintering
                       </Button>
                     )}
                     {sinteringStatus[script.id] === 'in_progress' && (
                       <Button 
-                        className="bg-purple-600 hover:bg-purple-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleCompleteSintering(script.id)}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
                         Complete Sintering
                       </Button>
                     )}
                     {sinteringStatus[script.id] === 'completed' && !miyoStatus[script.id] && (
                       <Button 
-                        className="bg-orange-500 hover:bg-orange-600 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleStartMiyo(script.id)}
                       >
-                        <Play className="w-4 h-4 mr-2" />
+                        <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
                         Start Miyo
                       </Button>
                     )}
                     {miyoStatus[script.id] === 'in_progress' && (
                       <Button 
-                        className="bg-orange-500 hover:bg-orange-600 transform hover:scale-105 transition-all duration-300 shadow-md"
+                        variant="outline"
+                        className="border-orange-200 text-orange-500 hover:bg-orange-50 hover:border-orange-300 transform hover:scale-105 transition-all duration-300 group"
                         onClick={() => handleCompleteMiyo(script.id)}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
                         Complete Miyo
                       </Button>
                     )}
