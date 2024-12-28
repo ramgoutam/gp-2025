@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play, CheckCircle, Pause, StopCircle } from "lucide-react";
+import { Factory, Play, CheckCircle, Search, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -16,21 +17,12 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
+  const [inspectionStatus, setInspectionStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'rejected' | 'approved' }>({});
+  const { toast } = useToast();
   
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
-
-  const getButtonText = (manufacturingType: string) => {
-    switch (manufacturingType) {
-      case 'Milling':
-        return 'Start Milling';
-      case 'Printing':
-        return 'Start Printing';
-      default:
-        return 'Start';
-    }
-  };
 
   const handleStartClick = (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
@@ -60,6 +52,35 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const handleCompleteMiyo = (scriptId: string) => {
     console.log('Completing Miyo process for script:', scriptId);
     setMiyoStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
+    toast({
+      title: "Miyo Process Completed",
+      description: "You can now start the inspection process",
+    });
+  };
+
+  const handleStartInspection = (scriptId: string) => {
+    console.log('Starting inspection process for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
+  const handleRejectInspection = (scriptId: string) => {
+    console.log('Rejecting inspection for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'rejected' }));
+    toast({
+      title: "Inspection Rejected",
+      description: "The appliance needs to be revised",
+      variant: "destructive"
+    });
+  };
+
+  const handleApproveInspection = (scriptId: string) => {
+    console.log('Approving inspection for script:', scriptId);
+    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'approved' }));
+    toast({
+      title: "Inspection Approved",
+      description: "The appliance is ready to insert",
+      variant: "success"
+    });
   };
 
   if (manufacturingScripts.length === 0) {
@@ -97,7 +118,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                         onClick={() => handleStartClick(script.id)}
                       >
                         <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-                        {getButtonText(script.manufacturingType || '')}
+                        Start {script.manufacturingType}
                       </Button>
                     )}
                     {manufacturingStatus[script.id] === 'in_progress' && (
@@ -149,6 +170,46 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                         <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
                         Complete Miyo
                       </Button>
+                    )}
+                    {miyoStatus[script.id] === 'completed' && !inspectionStatus[script.id] && (
+                      <Button 
+                        variant="outline"
+                        className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transform hover:scale-105 transition-all duration-300 group"
+                        onClick={() => handleStartInspection(script.id)}
+                      >
+                        <Search className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
+                        Start Inspection
+                      </Button>
+                    )}
+                    {inspectionStatus[script.id] === 'in_progress' && (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transform hover:scale-105 transition-all duration-300 group"
+                          onClick={() => handleRejectInspection(script.id)}
+                        >
+                          <ThumbsDown className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
+                          Rejected
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transform hover:scale-105 transition-all duration-300 group"
+                          onClick={() => handleApproveInspection(script.id)}
+                        >
+                          <ThumbsUp className="w-4 h-4 mr-2 group-hover:rotate-12 transition-all duration-300" />
+                          Approved
+                        </Button>
+                      </div>
+                    )}
+                    {inspectionStatus[script.id] === 'approved' && (
+                      <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200 animate-fade-in">
+                        Ready to Insert
+                      </div>
+                    )}
+                    {inspectionStatus[script.id] === 'rejected' && (
+                      <div className="px-4 py-2 bg-red-50 text-red-700 rounded-md border border-red-200 animate-fade-in">
+                        Inspection Failed
+                      </div>
                     )}
                   </div>
                 )}
