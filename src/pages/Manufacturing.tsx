@@ -25,20 +25,86 @@ const Manufacturing = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'Ready for Insert':
         return 'bg-green-100 text-green-800';
+      case 'Appliance rejected':
+        return 'bg-red-100 text-red-800';
+      case 'Pending':
+        return 'bg-gray-100 text-gray-800';
       case 'in_progress':
+      case 'Milling/Printing in progress':
+      case 'Sintering in progress':
+      case 'MIYO in Progress':
+      case 'Inspection in process':
         return 'bg-blue-100 text-blue-800';
-      case 'on_hold':
+      case 'Milling/Printing is in Hold':
+      case 'Sintering is in Hold':
+      case 'MIYO is in Hold':
         return 'bg-yellow-100 text-yellow-800';
+      case 'Ready for Sintering':
+      case 'Ready for MIYO':
+      case 'Ready for Inspection':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatStatus = (status: string | undefined) => {
-    if (!status) return 'Pending';
-    return status.charAt(0).toUpperCase() + status.slice(1);
+  const getDetailedStatus = (script: any) => {
+    const manufacturingType = script.manufacturingType === 'Milling' ? 'Milling' : 'Printing';
+    
+    if (!script.manufacturingStatus || script.manufacturingStatus === 'pending') {
+      return 'Pending';
+    }
+
+    // Manufacturing Phase
+    if (script.manufacturingStatus === 'in_progress') {
+      return `${manufacturingType} in progress`;
+    }
+    if (script.manufacturingStatus === 'on_hold') {
+      return `${manufacturingType} is in Hold`;
+    }
+    if (script.manufacturingStatus === 'completed') {
+      // Check Sintering Phase
+      if (script.sinteringStatus === 'pending') {
+        return 'Ready for Sintering';
+      }
+      if (script.sinteringStatus === 'in_progress') {
+        return 'Sintering in progress';
+      }
+      if (script.sinteringStatus === 'on_hold') {
+        return 'Sintering is in Hold';
+      }
+      if (script.sinteringStatus === 'completed') {
+        // Check MIYO Phase
+        if (script.miyoStatus === 'pending') {
+          return 'Ready for MIYO';
+        }
+        if (script.miyoStatus === 'in_progress') {
+          return 'MIYO in Progress';
+        }
+        if (script.miyoStatus === 'on_hold') {
+          return 'MIYO is in Hold';
+        }
+        if (script.miyoStatus === 'completed') {
+          // Check Inspection Phase
+          if (script.inspectionStatus === 'pending') {
+            return 'Ready for Inspection';
+          }
+          if (script.inspectionStatus === 'in_progress') {
+            return 'Inspection in process';
+          }
+          if (script.inspectionStatus === 'completed') {
+            return 'Ready for Insert';
+          }
+          if (script.inspectionStatus === 'on_hold') {
+            return 'Appliance rejected';
+          }
+        }
+      }
+    }
+
+    return 'Pending';
   };
 
   const cards = [
@@ -146,8 +212,8 @@ const Manufacturing = () => {
                     </div>
                   </div>
                   <div className="text-sm">
-                    <Badge className={getStatusColor(script.manufacturingStatus || 'pending')}>
-                      {formatStatus(script.manufacturingStatus)}
+                    <Badge className={getStatusColor(getDetailedStatus(script))}>
+                      {getDetailedStatus(script)}
                     </Badge>
                   </div>
                 </div>
