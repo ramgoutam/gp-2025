@@ -43,6 +43,13 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 <h3 className="font-semibold">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
+                <Button 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Start
+                </Button>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -62,16 +69,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                   <p className="text-gray-500">Shade</p>
                   <p className="font-medium">{script.shade || 'N/A'}</p>
                 </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => console.log('Starting manufacturing process for script:', script.id)}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Start
-                </Button>
               </div>
             </div>
           </Card>
