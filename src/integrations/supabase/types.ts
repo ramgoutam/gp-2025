@@ -373,6 +373,44 @@ export type Database = {
           },
         ]
       }
+      manufacturing_logs: {
+        Row: {
+          created_at: string
+          id: string
+          lab_script_id: string
+          notes: string | null
+          status: string
+          step_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lab_script_id: string
+          notes?: string | null
+          status: string
+          step_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lab_script_id?: string
+          notes?: string | null
+          status?: string
+          step_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturing_logs_lab_script_id_fkey"
+            columns: ["lab_script_id"]
+            isOneToOne: false
+            referencedRelation: "lab_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address: string | null
