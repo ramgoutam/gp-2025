@@ -156,20 +156,14 @@ export const InspectionStage = ({
   if (status === 'on_hold') {
     return (
       <div className="space-y-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleResume}
-          className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
-        >
-          <PlayCircle className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-          Resume Inspection
-        </Button>
-        {savedHoldReason && (
-          <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">
-            Rejected: {savedHoldReason}
-          </div>
-        )}
+        <div className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-md border border-red-200">
+          Appliance Inspection Failed
+          {savedHoldReason && (
+            <div className="mt-1 text-sm text-red-600">
+              Reason: {savedHoldReason}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
