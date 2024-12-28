@@ -79,13 +79,13 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
 
   return (
     <Card key={script.id} className="p-4">
-      <div className="flex justify-between items-start">
-        <h3 className="font-semibold">
+      <div className="flex justify-between items-center space-x-4">
+        <h3 className="font-semibold flex-1">
           {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
         </h3>
-        <div className="w-64">
+        <div className="flex flex-col items-end space-y-1">
           <ProgressBar steps={steps} />
-          <div className="flex gap-2 mt-2 justify-end">
+          <div className="flex gap-2 mt-1">
             {steps.map((step, index) => {
               const stepKey = step.label.toLowerCase().split('/')[0];
               if (step.status === "current") {
@@ -94,7 +94,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                     key={stepKey}
                     size="sm"
                     variant="outline"
-                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in"
+                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in h-7 px-2"
                     onClick={() => handleStepComplete(stepKey)}
                   >
                     {completedSteps.includes(stepKey) ? (
@@ -112,7 +112,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4 text-sm mt-3">
+      <div className="grid grid-cols-2 gap-4 text-sm mt-2">
         <div>
           <p className="text-gray-500">Manufacturing Source</p>
           <p className="font-medium">{script.manufacturingSource}</p>
