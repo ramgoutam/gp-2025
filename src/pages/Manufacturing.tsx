@@ -8,6 +8,7 @@ import { ManufacturingStage } from "@/components/patient/tabs/manufacturing/stag
 import { SinteringStage } from "@/components/patient/tabs/manufacturing/stages/SinteringStage";
 import { MiyoStage } from "@/components/patient/tabs/manufacturing/stages/MiyoStage";
 import { InspectionStage } from "@/components/patient/tabs/manufacturing/stages/InspectionStage";
+import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
