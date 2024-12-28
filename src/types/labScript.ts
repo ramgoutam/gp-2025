@@ -68,11 +68,7 @@ export interface LabScript {
   manufacturingType?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;
-  manufacturingStep1Status?: string;
-  manufacturingStep2Status?: string;
-  manufacturingStep3Status?: string;
-  manufacturingCompleted?: boolean;
+  designInfoStatus?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {
@@ -98,10 +94,6 @@ export interface DatabaseLabScript {
   manufacturing_type?: string;
   material?: string;
   shade?: string;
-  manufacturing_step_1_status?: string;
-  manufacturing_step_2_status?: string;
-  manufacturing_step_3_status?: string;
-  manufacturing_completed?: boolean;
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -126,10 +118,6 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     manufacturingType: dbScript.manufacturing_type,
     material: dbScript.material,
     shade: dbScript.shade,
-    manufacturingStep1Status: dbScript.manufacturing_step_1_status,
-    manufacturingStep2Status: dbScript.manufacturing_step_2_status,
-    manufacturingStep3Status: dbScript.manufacturing_step_3_status,
-    manufacturingCompleted: dbScript.manufacturing_completed,
   };
 };
 
@@ -155,9 +143,5 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     manufacturing_type: script.manufacturingType,
     material: script.material,
     shade: script.shade,
-    manufacturing_step_1_status: script.manufacturingStep1Status,
-    manufacturing_step_2_status: script.manufacturingStep2Status,
-    manufacturing_step_3_status: script.manufacturingStep3Status,
-    manufacturing_completed: script.manufacturingCompleted,
   };
 };
