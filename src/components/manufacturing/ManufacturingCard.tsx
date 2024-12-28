@@ -3,8 +3,7 @@ import { useSpring, animated } from "@react-spring/web";
 import { LucideIcon } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ManufacturingCardProps {
   title: string;
@@ -16,7 +15,6 @@ interface ManufacturingCardProps {
   scripts: LabScript[];
   isActive?: boolean;
   onClick?: () => void;
-  onStart?: () => void;
 }
 
 const AnimatedNumber = ({ number }: { number: number }) => {
@@ -39,8 +37,7 @@ export const ManufacturingCard = ({
   progressColor,
   scripts,
   isActive = false,
-  onClick,
-  onStart
+  onClick
 }: ManufacturingCardProps) => {
   const width = useSpring({
     from: { width: '0%' },
@@ -48,6 +45,33 @@ export const ManufacturingCard = ({
     delay: 300,
     config: { tension: 60, friction: 15 }
   });
+
+  // Get the first script to check its status
+  const firstScript = scripts[0];
+  
+  const getStatusBadge = () => {
+    if (!firstScript) return null;
+
+    if (firstScript.status !== 'completed') {
+      return (
+        <Badge 
+          variant="outline" 
+          className="bg-yellow-100 text-yellow-800 border-yellow-200"
+        >
+          Design Pending
+        </Badge>
+      );
+    }
+
+    return (
+      <Badge 
+        variant="outline" 
+        className="bg-blue-100 text-blue-800 border-blue-200"
+      >
+        Design-Info Pending
+      </Badge>
+    );
+  };
 
   return (
     <Card 
@@ -61,23 +85,19 @@ export const ManufacturingCard = ({
         <div className={`${bgColor} w-12 h-12 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
           <Icon className={`w-6 h-6 ${color}`} />
         </div>
-        <Button 
-          className="bg-primary hover:bg-primary/90"
-          onClick={(e) => {
-            e.stopPropagation();
-            onStart?.();
-          }}
-        >
-          <Play className="w-4 h-4 mr-2" />
-          Start
-        </Button>
+        <div className="text-right">
+          <p className="text-3xl font-bold text-gray-900">
+            <AnimatedNumber number={count} />
+          </p>
+        </div>
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-2 pb-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500 font-medium">
             {title}
           </p>
+          {getStatusBadge()}
         </div>
         <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100">
           <animated.div
@@ -85,9 +105,6 @@ export const ManufacturingCard = ({
             style={width}
           />
         </div>
-        <p className="text-3xl font-bold text-gray-900 mt-2">
-          <AnimatedNumber number={count} />
-        </p>
       </div>
     </Card>
   );
