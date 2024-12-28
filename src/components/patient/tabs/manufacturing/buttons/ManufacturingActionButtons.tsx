@@ -23,6 +23,8 @@ export const ManufacturingActionButtons = ({
   onHoldManufacturing,
   onResumeManufacturing,
 }: ManufacturingActionButtonsProps) => {
+  const processType = manufacturingType.toLowerCase() === 'milling' ? 'Milling' : 'Printing';
+
   if (!manufacturingStatus[scriptId] && currentManufacturingStatus !== 'on_hold') {
     return (
       <Button 
@@ -31,7 +33,7 @@ export const ManufacturingActionButtons = ({
         onClick={() => onStartManufacturing(scriptId)}
       >
         <Play className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-        Start {manufacturingType}
+        Start {processType}
       </Button>
     );
   }
@@ -44,7 +46,7 @@ export const ManufacturingActionButtons = ({
         onClick={onResumeManufacturing}
       >
         <PlayCircle className="w-4 h-4 mr-2 group-hover:rotate-[360deg] transition-all duration-500" />
-        Resume {manufacturingType}
+        Resume {processType}
       </Button>
     );
   }
@@ -58,7 +60,7 @@ export const ManufacturingActionButtons = ({
           onClick={() => onCompleteManufacturing(scriptId)}
         >
           <CheckCircle className="w-4 h-4 mr-2 group-hover:scale-110 transition-all duration-300" />
-          Complete {manufacturingType}
+          Complete {processType}
         </Button>
         <Button
           variant="outline"
