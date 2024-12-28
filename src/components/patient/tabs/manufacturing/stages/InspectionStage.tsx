@@ -115,10 +115,10 @@ export const InspectionStage = ({
             variant="outline"
             size="sm"
             onClick={handleComplete}
-            className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
+            className={`${buttonClass} hover:bg-emerald-50 text-emerald-600 border-emerald-200 group`}
           >
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-            Complete Inspection
+            Approve
           </Button>
           <Button
             variant="outline"
