@@ -30,10 +30,10 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
   if (manufacturingScripts.length === 0) {
     return (
-      <Card className="p-6 text-center">
-        <div className="flex flex-col items-center gap-4">
-          <Factory className="w-12 h-12 text-gray-400" />
-          <div className="space-y-2">
+      <Card className="p-4">
+        <div className="flex flex-col items-center gap-3">
+          <Factory className="w-10 h-10 text-gray-400" />
+          <div className="space-y-1">
             <h3 className="font-semibold text-gray-900">No Manufacturing Data</h3>
             <p className="text-sm text-gray-500">
               There are no lab scripts with manufacturing information for {patientData.firstName} {patientData.lastName}.
@@ -45,13 +45,13 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6">
+    <div className="space-y-4">
+      <div className="grid gap-4">
         {manufacturingScripts.map((script) => (
-          <Card key={script.id} className="p-6">
-            <div className="space-y-4">
+          <Card key={script.id} className="p-4">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">
+                <h3 className="font-semibold text-sm">
                   {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
                 </h3>
                 {script.manufacturingSource === 'Inhouse' && (
@@ -65,21 +65,21 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 )}
               </div>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-gray-500">Manufacturing Source</p>
+                  <p className="text-gray-500 text-xs">Manufacturing Source</p>
                   <p className="font-medium">{script.manufacturingSource}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Manufacturing Type</p>
+                  <p className="text-gray-500 text-xs">Manufacturing Type</p>
                   <p className="font-medium">{script.manufacturingType}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Material</p>
+                  <p className="text-gray-500 text-xs">Material</p>
                   <p className="font-medium">{script.material || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Shade</p>
+                  <p className="text-gray-500 text-xs">Shade</p>
                   <p className="font-medium">{script.shade || 'N/A'}</p>
                 </div>
               </div>
