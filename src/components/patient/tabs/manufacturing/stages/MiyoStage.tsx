@@ -21,10 +21,12 @@ export const MiyoStage = ({
 }: MiyoStageProps) => {
   const [holdReason, setHoldReason] = useState("");
   const [showReasonInput, setShowReasonInput] = useState(false);
+  const [savedHoldReason, setSavedHoldReason] = useState("");
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const handleHold = () => {
     if (holdReason.trim()) {
+      setSavedHoldReason(holdReason);
       onHold();
       setShowReasonInput(false);
       setHoldReason("");
@@ -103,9 +105,9 @@ export const MiyoStage = ({
           <Resume className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
           Resume Miyo
         </Button>
-        {holdReason && (
+        {savedHoldReason && (
           <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">
-            On hold: {holdReason}
+            On hold: {savedHoldReason}
           </div>
         )}
       </div>
