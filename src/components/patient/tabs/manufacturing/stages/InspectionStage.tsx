@@ -50,6 +50,62 @@ export const InspectionStage = ({
     }
   };
 
+  const handleApproveInspection = async () => {
+    try {
+      console.log("Approving inspection for script:", scriptId);
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          inspection_status: 'approved',
+          inspection_completed_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      onApprove();
+      toast({
+        title: "Inspection Approved",
+        description: "The appliance has passed inspection.",
+      });
+    } catch (error) {
+      console.error("Error approving inspection:", error);
+      toast({
+        title: "Error",
+        description: "Failed to approve inspection. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRejectInspection = async () => {
+    try {
+      console.log("Rejecting inspection for script:", scriptId);
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          inspection_status: 'rejected',
+          inspection_completed_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      onReject();
+      toast({
+        title: "Inspection Rejected",
+        description: "The appliance has failed inspection.",
+      });
+    } catch (error) {
+      console.error("Error rejecting inspection:", error);
+      toast({
+        title: "Error",
+        description: "Failed to reject inspection. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (status === 'pending') {
     return (
       <Button
@@ -70,7 +126,7 @@ export const InspectionStage = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={onApprove}
+          onClick={handleApproveInspection}
           className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
         >
           <ThumbsUp className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
@@ -79,7 +135,7 @@ export const InspectionStage = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={onReject}
+          onClick={handleRejectInspection}
           className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
         >
           <ThumbsDown className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
