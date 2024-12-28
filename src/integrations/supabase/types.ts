@@ -377,79 +377,22 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          inspection_ended_at: string | null
-          inspection_notes: string | null
-          inspection_started_at: string | null
-          inspection_status: string | null
           lab_script_id: string
-          manufacturing_ended_at: string | null
-          manufacturing_notes: string | null
-          manufacturing_started_at: string | null
-          manufacturing_status: string | null
-          milling_ended_at: string | null
-          milling_notes: string | null
-          milling_started_at: string | null
-          milling_status: string | null
-          miyo_ended_at: string | null
-          miyo_notes: string | null
-          miyo_started_at: string | null
-          miyo_status: string | null
-          sintering_ended_at: string | null
-          sintering_notes: string | null
-          sintering_started_at: string | null
-          sintering_status: string | null
+          manufacturing_steps: Json
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
-          inspection_ended_at?: string | null
-          inspection_notes?: string | null
-          inspection_started_at?: string | null
-          inspection_status?: string | null
           lab_script_id: string
-          manufacturing_ended_at?: string | null
-          manufacturing_notes?: string | null
-          manufacturing_started_at?: string | null
-          manufacturing_status?: string | null
-          milling_ended_at?: string | null
-          milling_notes?: string | null
-          milling_started_at?: string | null
-          milling_status?: string | null
-          miyo_ended_at?: string | null
-          miyo_notes?: string | null
-          miyo_started_at?: string | null
-          miyo_status?: string | null
-          sintering_ended_at?: string | null
-          sintering_notes?: string | null
-          sintering_started_at?: string | null
-          sintering_status?: string | null
+          manufacturing_steps?: Json
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
-          inspection_ended_at?: string | null
-          inspection_notes?: string | null
-          inspection_started_at?: string | null
-          inspection_status?: string | null
           lab_script_id?: string
-          manufacturing_ended_at?: string | null
-          manufacturing_notes?: string | null
-          manufacturing_started_at?: string | null
-          manufacturing_status?: string | null
-          milling_ended_at?: string | null
-          milling_notes?: string | null
-          milling_started_at?: string | null
-          milling_status?: string | null
-          miyo_ended_at?: string | null
-          miyo_notes?: string | null
-          miyo_started_at?: string | null
-          miyo_status?: string | null
-          sintering_ended_at?: string | null
-          sintering_notes?: string | null
-          sintering_started_at?: string | null
-          sintering_status?: string | null
+          manufacturing_steps?: Json
           updated_at?: string
         }
         Relationships: [
