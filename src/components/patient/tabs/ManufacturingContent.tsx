@@ -1,8 +1,7 @@
 import React from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
-import { Factory, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Factory } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,36 +87,28 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     }
   };
 
-  const renderManufacturingStep = (script: LabScript, stepNumber: number) => {
-    const stepStatus = script[`manufacturingStep${stepNumber}Status` as keyof LabScript] as string || 'pending';
-    const stepName = getStepName(stepNumber, script);
-
+  const renderManufacturingSteps = (script: LabScript) => {
     return (
-      <div className="flex items-center justify-between border-t pt-3 mt-3">
-        <div className="space-y-1">
-          <p className="text-sm font-medium">{stepName}</p>
-          <Badge className={getStatusBadgeColor(stepStatus)}>
-            {stepStatus.replace('_', ' ')}
-          </Badge>
-        </div>
-        <div className="space-x-2">
-          {stepStatus !== 'completed' && (
-            <>
-              <Button 
-                variant="outline"
-                onClick={() => updateManufacturingStep(script.id, stepNumber, 'in_progress')}
-                disabled={stepStatus === 'in_progress'}
+      <div className="flex items-center gap-4 mt-2">
+        {[1, 2, 3].map((stepNumber) => {
+          const stepStatus = script[`manufacturingStep${stepNumber}Status` as keyof LabScript] as string || 'pending';
+          const stepName = getStepName(stepNumber, script);
+          
+          return (
+            <div key={stepNumber} className="flex items-center gap-2">
+              <span className="text-sm font-medium">{stepName}:</span>
+              <select
+                className="text-sm border rounded px-2 py-1"
+                value={stepStatus}
+                onChange={(e) => updateManufacturingStep(script.id, stepNumber, e.target.value)}
               >
-                Start
-              </Button>
-              <Button 
-                onClick={() => updateManufacturingStep(script.id, stepNumber, 'completed')}
-              >
-                Complete
-              </Button>
-            </>
-          )}
-        </div>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -172,9 +163,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                 </div>
               </div>
 
-              {renderManufacturingStep(script, 1)}
-              {renderManufacturingStep(script, 2)}
-              {renderManufacturingStep(script, 3)}
+              {renderManufacturingSteps(script)}
             </div>
           </Card>
         ))}
