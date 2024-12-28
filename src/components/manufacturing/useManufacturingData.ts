@@ -54,10 +54,9 @@ export const useManufacturingData = () => {
         };
       });
 
-      // Filter scripts that have completed design info
+      // Filter scripts that have manufacturing source and type
       const manufacturingQueue = mappedScripts.filter(s => 
-        s.designInfoStatus === 'completed' && 
-        s.status !== 'completed'
+        s.manufacturingSource && s.manufacturingType
       );
 
       const inhousePrinting = manufacturingQueue.filter(s => 
