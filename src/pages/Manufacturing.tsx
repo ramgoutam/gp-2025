@@ -102,16 +102,34 @@ const Manufacturing = () => {
                 key={script.id} 
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="flex items-center space-x-4">
-                  <Badge variant="outline" className="bg-white">
-                    {script.manufacturingSource} - {script.manufacturingType}
-                  </Badge>
-                  <span className="font-medium">
-                    {script.patientFirstName} {script.patientLastName}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Request #{script.requestNumber}
+                <div className="flex flex-col space-y-2 flex-grow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="font-medium">
+                        {script.patientFirstName} {script.patientLastName}
+                      </span>
+                      <Badge variant="outline" className="bg-white">
+                        {script.manufacturingSource} - {script.manufacturingType}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div>
+                      <span className="font-medium">Appliance Numbers: </span>
+                      {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
+                    </div>
+                    <div>
+                      <span className="font-medium">Material: </span>
+                      {script.material || 'N/A'}
+                    </div>
+                    <div>
+                      <span className="font-medium">Shade: </span>
+                      {script.shade || 'N/A'}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Status: {script.status}
+                  </div>
                 </div>
               </div>
             ))}
