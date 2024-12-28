@@ -22,7 +22,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
   };
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-4">
       {steps.map((step, index) => (
         <div 
           key={step.label} 
@@ -35,7 +35,7 @@ export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps
           <div className="relative">
             {index > 0 && (
               <div
-                className={`w-[2px] h-6 absolute -top-6 left-1/2 -translate-x-1/2 ${
+                className={`w-[2px] h-4 absolute -top-4 left-1/2 -translate-x-1/2 ${
                   step.status === "completed"
                     ? "bg-primary"
                     : "bg-gray-200"

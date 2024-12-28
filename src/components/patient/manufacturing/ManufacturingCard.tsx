@@ -77,8 +77,8 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
 
   return (
     <Card key={script.id} className="p-3">
-      <div className="flex flex-col space-y-4">
-        <div>
+      <div className="flex items-start space-x-4">
+        <div className="flex-1">
           <h3 className="font-semibold text-sm mb-2">
             {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
           </h3>
@@ -102,8 +102,9 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
           </div>
         </div>
         
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col space-y-2">
+        <div className="flex items-start space-x-3">
+          <ProgressBar steps={steps} />
+          <div className="flex flex-col space-y-1">
             {steps.map((step, index) => {
               const stepKey = step.label.toLowerCase().split('/')[0];
               if (step.status === "current") {
@@ -126,9 +127,6 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
               }
               return null;
             })}
-          </div>
-          <div className="ml-6">
-            <ProgressBar steps={steps} />
           </div>
         </div>
       </div>
