@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, CheckCircle, Pause, PlayCircle } from "lucide-react";
+import { Play, CheckCircle, Ban, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -124,16 +124,16 @@ export const InspectionStage = ({
             variant="outline"
             size="sm"
             onClick={() => setShowReasonInput(true)}
-            className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
+            className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
           >
-            <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+            <Ban className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
             Reject Appliance
           </Button>
         </div>
         {showReasonInput && (
           <div className="flex gap-2 items-center">
             <Input
-              placeholder="Enter reason for hold..."
+              placeholder="Enter reason for rejection..."
               value={holdReason}
               onChange={(e) => setHoldReason(e.target.value)}
               className="flex-1"
@@ -143,9 +143,9 @@ export const InspectionStage = ({
               size="sm"
               onClick={handleHold}
               disabled={!holdReason.trim()}
-              className="hover:bg-yellow-50 text-yellow-600 border-yellow-200"
+              className="hover:bg-red-50 text-red-600 border-red-200"
             >
-              Confirm Hold
+              Confirm Rejection
             </Button>
           </div>
         )}
@@ -166,7 +166,7 @@ export const InspectionStage = ({
           Resume Inspection
         </Button>
         {savedHoldReason && (
-          <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">
+          <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-200">
             Rejected: {savedHoldReason}
           </div>
         )}
