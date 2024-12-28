@@ -105,22 +105,22 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
     };
   }, [manufacturingScripts]);
 
-  const handleStartManufacturing = (scriptId: string) => {
+  const handleStartManufacturing = async (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
-  const handleCompleteManufacturing = (scriptId: string) => {
+  const handleCompleteManufacturing = async (scriptId: string) => {
     console.log('Completing manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
-  const handleHoldManufacturing = (scriptId: string) => {
+  const handleHoldManufacturing = async (scriptId: string) => {
     console.log('Holding manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
   };
 
-  const handleResumeManufacturing = (scriptId: string) => {
+  const handleResumeManufacturing = async (scriptId: string) => {
     console.log('Resuming manufacturing process for script:', scriptId);
     setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
