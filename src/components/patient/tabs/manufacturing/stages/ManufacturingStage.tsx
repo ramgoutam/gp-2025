@@ -8,21 +8,21 @@ import { useToast } from "@/hooks/use-toast";
 interface ManufacturingStageProps {
   scriptId: string;
   status: string;
-  manufacturingType: string;
   onStart: () => void;
   onComplete: () => void;
   onHold: () => void;
   onResume: () => void;
+  manufacturingType: string;
 }
 
 export const ManufacturingStage = ({
   scriptId,
   status,
-  manufacturingType,
   onStart,
   onComplete,
   onHold,
-  onResume
+  onResume,
+  manufacturingType
 }: ManufacturingStageProps) => {
   const [holdReason, setHoldReason] = useState("");
   const [showReasonInput, setShowReasonInput] = useState(false);
