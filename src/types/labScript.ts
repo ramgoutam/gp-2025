@@ -68,13 +68,7 @@ export interface LabScript {
   manufacturingType?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;
-  manufacturing_logs?: {
-    manufacturing_status: string;
-    sintering_status: string;
-    miyo_status: string;
-    inspection_status: string;
-  };
+  designInfoStatus?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {
