@@ -15,6 +15,14 @@ interface ManufacturingContentProps {
   };
 }
 
+// Define types for the manufacturing log payload
+interface ManufacturingLogPayload {
+  lab_script_id: string;
+  manufacturing_status: string;
+  sintering_status: string;
+  miyo_status: string;
+}
+
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: string }>({});
   const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: string }>({});
@@ -73,17 +81,18 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           const { new: newData } = payload;
           
           if (newData) {
+            const data = newData as ManufacturingLogPayload;
             setManufacturingStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.manufacturing_status
+              [data.lab_script_id]: data.manufacturing_status
             }));
             setSinteringStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.sintering_status
+              [data.lab_script_id]: data.sintering_status
             }));
             setMiyoStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.miyo_status
+              [data.lab_script_id]: data.miyo_status
             }));
           }
         }
