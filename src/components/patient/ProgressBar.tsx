@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import React from "react";
 
 interface Step {
   label: string;
@@ -6,80 +6,58 @@ interface Step {
 }
 
 interface ProgressBarProps {
-  steps: Step[];
-  onStepClick?: (index: number) => void;
-  activeStep?: number;
+  steps: readonly Step[];
 }
 
-export const ProgressBar = ({ steps, onStepClick, activeStep }: ProgressBarProps) => {
-  console.log("Progress bar steps:", steps, "Active step:", activeStep);
-
-  const handleStepClick = (index: number, status: Step["status"]) => {
-    // Only allow clicking on completed steps or the current step
-    if (status === "completed" || status === "current") {
-      console.log("Navigating to step:", index);
-      onStepClick?.(index);
-    }
-  };
-
+export const ProgressBar = ({ steps }: ProgressBarProps) => {
   return (
-    <div className="flex items-start w-full">
-      {steps.map((step, index) => (
-        <div 
-          key={step.label} 
-          className="flex-1 relative"
-          onClick={() => handleStepClick(index, step.status)}
-          role="button"
-          tabIndex={0}
-          style={{ cursor: step.status === "upcoming" ? "not-allowed" : "pointer" }}
-        >
-          <div className="flex items-center justify-center">
-            {index > 0 && (
-              <div
-                className={`h-[2px] w-full absolute top-4 -left-[calc(50%-16px)] ${
-                  step.status === "completed"
-                    ? "bg-primary"
-                    : "bg-gray-200"
-                }`}
-              />
-            )}
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 relative z-10 ${
-                step.status === "completed"
-                  ? "bg-primary border-primary text-white"
-                  : step.status === "current"
-                  ? "bg-white border-2 border-primary text-primary"
-                  : "border-2 border-gray-200 bg-white"
-              }`}
-            >
-              {step.status === "completed" ? (
-                <Check className="h-4 w-4 text-white" />
-              ) : (
-                <span
-                  className={`text-sm font-medium ${
-                    step.status === "current"
-                      ? "text-primary"
-                      : "text-gray-400"
-                  }`}
-                >
-                  {index + 1}
+    <div className="flex items-center h-full">
+      <div className="flex flex-col justify-between h-full relative">
+        {steps.map((step, index) => {
+          const isCompleted = step.status === "completed";
+          const isCurrent = step.status === "current";
+          
+          return (
+            <div key={step.label} className="flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="text-xs font-medium whitespace-nowrap">
+                  {step.label}
                 </span>
+              </div>
+              
+              <div
+                className={`
+                  w-6 h-6 rounded-full flex items-center justify-center
+                  ${isCompleted ? 'bg-primary text-white' : 
+                    isCurrent ? 'border-2 border-primary bg-white' : 
+                    'border-2 border-gray-200 bg-white'}
+                `}
+              >
+                {index + 1}
+              </div>
+              
+              {index < steps.length - 1 && (
+                <div
+                  className="absolute w-[2px] bg-gray-200 h-8"
+                  style={{
+                    left: '5.75rem',
+                    top: `${(index * 3.5) + 1.5}rem`,
+                  }}
+                >
+                  <div
+                    className="h-full bg-primary transition-all duration-500"
+                    style={{
+                      width: '100%',
+                      transform: `scaleY(${isCompleted ? 1 : 0})`,
+                      transformOrigin: 'top',
+                    }}
+                  />
+                </div>
               )}
             </div>
-          </div>
-          <div className="mt-2 text-center">
-            <span
-              className={`text-xs font-medium ${
-                step.status === "completed" || step.status === "current"
-                  ? "text-gray-900"
-                  : "text-gray-400"
-              }`}
-            >
-              {step.label}
-            </span>
-          </div>
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 };
