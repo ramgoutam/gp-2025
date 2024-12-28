@@ -122,7 +122,7 @@ export const InspectionStage = ({
     );
   }
 
-  if (status === 'in_progress') {
+  if (status === 'in_progress' || status === 'in process') {
     console.log("Rendering approve/reject buttons"); // Debug log
     return (
       <div className="flex gap-2 animate-fade-in">
