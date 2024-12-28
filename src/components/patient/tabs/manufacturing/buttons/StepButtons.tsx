@@ -29,8 +29,7 @@ export const StepButtons = ({
           .from('manufacturing_logs')
           .select(`${step}_notes`)
           .eq('lab_script_id', scriptId)
-          .limit(1)
-          .maybeSingle();
+          .single();
 
         if (!error && data) {
           setHoldReason(data[`${step}_notes`] || "");
