@@ -78,7 +78,8 @@ export const useManufacturingData = () => {
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
           clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingStatus: currentStatus
+          manufacturingStatus: currentStatus,
+          manufacturing_logs: script.manufacturing_logs // Add this line to include manufacturing_logs
         };
       });
 
