@@ -365,11 +365,6 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          inspection_completed_at: string | null
-          inspection_hold_at: string | null
-          inspection_hold_reason: string | null
-          inspection_started_at: string | null
-          inspection_status: string | null
           lab_script_id: string
           manufacturing_completed_at: string | null
           manufacturing_hold_at: string | null
@@ -391,11 +386,6 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          inspection_completed_at?: string | null
-          inspection_hold_at?: string | null
-          inspection_hold_reason?: string | null
-          inspection_started_at?: string | null
-          inspection_status?: string | null
           lab_script_id: string
           manufacturing_completed_at?: string | null
           manufacturing_hold_at?: string | null
@@ -417,11 +407,6 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          inspection_completed_at?: string | null
-          inspection_hold_at?: string | null
-          inspection_hold_reason?: string | null
-          inspection_started_at?: string | null
-          inspection_status?: string | null
           lab_script_id?: string
           manufacturing_completed_at?: string | null
           manufacturing_hold_at?: string | null

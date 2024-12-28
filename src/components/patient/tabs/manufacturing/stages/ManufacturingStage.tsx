@@ -83,10 +83,7 @@ export const ManufacturingStage = ({
       // Also update the lab script status
       const { error: labScriptError } = await supabase
         .from('lab_scripts')
-        .update({ 
-          manufacturing_step_1_status: newStatus,
-          manufacturing_completed: newStatus === 'completed'
-        })
+        .update({ status: newStatus === 'completed' ? 'completed' : 'in_progress' })
         .eq('id', scriptId);
 
       if (labScriptError) throw labScriptError;
