@@ -103,8 +103,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
         </div>
         
         <div className="flex items-start space-x-3">
-          <ProgressBar steps={steps} />
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-2">
             {steps.map((step, index) => {
               const stepKey = step.label.toLowerCase().split('/')[0];
               if (step.status === "current") {
@@ -113,13 +112,13 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
                     key={stepKey}
                     size="sm"
                     variant="outline"
-                    className="text-xs transition-all duration-300 hover:scale-105 animate-fade-in h-5 px-2 whitespace-nowrap"
+                    className="bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100 hover:border-primary-300 transition-all duration-300 min-w-[120px] justify-start"
                     onClick={() => handleStepComplete(stepKey)}
                   >
                     {completedSteps.includes(stepKey) ? (
-                      <Check className="w-3 h-3 mr-1 text-green-500" />
+                      <Check className="w-4 h-4 mr-2 text-primary-500" />
                     ) : (
-                      <ArrowRight className="w-3 h-3 mr-1" />
+                      <ArrowRight className="w-4 h-4 mr-2 text-primary-500" />
                     )}
                     Complete {step.label}
                   </Button>
@@ -128,6 +127,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
               return null;
             })}
           </div>
+          <ProgressBar steps={steps} />
         </div>
       </div>
     </Card>
