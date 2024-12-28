@@ -26,7 +26,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: string }>({});
   const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: string }>({});
   const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: string }>({});
-  const [inspectionStatus, setInspectionStatus] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
   
   const manufacturingScripts = labScripts.filter(script => 
@@ -148,7 +147,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                     manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
                     sinteringStatus={sinteringStatus[script.id] || 'pending'}
                     miyoStatus={miyoStatus[script.id] || 'pending'}
-                    inspectionStatus={inspectionStatus[script.id] || 'pending'}
                     onStartManufacturing={handleStartManufacturing}
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
