@@ -17,7 +17,10 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
   const steps = [
-    { label: "Milling/Printing", status: completedSteps.includes("milling") ? "completed" : "current" },
+    { 
+      label: "Milling/Printing", 
+      status: completedSteps.includes("milling") ? "completed" : "current" 
+    },
     { 
       label: "Sintering", 
       status: completedSteps.includes("sintering") 
@@ -34,7 +37,7 @@ export const ManufacturingCard = ({ script, children }: ManufacturingCardProps) 
           ? "current" 
           : "upcoming" 
     }
-  ];
+  ] as const satisfies Step[];
 
   const handleStepComplete = async (stepKey: string) => {
     try {
