@@ -116,13 +116,14 @@ export const InspectionStage = ({
         onClick={handleStartInspection}
         className={`${buttonClass} hover:bg-primary/5 group`}
       >
-        <Search className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
+        <Search className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110 mr-2" />
         Start Inspection
       </Button>
     );
   }
 
   if (status === 'in_progress') {
+    console.log("Rendering approve/reject buttons"); // Debug log
     return (
       <div className="flex gap-2 animate-fade-in">
         <Button
@@ -131,7 +132,7 @@ export const InspectionStage = ({
           onClick={handleApproveInspection}
           className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
         >
-          <ThumbsUp className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+          <ThumbsUp className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
           Pass Inspection
         </Button>
         <Button
@@ -140,7 +141,7 @@ export const InspectionStage = ({
           onClick={handleRejectInspection}
           className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
         >
-          <ThumbsDown className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+          <ThumbsDown className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110" />
           Fail Inspection
         </Button>
       </div>
