@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, CheckCircle, Pause, PlayCircle } from "lucide-react";
+import { CheckCircle, Pause, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { StartButton } from './StartButton';
 
 interface ManufacturingStageProps {
   scriptId: string;
@@ -35,7 +36,6 @@ export const ManufacturingStage = ({
       console.log("Updating manufacturing status:", newStatus, "for script:", scriptId);
       const timestamp = new Date().toISOString();
       
-      // First check if a manufacturing log exists for this script
       const { data: existingLog } = await supabase
         .from('manufacturing_logs')
         .select('*')
@@ -62,7 +62,6 @@ export const ManufacturingStage = ({
           manufacturing_status: newStatus,
         };
 
-        // Add appropriate timestamp based on status
         if (newStatus === 'in_progress') {
           updates.manufacturing_started_at = timestamp;
         } else if (newStatus === 'completed') {
@@ -80,7 +79,6 @@ export const ManufacturingStage = ({
         if (updateError) throw updateError;
       }
 
-      // Also update the lab script status
       const { error: labScriptError } = await supabase
         .from('lab_scripts')
         .update({ status: newStatus === 'completed' ? 'completed' : 'in_progress' })
@@ -130,15 +128,11 @@ export const ManufacturingStage = ({
 
   if (status === 'pending') {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleStart}
-        className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
-      >
-        <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-        Start {manufacturingType}
-      </Button>
+      <StartButton 
+        scriptId={scriptId}
+        onStart={handleStart}
+        manufacturingType={manufacturingType}
+      />
     );
   }
 
