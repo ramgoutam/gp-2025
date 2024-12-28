@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { LabScript } from "@/types/labScript";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
-import { supabase } from "@/integrations/supabase/client";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -16,141 +15,50 @@ interface ManufacturingContentProps {
   };
 }
 
-interface ManufacturingLog {
-  id: string;
-  lab_script_id: string;
-  manufacturing_status: string;
-  sintering_status: string;
-  miyo_status: string;
-  inspection_status: string;
-}
-
-type StatusMap = Record<string, string>;
-
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
-  const [manufacturingStatus, setManufacturingStatus] = useState<StatusMap>({});
-  const [sinteringStatus, setSinteringStatus] = useState<StatusMap>({});
-  const [miyoStatus, setMiyoStatus] = useState<StatusMap>({});
-  const [inspectionStatus, setInspectionStatus] = useState<StatusMap>({});
   const { toast } = useToast();
   
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
   );
 
-  useEffect(() => {
-    const fetchManufacturingLogs = async () => {
-      try {
-        const { data: logs, error } = await supabase
-          .from('manufacturing_logs')
-          .select('*')
-          .in('lab_script_id', manufacturingScripts.map(s => s.id));
-
-        if (error) throw error;
-
-        const newManufacturingStatus: StatusMap = {};
-        const newSinteringStatus: StatusMap = {};
-        const newMiyoStatus: StatusMap = {};
-        const newInspectionStatus: StatusMap = {};
-
-        logs?.forEach(log => {
-          newManufacturingStatus[log.lab_script_id] = log.manufacturing_status;
-          newSinteringStatus[log.lab_script_id] = log.sintering_status;
-          newMiyoStatus[log.lab_script_id] = log.miyo_status;
-          newInspectionStatus[log.lab_script_id] = log.inspection_status;
-        });
-
-        setManufacturingStatus(newManufacturingStatus);
-        setSinteringStatus(newSinteringStatus);
-        setMiyoStatus(newMiyoStatus);
-        setInspectionStatus(newInspectionStatus);
-      } catch (error) {
-        console.error('Error fetching manufacturing logs:', error);
-      }
-    };
-
-    fetchManufacturingLogs();
-
-    const channel = supabase
-      .channel('manufacturing-updates')
-      .on<ManufacturingLog>(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'manufacturing_logs',
-          filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
-        },
-        (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
-          console.log('Real-time update received:', payload);
-          if (payload.new && 'lab_script_id' in payload.new) {
-            const newData = payload.new as ManufacturingLog;
-            
-            setManufacturingStatus(prev => ({
-              ...prev,
-              [newData.lab_script_id]: newData.manufacturing_status
-            }));
-            setSinteringStatus(prev => ({
-              ...prev,
-              [newData.lab_script_id]: newData.sintering_status
-            }));
-            setMiyoStatus(prev => ({
-              ...prev,
-              [newData.lab_script_id]: newData.miyo_status
-            }));
-            setInspectionStatus(prev => ({
-              ...prev,
-              [newData.lab_script_id]: newData.inspection_status
-            }));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      console.log('Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
-    };
-  }, [manufacturingScripts]);
+  const {
+    manufacturingStatus,
+    sinteringStatus,
+    miyoStatus,
+    inspectionStatus,
+  } = useManufacturingLogs(manufacturingScripts);
 
   const handleStartManufacturing = async (scriptId: string) => {
     console.log('Starting manufacturing process for script:', scriptId);
-    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
     console.log('Completing manufacturing process for script:', scriptId);
-    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
   const handleHoldManufacturing = async (scriptId: string) => {
     console.log('Holding manufacturing process for script:', scriptId);
-    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
     console.log('Resuming manufacturing process for script:', scriptId);
-    setManufacturingStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   const handleStartInspection = async (scriptId: string) => {
     console.log('Starting inspection process for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   const handleCompleteInspection = async (scriptId: string) => {
     console.log('Completing inspection process for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
   const handleHoldInspection = async (scriptId: string) => {
     console.log('Holding inspection process for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'on_hold' }));
   };
 
   const handleResumeInspection = async (scriptId: string) => {
     console.log('Resuming inspection process for script:', scriptId);
-    setInspectionStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
   };
 
   if (manufacturingScripts.length === 0) {
