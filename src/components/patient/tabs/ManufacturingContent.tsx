@@ -15,7 +15,7 @@ interface ManufacturingContentProps {
   };
 }
 
-interface ManufacturingLogPayload {
+interface ManufacturingLog {
   lab_script_id: string;
   manufacturing_status: string;
   sintering_status: string;
@@ -77,7 +77,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           table: 'manufacturing_logs',
           filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
         },
-        (payload) => {
+        (payload: { new: ManufacturingLog }) => {
           console.log('Real-time update received:', payload);
           const { new: newData } = payload;
           
