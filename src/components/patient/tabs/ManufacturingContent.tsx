@@ -6,6 +6,7 @@ import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
 import { supabase } from "@/integrations/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -69,7 +70,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
 
     const channel = supabase
       .channel('manufacturing-updates')
-      .on(
+      .on<ManufacturingLog>(
         'postgres_changes',
         {
           event: '*',
@@ -77,7 +78,7 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           table: 'manufacturing_logs',
           filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
         },
-        (payload: { new: ManufacturingLog }) => {
+        (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
           console.log('Real-time update received:', payload);
           const { new: newData } = payload;
           
