@@ -93,15 +93,22 @@ export const MiyoStage = ({
 
   if (status === 'on_hold') {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onResume}
-        className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
-      >
-        <Resume className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-        Resume Miyo
-      </Button>
+      <div className="space-y-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onResume}
+          className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+        >
+          <Resume className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+          Resume Miyo
+        </Button>
+        {holdReason && (
+          <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md border border-yellow-200">
+            On hold: {holdReason}
+          </div>
+        )}
+      </div>
     );
   }
 
