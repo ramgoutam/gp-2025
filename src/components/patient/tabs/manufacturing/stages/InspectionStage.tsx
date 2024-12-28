@@ -106,6 +106,8 @@ export const InspectionStage = ({
     }
   };
 
+  console.log("Current inspection status:", status); // Debug log
+
   if (status === 'pending') {
     return (
       <Button
