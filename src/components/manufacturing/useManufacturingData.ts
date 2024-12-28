@@ -6,8 +6,6 @@ export const useManufacturingData = () => {
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: async () => {
-      console.log('Fetching manufacturing data');
-      
       const { data: scripts, error } = await supabase
         .from('lab_scripts')
         .select(`
@@ -35,11 +33,8 @@ export const useManufacturingData = () => {
         `);
 
       if (error) {
-        console.error("Error fetching manufacturing data:", error);
         throw error;
       }
-
-      console.log("Fetched scripts:", scripts);
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
@@ -59,8 +54,6 @@ export const useManufacturingData = () => {
         s.designInfoStatus === 'completed' && 
         s.status !== 'completed'
       );
-
-      console.log("Manufacturing queue:", manufacturingQueue);
 
       const inhousePrinting = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
