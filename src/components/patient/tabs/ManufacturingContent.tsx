@@ -15,6 +15,7 @@ interface ManufacturingContentProps {
 export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingContentProps) => {
   const [manufacturingStatus, setManufacturingStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   const [sinteringStatus, setSinteringStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
+  const [miyoStatus, setMiyoStatus] = useState<{ [key: string]: 'not_started' | 'in_progress' | 'completed' }>({});
   
   const manufacturingScripts = labScripts.filter(script => 
     script.manufacturingSource && script.manufacturingType
@@ -49,6 +50,16 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   const handleCompleteSintering = (scriptId: string) => {
     console.log('Completing sintering process for script:', scriptId);
     setSinteringStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
+  };
+
+  const handleStartMiyo = (scriptId: string) => {
+    console.log('Starting Miyo process for script:', scriptId);
+    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'in_progress' }));
+  };
+
+  const handleCompleteMiyo = (scriptId: string) => {
+    console.log('Completing Miyo process for script:', scriptId);
+    setMiyoStatus(prev => ({ ...prev, [scriptId]: 'completed' }));
   };
 
   if (manufacturingScripts.length === 0) {
@@ -113,6 +124,24 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Complete Sintering
+                      </Button>
+                    )}
+                    {sinteringStatus[script.id] === 'completed' && !miyoStatus[script.id] && (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleStartMiyo(script.id)}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Start Miyo
+                      </Button>
+                    )}
+                    {miyoStatus[script.id] === 'in_progress' && (
+                      <Button 
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleCompleteMiyo(script.id)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Complete Miyo
                       </Button>
                     )}
                   </div>
