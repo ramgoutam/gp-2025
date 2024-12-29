@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";
 import { CameraPopup } from "./CameraPopup";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface FileUploadFieldProps {
   id: string;
@@ -35,36 +36,38 @@ export const FileUploadField = ({
   };
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <div className="flex items-center gap-2">
-        <Input
-          id={id}
-          name={id}
-          type="file"
-          onChange={handleChange}
-          accept={accept}
-          className="cursor-pointer"
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => setShowCamera(true)}
-        >
-          <Camera className="h-4 w-4" />
-        </Button>
+    <div className="space-y-4 flex flex-col items-center">
+      <div className="relative group">
+        <Avatar className="w-32 h-32 border-4 border-primary/10 group-hover:border-primary/20 transition-all">
+          <AvatarImage src={preview || undefined} alt="Profile preview" />
+          <AvatarFallback className="text-2xl bg-primary/5">
+            {preview ? "..." : "ADD"}
+          </AvatarFallback>
+        </Avatar>
+        
+        <div className="absolute bottom-0 right-0 flex gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="rounded-full shadow-lg"
+            onClick={() => setShowCamera(true)}
+          >
+            <Camera className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       
-      {preview && (
-        <div className="mt-2">
-          <img
-            src={preview}
-            alt="Preview"
-            className="max-w-[200px] rounded-lg border"
-          />
-        </div>
-      )}
+      <Input
+        id={id}
+        name={id}
+        type="file"
+        onChange={handleChange}
+        accept={accept}
+        className="hidden"
+      />
+      
+      {label && <Label htmlFor={id}>{label}</Label>}
 
       <CameraPopup
         open={showCamera}

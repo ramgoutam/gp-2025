@@ -4,9 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface PatientFormProps {
-  onSubmit: (data: any) => Promise<void>; // Updated to accept async function with parameter
+  onSubmit: (data: any) => Promise<void>;
   onClose?: () => void;
   initialData?: {
     id?: string;
@@ -108,7 +109,6 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         profileImageUrl: profileImageUrl,
       };
 
-      // Call onSubmit with the patient data
       await onSubmit(patientData);
 
       toast({
@@ -131,29 +131,41 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     }
   };
 
-  const handleSuggestionClick = (suggestion: MapboxFeature) => {
-    setFormData(prev => ({
-      ...prev,
-      address: suggestion.place_name
-    }));
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PatientFormFields
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleFileChange={handleFileChange}
-        handleAddressChange={handleAddressChange}
-        handleSuggestionClick={handleSuggestionClick}
-        setSex={setSex}
-      />
-      
-      <div className="flex justify-end space-x-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Patient"}
-        </Button>
-      </div>
-    </form>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-2xl font-semibold text-gray-900">
+          {initialData ? "Edit Patient" : "New Patient Registration"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <PatientFormFields
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleFileChange={setProfileImage}
+            handleAddressChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+            handleSuggestionClick={(suggestion: MapboxFeature) => {
+              setFormData(prev => ({
+                ...prev,
+                address: suggestion.place_name
+              }));
+            }}
+            setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
+          />
+          
+          <div className="flex justify-end space-x-2 pt-4 border-t">
+            {onClose && (
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : initialData ? "Update Patient" : "Create Patient"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
