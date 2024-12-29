@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Info, ExternalLink } from "lucide-react";
+import { Info } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 
 interface HoldReasonInfoProps {
@@ -15,21 +15,6 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
 
   const isApprovalHold = script.holdReason.startsWith("Hold for Approval");
   const [reason, comment] = script.holdReason.split(": ");
-
-  const handleOpenDesignWebview = () => {
-    if (isApprovalHold && comment) {
-      try {
-        // Create a URL object to validate and normalize the URL
-        let url = comment;
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = `https://${url}`;
-        }
-        window.open(url, '_blank');
-      } catch (error) {
-        console.error('Error opening URL:', error);
-      }
-    }
-  };
 
   return (
     <>
@@ -55,26 +40,10 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
               <h4 className="font-medium text-sm text-gray-500">Reason</h4>
               <p className="mt-1">{reason}</p>
             </div>
-            {isApprovalHold ? (
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleOpenDesignWebview}
-                    className="flex items-center gap-2"
-                  >
-                    Open URL <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-                <a 
-                  href={comment}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 text-blue-600 hover:text-blue-800 break-all block"
-                >
-                  {comment}
-                </a>
+            {isApprovalHold && comment ? (
+              <div>
+                <h4 className="font-medium text-sm text-gray-500">Additional Comments</h4>
+                <p className="mt-1 text-blue-600 break-all">{comment}</p>
               </div>
             ) : comment ? (
               <div>
