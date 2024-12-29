@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -11,15 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 interface StatusButtonProps {
   script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
-  onDesignInfo?: (script: LabScript) => void;
 }
 
-export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusButtonProps) => {
+export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -42,7 +41,8 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
           return script;
         }
 
-        return data;
+        const validStatus = data.status as LabScriptStatus;
+        return mapDatabaseLabScript({ ...data, status: validStatus });
       } catch (error) {
         console.error("Unexpected error fetching script status:", error);
         return script;
@@ -52,9 +52,10 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
     initialData: script,
   });
 
+  const status = currentScript?.status || script.status;
+
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
-      setIsUpdating(true);
       console.log("Updating status for script:", script.id, "to:", newStatus);
       console.log("Hold reason:", holdReason);
       console.log("Additional info:", additionalInfo);
@@ -95,8 +96,6 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
         description: "Failed to update status",
         variant: "destructive"
       });
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -109,16 +108,30 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
   };
 
   const handleComplete = () => {
+    setShowCompleteDialog(true);
+  };
+
+  const handleCompleteDesignInfo = () => {
     handleStatusChange('completed');
-    if (onDesignInfo) {
-      onDesignInfo(script);
-    }
     setShowCompleteDialog(false);
+    toast({
+      title: "Design Info",
+      description: "Redirecting to complete design information..."
+    });
+  };
+
+  const handleSkipForNow = () => {
+    handleStatusChange('completed');
+    setShowCompleteDialog(false);
+    toast({
+      title: "Lab Script Completed",
+      description: "Lab script has been marked as completed"
+    });
   };
 
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
-  switch (currentScript?.status) {
+  switch (status) {
     case 'pending':
       return (
         <Button
@@ -161,7 +174,7 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
               className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
             >
               <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-              Complete Design Info
+              Complete
             </Button>
 
             <HoldReasonDialog
@@ -171,6 +184,30 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
               selectedReason={selectedReason}
               onReasonChange={setSelectedReason}
             />
+
+            <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Lab Script Completed</DialogTitle>
+                  <DialogDescription>
+                    Would you like to complete the design information now?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-end space-x-2 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleSkipForNow}
+                  >
+                    Skip for Now
+                  </Button>
+                  <Button
+                    onClick={handleCompleteDesignInfo}
+                  >
+                    Complete Design Info
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       );
