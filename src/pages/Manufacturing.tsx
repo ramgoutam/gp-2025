@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { Printer, Wrench, Factory, Settings } from "lucide-react";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Let's extract the stats cards configuration to a separate component
 const statsCards = [
@@ -47,6 +48,7 @@ const statsCards = [
 
 const Manufacturing = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const { data: manufacturingData = {
     counts: {
@@ -64,10 +66,19 @@ const Manufacturing = () => {
     sinteringStatus,
     miyoStatus,
     inspectionStatus,
+    setManufacturingStatus,
+    setSinteringStatus,
+    setMiyoStatus,
+    setInspectionStatus
   } = useManufacturingLogs(manufacturingData.scripts);
 
   const handleStartManufacturing = async (scriptId: string) => {
     try {
+      setManufacturingStatus(prev => ({
+        ...prev,
+        [scriptId]: 'in_progress'
+      }));
+
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -77,6 +88,8 @@ const Manufacturing = () => {
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
 
       toast({
         title: "Manufacturing Started",
@@ -94,6 +107,11 @@ const Manufacturing = () => {
 
   const handleCompleteManufacturing = async (scriptId: string) => {
     try {
+      setManufacturingStatus(prev => ({
+        ...prev,
+        [scriptId]: 'completed'
+      }));
+
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -103,6 +121,8 @@ const Manufacturing = () => {
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
 
       toast({
         title: "Manufacturing Completed",
@@ -120,6 +140,11 @@ const Manufacturing = () => {
 
   const handleHoldManufacturing = async (scriptId: string) => {
     try {
+      setManufacturingStatus(prev => ({
+        ...prev,
+        [scriptId]: 'on_hold'
+      }));
+
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -129,6 +154,8 @@ const Manufacturing = () => {
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
 
       toast({
         title: "Manufacturing On Hold",
@@ -146,6 +173,11 @@ const Manufacturing = () => {
 
   const handleResumeManufacturing = async (scriptId: string) => {
     try {
+      setManufacturingStatus(prev => ({
+        ...prev,
+        [scriptId]: 'in_progress'
+      }));
+
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -155,6 +187,8 @@ const Manufacturing = () => {
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
 
       toast({
         title: "Manufacturing Resumed",
