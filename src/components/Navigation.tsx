@@ -1,10 +1,16 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, TestTube, Factory, LogOut, FileText } from "lucide-react";
+import { LayoutDashboard, Users, TestTube, Factory, LogOut, FileText, Beaker } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -40,9 +46,12 @@ export const Navigation = () => {
     return null;
   }
 
-  const links = [
+  const mainLinks = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
+  ];
+
+  const labLinks = [
     { to: "/scripts", label: "Lab Scripts", icon: TestTube },
     { to: "/reports", label: "Report Cards", icon: FileText },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
@@ -66,6 +75,8 @@ export const Navigation = () => {
     }
   };
 
+  const isLabRoute = labLinks.some(link => location.pathname === link.to);
+
   return (
     <nav className="bg-white shadow-sm">
       <div className="container mx-auto">
@@ -73,7 +84,7 @@ export const Navigation = () => {
           <div className="flex items-center space-x-8">
             <div className="text-primary font-bold text-xl">NYDI</div>
             <div className="flex space-x-4">
-              {links.map(({ to, label, icon: Icon }) => (
+              {mainLinks.map(({ to, label, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
@@ -88,6 +99,38 @@ export const Navigation = () => {
                   <span>{label}</span>
                 </Link>
               ))}
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={isLabRoute ? "default" : "ghost"}
+                    size="sm"
+                    className={cn(
+                      "flex items-center space-x-2",
+                      isLabRoute && "bg-primary text-white"
+                    )}
+                  >
+                    <Beaker className="w-4 h-4" />
+                    <span>Lab</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  {labLinks.map(({ to, label, icon: Icon }) => (
+                    <DropdownMenuItem key={to} asChild>
+                      <Link
+                        to={to}
+                        className={cn(
+                          "flex items-center space-x-2 w-full",
+                          location.pathname === to && "bg-primary/10"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{label}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <Button
