@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
 import { Printer, Wrench, Factory, Settings } from "lucide-react";
+import { useState } from "react";
 
 const Manufacturing = () => {
   const { toast } = useToast();
+  const [selectedType, setSelectedType] = useState<string | null>(null);
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -140,7 +142,8 @@ const Manufacturing = () => {
       icon: Printer,
       color: "text-blue-500",
       bgColor: "bg-blue-50",
-      progressColor: "bg-gradient-to-r from-blue-400 to-blue-500"
+      progressColor: "bg-gradient-to-r from-blue-400 to-blue-500",
+      type: "inhouse_printing"
     },
     {
       title: "Inhouse Milling",
@@ -148,7 +151,8 @@ const Manufacturing = () => {
       icon: Wrench,
       color: "text-purple-500",
       bgColor: "bg-purple-50",
-      progressColor: "bg-gradient-to-r from-purple-400 to-purple-500"
+      progressColor: "bg-gradient-to-r from-purple-400 to-purple-500",
+      type: "inhouse_milling"
     },
     {
       title: "Outsource Printing",
@@ -156,7 +160,8 @@ const Manufacturing = () => {
       icon: Factory,
       color: "text-orange-500",
       bgColor: "bg-orange-50",
-      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500"
+      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
+      type: "outsource_printing"
     },
     {
       title: "Outsource Milling",
@@ -164,9 +169,19 @@ const Manufacturing = () => {
       icon: Settings,
       color: "text-green-500",
       bgColor: "bg-green-50",
-      progressColor: "bg-gradient-to-r from-green-400 to-green-500"
+      progressColor: "bg-gradient-to-r from-green-400 to-green-500",
+      type: "outsource_milling"
     }
   ];
+
+  const filteredScripts = selectedType
+    ? manufacturingData.scripts.filter(script => {
+        const manufacturingSource = script.manufacturingSource?.toLowerCase();
+        const manufacturingType = script.manufacturingType?.toLowerCase();
+        const type = `${manufacturingSource}_${manufacturingType}`;
+        return type === selectedType;
+      })
+    : manufacturingData.scripts;
 
   return (
     <div className="container mx-auto p-8 space-y-6">
@@ -174,7 +189,7 @@ const Manufacturing = () => {
       
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card, index) => (
+        {statsCards.map((card) => (
           <ManufacturingCard
             key={card.title}
             title={card.title}
@@ -184,6 +199,8 @@ const Manufacturing = () => {
             bgColor={card.bgColor}
             progressColor={card.progressColor}
             scripts={manufacturingData.scripts}
+            isActive={selectedType === card.type}
+            onClick={() => setSelectedType(selectedType === card.type ? null : card.type)}
           />
         ))}
       </div>
@@ -192,7 +209,7 @@ const Manufacturing = () => {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
           <div className="space-y-4">
-            {manufacturingData.scripts.map((script) => (
+            {filteredScripts.map((script) => (
               <Card key={script.id} className="p-4 transition-all duration-300 hover:shadow-lg">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
