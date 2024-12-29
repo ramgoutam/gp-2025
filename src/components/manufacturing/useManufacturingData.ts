@@ -90,6 +90,6 @@ export const useManufacturingData = () => {
     refetchInterval: 1, // Changed from 1000 to 1 millisecond for near real-time updates
     refetchIntervalInBackground: true,
     staleTime: 0, // Added to ensure immediate refetches
-    cacheTime: 0 // Added to prevent caching that might delay updates
+    gcTime: 0 // Changed from cacheTime to gcTime as per TanStack Query v5
   });
 };
