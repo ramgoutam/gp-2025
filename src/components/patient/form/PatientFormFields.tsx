@@ -26,7 +26,7 @@ export const PatientFormFields = ({
   setSex,
 }: PatientFormFieldsProps) => {
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField
         id="firstName"
         label="First Name"
@@ -78,13 +78,15 @@ export const PatientFormFields = ({
         required
       />
 
-      <AddressField
-        value={formData.address}
-        onChange={handleAddressChange}
-        suggestions={suggestions}
-        showSuggestions={showSuggestions}
-        onSuggestionClick={onSuggestionClick}
-      />
+      <div className="md:col-span-2">
+        <AddressField
+          value={formData.address}
+          onChange={handleAddressChange}
+          suggestions={suggestions}
+          showSuggestions={showSuggestions}
+          onSuggestionClick={onSuggestionClick}
+        />
+      </div>
 
       <SexField
         value={formData.sex}
@@ -111,6 +113,6 @@ export const PatientFormFields = ({
         label="Insurance Card Picture"
         onChange={(file) => handleFileChange('insuranceCardPicture', file)}
       />
-    </>
+    </div>
   );
 };
