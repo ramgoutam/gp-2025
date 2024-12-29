@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionCard } from "./form/QuestionCard";
 import { formQuestions } from "./form/formQuestions";
+import { ArrowLeft, ArrowRight, Send } from "lucide-react";
 
 interface LeadFormData {
   [key: string]: string;
@@ -39,17 +40,17 @@ export const LeadForm = () => {
       if (error) throw error;
 
       toast({
-        title: "Success!",
-        description: "Thank you for your interest. We'll be in touch soon!",
+        title: "Thank you!",
+        description: "We've received your information and will be in touch soon.",
+        className: "bg-primary text-white",
       });
 
-      // Reset form
       setFormData(Object.fromEntries(formQuestions.map((q) => [q.id, ""])));
       setCurrentQuestion(0);
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({
-        title: "Error",
+        title: "Oops!",
         description: "There was a problem submitting your information. Please try again.",
         variant: "destructive",
       });
@@ -74,70 +75,79 @@ export const LeadForm = () => {
     const currentQuestionId = formQuestions[currentQuestion].id;
     setFormData(prev => ({ ...prev, [currentQuestionId]: value }));
     
-    // Automatically move to next question when a radio option is selected
     if (formQuestions[currentQuestion].type === "radio") {
-      handleNext();
+      setTimeout(() => {
+        handleNext();
+      }, 500);
     }
   };
 
   const isLastQuestion = currentQuestion === formQuestions.length - 1;
   const currentQuestionData = formQuestions[currentQuestion];
+  const canProceed = formData[currentQuestionData.id];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="relative min-h-[400px]">
-        {formQuestions.map((question, index) => (
-          <div
-            key={question.id}
-            className={`absolute w-full transition-all duration-500 ${
-              index === currentQuestion ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            <QuestionCard
-              title={question.title}
-              type={question.type}
-              options={question.options}
-              value={formData[question.id]}
-              onChange={handleChange}
-              inputType={question.inputType}
-              isActive={index === currentQuestion}
-              maxLength={question.maxLength}
-              pattern={question.pattern}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="min-h-[600px] px-4 py-8 md:px-6 relative">
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+        <div className="relative min-h-[400px]">
+          {formQuestions.map((question, index) => (
+            <div
+              key={question.id}
+              className={`absolute w-full transition-all duration-500 ${
+                index === currentQuestion ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
+            >
+              <QuestionCard
+                title={question.title}
+                type={question.type}
+                options={question.options}
+                value={formData[question.id]}
+                onChange={handleChange}
+                inputType={question.inputType}
+                isActive={index === currentQuestion}
+                maxLength={question.maxLength}
+                pattern={question.pattern}
+                currentStep={currentQuestion}
+                totalSteps={formQuestions.length}
+              />
+            </div>
+          ))}
+        </div>
 
-      <div className="flex justify-between items-center mt-6">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevious}
-          disabled={currentQuestion === 0}
-        >
-          Previous
-        </Button>
-
-        {isLastQuestion ? (
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </Button>
-        ) : (
+        <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
           <Button
             type="button"
-            onClick={handleNext}
-            disabled={!formData[currentQuestionData.id]}
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentQuestion === 0}
+            className="flex items-center gap-2 hover:bg-gray-100"
           >
-            Next
+            <ArrowLeft className="w-4 h-4" />
+            Previous
           </Button>
-        )}
-      </div>
 
-      <div className="flex justify-center mt-4">
-        <p className="text-sm text-gray-500">
-          Question {currentQuestion + 1} of {formQuestions.length}
-        </p>
-      </div>
-    </form>
+          {isLastQuestion ? (
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !canProceed}
+              className="flex items-center gap-2 bg-primary hover:bg-primary-600"
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+              <Send className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleNext}
+              disabled={!canProceed}
+              className="flex items-center gap-2 bg-primary hover:bg-primary-600"
+            >
+              Next
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </form>
+    </div>
   );
 };
