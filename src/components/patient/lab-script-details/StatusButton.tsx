@@ -58,7 +58,8 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       const updates: any = { 
         status: newStatus,
         hold_reason: holdReason,
-        design_link: holdReason === "Hold for Approval" ? additionalInfo : null
+        design_link: holdReason === "Hold for Approval" ? additionalInfo : null,
+        specific_instructions: holdReason !== "Hold for Approval" ? additionalInfo : null
       };
 
       const { error } = await supabase
