@@ -109,15 +109,6 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
     setShowCompleteDialog(true);
   };
 
-  const handleCompleteDesignInfo = async () => {
-    await handleStatusChange('completed');
-    setShowCompleteDialog(false);
-    if (onDesignInfo) {
-      console.log("Opening design info form for script:", script);
-      onDesignInfo(script);
-    }
-  };
-
   const handleSkipForNow = async () => {
     await handleStatusChange('completed');
     setShowCompleteDialog(false);
@@ -202,12 +193,6 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
                     disabled={isUpdating}
                   >
                     Skip for Now
-                  </Button>
-                  <Button
-                    onClick={handleCompleteDesignInfo}
-                    disabled={isUpdating}
-                  >
-                    Complete Design Info
                   </Button>
                 </div>
               </DialogContent>
