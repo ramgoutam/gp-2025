@@ -52,12 +52,13 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
   const status = currentScript?.status || script.status;
 
-  const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string) => {
+  const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
       console.log("Updating status for script:", script.id, "to:", newStatus);
       const updates: any = { 
         status: newStatus,
-        hold_reason: holdReason
+        hold_reason: holdReason,
+        design_link: holdReason === "Hold for Approval" ? additionalInfo : null
       };
 
       const { error } = await supabase
@@ -86,9 +87,9 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     }
   };
 
-  const handleHoldConfirm = (reason: string) => {
+  const handleHoldConfirm = (reason: string, additionalInfo?: string) => {
     if (reason) {
-      handleStatusChange('hold', reason);
+      handleStatusChange('hold', reason, additionalInfo);
       setShowHoldDialog(false);
       setSelectedReason("");
     }
@@ -183,4 +184,3 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     default:
       return null;
   }
-};
