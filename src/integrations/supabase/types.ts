@@ -283,7 +283,6 @@ export type Database = {
           appliance_type: string | null
           clinic_name: string
           created_at: string
-          design_link: string | null
           doctor_name: string
           due_date: string
           id: string
@@ -308,7 +307,6 @@ export type Database = {
           appliance_type?: string | null
           clinic_name: string
           created_at?: string
-          design_link?: string | null
           doctor_name: string
           due_date: string
           id?: string
@@ -333,7 +331,6 @@ export type Database = {
           appliance_type?: string | null
           clinic_name?: string
           created_at?: string
-          design_link?: string | null
           doctor_name?: string
           due_date?: string
           id?: string
