@@ -19,6 +19,11 @@ export const useManufacturingData = () => {
           status,
           manufacturing_source,
           manufacturing_type,
+          material,
+          shade,
+          appliance_type,
+          upper_design_name,
+          lower_design_name,
           created_at,
           updated_at,
           patients (
