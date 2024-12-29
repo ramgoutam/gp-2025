@@ -31,7 +31,28 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           ),
-          manufacturing_logs!inner (*)
+          manufacturing_logs (
+            manufacturing_status,
+            manufacturing_started_at,
+            manufacturing_completed_at,
+            manufacturing_hold_at,
+            manufacturing_hold_reason,
+            sintering_status,
+            sintering_started_at,
+            sintering_completed_at,
+            sintering_hold_at,
+            sintering_hold_reason,
+            miyo_status,
+            miyo_started_at,
+            miyo_completed_at,
+            miyo_hold_at,
+            miyo_hold_reason,
+            inspection_status,
+            inspection_started_at,
+            inspection_completed_at,
+            inspection_hold_at,
+            inspection_hold_reason
+          )
         `)
         .eq('report_cards.design_info_status', 'completed')
         .order('created_at', { ascending: false });
@@ -45,6 +66,8 @@ export const useManufacturingData = () => {
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
+        const manufacturingLog = script.manufacturing_logs?.[0];
+        
         return {
           ...mappedScript,
           patientFirstName: script.patients?.first_name,
@@ -53,10 +76,10 @@ export const useManufacturingData = () => {
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
           clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingStatus: script.manufacturing_logs?.[0]?.manufacturing_status || 'pending',
-          sinteringStatus: script.manufacturing_logs?.[0]?.sintering_status || 'pending',
-          miyoStatus: script.manufacturing_logs?.[0]?.miyo_status || 'pending',
-          inspectionStatus: script.manufacturing_logs?.[0]?.inspection_status || 'pending'
+          manufacturingStatus: manufacturingLog?.manufacturing_status || 'pending',
+          sinteringStatus: manufacturingLog?.sintering_status || 'pending',
+          miyoStatus: manufacturingLog?.miyo_status || 'pending',
+          inspectionStatus: manufacturingLog?.inspection_status || 'pending'
         };
       });
 
