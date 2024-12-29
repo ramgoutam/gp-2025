@@ -8,6 +8,11 @@ interface ScriptInfoProps {
   manufacturingType: string;
   material: string;
   shade: string;
+  designInfo?: {
+    appliance_type: string;
+    upper_design_name: string;
+    lower_design_name: string;
+  };
 }
 
 export const ScriptInfo = ({
@@ -18,10 +23,11 @@ export const ScriptInfo = ({
   manufacturingType,
   material,
   shade,
+  designInfo
 }: ScriptInfoProps) => (
   <div>
     <h3 className="font-semibold text-lg">
-      {applianceType || 'N/A'} | {upperDesignName || 'No upper appliance'} | {lowerDesignName || 'No lower appliance'}
+      {designInfo?.appliance_type || applianceType || 'N/A'} | {designInfo?.upper_design_name || upperDesignName || 'No upper appliance'} | {designInfo?.lower_design_name || lowerDesignName || 'No lower appliance'}
     </h3>
     <div className="grid grid-cols-2 gap-3 text-sm mt-3">
       <div>

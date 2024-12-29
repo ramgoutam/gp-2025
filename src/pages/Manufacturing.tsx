@@ -214,13 +214,14 @@ const Manufacturing = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <ScriptInfo
-                      applianceType={script.applianceType}
-                      upperDesignName={script.upperDesignName}
-                      lowerDesignName={script.lowerDesignName}
-                      manufacturingSource={script.manufacturingSource}
-                      manufacturingType={script.manufacturingType}
-                      material={script.material}
-                      shade={script.shade}
+                      applianceType={script.applianceType || ''}
+                      upperDesignName={script.upperDesignName || ''}
+                      lowerDesignName={script.lowerDesignName || ''}
+                      manufacturingSource={script.manufacturingSource || ''}
+                      manufacturingType={script.manufacturingType || ''}
+                      material={script.material || ''}
+                      shade={script.shade || ''}
+                      designInfo={script.report_cards?.design_info}
                     />
                     {script.manufacturingSource === 'Inhouse' && (
                       <ManufacturingSteps
