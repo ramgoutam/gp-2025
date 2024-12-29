@@ -6,6 +6,7 @@ import { EmptyManufacturingState } from "./manufacturing/ManufacturingCard";
 import { ManufacturingSteps } from "./manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "./manufacturing/ScriptInfo";
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ManufacturingContentProps {
   labScripts: LabScript[];
@@ -66,8 +67,8 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4">
+    <ScrollArea className="h-[calc(100vh-400px)]">
+      <div className="space-y-4 pr-4">
         {manufacturingScripts.map((script) => (
           <Card key={script.id} className="p-4 transition-all duration-300 hover:shadow-lg">
             <div className="space-y-3">
@@ -104,6 +105,6 @@ export const ManufacturingContent = ({ labScripts, patientData }: ManufacturingC
           </Card>
         ))}
       </div>
-    </div>
+    </ScrollArea>
   );
 };
