@@ -36,6 +36,13 @@ export const ManufacturingStage = ({
       console.log("Updating manufacturing status:", newStatus, "for script:", scriptId);
       const timestamp = new Date().toISOString();
       
+      // First check if the lab script is completed
+      const { data: labScript } = await supabase
+        .from('lab_scripts')
+        .select('status')
+        .eq('id', scriptId)
+        .single();
+
       const { data: existingLog } = await supabase
         .from('manufacturing_logs')
         .select('*')
@@ -79,12 +86,15 @@ export const ManufacturingStage = ({
         if (updateError) throw updateError;
       }
 
-      const { error: labScriptError } = await supabase
-        .from('lab_scripts')
-        .update({ status: newStatus === 'completed' ? 'completed' : 'in_progress' })
-        .eq('id', scriptId);
+      // Only update lab script status if it's not already completed
+      if (labScript?.status !== 'completed') {
+        const { error: labScriptError } = await supabase
+          .from('lab_scripts')
+          .update({ status: newStatus === 'completed' ? 'completed' : 'in_progress' })
+          .eq('id', scriptId);
 
-      if (labScriptError) throw labScriptError;
+        if (labScriptError) throw labScriptError;
+      }
 
       console.log("Manufacturing status updated successfully");
       toast({
