@@ -50,7 +50,7 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
               <h4 className="font-medium text-sm text-gray-500">Reason</h4>
               <p className="mt-1">{reason}</p>
             </div>
-            {isApprovalHold && comment ? (
+            {isApprovalHold ? (
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-gray-500">Design Link</h4>
                 <Button 
