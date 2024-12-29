@@ -1,6 +1,6 @@
+import React from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { LabScript } from "@/types/labScript";
 
 interface CompletionDialogProps {
   open: boolean;
@@ -19,22 +19,16 @@ export const CompletionDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Lab Script Completed</DialogTitle>
+          <DialogTitle>Complete Lab Script</DialogTitle>
           <DialogDescription>
-            Would you like to complete the design information now?
+            Would you like to add design information now or skip for later?
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button
-            variant="outline"
-            onClick={onSkip}
-          >
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={onSkip}>
             Skip for Now
           </Button>
-          <Button
-            variant="default"
-            onClick={onDesignInfo}
-          >
+          <Button onClick={onDesignInfo}>
             Add Design Info
           </Button>
         </div>
