@@ -5,6 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseLabScript } from "@/types/labScript";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -12,8 +15,17 @@ interface StatusButtonProps {
   onStatusChange: (newStatus: LabScript['status']) => void;
 }
 
+const HOLD_REASONS = [
+  "Hold for Approval",
+  "Hold for Insufficient Data",
+  "Hold for Insufficient Details",
+  "Hold for Other reason"
+];
+
 export const StatusButton = ({ script, status: initialStatus, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
+  const [showHoldDialog, setShowHoldDialog] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<string>("");
 
   // Add real-time query for script status with proper type handling and error management
   const { data: currentScript } = useQuery({
@@ -37,7 +49,6 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
           return script;
         }
 
-        // Ensure status is a valid LabScriptStatus before mapping
         const validStatus = data.status as LabScriptStatus;
         return mapDatabaseLabScript({ ...data, status: validStatus });
       } catch (error) {
@@ -80,6 +91,17 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
     }
   };
 
+  const handleHoldConfirm = () => {
+    if (selectedReason) {
+      handleStatusChange('hold');
+      setShowHoldDialog(false);
+      setSelectedReason("");
+      
+      // Log the hold reason
+      console.log("Script put on hold with reason:", selectedReason);
+    }
+  };
+
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   switch (status) {
@@ -111,7 +133,7 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleStatusChange('hold')}
+            onClick={() => setShowHoldDialog(true)}
             className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
           >
             <StopCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
@@ -126,6 +148,41 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
             <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
             Complete
           </Button>
+
+          <Dialog open={showHoldDialog} onOpenChange={setShowHoldDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Select Hold Reason</DialogTitle>
+              </DialogHeader>
+              <Select value={selectedReason} onValueChange={setSelectedReason}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  {HOLD_REASONS.map((reason) => (
+                    <SelectItem key={reason} value={reason}>
+                      {reason}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowHoldDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleHoldConfirm}
+                  disabled={!selectedReason}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Confirm Hold
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       );
     
