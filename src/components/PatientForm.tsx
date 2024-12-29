@@ -6,7 +6,7 @@ import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
 
 interface PatientFormProps {
-  onSubmit: () => void;
+  onSubmit: (data: any) => Promise<void>; // Updated to accept async function with parameter
   onClose?: () => void;
   initialData?: {
     id?: string;
@@ -94,28 +94,28 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         profileImageUrl = publicUrl;
       }
 
-      const { error } = await supabase.from('patients').upsert({
+      const patientData = {
         id: initialData?.id,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        emergency_contact_name: formData.emergencyContactName,
-        emergency_phone: formData.emergencyPhone,
+        emergencyContactName: formData.emergencyContactName,
+        emergencyPhone: formData.emergencyPhone,
         dob: formData.dob,
         address: formData.address,
         sex: formData.sex,
-        profile_image_url: profileImageUrl,
-      });
+        profileImageUrl: profileImageUrl,
+      };
 
-      if (error) throw error;
+      // Call onSubmit with the patient data
+      await onSubmit(patientData);
 
       toast({
         title: "Success",
         description: `Patient ${initialData ? "updated" : "created"} successfully`,
       });
 
-      onSubmit();
       if (onClose) {
         onClose();
       }
