@@ -115,13 +115,16 @@ export const Navigation = () => {
                     <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuContent 
+                  align="start" 
+                  className="w-48 shadow-lg bg-white border border-gray-200 rounded-md z-50"
+                >
                   {labLinks.map(({ to, label, icon: Icon }) => (
                     <DropdownMenuItem key={to} asChild>
                       <Link
                         to={to}
                         className={cn(
-                          "flex items-center space-x-2 w-full",
+                          "flex items-center space-x-2 w-full px-3 py-2 hover:bg-gray-50",
                           location.pathname === to && "bg-primary/10"
                         )}
                       >
