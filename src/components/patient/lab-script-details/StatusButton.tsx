@@ -6,11 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface StatusButtonProps {
-  status: LabScript['status'];
+  script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
 }
 
-export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
+export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [holdReason, setHoldReason] = useState("");
   const { toast } = useToast();
@@ -50,7 +50,7 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
     }
   };
 
-  if (status === 'hold') {
+  if (script.status === 'hold') {
     return (
       <Button
         variant="outline"
@@ -64,7 +64,7 @@ export const StatusButton = ({ status, onStatusChange }: StatusButtonProps) => {
     );
   }
 
-  if (status === 'in_progress') {
+  if (script.status === 'in_progress') {
     return (
       <div className="flex flex-col gap-2">
         {showHoldDialog ? (
