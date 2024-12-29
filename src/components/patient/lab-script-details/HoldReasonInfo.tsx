@@ -48,16 +48,7 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
             </div>
             {isApprovalHold ? (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-500">Design Webview URL</h4>
-                <div className="flex items-center space-x-2">
-                  <a 
-                    href={comment}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 text-blue-600 hover:text-blue-800 break-all flex-1"
-                  >
-                    {comment}
-                  </a>
+                <div className="flex items-center justify-between space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -66,7 +57,16 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
                   >
                     Open URL <ExternalLink className="h-4 w-4" />
                   </Button>
+                  <h4 className="font-medium text-sm text-gray-500">Design Webview URL</h4>
                 </div>
+                <a 
+                  href={comment}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 text-blue-600 hover:text-blue-800 break-all block"
+                >
+                  {comment}
+                </a>
               </div>
             ) : comment ? (
               <div>
