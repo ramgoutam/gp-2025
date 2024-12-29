@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Settings, PenTool, ArrowRight } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
+import { DesignInfoForm } from "@/components/patient/forms/DesignInfoForm";
 
 interface CompletionDialogProps {
   open: boolean;
@@ -21,9 +22,11 @@ export const CompletionDialog = ({
   script
 }: CompletionDialogProps) => {
   const { toast } = useToast();
+  const [showDesignForm, setShowDesignForm] = useState(false);
   const isDesignInfoCompleted = script.designInfo !== undefined;
 
   const handleDesignInfoClick = () => {
+    console.log("Opening design info form for script:", script.id);
     if (script.status !== 'completed') {
       toast({
         title: "Error",
@@ -32,8 +35,36 @@ export const CompletionDialog = ({
       });
       return;
     }
-    onComplete();
+    setShowDesignForm(true);
   };
+
+  const handleDesignFormClose = () => {
+    console.log("Closing design info form");
+    setShowDesignForm(false);
+    onOpenChange(false);
+  };
+
+  const handleDesignFormSave = (updatedScript: LabScript) => {
+    console.log("Design info saved:", updatedScript);
+    setShowDesignForm(false);
+    onComplete();
+    onOpenChange(false);
+  };
+
+  if (showDesignForm) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl">
+          <DesignInfoForm
+            onClose={handleDesignFormClose}
+            scriptId={script.id}
+            script={script}
+            onSave={handleDesignFormSave}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,7 +98,7 @@ export const CompletionDialog = ({
               Skip for Now
             </Button>
             <Button
-              onClick={onComplete}
+              onClick={handleDesignInfoClick}
             >
               Complete Design Info
             </Button>
