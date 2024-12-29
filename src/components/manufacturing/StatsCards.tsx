@@ -1,4 +1,4 @@
-import { Printer, Wrench, Factory, Settings, CheckCircle } from "lucide-react";
+import { Printer, Wrench, Factory, Settings } from "lucide-react";
 import { ManufacturingCard } from "./ManufacturingCard";
 import { LabScript } from "@/types/labScript";
 
@@ -40,58 +40,16 @@ const statsCards = [
     bgColor: "bg-green-50",
     progressColor: "bg-gradient-to-r from-green-400 to-green-500",
     type: "outsource_milling"
-  },
-  {
-    title: "Completed Inhouse Printing",
-    icon: CheckCircle,
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-50",
-    progressColor: "bg-gradient-to-r from-emerald-400 to-emerald-500",
-    type: "completed_inhouse_printing"
-  },
-  {
-    title: "Completed Inhouse Milling",
-    icon: CheckCircle,
-    color: "text-teal-500",
-    bgColor: "bg-teal-50",
-    progressColor: "bg-gradient-to-r from-teal-400 to-teal-500",
-    type: "completed_inhouse_milling"
-  },
-  {
-    title: "Completed Outsource Printing",
-    icon: CheckCircle,
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-50",
-    progressColor: "bg-gradient-to-r from-cyan-400 to-cyan-500",
-    type: "completed_outsource_printing"
-  },
-  {
-    title: "Completed Outsource Milling",
-    icon: CheckCircle,
-    color: "text-sky-500",
-    bgColor: "bg-sky-50",
-    progressColor: "bg-gradient-to-r from-sky-400 to-sky-500",
-    type: "completed_outsource_milling"
   }
 ];
 
 export const StatsCards = ({ selectedType, setSelectedType, scripts }: StatsCardsProps) => {
   const getCount = (type: string) => {
-    const [status, source, manufacturingType] = type.split('_');
-    return scripts.filter(script => {
-      const matchesType = script.manufacturingSource?.toLowerCase() === source && 
-                         script.manufacturingType?.toLowerCase() === manufacturingType;
-      
-      if (status === 'completed') {
-        // Check manufacturing logs for completed status
-        const manufacturingLog = script.manufacturingLogs?.[0];
-        return matchesType && manufacturingLog?.manufacturing_status === 'completed';
-      } else {
-        // For non-completed cards, show items that aren't completed
-        const manufacturingLog = script.manufacturingLogs?.[0];
-        return matchesType && manufacturingLog?.manufacturing_status !== 'completed';
-      }
-    }).length;
+    const [source, manufacturingType] = type.split('_');
+    return scripts.filter(script => 
+      script.manufacturingSource?.toLowerCase() === source && 
+      script.manufacturingType?.toLowerCase() === manufacturingType
+    ).length;
   };
 
   return (
