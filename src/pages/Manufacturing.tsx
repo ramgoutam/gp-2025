@@ -4,7 +4,6 @@ import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHea
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 import { useToast } from "@/hooks/use-toast";
@@ -33,24 +32,6 @@ const Manufacturing = () => {
 
   const handleCardClick = (filter: string | null) => {
     setActiveFilter(filter === activeFilter ? null : filter);
-  };
-
-  const getFilteredScripts = () => {
-    if (!activeFilter) return manufacturingData.scripts;
-    return manufacturingData.scripts.filter(script => {
-      switch (activeFilter) {
-        case 'inhouse-printing':
-          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Printing';
-        case 'inhouse-milling':
-          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Milling';
-        case 'outsource-printing':
-          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Printing';
-        case 'outsource-milling':
-          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Milling';
-        default:
-          return true;
-      }
-    });
   };
 
   const handleStartManufacturing = async (scriptId: string) => {
@@ -166,6 +147,24 @@ const Manufacturing = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const getFilteredScripts = () => {
+    if (!activeFilter) return manufacturingData.scripts;
+    return manufacturingData.scripts.filter(script => {
+      switch (activeFilter) {
+        case 'inhouse-printing':
+          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Printing';
+        case 'inhouse-milling':
+          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Milling';
+        case 'outsource-printing':
+          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Printing';
+        case 'outsource-milling':
+          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Milling';
+        default:
+          return true;
+      }
+    });
   };
 
   const cards = [
