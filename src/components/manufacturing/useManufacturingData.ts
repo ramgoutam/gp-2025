@@ -30,7 +30,8 @@ export const useManufacturingData = () => {
             clinical_info:clinical_info_id(*),
             design_info_status,
             clinical_info_status
-          )
+          ),
+          manufacturing_logs (*)
         `)
         .eq('report_cards.design_info_status', 'completed')
         .order('created_at', { ascending: false });
@@ -51,7 +52,11 @@ export const useManufacturingData = () => {
           designInfo: script.report_cards?.[0]?.design_info,
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
-          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending'
+          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
+          manufacturingStatus: script.manufacturing_logs?.[0]?.manufacturing_status || 'pending',
+          sinteringStatus: script.manufacturing_logs?.[0]?.sintering_status || 'pending',
+          miyoStatus: script.manufacturing_logs?.[0]?.miyo_status || 'pending',
+          inspectionStatus: script.manufacturing_logs?.[0]?.inspection_status || 'pending'
         };
       });
 
@@ -87,9 +92,9 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1, // Changed from 1000 to 1 millisecond for near real-time updates
+    refetchInterval: 1000, // Changed to 1 second for better performance while maintaining responsiveness
     refetchIntervalInBackground: true,
-    staleTime: 0, // Added to ensure immediate refetches
-    gcTime: 0 // Changed from cacheTime to gcTime as per TanStack Query v5
+    staleTime: 0,
+    gcTime: 0
   });
 };
