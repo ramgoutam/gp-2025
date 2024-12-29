@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Settings, PenTool, ArrowRight } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CompletionDialogProps {
   open: boolean;
@@ -23,7 +24,7 @@ export const CompletionDialog = ({
   const { toast } = useToast();
   const isDesignInfoCompleted = script.designInfo !== undefined;
 
-  const handleDesignInfoClick = () => {
+  const handleDesignInfoClick = async () => {
     if (script.status !== 'completed') {
       toast({
         title: "Error",
@@ -32,7 +33,26 @@ export const CompletionDialog = ({
       });
       return;
     }
-    onComplete();
+
+    try {
+      // Update lab script status to completed
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update({ status: 'completed' })
+        .eq('id', script.id);
+
+      if (error) throw error;
+
+      // Continue with design info completion
+      onComplete();
+    } catch (error) {
+      console.error("Error updating lab script status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lab script status",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
