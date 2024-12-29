@@ -4,7 +4,9 @@ import { ScriptTitle } from "./ScriptTitle";
 import { ActionButtons } from "./ActionButtons";
 import { ProgressTracking } from "./ProgressTracking";
 import { LabScript } from "@/types/labScript";
-import { InfoStatus } from "@/types/reportCard";
+import { InfoStatus, ReportCardData } from "@/types/reportCard";
+import { supabase } from "@/integrations/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
@@ -134,7 +136,7 @@ export const ReportCard = ({
 
   return (
     <>
-      <Card className="p-3 space-y-3 relative bg-white hover:shadow-md transition-shadow duration-300">
+      <Card className="p-4 space-y-4 relative bg-white hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <ScriptTitle script={script} patientName={patientName} />
