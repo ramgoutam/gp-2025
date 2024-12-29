@@ -112,7 +112,7 @@ export const HoldDialog = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
+          <Button onClick={onConfirm}>Confirm Hold</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
