@@ -47,42 +47,48 @@ export const PatientInformationContent = ({
     </div>
   );
 
+  // Helper function to safely capitalize strings
+  const capitalize = (str: string | undefined) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <Card className="overflow-hidden bg-white">
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <InfoItem 
           icon={User2}
           label="First Name" 
-          value={firstName} 
+          value={firstName || ''} 
         />
         <InfoItem 
           icon={User2}
           label="Last Name" 
-          value={lastName} 
+          value={lastName || ''} 
         />
         <InfoItem 
           icon={Mail}
           label="Email" 
-          value={email} 
+          value={email || ''} 
         />
         <InfoItem 
           icon={Phone}
           label="Phone" 
-          value={phone} 
+          value={phone || ''} 
         />
         <InfoItem 
           icon={User2}
           label="Sex" 
-          value={sex.charAt(0).toUpperCase() + sex.slice(1)} 
+          value={capitalize(sex)} 
         />
         <InfoItem 
           icon={Calendar}
           label="Date of Birth" 
-          value={new Date(dob).toLocaleDateString('en-US', {
+          value={dob ? new Date(dob).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
-          })} 
+          }) : ''} 
         />
         {address && (
           <div className="col-span-full">
@@ -99,7 +105,7 @@ export const PatientInformationContent = ({
               <InfoItem 
                 icon={Stethoscope}
                 label="Treatment Type" 
-                value={treatmentType.charAt(0).toUpperCase() + treatmentType.slice(1)}
+                value={capitalize(treatmentType)}
               />
               {upperTreatment && (
                 <InfoItem 
