@@ -1,12 +1,14 @@
 import { FormField } from "./FormField";
 import { AddressField } from "./AddressField";
 import { SexField } from "./SexField";
+import { FileUploadField } from "./FileUploadField";
 import { PatientFormData } from "@/types/patient";
 
 interface PatientFormFieldsProps {
   formData: PatientFormData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFileChange: (fieldName: string, file: File) => void;
   suggestions: any[];
   showSuggestions: boolean;
   onSuggestionClick: (suggestion: any) => void;
@@ -17,6 +19,7 @@ export const PatientFormFields = ({
   formData,
   handleChange,
   handleAddressChange,
+  handleFileChange,
   suggestions,
   showSuggestions,
   onSuggestionClick,
@@ -95,6 +98,18 @@ export const PatientFormFields = ({
         value={formData.dob}
         onChange={handleChange}
         required
+      />
+
+      <FileUploadField
+        id="patientPicture"
+        label="Patient Picture"
+        onChange={(file) => handleFileChange('patientPicture', file)}
+      />
+
+      <FileUploadField
+        id="insuranceCardPicture"
+        label="Insurance Card Picture"
+        onChange={(file) => handleFileChange('insuranceCardPicture', file)}
       />
     </>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { validateGoogleApiKey, getPlaceSuggestions, PlaceSuggestion } from "@/utils/googlePlaces";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { PatientFormData } from "@/types/patient";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PatientFormProps {
   initialData?: PatientFormData;
@@ -18,7 +19,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     lastName: "",
     email: "",
     phone: "",
-    emergencyContactName: "", // Added this line
+    emergencyContactName: "",
     emergencyPhone: "",
     sex: "",
     dob: "",
@@ -99,6 +100,43 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
     setShowSuggestions(false);
   };
 
+  const handleFileChange = async (fieldName: string, file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${fieldName}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('patient_files')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('patient_files')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: publicUrl
+      }));
+
+      toast({
+        title: "File uploaded successfully",
+        description: `${fieldName} has been uploaded`,
+      });
+    } catch (error) {
+      console.error(`Error uploading ${fieldName}:`, error);
+      toast({
+        title: "Upload failed",
+        description: `Failed to upload ${fieldName}. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Patient data:", formData);
@@ -117,7 +155,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         lastName: "",
         email: "",
         phone: "",
-        emergencyContactName: "", // Added this line
+        emergencyContactName: "",
         emergencyPhone: "",
         sex: "",
         dob: "",
@@ -137,6 +175,7 @@ export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFo
         formData={formData}
         handleChange={handleChange}
         handleAddressChange={handleAddressChange}
+        handleFileChange={handleFileChange}
         suggestions={suggestions}
         showSuggestions={showSuggestions}
         onSuggestionClick={handleSuggestionClick}
