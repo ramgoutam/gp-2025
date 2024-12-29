@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
+import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle, FileCheck } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -87,6 +87,11 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     }
   };
 
+  const handleDesignInfoClick = () => {
+    console.log("Opening design info form");
+    setShowCompleteDialog(true);
+  };
+
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const renderButton = () => {
@@ -156,15 +161,26 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       
       case 'completed':
         return (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleStatusChange('in_progress')}
-            className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group animate-fade-in`}
-          >
-            <AlertCircle className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
-            Edit Status
-          </Button>
+          <div className="flex gap-2 animate-fade-in">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDesignInfoClick}
+              className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+            >
+              <FileCheck className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
+              Complete Design Info
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleStatusChange('in_progress')}
+              className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+            >
+              <AlertCircle className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
+              Edit Status
+            </Button>
+          </div>
         );
       
       default:
