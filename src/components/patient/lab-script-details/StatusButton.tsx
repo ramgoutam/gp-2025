@@ -73,9 +73,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
       onStatusChange(newStatus);
       
-      if (newStatus === 'completed') {
-        setShowCompleteDialog(true);
-      } else {
+      if (newStatus !== 'completed') {
         toast({
           title: "Status Updated",
           description: `Status changed to ${newStatus.replace('_', ' ')}`
@@ -100,15 +98,25 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   };
 
   const handleComplete = () => {
-    handleStatusChange('completed');
+    setShowCompleteDialog(true);
   };
 
   const handleCompleteDesignInfo = () => {
+    handleStatusChange('completed');
     setShowCompleteDialog(false);
+    toast({
+      title: "Design Info",
+      description: "Redirecting to complete design information..."
+    });
   };
 
   const handleSkipForNow = () => {
+    handleStatusChange('completed');
     setShowCompleteDialog(false);
+    toast({
+      title: "Lab Script Completed",
+      description: "Lab script has been marked as completed"
+    });
   };
 
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
