@@ -7,56 +7,66 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
 interface LeadFormData {
+  missingTeeth: string;
+  age: string;
+  currentSolutions: string;
+  missingDuration: string;
+  eatingDifficulty: string;
+  experiencingPain: string;
+  confidenceIssues: string;
+  previousConsultation: string;
+  readiness: string;
+  paymentPlanInterest: string;
+  costAwareness: string;
+  creditScore: string;
+  householdIncome: string;
+  zipCode: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  primaryReason: string;
-  problem: string;
 }
 
 export const LeadForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<LeadFormData>({
+    missingTeeth: "",
+    age: "",
+    currentSolutions: "",
+    missingDuration: "",
+    eatingDifficulty: "",
+    experiencingPain: "",
+    confidenceIssues: "",
+    previousConsultation: "",
+    readiness: "",
+    paymentPlanInterest: "",
+    costAwareness: "",
+    creditScore: "",
+    householdIncome: "",
+    zipCode: "",
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
-    primaryReason: "",
-    problem: "",
   });
-
-  const primaryReasons = [
-    { id: "A", label: "I'm Ready To Fix My Smile and Want To Know About Pricing" },
-    { id: "B", label: "I have pain and discomfort" },
-    { id: "C", label: "I'm coming for a second consultation" },
-    { id: "D", label: "I've heard a lot about Dr. Charles and I'd like to move forward with working him." },
-  ];
-
-  const problems = [
-    { id: "A", label: "I have pain and discomfort" },
-    { id: "B", label: "Infection" },
-    { id: "C", label: "Bone Loss" },
-    { id: "D", label: "Most of My Teeth Are Missing and In Bad Shape" },
-    { id: "E", label: "Struggling With Traditional Dentures" },
-    { id: "F", label: "Multiple Missing Teeth" },
-    { id: "G", label: "I only have a one tooth problem" },
-    { id: "H", label: "I Still have my teeth and looking for general dental health" },
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      const message = Object.entries(formData)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+
       const { error } = await supabase.from("leads").insert([
         {
           first_name: formData.firstName,
           last_name: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          message: `Primary Reason: ${formData.primaryReason}\nProblem: ${formData.problem}`,
+          message: message,
         },
       ]);
 
@@ -69,12 +79,24 @@ export const LeadForm = () => {
 
       // Reset form
       setFormData({
+        missingTeeth: "",
+        age: "",
+        currentSolutions: "",
+        missingDuration: "",
+        eatingDifficulty: "",
+        experiencingPain: "",
+        confidenceIssues: "",
+        previousConsultation: "",
+        readiness: "",
+        paymentPlanInterest: "",
+        costAwareness: "",
+        creditScore: "",
+        householdIncome: "",
+        zipCode: "",
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
-        primaryReason: "",
-        problem: "",
       });
     } catch (error) {
       console.error("Error submitting lead:", error);
@@ -88,13 +110,123 @@ export const LeadForm = () => {
     }
   };
 
+  const renderRadioGroup = (
+    name: keyof LeadFormData,
+    label: string,
+    options: string[]
+  ) => (
+    <div className="space-y-4">
+      <Label className="text-base font-semibold">{label}</Label>
+      <RadioGroup
+        value={formData[name]}
+        onValueChange={(value) => setFormData((prev) => ({ ...prev, [name]: value }))}
+        className="space-y-2"
+      >
+        {options.map((option) => (
+          <div key={option} className="flex items-center space-x-2">
+            <RadioGroupItem value={option} id={`${name}-${option}`} />
+            <Label htmlFor={`${name}-${option}`}>{option}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {renderRadioGroup("missingTeeth", "How Many Teeth Are You Currently Missing?*", [
+        "All",
+        "6+",
+        "4-5",
+        "3 Or Less",
+      ])}
+
+      {renderRadioGroup("age", "What Is Your Age?*", [
+        "60+",
+        "50-59",
+        "40-49",
+        "<40",
+      ])}
+
+      {renderRadioGroup("currentSolutions", "Do you currently have any of these dental solutions?*", [
+        "Denture or Partial Denture",
+        "Bridge, Crown",
+        "Dental Implant",
+        "None of the above",
+      ])}
+
+      {renderRadioGroup("missingDuration", "How Long Have You Been Missing Your Teeth?*", [
+        "I Still Have Them",
+        "1-6 Months",
+        "7-12 Months",
+        "1+ Years",
+      ])}
+
+      {renderRadioGroup("eatingDifficulty", "Are You Currently Unable To Eat Certain Foods Or Have To Modify The Way You Chew?*", [
+        "Yes",
+        "No",
+      ])}
+
+      {renderRadioGroup("experiencingPain", "Are You Currently Trying To Find Relief From Any Kind Of Pain Or Discomfort?*", [
+        "Yes",
+        "No",
+      ])}
+
+      {renderRadioGroup("confidenceIssues", "Are You Currently Experiencing A Lack Of Confidence In Social Situations or Find Yourself Hiding Your Smile?*", [
+        "Yes",
+        "No",
+      ])}
+
+      {renderRadioGroup("previousConsultation", "Have You Had A Dental Implant Consultation With Another Dentist?*", [
+        "Yes",
+        "No",
+      ])}
+
+      {renderRadioGroup("readiness", "How Ready Do You Feel To Do Something About Your Situation?*", [
+        "Somewhat Ready",
+        "Very Ready",
+        "I Need Something FAST!",
+      ])}
+
+      {renderRadioGroup("paymentPlanInterest", "Are you interested in a payment plan option?*", [
+        "Yes. I'm interested in affordable payment plan options",
+        "No. I've been saving for this type of procedure and will not need a payment plan",
+      ])}
+
+      {renderRadioGroup("costAwareness", "Would you like to see if you qualify for payment plans, or still continue without?*", [
+        "Yes, please tell me if I might qualify for a payment plan",
+        "No, I don't need a payment plan",
+      ])}
+
+      {renderRadioGroup("creditScore", "Which best describes your credit?*", [
+        "(Poor) Under 660",
+        "(Fair) 660-699",
+        "(Good) 700-739",
+        "(Excellent) 740+",
+      ])}
+
+      {renderRadioGroup("householdIncome", "Which best describes your current household monthly income?*", [
+        "Under $5,000",
+        "$5,000 to $8,000",
+        "Over $8,000",
+      ])}
+
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Contact Information</h2>
+        <div className="space-y-2">
+          <Label htmlFor="zipCode">What Is Your Zip Code? (Enter 5 Digits Only)*</Label>
+          <Input
+            id="zipCode"
+            required
+            maxLength={5}
+            pattern="[0-9]{5}"
+            value={formData.zipCode}
+            onChange={(e) => setFormData((prev) => ({ ...prev, zipCode: e.target.value }))}
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">What Is Your First Name?*</Label>
             <Input
               id="firstName"
               required
@@ -103,7 +235,7 @@ export const LeadForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">What Is Your Last Name?*</Label>
             <Input
               id="lastName"
               required
@@ -112,7 +244,7 @@ export const LeadForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email*</Label>
             <Input
               id="email"
               type="email"
@@ -122,7 +254,7 @@ export const LeadForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">Phone*</Label>
             <Input
               id="phone"
               type="tel"
@@ -132,40 +264,6 @@ export const LeadForm = () => {
             />
           </div>
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">What is the primary reason you're seeking for dental implants?*</h2>
-        <RadioGroup
-          value={formData.primaryReason}
-          onValueChange={(value) => setFormData((prev) => ({ ...prev, primaryReason: value }))}
-          required
-          className="space-y-2"
-        >
-          {primaryReasons.map((reason) => (
-            <div key={reason.id} className="flex items-center space-x-2">
-              <RadioGroupItem value={reason.label} id={`reason-${reason.id}`} />
-              <Label htmlFor={`reason-${reason.id}`}>{reason.label}</Label>
-            </div>
-          ))}
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">What seems to be the problem?*</h2>
-        <RadioGroup
-          value={formData.problem}
-          onValueChange={(value) => setFormData((prev) => ({ ...prev, problem: value }))}
-          required
-          className="space-y-2"
-        >
-          {problems.map((problem) => (
-            <div key={problem.id} className="flex items-center space-x-2">
-              <RadioGroupItem value={problem.label} id={`problem-${problem.id}`} />
-              <Label htmlFor={`problem-${problem.id}`}>{problem.label}</Label>
-            </div>
-          ))}
-        </RadioGroup>
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
