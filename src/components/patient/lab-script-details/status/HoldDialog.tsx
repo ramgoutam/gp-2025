@@ -1,16 +1,22 @@
 import React from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-const HOLD_REASONS = [
-  "Hold for Approval",
-  "Hold for Insufficient Data",
-  "Hold for Insufficient Details",
-  "Hold for Other reason"
-];
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface HoldDialogProps {
   showDialog: boolean;
@@ -37,74 +43,76 @@ export const HoldDialog = ({
   onFilesChange,
   comment,
   onCommentChange,
-  onConfirm
+  onConfirm,
 }: HoldDialogProps) => {
-  const needsComment = selectedReason && selectedReason !== "Hold for Approval";
-  const needsDesignInfo = selectedReason === "Hold for Approval";
+  const needsComment = ["Hold for Insufficient Data", "Hold for Insufficient Details", "Hold for Other reason"].includes(selectedReason);
+  const isApprovalHold = selectedReason === "Hold for Approval";
 
   return (
     <Dialog open={showDialog} onOpenChange={onClose}>
-      <DialogContent className="bg-white">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Select Hold Reason</DialogTitle>
+          <DialogTitle>Hold Manufacturing</DialogTitle>
         </DialogHeader>
-        <Select value={selectedReason} onValueChange={onReasonChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a reason" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-[200]">
-            {HOLD_REASONS.map((reason) => (
-              <SelectItem key={reason} value={reason} className="hover:bg-gray-100">
-                {reason}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="reason">Reason</Label>
+            <Select
+              value={selectedReason}
+              onValueChange={onReasonChange}
+            >
+              <SelectTrigger id="reason">
+                <SelectValue placeholder="Select reason" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Hold for Approval">Hold for Approval</SelectItem>
+                <SelectItem value="Hold for Insufficient Data">Hold for Insufficient Data</SelectItem>
+                <SelectItem value="Hold for Insufficient Details">Hold for Insufficient Details</SelectItem>
+                <SelectItem value="Hold for Other reason">Hold for Other reason</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        {needsDesignInfo && (
-          <div className="space-y-4">
-            <Input
-              placeholder="Enter design weblink"
-              value={designLink}
-              onChange={(e) => onDesignLinkChange(e.target.value)}
-            />
-            <div className="space-y-2">
-              <Input
-                type="file"
-                multiple
-                onChange={(e) => onFilesChange(e.target.files)}
-                className="cursor-pointer"
+          {isApprovalHold && (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="designLink">Design Link</Label>
+                <Input
+                  id="designLink"
+                  value={designLink}
+                  onChange={(e) => onDesignLinkChange(e.target.value)}
+                  placeholder="Enter design link"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="files">Upload Files</Label>
+                <Input
+                  id="files"
+                  type="file"
+                  multiple
+                  onChange={(e) => onFilesChange(e.target.files)}
+                />
+              </div>
+            </>
+          )}
+
+          {needsComment && (
+            <div className="grid gap-2">
+              <Label htmlFor="comment">Comment</Label>
+              <Textarea
+                id="comment"
+                value={comment}
+                onChange={(e) => onCommentChange(e.target.value)}
+                placeholder="Enter reason details"
               />
-              <p className="text-sm text-gray-500">Upload design pictures</p>
             </div>
-          </div>
-        )}
-
-        {needsComment && (
-          <div className="space-y-2">
-            <Textarea
-              placeholder="Enter detailed reason..."
-              value={comment}
-              onChange={(e) => onCommentChange(e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-        )}
-
+          )}
+        </div>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={onConfirm}
-            disabled={!selectedReason || (needsComment && !comment) || (needsDesignInfo && !designLink)}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            Confirm Hold
-          </Button>
+          <Button onClick={onConfirm}>Confirm</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
