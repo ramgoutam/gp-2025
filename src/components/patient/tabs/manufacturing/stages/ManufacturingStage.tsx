@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, Pause, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StartButton } from './StartButton';
+
+const HOLD_REASONS = [
+  "Hold for Approval",
+  "Hold for Insufficient Data",
+  "Hold for Insufficient Details",
+  "Hold for Other reason"
+] as const;
 
 interface ManufacturingStageProps {
   scriptId: string;
@@ -25,7 +32,7 @@ export const ManufacturingStage = ({
   onResume,
   manufacturingType
 }: ManufacturingStageProps) => {
-  const [holdReason, setHoldReason] = useState("");
+  const [holdReason, setHoldReason] = useState<string>("");
   const [showReasonInput, setShowReasonInput] = useState(false);
   const [savedHoldReason, setSavedHoldReason] = useState("");
   const { toast } = useToast();
@@ -112,7 +119,7 @@ export const ManufacturingStage = ({
   };
 
   const handleHold = async () => {
-    if (holdReason.trim()) {
+    if (holdReason) {
       await updateManufacturingStatus('on_hold', holdReason);
       setSavedHoldReason(holdReason);
       onHold();
@@ -160,18 +167,24 @@ export const ManufacturingStage = ({
           </Button>
         </div>
         {showReasonInput && (
-          <div className="flex gap-2 items-center">
-            <Input
-              placeholder="Enter reason for hold..."
-              value={holdReason}
-              onChange={(e) => setHoldReason(e.target.value)}
-              className="flex-1"
-            />
+          <div className="flex flex-col gap-2">
+            <Select onValueChange={setHoldReason} value={holdReason}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select hold reason" />
+              </SelectTrigger>
+              <SelectContent>
+                {HOLD_REASONS.map((reason) => (
+                  <SelectItem key={reason} value={reason}>
+                    {reason}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
               variant="outline"
               size="sm"
               onClick={handleHold}
-              disabled={!holdReason.trim()}
+              disabled={!holdReason}
               className="hover:bg-yellow-50 text-yellow-600 border-yellow-200"
             >
               Confirm Hold
