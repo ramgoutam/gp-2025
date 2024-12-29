@@ -5,6 +5,8 @@ import { useManufacturingData } from "@/components/manufacturing/useManufacturin
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
+import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -18,6 +20,13 @@ const Manufacturing = () => {
     },
     scripts: []
   }} = useManufacturingData();
+
+  const { 
+    manufacturingStatus,
+    sinteringStatus,
+    miyoStatus,
+    inspectionStatus
+  } = useManufacturingLogs(manufacturingData.scripts);
 
   const handleCardClick = (filter: string | null) => {
     setActiveFilter(filter === activeFilter ? null : filter);
@@ -100,35 +109,43 @@ const Manufacturing = () => {
             {getFilteredScripts().map((script) => (
               <div 
                 key={script.id} 
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-6 bg-white rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300 group animate-fade-in"
               >
-                <div className="flex flex-col space-y-2 flex-grow">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium">
-                        {script.patientFirstName} {script.patientLastName}
-                      </span>
-                      <Badge variant="outline" className="bg-white">
-                        {script.manufacturingSource} - {script.manufacturingType}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
                     <div>
-                      <span className="font-medium">Appliance Numbers: </span>
-                      {script.upperDesignName || 'No upper'} | {script.lowerDesignName || 'No lower'}
+                      <h3 className="font-semibold text-lg">
+                        {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                        <div>
+                          <p className="text-gray-500 text-xs">Manufacturing Source</p>
+                          <p className="font-medium">{script.manufacturingSource}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">Manufacturing Type</p>
+                          <p className="font-medium">{script.manufacturingType}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">Material</p>
+                          <p className="font-medium">{script.material || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">Shade</p>
+                          <p className="font-medium">{script.shade || 'N/A'}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-medium">Material: </span>
-                      {script.material || 'N/A'}
-                    </div>
-                    <div>
-                      <span className="font-medium">Shade: </span>
-                      {script.shade || 'N/A'}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Status: {script.status}
+                    {script.manufacturingSource === 'Inhouse' && (
+                      <ManufacturingSteps
+                        scriptId={script.id}
+                        manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
+                        sinteringStatus={sinteringStatus[script.id] || 'pending'}
+                        miyoStatus={miyoStatus[script.id] || 'pending'}
+                        inspectionStatus={inspectionStatus[script.id] || 'pending'}
+                        manufacturingType={script.manufacturingType}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
