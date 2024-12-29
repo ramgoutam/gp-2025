@@ -18,7 +18,9 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
 
   const handleOpenDesignWebview = () => {
     if (isApprovalHold && comment) {
-      window.open(comment, '_blank', 'noopener,noreferrer');
+      // Ensure the URL has a protocol
+      const url = comment.startsWith('http') ? comment : `https://${comment}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
