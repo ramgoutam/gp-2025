@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Info } from "lucide-react";
+import { Info, ExternalLink } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 
 interface HoldReasonInfoProps {
@@ -15,6 +15,12 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
 
   const isApprovalHold = script.holdReason.startsWith("Hold for Approval");
   const [reason, comment] = script.holdReason.split(": ");
+
+  const handleOpenDesignWebview = () => {
+    if (isApprovalHold && comment) {
+      window.open(comment, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <>
@@ -41,16 +47,26 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
               <p className="mt-1">{reason}</p>
             </div>
             {isApprovalHold ? (
-              <div>
+              <div className="space-y-2">
                 <h4 className="font-medium text-sm text-gray-500">Design Webview URL</h4>
-                <a 
-                  href={comment}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 text-blue-600 hover:text-blue-800 break-all"
-                >
-                  {comment}
-                </a>
+                <div className="flex items-center space-x-2">
+                  <a 
+                    href={comment}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 text-blue-600 hover:text-blue-800 break-all flex-1"
+                  >
+                    {comment}
+                  </a>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleOpenDesignWebview}
+                    className="flex items-center gap-2"
+                  >
+                    Open URL <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ) : comment ? (
               <div>
