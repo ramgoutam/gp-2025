@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LabScriptForm } from "@/components/LabScriptForm";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
@@ -119,18 +117,7 @@ const Scripts = () => {
   };
 
   return (
-    <main className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Lab Scripts</h1>
-        <Button 
-          onClick={() => setShowNewScriptDialog(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          New Script
-        </Button>
-      </div>
-
+    <main className="container mx-auto py-4">
       <ScriptsContent
         onScriptSelect={(script) => {
           setSelectedScript(script);
