@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { LeadForm } from "@/components/marketing";
 
 const Marketing = () => {
   return (
@@ -11,33 +12,44 @@ const Marketing = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Campaigns</CardTitle>
+            <CardTitle>Lead Form</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-500">Manage your marketing campaigns</p>
+            <LeadForm />
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-500">View campaign performance metrics</p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaigns</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500">Manage your marketing campaigns</p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Audience</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-500">Manage your target audience segments</p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500">View campaign performance metrics</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Audience</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500">Manage your target audience segments</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
