@@ -13,6 +13,8 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
   useEffect(() => {
     const fetchManufacturingLogs = async () => {
       try {
+        if (manufacturingScripts.length === 0) return;
+
         const { data: logs, error } = await supabase
           .from('manufacturing_logs')
           .select('*')
@@ -26,10 +28,10 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
         const newInspectionStatus: StatusMap = {};
 
         logs?.forEach(log => {
-          newManufacturingStatus[log.lab_script_id] = log.manufacturing_status;
-          newSinteringStatus[log.lab_script_id] = log.sintering_status;
-          newMiyoStatus[log.lab_script_id] = log.miyo_status;
-          newInspectionStatus[log.lab_script_id] = log.inspection_status;
+          newManufacturingStatus[log.lab_script_id] = log.manufacturing_status || 'pending';
+          newSinteringStatus[log.lab_script_id] = log.sintering_status || 'pending';
+          newMiyoStatus[log.lab_script_id] = log.miyo_status || 'pending';
+          newInspectionStatus[log.lab_script_id] = log.inspection_status || 'pending';
         });
 
         setManufacturingStatus(newManufacturingStatus);
@@ -43,6 +45,7 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
 
     fetchManufacturingLogs();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel('manufacturing-updates')
       .on<ManufacturingLog>(
@@ -55,23 +58,23 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
         },
         (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
           if (payload.new && 'lab_script_id' in payload.new) {
-            const newData = payload.new as ManufacturingLog;
+            const newData = payload.new;
             
             setManufacturingStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.manufacturing_status
+              [newData.lab_script_id]: newData.manufacturing_status || 'pending'
             }));
             setSinteringStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.sintering_status
+              [newData.lab_script_id]: newData.sintering_status || 'pending'
             }));
             setMiyoStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.miyo_status
+              [newData.lab_script_id]: newData.miyo_status || 'pending'
             }));
             setInspectionStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.inspection_status
+              [newData.lab_script_id]: newData.inspection_status || 'pending'
             }));
           }
         }

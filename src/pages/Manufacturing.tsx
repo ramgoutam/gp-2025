@@ -4,8 +4,11 @@ import { useManufacturingData } from "@/components/manufacturing/useManufacturin
 import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Manufacturing = () => {
+  const { toast } = useToast();
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -25,35 +28,107 @@ const Manufacturing = () => {
   } = useManufacturingLogs(manufacturingData.scripts);
 
   const handleStartManufacturing = async (scriptId: string) => {
-    console.log('Starting manufacturing process for script:', scriptId);
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'in_progress',
+          manufacturing_started_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Manufacturing Started",
+        description: "The manufacturing process has been initiated."
+      });
+    } catch (error) {
+      console.error('Error starting manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start manufacturing process",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
-    console.log('Completing manufacturing process for script:', scriptId);
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'completed',
+          manufacturing_completed_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Manufacturing Completed",
+        description: "The manufacturing process has been completed."
+      });
+    } catch (error) {
+      console.error('Error completing manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete manufacturing process",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleHoldManufacturing = async (scriptId: string) => {
-    console.log('Holding manufacturing process for script:', scriptId);
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'on_hold',
+          manufacturing_hold_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Manufacturing On Hold",
+        description: "The manufacturing process has been put on hold."
+      });
+    } catch (error) {
+      console.error('Error holding manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to put manufacturing process on hold",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
-    console.log('Resuming manufacturing process for script:', scriptId);
-  };
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'in_progress',
+          manufacturing_hold_at: null
+        })
+        .eq('lab_script_id', scriptId);
 
-  const handleStartInspection = async (scriptId: string) => {
-    console.log('Starting inspection process for script:', scriptId);
-  };
+      if (error) throw error;
 
-  const handleCompleteInspection = async (scriptId: string) => {
-    console.log('Completing inspection process for script:', scriptId);
-  };
-
-  const handleHoldInspection = async (scriptId: string) => {
-    console.log('Holding inspection process for script:', scriptId);
-  };
-
-  const handleResumeInspection = async (scriptId: string) => {
-    console.log('Resuming inspection process for script:', scriptId);
+      toast({
+        title: "Manufacturing Resumed",
+        description: "The manufacturing process has been resumed."
+      });
+    } catch (error) {
+      console.error('Error resuming manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resume manufacturing process",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -87,10 +162,6 @@ const Manufacturing = () => {
                         onCompleteManufacturing={handleCompleteManufacturing}
                         onHoldManufacturing={handleHoldManufacturing}
                         onResumeManufacturing={handleResumeManufacturing}
-                        onStartInspection={handleStartInspection}
-                        onCompleteInspection={handleCompleteInspection}
-                        onHoldInspection={handleHoldInspection}
-                        onResumeInspection={handleResumeInspection}
                         manufacturingType={script.manufacturingType}
                       />
                     )}
