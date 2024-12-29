@@ -158,9 +158,9 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a reason" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-[200]">
                   {HOLD_REASONS.map((reason) => (
-                    <SelectItem key={reason} value={reason}>
+                    <SelectItem key={reason} value={reason} className="hover:bg-gray-100">
                       {reason}
                     </SelectItem>
                   ))}
