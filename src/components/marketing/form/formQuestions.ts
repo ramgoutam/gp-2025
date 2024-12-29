@@ -1,0 +1,128 @@
+export const formQuestions = [
+  {
+    id: "missingTeeth",
+    title: "How Many Teeth Are You Currently Missing?*",
+    type: "radio" as const,
+    options: ["All", "6+", "4-5", "3 Or Less"],
+  },
+  {
+    id: "age",
+    title: "What Is Your Age?*",
+    type: "radio" as const,
+    options: ["60+", "50-59", "40-49", "<40"],
+  },
+  {
+    id: "currentSolutions",
+    title: "Do you currently have any of these dental solutions?*",
+    type: "radio" as const,
+    options: [
+      "Denture or Partial Denture",
+      "Bridge, Crown",
+      "Dental Implant",
+      "None of the above",
+    ],
+  },
+  {
+    id: "missingDuration",
+    title: "How Long Have You Been Missing Your Teeth?*",
+    type: "radio" as const,
+    options: ["I Still Have Them", "1-6 Months", "7-12 Months", "1+ Years"],
+  },
+  {
+    id: "eatingDifficulty",
+    title: "Are You Currently Unable To Eat Certain Foods Or Have To Modify The Way You Chew?*",
+    type: "radio" as const,
+    options: ["Yes", "No"],
+  },
+  {
+    id: "experiencingPain",
+    title: "Are You Currently Trying To Find Relief From Any Kind Of Pain Or Discomfort?*",
+    type: "radio" as const,
+    options: ["Yes", "No"],
+  },
+  {
+    id: "confidenceIssues",
+    title: "Are You Currently Experiencing A Lack Of Confidence In Social Situations or Find Yourself Hiding Your Smile?*",
+    type: "radio" as const,
+    options: ["Yes", "No"],
+  },
+  {
+    id: "previousConsultation",
+    title: "Have You Had A Dental Implant Consultation With Another Dentist?*",
+    type: "radio" as const,
+    options: ["Yes", "No"],
+  },
+  {
+    id: "readiness",
+    title: "How Ready Do You Feel To Do Something About Your Situation?*",
+    type: "radio" as const,
+    options: ["Somewhat Ready", "Very Ready", "I Need Something FAST!"],
+  },
+  {
+    id: "paymentPlanInterest",
+    title: "Are you interested in a payment plan option?*",
+    type: "radio" as const,
+    options: [
+      "Yes. I'm interested in affordable payment plan options",
+      "No. I've been saving for this type of procedure and will not need a payment plan",
+    ],
+  },
+  {
+    id: "costAwareness",
+    title: "Would you like to see if you qualify for payment plans, or still continue without?*",
+    type: "radio" as const,
+    options: [
+      "Yes, please tell me if I might qualify for a payment plan",
+      "No, I don't need a payment plan",
+    ],
+  },
+  {
+    id: "creditScore",
+    title: "Which best describes your credit?*",
+    type: "radio" as const,
+    options: [
+      "(Poor) Under 660",
+      "(Fair) 660-699",
+      "(Good) 700-739",
+      "(Excellent) 740+",
+    ],
+  },
+  {
+    id: "householdIncome",
+    title: "Which best describes your current household monthly income?*",
+    type: "radio" as const,
+    options: ["Under $5,000", "$5,000 to $8,000", "Over $8,000"],
+  },
+  {
+    id: "zipCode",
+    title: "What Is Your Zip Code? (Enter 5 Digits Only)*",
+    type: "input" as const,
+    inputType: "text",
+    maxLength: 5,
+    pattern: "[0-9]{5}",
+  },
+  {
+    id: "firstName",
+    title: "What Is Your First Name?*",
+    type: "input" as const,
+    inputType: "text",
+  },
+  {
+    id: "lastName",
+    title: "What Is Your Last Name?*",
+    type: "input" as const,
+    inputType: "text",
+  },
+  {
+    id: "email",
+    title: "Email*",
+    type: "input" as const,
+    inputType: "email",
+  },
+  {
+    id: "phone",
+    title: "Phone*",
+    type: "input" as const,
+    inputType: "tel",
+  },
+];
