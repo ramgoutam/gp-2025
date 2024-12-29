@@ -47,7 +47,7 @@ export const Navigation = () => {
               <img 
                 src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
                 alt="NYDI Logo"
-                className="h-12 w-auto"
+                className="h-14 w-auto"
               />
             </div>
             <div className="flex space-x-4">
