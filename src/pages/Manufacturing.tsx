@@ -6,6 +6,8 @@ import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
+import { Printer, Tool, Factory, Settings } from "lucide-react";
 
 const Manufacturing = () => {
   const { toast } = useToast();
@@ -131,28 +133,59 @@ const Manufacturing = () => {
     }
   };
 
+  const statsCards = [
+    {
+      title: "Inhouse Printing",
+      count: manufacturingData.counts.inhousePrinting,
+      icon: Printer,
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
+      progressColor: "bg-gradient-to-r from-blue-400 to-blue-500"
+    },
+    {
+      title: "Inhouse Milling",
+      count: manufacturingData.counts.inhouseMilling,
+      icon: Tool,
+      color: "text-purple-500",
+      bgColor: "bg-purple-50",
+      progressColor: "bg-gradient-to-r from-purple-400 to-purple-500"
+    },
+    {
+      title: "Outsource Printing",
+      count: manufacturingData.counts.outsourcePrinting,
+      icon: Factory,
+      color: "text-orange-500",
+      bgColor: "bg-orange-50",
+      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500"
+    },
+    {
+      title: "Outsource Milling",
+      count: manufacturingData.counts.outsourceMilling,
+      icon: Settings,
+      color: "text-green-500",
+      bgColor: "bg-green-50",
+      progressColor: "bg-gradient-to-r from-green-400 to-green-500"
+    }
+  ];
+
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
       
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <h3 className="font-medium text-gray-500">Inhouse Printing</h3>
-          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.inhousePrinting}</p>
-        </Card>
-        <Card className="p-4">
-          <h3 className="font-medium text-gray-500">Inhouse Milling</h3>
-          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.inhouseMilling}</p>
-        </Card>
-        <Card className="p-4">
-          <h3 className="font-medium text-gray-500">Outsource Printing</h3>
-          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.outsourcePrinting}</p>
-        </Card>
-        <Card className="p-4">
-          <h3 className="font-medium text-gray-500">Outsource Milling</h3>
-          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.outsourceMilling}</p>
-        </Card>
+        {statsCards.map((card, index) => (
+          <ManufacturingCard
+            key={card.title}
+            title={card.title}
+            count={card.count}
+            icon={card.icon}
+            color={card.color}
+            bgColor={card.bgColor}
+            progressColor={card.progressColor}
+            scripts={manufacturingData.scripts}
+          />
+        ))}
       </div>
 
       <div className="mt-8">
