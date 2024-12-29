@@ -1,25 +1,24 @@
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript, LabScriptStatus, mapDatabaseLabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { mapDatabaseLabScript } from "@/types/labScript";
+import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
-  onDesignInfo?: (script: LabScript) => void;
 }
 
-export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusButtonProps) => {
+export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -56,44 +55,47 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
   const status = currentScript?.status || script.status;
 
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
-    if (isUpdating || !script?.id) {
-      console.log("Cannot update status: either already updating or missing script ID");
-      return false;
-    }
-    
-    setIsUpdating(true);
-    console.log("Updating lab script status:", script.id, newStatus);
-
     try {
-      const { data, error } = await supabase
+      console.log("Updating status for script:", script.id, "to:", newStatus);
+      console.log("Hold reason:", holdReason);
+      console.log("Additional info:", additionalInfo);
+
+      const updates: any = { 
+        status: newStatus,
+        hold_reason: holdReason,
+        specific_instructions: additionalInfo
+      };
+
+      if (holdReason === "Hold for Approval") {
+        updates.design_link = additionalInfo;
+        updates.specific_instructions = null;
+      }
+
+      const { error } = await supabase
         .from('lab_scripts')
-        .update({ status: newStatus })
-        .eq('id', script.id)
-        .select()
-        .maybeSingle();
+        .update(updates)
+        .eq('id', script.id);
 
       if (error) {
         console.error("Error updating status:", error);
         throw error;
       }
 
-      console.log("Status updated successfully:", data);
-      toast({
-        title: "Status Updated",
-        description: `Lab script status changed to ${newStatus}`
-      });
-
-      return true;
+      onStatusChange(newStatus);
+      
+      if (newStatus !== 'completed') {
+        toast({
+          title: "Status Updated",
+          description: `Status changed to ${newStatus.replace('_', ' ')}`
+        });
+      }
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
         title: "Error",
-        description: "Failed to update status. Please try again.",
+        description: "Failed to update status",
         variant: "destructive"
       });
-      return false;
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -112,9 +114,10 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
   const handleCompleteDesignInfo = () => {
     handleStatusChange('completed');
     setShowCompleteDialog(false);
-    if (onDesignInfo && script) {
-      onDesignInfo(script);
-    }
+    toast({
+      title: "Design Info",
+      description: "Redirecting to complete design information..."
+    });
   };
 
   const handleSkipForNow = () => {
