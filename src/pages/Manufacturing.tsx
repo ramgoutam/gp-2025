@@ -4,14 +4,10 @@ import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHea
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
-import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 const Manufacturing = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const { toast } = useToast();
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -23,148 +19,8 @@ const Manufacturing = () => {
     scripts: []
   }} = useManufacturingData();
 
-  const { 
-    manufacturingStatus,
-    sinteringStatus,
-    miyoStatus,
-    inspectionStatus,
-  } = useManufacturingLogs(manufacturingData.scripts);
-
   const handleCardClick = (filter: string | null) => {
     setActiveFilter(filter === activeFilter ? null : filter);
-  };
-
-  const handleStartManufacturing = async (scriptId: string) => {
-    try {
-      console.log("Starting manufacturing process for script:", scriptId);
-      const timestamp = new Date().toISOString();
-      
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({
-          manufacturing_status: 'in_progress',
-          manufacturing_started_at: timestamp
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Manufacturing Started",
-        description: "The manufacturing process has been started"
-      });
-    } catch (error) {
-      console.error("Error starting manufacturing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to start manufacturing process",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleCompleteManufacturing = async (scriptId: string) => {
-    try {
-      console.log("Completing manufacturing process for script:", scriptId);
-      const timestamp = new Date().toISOString();
-      
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({
-          manufacturing_status: 'completed',
-          manufacturing_completed_at: timestamp
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Manufacturing Completed",
-        description: "The manufacturing process has been completed"
-      });
-    } catch (error) {
-      console.error("Error completing manufacturing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to complete manufacturing process",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleHoldManufacturing = async (scriptId: string) => {
-    try {
-      console.log("Holding manufacturing process for script:", scriptId);
-      const timestamp = new Date().toISOString();
-      
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({
-          manufacturing_status: 'on_hold',
-          manufacturing_hold_at: timestamp
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Manufacturing On Hold",
-        description: "The manufacturing process has been put on hold"
-      });
-    } catch (error) {
-      console.error("Error holding manufacturing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to hold manufacturing process",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleResumeManufacturing = async (scriptId: string) => {
-    try {
-      console.log("Resuming manufacturing process for script:", scriptId);
-      
-      const { error } = await supabase
-        .from('manufacturing_logs')
-        .update({
-          manufacturing_status: 'in_progress',
-          manufacturing_hold_at: null
-        })
-        .eq('lab_script_id', scriptId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Manufacturing Resumed",
-        description: "The manufacturing process has been resumed"
-      });
-    } catch (error) {
-      console.error("Error resuming manufacturing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to resume manufacturing process",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getFilteredScripts = () => {
-    if (!activeFilter) return manufacturingData.scripts;
-    return manufacturingData.scripts.filter(script => {
-      switch (activeFilter) {
-        case 'inhouse-printing':
-          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Printing';
-        case 'inhouse-milling':
-          return script.manufacturingSource === 'Inhouse' && script.manufacturingType === 'Milling';
-        case 'outsource-printing':
-          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Printing';
-        case 'outsource-milling':
-          return script.manufacturingSource === 'Outsource' && script.manufacturingType === 'Milling';
-        default:
-          return true;
-      }
-    });
   };
 
   const cards = [
@@ -218,6 +74,11 @@ const Manufacturing = () => {
     }
   ];
 
+  const getFilteredScripts = () => {
+    if (!activeFilter) return manufacturingData.scripts;
+    return cards.find(card => card.filter === activeFilter)?.scripts || [];
+  };
+
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
@@ -239,48 +100,18 @@ const Manufacturing = () => {
             {getFilteredScripts().map((script) => (
               <div 
                 key={script.id} 
-                className="p-6 bg-white rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300 group animate-fade-in"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg">
-                        {script.applianceType || 'N/A'} | {script.upperDesignName || 'No upper appliance'} | {script.lowerDesignName || 'No lower appliance'}
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3 text-sm mt-3">
-                        <div>
-                          <p className="text-gray-500 text-xs">Manufacturing Source</p>
-                          <p className="font-medium">{script.manufacturingSource}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Manufacturing Type</p>
-                          <p className="font-medium">{script.manufacturingType}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Material</p>
-                          <p className="font-medium">{script.material || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500 text-xs">Shade</p>
-                          <p className="font-medium">{script.shade || 'N/A'}</p>
-                        </div>
-                      </div>
-                    </div>
-                    {script.manufacturingSource === 'Inhouse' && (
-                      <ManufacturingSteps
-                        scriptId={script.id}
-                        manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
-                        sinteringStatus={sinteringStatus[script.id] || 'pending'}
-                        miyoStatus={miyoStatus[script.id] || 'pending'}
-                        inspectionStatus={inspectionStatus[script.id] || 'pending'}
-                        manufacturingType={script.manufacturingType}
-                        onStartManufacturing={handleStartManufacturing}
-                        onCompleteManufacturing={handleCompleteManufacturing}
-                        onHoldManufacturing={handleHoldManufacturing}
-                        onResumeManufacturing={handleResumeManufacturing}
-                      />
-                    )}
-                  </div>
+                <div className="flex items-center space-x-4">
+                  <Badge variant="outline" className="bg-white">
+                    {script.manufacturingSource} - {script.manufacturingType}
+                  </Badge>
+                  <span className="font-medium">
+                    {script.patientFirstName} {script.patientLastName}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Request #{script.requestNumber}
                 </div>
               </div>
             ))}

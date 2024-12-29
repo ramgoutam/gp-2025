@@ -30,28 +30,6 @@ export const useManufacturingData = () => {
             clinical_info:clinical_info_id(*),
             design_info_status,
             clinical_info_status
-          ),
-          manufacturing_logs (
-            manufacturing_status,
-            manufacturing_started_at,
-            manufacturing_completed_at,
-            manufacturing_hold_at,
-            manufacturing_hold_reason,
-            sintering_status,
-            sintering_started_at,
-            sintering_completed_at,
-            sintering_hold_at,
-            sintering_hold_reason,
-            miyo_status,
-            miyo_started_at,
-            miyo_completed_at,
-            miyo_hold_at,
-            miyo_hold_reason,
-            inspection_status,
-            inspection_started_at,
-            inspection_completed_at,
-            inspection_hold_at,
-            inspection_hold_reason
           )
         `)
         .eq('report_cards.design_info_status', 'completed')
@@ -66,9 +44,6 @@ export const useManufacturingData = () => {
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
-        // Get the latest manufacturing log
-        const manufacturingLog = script.manufacturing_logs?.[0];
-        
         return {
           ...mappedScript,
           patientFirstName: script.patients?.first_name,
@@ -76,11 +51,7 @@ export const useManufacturingData = () => {
           designInfo: script.report_cards?.[0]?.design_info,
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
-          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingStatus: manufacturingLog?.manufacturing_status || 'pending',
-          sinteringStatus: manufacturingLog?.sintering_status || 'pending',
-          miyoStatus: manufacturingLog?.miyo_status || 'pending',
-          inspectionStatus: manufacturingLog?.inspection_status || 'pending'
+          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending'
         };
       });
 
@@ -116,9 +87,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    staleTime: Infinity, // Prevent automatic refetching
-    gcTime: 0, // Don't cache the data (previously cacheTime)
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: true, // Fetch when component mounts
+    refetchInterval: 1000,
+    refetchIntervalInBackground: true
   });
 };
