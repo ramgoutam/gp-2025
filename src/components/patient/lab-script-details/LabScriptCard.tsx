@@ -16,6 +16,7 @@ interface LabScriptCardProps {
   onDelete: () => void;
   onEdit: () => void;
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
+  onDesignInfo?: (script: LabScript) => void;
 }
 
 export const LabScriptCard = ({
@@ -24,6 +25,7 @@ export const LabScriptCard = ({
   onDelete,
   onEdit,
   onStatusChange,
+  onDesignInfo
 }: LabScriptCardProps) => {
   const { toast } = useToast();
 
@@ -173,6 +175,7 @@ export const LabScriptCard = ({
             <StatusButton 
               script={updatedScript}
               onStatusChange={handleStatusChange}
+              onDesignInfo={onDesignInfo}
             />
           </div>
         </div>

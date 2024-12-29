@@ -1,24 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mapDatabaseLabScript } from "@/types/labScript";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
+  onDesignInfo?: (script: LabScript) => void;
 }
 
-export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
+export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -36,13 +37,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
           throw error;
         }
 
-        if (!data) {
-          console.log("No data found for script status:", script.id);
-          return script;
-        }
-
-        const validStatus = data.status as LabScriptStatus;
-        return mapDatabaseLabScript({ ...data, status: validStatus });
+        return data || script;
       } catch (error) {
         console.error("Unexpected error fetching script status:", error);
         return script;
@@ -56,6 +51,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
+      setIsUpdating(true);
       console.log("Updating status for script:", script.id, "to:", newStatus);
       console.log("Hold reason:", holdReason);
       console.log("Additional info:", additionalInfo);
@@ -96,6 +92,8 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
         description: "Failed to update status",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -111,17 +109,16 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     setShowCompleteDialog(true);
   };
 
-  const handleCompleteDesignInfo = () => {
-    handleStatusChange('completed');
+  const handleCompleteDesignInfo = async () => {
+    await handleStatusChange('completed');
     setShowCompleteDialog(false);
-    toast({
-      title: "Design Info",
-      description: "Redirecting to complete design information..."
-    });
+    if (onDesignInfo) {
+      onDesignInfo(script);
+    }
   };
 
-  const handleSkipForNow = () => {
-    handleStatusChange('completed');
+  const handleSkipForNow = async () => {
+    await handleStatusChange('completed');
     setShowCompleteDialog(false);
     toast({
       title: "Lab Script Completed",
@@ -139,6 +136,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
           className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+          disabled={isUpdating}
         >
           <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
           Start Design
@@ -154,6 +152,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
               size="sm"
               onClick={() => handleStatusChange('paused')}
               className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
+              disabled={isUpdating}
             >
               <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
               Pause
@@ -163,6 +162,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
               size="sm"
               onClick={() => setShowHoldDialog(true)}
               className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
+              disabled={isUpdating}
             >
               <StopCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
               Hold
@@ -172,6 +172,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
               size="sm"
               onClick={handleComplete}
               className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
+              disabled={isUpdating}
             >
               <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
               Complete
@@ -197,11 +198,13 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
                   <Button
                     variant="outline"
                     onClick={handleSkipForNow}
+                    disabled={isUpdating}
                   >
                     Skip for Now
                   </Button>
                   <Button
                     onClick={handleCompleteDesignInfo}
+                    disabled={isUpdating}
                   >
                     Complete Design Info
                   </Button>
@@ -220,6 +223,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
           className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+          disabled={isUpdating}
         >
           <PlayCircle className="h-4 w-4 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
           Resume
@@ -233,6 +237,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
           size="sm"
           onClick={() => handleStatusChange('in_progress')}
           className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group animate-fade-in`}
+          disabled={isUpdating}
         >
           <AlertCircle className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
           Edit Status
