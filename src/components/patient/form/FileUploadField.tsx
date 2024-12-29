@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";
+import { CameraPopup } from "./CameraPopup";
 
 interface FileUploadFieldProps {
   id: string;
@@ -16,11 +18,20 @@ export const FileUploadField = ({
   onChange,
   accept = "image/*"
 }: FileUploadFieldProps) => {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       onChange(file);
+      setPreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleCameraCapture = (file: File) => {
+    onChange(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   return (
@@ -34,23 +45,32 @@ export const FileUploadField = ({
           onChange={handleChange}
           accept={accept}
           className="cursor-pointer"
-          capture="user"
         />
         <Button
           type="button"
           variant="outline"
           size="icon"
-          onClick={() => {
-            const input = document.getElementById(id) as HTMLInputElement;
-            if (input) {
-              input.setAttribute('capture', 'user');
-              input.click();
-            }
-          }}
+          onClick={() => setShowCamera(true)}
         >
           <Camera className="h-4 w-4" />
         </Button>
       </div>
+      
+      {preview && (
+        <div className="mt-2">
+          <img
+            src={preview}
+            alt="Preview"
+            className="max-w-[200px] rounded-lg border"
+          />
+        </div>
+      )}
+
+      <CameraPopup
+        open={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handleCameraCapture}
+      />
     </div>
   );
 };
