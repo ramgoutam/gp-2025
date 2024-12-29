@@ -286,6 +286,7 @@ export type Database = {
           design_link: string | null
           doctor_name: string
           due_date: string
+          hold_reason: string | null
           id: string
           lower_design_name: string | null
           lower_treatment: string | null
@@ -311,6 +312,7 @@ export type Database = {
           design_link?: string | null
           doctor_name: string
           due_date: string
+          hold_reason?: string | null
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
@@ -336,6 +338,7 @@ export type Database = {
           design_link?: string | null
           doctor_name?: string
           due_date?: string
+          hold_reason?: string | null
           id?: string
           lower_design_name?: string | null
           lower_treatment?: string | null
