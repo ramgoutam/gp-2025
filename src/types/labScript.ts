@@ -68,7 +68,8 @@ export interface LabScript {
   manufacturingType?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;  // Added this property
+  designInfoStatus?: string;
+  holdReason?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {
@@ -94,6 +95,7 @@ export interface DatabaseLabScript {
   manufacturing_type?: string;
   material?: string;
   shade?: string;
+  hold_reason?: string;  // Added this property
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -118,6 +120,7 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     manufacturingType: dbScript.manufacturing_type,
     material: dbScript.material,
     shade: dbScript.shade,
+    holdReason: dbScript.hold_reason,  // Added this mapping
   };
 };
 
@@ -143,5 +146,6 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     manufacturing_type: script.manufacturingType,
     material: script.material,
     shade: script.shade,
+    hold_reason: script.holdReason,  // Added this mapping
   };
 };
