@@ -48,7 +48,7 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
             </div>
             {isApprovalHold ? (
               <div className="space-y-2">
-                <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
