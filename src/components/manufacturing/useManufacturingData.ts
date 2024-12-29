@@ -66,6 +66,7 @@ export const useManufacturingData = () => {
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
+        // Get the latest manufacturing log
         const manufacturingLog = script.manufacturing_logs?.[0];
         
         return {
@@ -115,9 +116,9 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000,
-    refetchIntervalInBackground: true,
-    staleTime: 0,
-    gcTime: 0
+    staleTime: Infinity, // Prevent automatic refetching
+    cacheTime: 0, // Don't cache the data
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnMount: true, // Fetch when component mounts
   });
 };
