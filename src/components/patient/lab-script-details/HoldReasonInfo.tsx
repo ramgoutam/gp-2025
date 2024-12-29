@@ -17,8 +17,8 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
   const [reason, comment] = script.holdReason.split(": ");
 
   const handleOpenDesignLink = () => {
-    if (isApprovalHold && comment) {
-      let url = comment;
+    if (isApprovalHold && script.designLink) {
+      let url = script.designLink;
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = `https://${url}`;
       }
@@ -61,7 +61,7 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
                 >
                   Open design link <ExternalLink className="h-4 w-4" />
                 </Button>
-                <p className="mt-1 text-blue-600 break-all">{comment}</p>
+                <p className="mt-1 text-blue-600 break-all">{script.designLink}</p>
               </div>
             ) : comment ? (
               <div>

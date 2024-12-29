@@ -27,6 +27,18 @@ export const LabScriptContent = ({
     onEdit({ ...script, status: newStatus });
   };
 
+  const handleView = () => {
+    console.log("View clicked");
+  };
+
+  const handleDelete = () => {
+    console.log("Delete clicked");
+  };
+
+  const handleEdit = () => {
+    console.log("Edit clicked");
+  };
+
   return (
     <div className="space-y-6 py-6">
       <HeaderSection script={script} />
@@ -37,14 +49,15 @@ export const LabScriptContent = ({
           onStatusChange={handleStatusChange}
           onDesignInfo={onDesignInfo}
         />
-        <CardActions script={script} />
+        <CardActions 
+          onView={handleView}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+        />
       </div>
 
-      {script.hold_reason && (
-        <HoldReasonInfo 
-          reason={script.hold_reason} 
-          additionalInfo={script.design_link}
-        />
+      {script.holdReason && (
+        <HoldReasonInfo script={script} />
       )}
 
       <TreatmentsSection script={script} />
