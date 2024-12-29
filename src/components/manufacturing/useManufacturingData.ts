@@ -87,7 +87,9 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000,
-    refetchIntervalInBackground: true
+    refetchInterval: 1, // Changed from 1000 to 1 millisecond for near real-time updates
+    refetchIntervalInBackground: true,
+    staleTime: 0, // Added to ensure immediate refetches
+    cacheTime: 0 // Added to prevent caching that might delay updates
   });
 };
