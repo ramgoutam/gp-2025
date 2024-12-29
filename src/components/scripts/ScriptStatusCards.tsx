@@ -57,7 +57,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
 
   const cards = [
     {
-      title: "Pending Scripts",
+      title: "New Lab Scripts",
       count: scriptCounts.pending,
       icon: Clock,
       color: "bg-amber-50",
