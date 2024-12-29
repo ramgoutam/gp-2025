@@ -76,6 +76,7 @@ export const Navigation = () => {
   };
 
   const isLabRoute = labLinks.some(link => location.pathname === link.to);
+  const activeLabLink = labLinks.find(link => location.pathname === link.to);
 
   return (
     <nav className="bg-white shadow-sm">
@@ -112,6 +113,12 @@ export const Navigation = () => {
                   >
                     <Beaker className="w-4 h-4" />
                     <span>Lab</span>
+                    {activeLabLink && (
+                      <>
+                        <span className="mx-1">-</span>
+                        <span>{activeLabLink.label}</span>
+                      </>
+                    )}
                     <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
