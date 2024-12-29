@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { ManufacturingHeader } from "@/components/manufacturing/ManufacturingHeader";
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
@@ -181,9 +180,7 @@ const Manufacturing = () => {
     : manufacturingData.scripts;
 
   return (
-    <div className="container mx-auto p-8 space-y-6">
-      <ManufacturingHeader />
-      
+    <div className="container mx-auto p-6 space-y-4">
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statsCards.map((card) => (
@@ -202,47 +199,45 @@ const Manufacturing = () => {
         ))}
       </div>
 
-      <div className="mt-8">
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
-          <div className="space-y-4">
-            {filteredScripts.map((script) => (
-              <Card key={script.id} className="p-4 transition-all duration-300 hover:shadow-lg">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <ScriptInfo
-                      applianceType={script.applianceType || ''}
-                      upperDesignName={script.upperDesignName || ''}
-                      lowerDesignName={script.lowerDesignName || ''}
-                      manufacturingSource={script.manufacturingSource || ''}
-                      manufacturingType={script.manufacturingType || ''}
-                      material={script.material || ''}
-                      shade={script.shade || ''}
-                      designInfo={script.designInfo}
-                      patientFirstName={script.patientFirstName}
-                      patientLastName={script.patientLastName}
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
+        <div className="space-y-4">
+          {filteredScripts.map((script) => (
+            <Card key={script.id} className="p-4 transition-all duration-300 hover:shadow-lg">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <ScriptInfo
+                    applianceType={script.applianceType || ''}
+                    upperDesignName={script.upperDesignName || ''}
+                    lowerDesignName={script.lowerDesignName || ''}
+                    manufacturingSource={script.manufacturingSource || ''}
+                    manufacturingType={script.manufacturingType || ''}
+                    material={script.material || ''}
+                    shade={script.shade || ''}
+                    designInfo={script.designInfo}
+                    patientFirstName={script.patientFirstName}
+                    patientLastName={script.patientLastName}
+                  />
+                  {script.manufacturingSource === 'Inhouse' && (
+                    <ManufacturingSteps
+                      scriptId={script.id}
+                      manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
+                      sinteringStatus={sinteringStatus[script.id] || 'pending'}
+                      miyoStatus={miyoStatus[script.id] || 'pending'}
+                      inspectionStatus={inspectionStatus[script.id] || 'pending'}
+                      onStartManufacturing={handleStartManufacturing}
+                      onCompleteManufacturing={handleCompleteManufacturing}
+                      onHoldManufacturing={handleHoldManufacturing}
+                      onResumeManufacturing={handleResumeManufacturing}
+                      manufacturingType={script.manufacturingType}
                     />
-                    {script.manufacturingSource === 'Inhouse' && (
-                      <ManufacturingSteps
-                        scriptId={script.id}
-                        manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
-                        sinteringStatus={sinteringStatus[script.id] || 'pending'}
-                        miyoStatus={miyoStatus[script.id] || 'pending'}
-                        inspectionStatus={inspectionStatus[script.id] || 'pending'}
-                        onStartManufacturing={handleStartManufacturing}
-                        onCompleteManufacturing={handleCompleteManufacturing}
-                        onHoldManufacturing={handleHoldManufacturing}
-                        onResumeManufacturing={handleResumeManufacturing}
-                        manufacturingType={script.manufacturingType}
-                      />
-                    )}
-                  </div>
+                  )}
                 </div>
-              </Card>
-            ))}
-          </div>
-        </Card>
-      </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 };
