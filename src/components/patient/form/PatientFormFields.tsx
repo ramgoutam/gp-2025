@@ -2,27 +2,33 @@ import { FormField } from "./FormField";
 import { AddressField } from "./AddressField";
 import { SexField } from "./SexField";
 import { FileUploadField } from "./FileUploadField";
-import { PatientFormData } from "@/types/patient";
+import { MapboxFeature } from "@/utils/mapboxService";
 
 interface PatientFormFieldsProps {
-  formData: PatientFormData;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  formData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    emergencyContactName?: string;
+    emergencyPhone?: string;
+    sex: string;
+    dob: string;
+    address: string;
+  };
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleFileChange: (fieldName: string, file: File) => void;
-  suggestions: any[];
-  showSuggestions: boolean;
-  onSuggestionClick: (suggestion: any) => void;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSuggestionClick: (suggestion: MapboxFeature) => void;
   setSex: (value: string) => void;
 }
 
 export const PatientFormFields = ({
   formData,
-  handleChange,
+  handleInputChange,
   handleAddressChange,
   handleFileChange,
-  suggestions,
-  showSuggestions,
-  onSuggestionClick,
+  handleSuggestionClick,
   setSex,
 }: PatientFormFieldsProps) => {
   return (
@@ -31,7 +37,7 @@ export const PatientFormFields = ({
         id="firstName"
         label="First Name"
         value={formData.firstName}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
 
@@ -39,7 +45,7 @@ export const PatientFormFields = ({
         id="lastName"
         label="Last Name"
         value={formData.lastName}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
 
@@ -48,7 +54,7 @@ export const PatientFormFields = ({
         label="Email"
         type="email"
         value={formData.email}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
 
@@ -57,34 +63,30 @@ export const PatientFormFields = ({
         label="Phone"
         type="tel"
         value={formData.phone}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
 
       <FormField
         id="emergencyContactName"
         label="Emergency Contact Name"
-        value={formData.emergencyContactName}
-        onChange={handleChange}
-        required
+        value={formData.emergencyContactName || ''}
+        onChange={handleInputChange}
       />
 
       <FormField
         id="emergencyPhone"
         label="Emergency Phone"
         type="tel"
-        value={formData.emergencyPhone}
-        onChange={handleChange}
-        required
+        value={formData.emergencyPhone || ''}
+        onChange={handleInputChange}
       />
 
       <div className="md:col-span-2">
         <AddressField
           value={formData.address}
           onChange={handleAddressChange}
-          suggestions={suggestions}
-          showSuggestions={showSuggestions}
-          onSuggestionClick={onSuggestionClick}
+          onSuggestionClick={handleSuggestionClick}
         />
       </div>
 
@@ -98,21 +100,17 @@ export const PatientFormFields = ({
         label="Date of Birth"
         type="date"
         value={formData.dob}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
 
-      <FileUploadField
-        id="patientPicture"
-        label="Patient Picture"
-        onChange={(file) => handleFileChange('patientPicture', file)}
-      />
-
-      <FileUploadField
-        id="insuranceCardPicture"
-        label="Insurance Card Picture"
-        onChange={(file) => handleFileChange('insuranceCardPicture', file)}
-      />
+      <div className="md:col-span-2">
+        <FileUploadField
+          onChange={handleFileChange}
+          label="Profile Picture"
+          accept="image/*"
+        />
+      </div>
     </div>
   );
 };

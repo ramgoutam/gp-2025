@@ -2,30 +2,42 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PatientFormFields } from "./form/PatientFormFields";
+import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
-import { Patient } from "@/types/patient";
 
 interface PatientFormProps {
   onSubmit: () => void;
-  initialData?: Patient;
+  initialData?: {
+    id?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    emergencyContactName?: string;
+    emergencyPhone?: string;
+    dob: string;
+    address: string;
+    sex: string;
+  };
 }
 
 export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<Patient>(
+  const [formData, setFormData] = useState(
     initialData || {
       firstName: "",
       lastName: "",
       email: "",
       phone: "",
-      dateOfBirth: "",
+      emergencyContactName: "",
+      emergencyPhone: "",
+      dob: "",
       address: "",
       sex: "",
-      profileImage: null,
     }
   );
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   const setSex = (value: string) => {
     setFormData((prev) => ({
@@ -50,13 +62,10 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
     }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        profileImage: file,
-      }));
+      setProfileImage(file);
     }
   };
 
@@ -65,16 +74,16 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
     setIsSubmitting(true);
 
     try {
-      let profileImageUrl = initialData?.profileImageUrl;
+      let profileImageUrl = null;
 
-      if (formData.profileImage) {
-        const fileExt = formData.profileImage.name.split('.').pop();
+      if (profileImage) {
+        const fileExt = profileImage.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('profile-images')
-          .upload(filePath, formData.profileImage);
+          .upload(filePath, profileImage);
 
         if (uploadError) {
           throw uploadError;
@@ -93,7 +102,9 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        date_of_birth: formData.dateOfBirth,
+        emergency_contact_name: formData.emergencyContactName,
+        emergency_phone: formData.emergencyPhone,
+        dob: formData.dob,
         address: formData.address,
         sex: formData.sex,
         profile_image_url: profileImageUrl,
@@ -134,8 +145,6 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
         handleFileChange={handleFileChange}
         handleAddressChange={handleAddressChange}
         handleSuggestionClick={handleSuggestionClick}
-        suggestions={[]}
-        showSuggestions={false}
         setSex={setSex}
       />
       
