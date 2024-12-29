@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDesignForm } from "./design-info/useDesignForm";
 import { DesignDateSection } from "./design-info/DesignDateSection";
 import { LibrarySection } from "./design-info/LibrarySection";
@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ApplianceSection } from "@/components/lab-script/ApplianceSection";
 import { TreatmentSection } from "@/components/lab-script/TreatmentSection";
 import { ScrewSection } from "@/components/lab-script/ScrewSection";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 interface DesignInfoFormProps {
   onClose: () => void;
@@ -24,6 +26,8 @@ export const DesignInfoForm = ({
   onSave,
 }: DesignInfoFormProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const {
     designData,
     isSubmitting,
@@ -31,7 +35,7 @@ export const DesignInfoForm = ({
     handleSave
   } = useDesignForm(script, onSave, onClose);
 
-  console.log("Current design data:", designData); // Debug log
+  console.log("Current design data:", designData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,11 +47,7 @@ export const DesignInfoForm = ({
         if (result.updatedScript) {
           onSave(result.updatedScript);
         }
-        toast({
-          title: "Success",
-          description: "Design information saved successfully",
-        });
-        onClose();
+        setShowSuccessDialog(true); // Show success dialog instead of closing immediately
       } else {
         toast({
           title: "Error",
@@ -65,63 +65,93 @@ export const DesignInfoForm = ({
     }
   };
 
+  const handleNavigateToManufacturing = () => {
+    navigate("/manufacturing");
+    setShowSuccessDialog(false);
+    onClose();
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <DesignDateSection
-        value={designData.design_date}
-        onChange={(value) => handleDesignDataChange('design_date', value)}
-      />
-
-      <ApplianceSection
-        value={designData.appliance_type || ''}
-        onChange={(value) => handleDesignDataChange('appliance_type', value)}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <TreatmentSection
-          title="Upper"
-          treatment={designData.upper_treatment || ''}
-          onTreatmentChange={(value) => handleDesignDataChange('upper_treatment', value)}
-          applianceType={designData.appliance_type || ''}
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <DesignDateSection
+          value={designData.design_date}
+          onChange={(value) => handleDesignDataChange('design_date', value)}
         />
-        <TreatmentSection
-          title="Lower"
-          treatment={designData.lower_treatment || ''}
-          onTreatmentChange={(value) => handleDesignDataChange('lower_treatment', value)}
-          applianceType={designData.appliance_type || ''}
+
+        <ApplianceSection
+          value={designData.appliance_type || ''}
+          onChange={(value) => handleDesignDataChange('appliance_type', value)}
         />
-      </div>
 
-      <ScrewSection
-        value={designData.screw || ''}
-        onChange={(value) => handleDesignDataChange('screw', value)}
-      />
+        <div className="grid grid-cols-2 gap-4">
+          <TreatmentSection
+            title="Upper"
+            treatment={designData.upper_treatment || ''}
+            onTreatmentChange={(value) => handleDesignDataChange('upper_treatment', value)}
+            applianceType={designData.appliance_type || ''}
+          />
+          <TreatmentSection
+            title="Lower"
+            treatment={designData.lower_treatment || ''}
+            onTreatmentChange={(value) => handleDesignDataChange('lower_treatment', value)}
+            applianceType={designData.appliance_type || ''}
+          />
+        </div>
 
-      <LibrarySection
-        implantLibrary={designData.implant_library || ''}
-        teethLibrary={designData.teeth_library || ''}
-        onImplantLibraryChange={(value) => handleDesignDataChange('implant_library', value)}
-        onTeethLibraryChange={(value) => handleDesignDataChange('teeth_library', value)}
-      />
+        <ScrewSection
+          value={designData.screw || ''}
+          onChange={(value) => handleDesignDataChange('screw', value)}
+        />
 
-      <ActionsTakenSection
-        value={designData.actions_taken || ''}
-        onChange={(value) => handleDesignDataChange('actions_taken', value)}
-      />
+        <LibrarySection
+          implantLibrary={designData.implant_library || ''}
+          teethLibrary={designData.teeth_library || ''}
+          onImplantLibraryChange={(value) => handleDesignDataChange('implant_library', value)}
+          onTeethLibraryChange={(value) => handleDesignDataChange('teeth_library', value)}
+        />
 
-      <div className="flex justify-end space-x-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Design Info"}
-        </Button>
-      </div>
-    </form>
+        <ActionsTakenSection
+          value={designData.actions_taken || ''}
+          onChange={(value) => handleDesignDataChange('actions_taken', value)}
+        />
+
+        <div className="flex justify-end space-x-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Design Info"}
+          </Button>
+        </div>
+      </form>
+
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Success!</DialogTitle>
+            <DialogDescription>
+              Design information has been submitted successfully and added to Manufacturing Queue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end space-x-4">
+            <Button variant="outline" onClick={() => {
+              setShowSuccessDialog(false);
+              onClose();
+            }}>
+              Close
+            </Button>
+            <Button onClick={handleNavigateToManufacturing}>
+              Go to Manufacturing
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
