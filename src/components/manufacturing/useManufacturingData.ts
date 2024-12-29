@@ -117,7 +117,7 @@ export const useManufacturingData = () => {
       };
     },
     staleTime: Infinity, // Prevent automatic refetching
-    cacheTime: 0, // Don't cache the data
+    gcTime: 0, // Don't cache the data (previously cacheTime)
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
     refetchOnMount: true, // Fetch when component mounts
   });
