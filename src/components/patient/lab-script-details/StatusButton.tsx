@@ -8,6 +8,7 @@ import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
 import { CompletionDialog } from "./CompletionDialog";
+import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -19,6 +20,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
+  const { updateStatus, isUpdating } = useLabScriptStatus();
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -53,70 +55,36 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
   const status = currentScript?.status || script.status;
 
-  const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string) => {
-    try {
-      console.log("Updating status for script:", script.id, "to:", newStatus);
-      console.log("Hold reason:", holdReason);
+  const handleComplete = async () => {
+    console.log("Handling complete action for script:", script.id);
+    const success = await updateStatus(script, 'completed');
+    if (success) {
+      onStatusChange('completed');
+      setShowCompleteDialog(true);
+    }
+  };
 
-      const { error } = await supabase
-        .from('lab_scripts')
-        .update({ 
-          status: newStatus,
-          hold_reason: holdReason 
-        })
-        .eq('id', script.id);
-
-      if (error) {
-        console.error("Error updating status:", error);
-        throw error;
+  const handleHoldConfirm = async (reason: string) => {
+    if (reason) {
+      const success = await updateStatus(script, 'hold', reason);
+      if (success) {
+        onStatusChange('hold');
+        setShowHoldDialog(false);
+        setSelectedReason("");
       }
+    }
+  };
 
+  const handleStatusChange = async (newStatus: LabScript['status']) => {
+    console.log("Handling status change:", newStatus);
+    const success = await updateStatus(script, newStatus);
+    if (success) {
       onStatusChange(newStatus);
-      
-      if (newStatus !== 'completed') {
-        toast({
-          title: "Status Updated",
-          description: `Status changed to ${newStatus.replace('_', ' ')}`
-        });
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
       toast({
-        title: "Error",
-        description: "Failed to update status",
-        variant: "destructive"
+        title: "Status Updated",
+        description: `Status changed to ${newStatus.replace('_', ' ')}`
       });
     }
-  };
-
-  const handleHoldConfirm = (reason: string) => {
-    if (reason) {
-      handleStatusChange('hold', reason);
-      setShowHoldDialog(false);
-      setSelectedReason("");
-    }
-  };
-
-  const handleComplete = () => {
-    setShowCompleteDialog(true);
-  };
-
-  const handleCompleteDesignInfo = () => {
-    handleStatusChange('completed');
-    setShowCompleteDialog(false);
-    toast({
-      title: "Design Info",
-      description: "Redirecting to complete design information..."
-    });
-  };
-
-  const handleSkipForNow = () => {
-    handleStatusChange('completed');
-    setShowCompleteDialog(false);
-    toast({
-      title: "Lab Script Completed",
-      description: "Lab script has been marked as completed"
-    });
   };
 
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
@@ -163,6 +131,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
                 size="sm"
                 onClick={handleComplete}
                 className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
+                disabled={isUpdating}
               >
                 <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
                 Complete
@@ -218,8 +187,8 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       <CompletionDialog
         open={showCompleteDialog}
         onOpenChange={setShowCompleteDialog}
-        onSkip={handleSkipForNow}
-        onComplete={handleCompleteDesignInfo}
+        onSkip={() => setShowCompleteDialog(false)}
+        onComplete={() => setShowCompleteDialog(false)}
         script={script}
       />
     </>
