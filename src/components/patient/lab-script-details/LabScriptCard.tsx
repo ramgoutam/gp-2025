@@ -8,6 +8,7 @@ import { LabScript, DatabaseLabScript, mapDatabaseLabScript } from "@/types/labS
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { HoldReasonInfo } from "./HoldReasonInfo";
 
 interface LabScriptCardProps {
   script: LabScript;
@@ -138,12 +139,15 @@ export const LabScriptCard = ({
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
               {getScriptTitle()}
-              <Badge 
-                variant="outline" 
-                className={`${getStatusColor(updatedScript.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
-              >
-                {getStatusText(updatedScript.status)}
-              </Badge>
+              <div className="flex items-center gap-1">
+                <Badge 
+                  variant="outline" 
+                  className={`${getStatusColor(updatedScript.status)} px-3 py-1 uppercase text-xs font-medium transition-all duration-300`}
+                >
+                  {getStatusText(updatedScript.status)}
+                </Badge>
+                {updatedScript.status === 'hold' && <HoldReasonInfo script={updatedScript} />}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
