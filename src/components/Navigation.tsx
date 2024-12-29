@@ -112,13 +112,7 @@ export const Navigation = () => {
                     )}
                   >
                     <Beaker className="w-4 h-4" />
-                    <span>Lab</span>
-                    {activeLabLink && (
-                      <>
-                        <span className="mx-1">-</span>
-                        <span>{activeLabLink.label}</span>
-                      </>
-                    )}
+                    <span>{activeLabLink ? activeLabLink.label : "Lab"}</span>
                     <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
