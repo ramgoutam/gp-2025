@@ -92,7 +92,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000,
+    refetchInterval: 1,
     refetchIntervalInBackground: true
   });
 };
