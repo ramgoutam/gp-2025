@@ -184,3 +184,4 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     default:
       return null;
   }
+};
