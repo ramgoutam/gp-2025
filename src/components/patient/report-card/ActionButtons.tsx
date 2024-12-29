@@ -31,7 +31,6 @@ export const ActionButtons = ({
   const isClinicalInfoCompleted = clinicalInfoStatus === 'completed';
   const showCompleteButton = isDesignInfoCompleted && isClinicalInfoCompleted && !isCompleted;
 
-  // Set up real-time subscription for script status updates
   useEffect(() => {
     console.log("Setting up real-time subscription for script:", script.id);
     
@@ -62,7 +61,6 @@ export const ActionButtons = ({
     console.log("Checking lab script status before proceeding:", currentScript.status);
     
     try {
-      // Get the latest status directly from the database
       const { data: latestScript, error } = await supabase
         .from('lab_scripts')
         .select('*')
@@ -89,7 +87,6 @@ export const ActionButtons = ({
         return;
       }
 
-      // If we get here, the script is completed and we can proceed
       onDesignInfo(currentScript);
     } catch (error) {
       console.error("Error checking lab script status:", error);
@@ -115,6 +112,7 @@ export const ActionButtons = ({
 
   return (
     <div className="flex gap-3">
+      {/* Original Design Info Button */}
       <Button
         variant="outline"
         size="sm"
@@ -129,6 +127,23 @@ export const ActionButtons = ({
         {isDesignInfoCompleted ? 'Edit Design Info' : 'Add Design Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
+
+      {/* Mirror Design Info Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleDesignInfoClick}
+        className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
+      >
+        {isDesignInfoCompleted ? (
+          <PenTool className="h-4 w-4" />
+        ) : (
+          <Settings className="h-4 w-4" />
+        )}
+        {isDesignInfoCompleted ? 'Edit Design Info' : 'Add Design Info'}
+        <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+      </Button>
+
       <Button
         variant="outline"
         size="sm"
@@ -139,6 +154,7 @@ export const ActionButtons = ({
         {isClinicalInfoCompleted ? 'Edit Clinical Info' : 'Add Clinical Info'}
         <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
       </Button>
+
       {showCompleteButton && (
         <Button
           variant="outline"
