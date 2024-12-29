@@ -168,7 +168,6 @@ export const LabScriptCard = ({
             />
             <StatusButton 
               script={updatedScript}
-              status={updatedScript.status} 
               onStatusChange={handleStatusChange}
             />
           </div>
