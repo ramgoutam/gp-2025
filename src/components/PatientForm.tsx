@@ -132,13 +132,13 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
   };
 
   return (
-    <Card className="w-full max-w-[1400px] mx-auto bg-white">
-      <CardHeader className="pb-4 border-b">
+    <Card className="w-full">
+      <CardHeader>
         <CardTitle className="text-2xl font-semibold text-gray-900">
           {initialData ? "Edit Patient" : "New Patient Registration"}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <PatientFormFields
             formData={formData}
