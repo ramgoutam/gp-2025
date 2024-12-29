@@ -7,7 +7,7 @@ import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard";
-import { Printer, Tool, Factory, Settings } from "lucide-react";
+import { Printer, Wrench, Factory, Settings } from "lucide-react";
 
 const Manufacturing = () => {
   const { toast } = useToast();
@@ -145,7 +145,7 @@ const Manufacturing = () => {
     {
       title: "Inhouse Milling",
       count: manufacturingData.counts.inhouseMilling,
-      icon: Tool,
+      icon: Wrench,
       color: "text-purple-500",
       bgColor: "bg-purple-50",
       progressColor: "bg-gradient-to-r from-purple-400 to-purple-500"
