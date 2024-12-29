@@ -54,7 +54,8 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     initialData: script,
   });
 
-  const status = currentScript?.status || script.status;
+  // Ensure the status is of type LabScriptStatus
+  const status = (currentScript?.status || script.status) as LabScript['status'];
 
   return (
     <>
