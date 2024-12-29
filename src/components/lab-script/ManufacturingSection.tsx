@@ -4,12 +4,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const MANUFACTURING_SOURCES = ["Inhouse", "Outsource"] as const;
 const MANUFACTURING_TYPES = ["Printing", "Milling"] as const;
 const MATERIALS = [
+  "Flexera Smile Ultra Plus",
+  "Sprint Ray ONX",
+  "Sprint Ray Nightguard Flex",
+  "Flexera Model X",
   "Zirconia",
+  "Zirconia & Titanium",
   "PMMA",
-  "Titanium",
-  "Ceramic",
-  "Composite",
-  "Acrylic"
+  "ONX Tough"
 ] as const;
 const SHADES = [
   "A1", "A2", "A3", "A3.5", "A4",
