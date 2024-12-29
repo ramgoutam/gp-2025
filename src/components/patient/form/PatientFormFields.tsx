@@ -15,10 +15,13 @@ interface PatientFormFieldsProps {
     emergencyPhone?: string;
     sex: string;
     dob: string;
-    address: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAddressChange: (field: string, value: string) => void;
   handleFileChange: (file: File) => void;
   handleSuggestionClick: (suggestion: MapboxFeature) => void;
   setSex: (value: string) => void;
@@ -95,11 +98,38 @@ export const PatientFormFields = ({
               onChange={handleInputChange}
               required
             />
-            <AddressField
-              value={formData.address}
-              onChange={handleAddressChange}
-              onSuggestionClick={handleSuggestionClick}
-            />
+            <div className="space-y-4">
+              <FormField
+                id="street"
+                label="Street Address"
+                value={formData.street}
+                onChange={(e) => handleAddressChange('street', e.target.value)}
+                required
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  id="city"
+                  label="City"
+                  value={formData.city}
+                  onChange={(e) => handleAddressChange('city', e.target.value)}
+                  required
+                />
+                <FormField
+                  id="state"
+                  label="State"
+                  value={formData.state}
+                  onChange={(e) => handleAddressChange('state', e.target.value)}
+                  required
+                />
+              </div>
+              <FormField
+                id="zipCode"
+                label="ZIP Code"
+                value={formData.zipCode}
+                onChange={(e) => handleAddressChange('zipCode', e.target.value)}
+                required
+              />
+            </div>
           </div>
         </Card>
 

@@ -19,7 +19,10 @@ interface PatientFormProps {
     emergencyContactName?: string;
     emergencyPhone?: string;
     dob: string;
-    address: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
     sex: string;
   };
 }
@@ -36,7 +39,10 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
       emergencyContactName: "",
       emergencyPhone: "",
       dob: "",
-      address: "",
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
       sex: "",
     }
   );
@@ -57,11 +63,10 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     }));
   };
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  const handleAddressChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      address: value,
+      [field]: value,
     }));
   };
 
@@ -96,6 +101,8 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         profileImageUrl = publicUrl;
       }
 
+      const address = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
+
       const patientData = {
         id: initialData?.id,
         firstName: formData.firstName,
@@ -105,7 +112,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         emergencyContactName: formData.emergencyContactName,
         emergencyPhone: formData.emergencyPhone,
         dob: formData.dob,
-        address: formData.address,
+        address: address,
         sex: formData.sex,
         profileImageUrl: profileImageUrl,
       };
@@ -146,11 +153,15 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
               formData={formData}
               handleInputChange={handleInputChange}
               handleFileChange={setProfileImage}
-              handleAddressChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+              handleAddressChange={handleAddressChange}
               handleSuggestionClick={(suggestion: MapboxFeature) => {
+                const addressParts = suggestion.place_name.split(',');
                 setFormData(prev => ({
                   ...prev,
-                  address: suggestion.place_name
+                  street: addressParts[0]?.trim() || '',
+                  city: addressParts[1]?.trim() || '',
+                  state: addressParts[2]?.trim() || '',
+                  zipCode: addressParts[3]?.trim() || ''
                 }));
               }}
               setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
