@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PatientFormProps {
@@ -141,11 +141,6 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
 
   return (
     <Card className="w-full max-h-[80vh] flex flex-col">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-semibold text-gray-900">
-          {initialData ? "Edit Patient" : "New Patient Registration"}
-        </CardTitle>
-      </CardHeader>
       <ScrollArea className="flex-1">
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
