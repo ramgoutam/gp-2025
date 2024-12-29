@@ -1,13 +1,12 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mapDatabaseLabScript } from "@/types/labScript";
-import { useState } from "react";
-import { HoldReasonDialog } from "./HoldReasonDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { HoldReasonDialog } from "./HoldReasonDialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -20,6 +19,7 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],

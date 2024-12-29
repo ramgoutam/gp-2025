@@ -10,12 +10,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { HoldReasonInfo } from "./HoldReasonInfo";
 
-interface LabScriptCardProps {
+export interface LabScriptCardProps {
   script: LabScript;
   onClick: () => void;
   onDelete: () => void;
   onEdit: () => void;
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
+  onDesignInfo: (script: LabScript) => void;  // Added this prop
 }
 
 export const LabScriptCard = ({
@@ -24,6 +25,7 @@ export const LabScriptCard = ({
   onDelete,
   onEdit,
   onStatusChange,
+  onDesignInfo,
 }: LabScriptCardProps) => {
   const { toast } = useToast();
 
@@ -171,8 +173,9 @@ export const LabScriptCard = ({
               onEdit={onEdit}
             />
             <StatusButton 
-              script={updatedScript}
-              onStatusChange={handleStatusChange}
+              script={script}
+              onStatusChange={(newStatus) => onStatusChange(script, newStatus)}
+              onDesignInfo={() => onDesignInfo(script)}
             />
           </div>
         </div>
