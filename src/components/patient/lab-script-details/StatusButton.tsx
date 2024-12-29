@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
+import { CompletionDialog } from "./CompletionDialog";
 import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
 import { BaseButton } from "./buttons/BaseButton";
 import { CompletedStateButtons } from "./buttons/CompletedStateButtons";
@@ -31,12 +32,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       try {
         const { data, error } = await supabase
           .from('lab_scripts')
-          .select(`
-            *,
-            report_cards (
-              design_info_status
-            )
-          `)
+          .select('*')
           .eq('id', script.id)
           .maybeSingle();
 
@@ -50,10 +46,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
           return script;
         }
 
-        return {
-          ...mapDatabaseLabScript(data),
-          designInfoStatus: data.report_cards?.[0]?.design_info_status
-        };
+        return mapDatabaseLabScript(data);
       } catch (error) {
         console.error("Unexpected error fetching script status:", error);
         return script;
@@ -64,7 +57,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   });
 
   const status = currentScript?.status || script.status;
-  const isDesignInfoPending = currentScript?.designInfoStatus === 'pending';
 
   const handleComplete = async () => {
     console.log("Handling complete action for script:", script.id);
@@ -154,22 +146,11 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       
       case 'completed':
         return (
-          <div className="flex gap-2">
-            {isDesignInfoPending && (
-              <BaseButton
-                onClick={() => setShowDesignForm(true)}
-                icon={CheckCircle}
-                label="Complete Design Info"
-                className="hover:bg-blue-50 text-blue-600 border-blue-200 group"
-              />
-            )}
-            <BaseButton
-              onClick={() => handleStatusChange('in_progress')}
-              icon={PlayCircle}
-              label="Edit Status"
-              className="hover:bg-primary/5 group"
-            />
-          </div>
+          <CompletedStateButtons
+            script={script}
+            onDesignInfo={() => setShowDesignForm(true)}
+            onStatusChange={handleStatusChange}
+          />
         );
       
       default:
