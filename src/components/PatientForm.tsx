@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PatientFormProps {
   onSubmit: (data: any) => Promise<void>;
@@ -132,40 +133,43 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className="w-full max-h-[80vh] flex flex-col">
+      <CardHeader className="pb-4">
         <CardTitle className="text-2xl font-semibold text-gray-900">
           {initialData ? "Edit Patient" : "New Patient Registration"}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <PatientFormFields
-            formData={formData}
-            handleInputChange={handleInputChange}
-            handleFileChange={setProfileImage}
-            handleAddressChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-            handleSuggestionClick={(suggestion: MapboxFeature) => {
-              setFormData(prev => ({
-                ...prev,
-                address: suggestion.place_name
-              }));
-            }}
-            setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
-          />
-          
-          <div className="flex justify-end space-x-2 pt-4 border-t">
-            {onClose && (
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-            )}
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : initialData ? "Update Patient" : "Create Patient"}
+      <ScrollArea className="flex-1">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <PatientFormFields
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleFileChange={setProfileImage}
+              handleAddressChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+              handleSuggestionClick={(suggestion: MapboxFeature) => {
+                setFormData(prev => ({
+                  ...prev,
+                  address: suggestion.place_name
+                }));
+              }}
+              setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
+            />
+          </form>
+        </CardContent>
+      </ScrollArea>
+      <div className="p-6 border-t mt-auto">
+        <div className="flex justify-end space-x-2">
+          {onClose && (
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
             </Button>
-          </div>
-        </form>
-      </CardContent>
+          )}
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : initialData ? "Update Patient" : "Create Patient"}
+          </Button>
+        </div>
+      </div>
     </Card>
   );
 };
