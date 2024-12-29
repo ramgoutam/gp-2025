@@ -106,6 +106,7 @@ export const PatientFormFields = ({
 
       <div className="md:col-span-2">
         <FileUploadField
+          id="profilePicture"
           onChange={handleFileChange}
           label="Profile Picture"
           accept="image/*"
