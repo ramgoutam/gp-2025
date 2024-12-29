@@ -33,8 +33,8 @@ export const PatientFormFields = ({
   setSex,
 }: PatientFormFieldsProps) => {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-center mb-4">
+    <div className="space-y-6">
+      <div className="flex justify-center mb-6">
         <FileUploadField
           id="profilePicture"
           onChange={handleFileChange}
@@ -43,10 +43,10 @@ export const PatientFormFields = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="p-4 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6 space-y-6">
           <h3 className="text-lg font-medium">Personal Information</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <FormField
               id="firstName"
               label="First Name"
@@ -80,9 +80,9 @@ export const PatientFormFields = ({
           </div>
         </Card>
 
-        <Card className="p-4 space-y-4">
+        <Card className="p-6 space-y-6">
           <h3 className="text-lg font-medium">Additional Information</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <SexField
               value={formData.sex}
               onChange={(value) => setSex(value)}
@@ -105,9 +105,9 @@ export const PatientFormFields = ({
           </div>
         </Card>
 
-        <Card className="p-4 space-y-4 lg:col-span-2">
+        <Card className="p-6 space-y-6 lg:col-span-2">
           <h3 className="text-lg font-medium">Emergency Contact</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               id="emergencyContactName"
               label="Emergency Contact Name"
