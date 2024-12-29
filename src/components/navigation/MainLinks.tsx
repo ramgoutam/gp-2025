@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const MainLinks = () => {
@@ -7,6 +7,7 @@ export const MainLinks = () => {
   
   const mainLinks = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/marketing", label: "Marketing", icon: Megaphone },
     { to: "/patients", label: "Patients", icon: Users },
   ];
 

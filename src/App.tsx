@@ -6,6 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
+import Marketing from "@/pages/Marketing";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
@@ -39,6 +40,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/marketing"
+                  element={
+                    <ProtectedRoute>
+                      <Marketing />
                     </ProtectedRoute>
                   }
                 />
