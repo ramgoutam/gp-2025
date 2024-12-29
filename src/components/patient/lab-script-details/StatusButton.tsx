@@ -113,6 +113,7 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
     await handleStatusChange('completed');
     setShowCompleteDialog(false);
     if (onDesignInfo) {
+      console.log("Opening design info form for script:", script);
       onDesignInfo(script);
     }
   };
