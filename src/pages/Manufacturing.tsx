@@ -134,6 +134,27 @@ const Manufacturing = () => {
   return (
     <div className="container mx-auto p-8 space-y-6">
       <ManufacturingHeader />
+      
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <h3 className="font-medium text-gray-500">Inhouse Printing</h3>
+          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.inhousePrinting}</p>
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-medium text-gray-500">Inhouse Milling</h3>
+          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.inhouseMilling}</p>
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-medium text-gray-500">Outsource Printing</h3>
+          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.outsourcePrinting}</p>
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-medium text-gray-500">Outsource Milling</h3>
+          <p className="text-2xl font-bold mt-2">{manufacturingData.counts.outsourceMilling}</p>
+        </Card>
+      </div>
+
       <div className="mt-8">
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
