@@ -25,6 +25,28 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const [selectedReason, setSelectedReason] = useState<string>("");
   const { updateStatus, isUpdating } = useLabScriptStatus();
 
+  // Add query to check design info status
+  const { data: reportCard } = useQuery({
+    queryKey: ['reportCard', script.id],
+    queryFn: async () => {
+      console.log("Fetching report card for script:", script.id);
+      const { data, error } = await supabase
+        .from('report_cards')
+        .select('design_info_status')
+        .eq('lab_script_id', script.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching report card:", error);
+        return null;
+      }
+
+      console.log("Report card data:", data);
+      return data;
+    },
+    enabled: script.status === 'completed'
+  });
+
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
     queryFn: async () => {
@@ -174,15 +196,17 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       case 'completed':
         return (
           <div className="flex gap-2 animate-fade-in">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDesignInfoClick}
-              className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
-            >
-              <FileCheck className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
-              Complete Design Info
-            </Button>
+            {reportCard?.design_info_status === 'pending' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDesignInfoClick}
+                className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+              >
+                <FileCheck className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
+                Complete Design Info
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
