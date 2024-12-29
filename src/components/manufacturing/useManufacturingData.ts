@@ -31,7 +31,7 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           ),
-          manufacturing_logs (*)
+          manufacturing_logs!inner (*)
         `)
         .eq('report_cards.design_info_status', 'completed')
         .order('created_at', { ascending: false });
@@ -92,7 +92,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1000, // Changed to 1 second for better performance while maintaining responsiveness
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
     staleTime: 0,
     gcTime: 0
