@@ -112,23 +112,6 @@ export const ActionButtons = ({
 
   return (
     <div className="flex gap-3">
-      {/* Original Design Info Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDesignInfoClick}
-        className="flex items-center gap-2 hover:bg-primary/5 group-hover:border-primary/30 transition-all duration-300"
-      >
-        {isDesignInfoCompleted ? (
-          <PenTool className="h-4 w-4" />
-        ) : (
-          <Settings className="h-4 w-4" />
-        )}
-        {isDesignInfoCompleted ? 'Edit Design Info' : 'Add Design Info'}
-        <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-      </Button>
-
-      {/* Mirror Design Info Button */}
       <Button
         variant="outline"
         size="sm"
