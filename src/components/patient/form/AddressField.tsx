@@ -1,24 +1,55 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { PlaceSuggestion } from "@/utils/googlePlaces";
+import { MapboxFeature, searchAddress } from "@/utils/mapboxService";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface AddressFieldProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  suggestions: PlaceSuggestion[];
-  showSuggestions: boolean;
-  onSuggestionClick: (suggestion: PlaceSuggestion) => void;
+  onSuggestionClick: (suggestion: MapboxFeature) => void;
 }
 
 export const AddressField = ({
   value,
   onChange,
-  suggestions,
-  showSuggestions,
   onSuggestionClick,
 }: AddressFieldProps) => {
+  const [suggestions, setSuggestions] = useState<MapboxFeature[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const debouncedValue = useDebounce(value, 300);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (debouncedValue.length > 2) {
+        const results = await searchAddress(debouncedValue);
+        setSuggestions(results);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedValue]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSuggestionClick = (suggestion: MapboxFeature) => {
+    onSuggestionClick(suggestion);
+    setShowSuggestions(false);
+  };
 
   return (
     <div className="space-y-2 relative">
@@ -31,6 +62,7 @@ export const AddressField = ({
         placeholder="Start typing to search address..."
         required
         autoComplete="off"
+        className="w-full"
       />
       {showSuggestions && suggestions.length > 0 && (
         <div 
@@ -39,11 +71,11 @@ export const AddressField = ({
         >
           {suggestions.map((suggestion) => (
             <div
-              key={suggestion.place_id}
+              key={suggestion.id}
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-              onClick={() => onSuggestionClick(suggestion)}
+              onClick={() => handleSuggestionClick(suggestion)}
             >
-              {suggestion.description}
+              {suggestion.place_name}
             </div>
           ))}
         </div>
