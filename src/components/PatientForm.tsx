@@ -7,6 +7,7 @@ import { MapboxFeature } from "@/utils/mapboxService";
 
 interface PatientFormProps {
   onSubmit: () => void;
+  onClose?: () => void;
   initialData?: {
     id?: string;
     firstName: string;
@@ -21,7 +22,7 @@ interface PatientFormProps {
   };
 }
 
-export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
+export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(
@@ -62,11 +63,8 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setProfileImage(file);
-    }
+  const handleFileChange = (file: File) => {
+    setProfileImage(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +116,9 @@ export const PatientForm = ({ onSubmit, initialData }: PatientFormProps) => {
       });
 
       onSubmit();
+      if (onClose) {
+        onClose();
+      }
     } catch (error) {
       console.error('Error saving patient:', error);
       toast({

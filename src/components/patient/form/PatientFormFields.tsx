@@ -18,7 +18,7 @@ interface PatientFormFieldsProps {
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFileChange: (file: File) => void;
   handleSuggestionClick: (suggestion: MapboxFeature) => void;
   setSex: (value: string) => void;
 }
