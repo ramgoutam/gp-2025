@@ -9,6 +9,8 @@ import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
 import { CompletionDialog } from "./CompletionDialog";
 import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
+import { DesignInfoForm } from "@/components/patient/forms/DesignInfoForm";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -19,6 +21,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showDesignForm, setShowDesignForm] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
   const { updateStatus, isUpdating } = useLabScriptStatus();
 
@@ -89,7 +92,16 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
   const handleDesignInfoClick = () => {
     console.log("Opening design info form");
-    setShowCompleteDialog(true);
+    setShowDesignForm(true);
+  };
+
+  const handleDesignFormClose = () => {
+    setShowDesignForm(false);
+  };
+
+  const handleDesignFormSave = (updatedScript: LabScript) => {
+    console.log("Design info saved:", updatedScript);
+    setShowDesignForm(false);
   };
 
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
@@ -207,6 +219,17 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
         onComplete={() => setShowCompleteDialog(false)}
         script={script}
       />
+
+      <Dialog open={showDesignForm} onOpenChange={setShowDesignForm}>
+        <DialogContent className="max-w-4xl">
+          <DesignInfoForm
+            onClose={handleDesignFormClose}
+            scriptId={script.id}
+            script={script}
+            onSave={handleDesignFormSave}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
