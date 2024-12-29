@@ -1,24 +1,21 @@
-import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useState } from "react";
-import { HoldReasonDialog } from "./HoldReasonDialog";
+import { PendingAction } from "./status/PendingAction";
+import { InProgressActions } from "./status/InProgressActions";
+import { PausedAction } from "./status/PausedAction";
+import { CompletedAction } from "./status/CompletedAction";
 
 interface StatusButtonProps {
   script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
-  onDesignInfo?: (script: LabScript) => void;
+  onDesignInfo?: () => void;
 }
 
 export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusButtonProps) => {
   const { toast } = useToast();
-  const [showHoldDialog, setShowHoldDialog] = useState(false);
-  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
-  const [selectedReason, setSelectedReason] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: currentScript } = useQuery({
@@ -46,8 +43,6 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
     refetchInterval: 1000,
     initialData: script,
   });
-
-  const status = currentScript?.status || script.status;
 
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
@@ -97,137 +92,32 @@ export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusBut
     }
   };
 
-  const handleHoldConfirm = (reason: string, additionalInfo?: string) => {
-    if (reason) {
-      handleStatusChange('hold', reason, additionalInfo);
-      setShowHoldDialog(false);
-      setSelectedReason("");
-    }
-  };
-
-  const handleComplete = () => {
-    setShowCompleteDialog(true);
-  };
-
-  const handleSkipForNow = async () => {
-    await handleStatusChange('completed');
-    setShowCompleteDialog(false);
-    toast({
-      title: "Lab Script Completed",
-      description: "Lab script has been marked as completed"
-    });
-  };
-
-  const buttonClass = "transition-all duration-300 transform hover:scale-105";
+  const status = currentScript?.status || script.status;
 
   switch (status) {
     case 'pending':
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleStatusChange('in_progress')}
-          className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
-          disabled={isUpdating}
-        >
-          <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
-          Start Design
-        </Button>
-      );
+      return <PendingAction onStatusChange={handleStatusChange} isUpdating={isUpdating} />;
     
     case 'in_progress':
       return (
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange('paused')}
-              className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
-              disabled={isUpdating}
-            >
-              <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-              Pause
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowHoldDialog(true)}
-              className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
-              disabled={isUpdating}
-            >
-              <StopCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-              Hold
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleComplete}
-              className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
-              disabled={isUpdating}
-            >
-              <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
-              Complete
-            </Button>
-
-            <HoldReasonDialog
-              open={showHoldDialog}
-              onOpenChange={setShowHoldDialog}
-              onConfirm={handleHoldConfirm}
-              selectedReason={selectedReason}
-              onReasonChange={setSelectedReason}
-            />
-
-            <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Lab Script Completed</DialogTitle>
-                  <DialogDescription>
-                    Would you like to complete the design information now?
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-end space-x-2 mt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleSkipForNow}
-                    disabled={isUpdating}
-                  >
-                    Skip for Now
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
+        <InProgressActions 
+          onStatusChange={handleStatusChange}
+          onDesignInfo={onDesignInfo}
+          isUpdating={isUpdating}
+        />
       );
     
     case 'paused':
     case 'hold':
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleStatusChange('in_progress')}
-          className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
-          disabled={isUpdating}
-        >
-          <PlayCircle className="h-4 w-4 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
-          Resume
-        </Button>
-      );
+      return <PausedAction onStatusChange={handleStatusChange} isUpdating={isUpdating} />;
     
     case 'completed':
       return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleStatusChange('in_progress')}
-          className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group animate-fade-in`}
-          disabled={isUpdating}
-        >
-          <AlertCircle className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
-          Edit Status
-        </Button>
+        <CompletedAction 
+          onStatusChange={handleStatusChange}
+          onDesignInfo={onDesignInfo}
+          isUpdating={isUpdating}
+        />
       );
     
     default:
