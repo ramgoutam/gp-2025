@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, TestTube, Factory, LogOut, FileText, Beaker } from "lucide-react";
+import { LayoutDashboard, Users, TestTube, Factory, LogOut, FileText, Beaker, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -112,6 +112,7 @@ export const Navigation = () => {
                   >
                     <Beaker className="w-4 h-4" />
                     <span>Lab</span>
+                    <ChevronDown className="w-4 h-4 ml-1 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
