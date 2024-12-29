@@ -8,6 +8,7 @@ import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -26,8 +27,9 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
+  const [designLink, setDesignLink] = useState<string>("");
+  const [files, setFiles] = useState<FileList | null>(null);
 
-  // Add real-time query for script status with proper type handling and error management
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
     queryFn: async () => {
@@ -65,9 +67,47 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
     try {
       console.log("Updating status for script:", script.id, "to:", newStatus);
+      
+      // If we have files, upload them first
+      if (selectedReason === "Hold for Approval" && files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const fileExt = file.name.split('.').pop();
+          const filePath = `${script.id}/${crypto.randomUUID()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('lab_script_files')
+            .upload(filePath, file);
+
+          if (uploadError) {
+            console.error("Error uploading file:", uploadError);
+            throw uploadError;
+          }
+
+          // Save file reference in lab_script_files table
+          const { error: dbError } = await supabase
+            .from('lab_script_files')
+            .insert({
+              lab_script_id: script.id,
+              file_name: file.name,
+              file_path: filePath,
+              file_type: file.type,
+              upload_type: 'hold_approval'
+            });
+
+          if (dbError) {
+            console.error("Error saving file reference:", dbError);
+            throw dbError;
+          }
+        }
+      }
+
       const { error } = await supabase
         .from('lab_scripts')
-        .update({ status: newStatus })
+        .update({ 
+          status: newStatus,
+          ...(selectedReason === "Hold for Approval" ? { design_link: designLink } : {})
+        })
         .eq('id', script.id);
 
       if (error) {
@@ -96,8 +136,9 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
       handleStatusChange('hold');
       setShowHoldDialog(false);
       setSelectedReason("");
+      setDesignLink("");
+      setFiles(null);
       
-      // Log the hold reason
       console.log("Script put on hold with reason:", selectedReason);
     }
   };
@@ -166,6 +207,32 @@ export const StatusButton = ({ script, status: initialStatus, onStatusChange }: 
                   ))}
                 </SelectContent>
               </Select>
+
+              {selectedReason === "Hold for Approval" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Design Link</label>
+                    <Input
+                      type="url"
+                      placeholder="Enter design weblink"
+                      value={designLink}
+                      onChange={(e) => setDesignLink(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Attach Pictures</label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => setFiles(e.target.files)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              )}
+
               <DialogFooter>
                 <Button
                   variant="outline"
