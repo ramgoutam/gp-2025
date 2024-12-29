@@ -57,7 +57,6 @@ export const HoldReasonInfo = ({ script }: HoldReasonInfoProps) => {
                   >
                     Open URL <ExternalLink className="h-4 w-4" />
                   </Button>
-                  <h4 className="font-medium text-sm text-gray-500">Design Webview URL</h4>
                 </div>
                 <a 
                   href={comment}
