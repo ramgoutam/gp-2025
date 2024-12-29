@@ -133,6 +133,12 @@ export const LabScriptsTab = ({
     console.log("Status changed for script:", script.id, newStatus);
   };
 
+  const handleDesignInfo = (script: LabScript) => {
+    console.log("Opening design info for script:", script);
+    setSelectedScript(script);
+    setIsEditing(true);
+  };
+
   const patientName = patientData 
     ? `${patientData.firstName} ${patientData.lastName}`
     : "Patient";
@@ -182,6 +188,7 @@ export const LabScriptsTab = ({
                   onDelete={() => handleDeleteClick(script)}
                   onEdit={() => handleEditClick(script)}
                   onStatusChange={handleStatusChange}
+                  onDesignInfo={handleDesignInfo}
                 />
               ))
             )}

@@ -12,9 +12,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 interface StatusButtonProps {
   script: LabScript;
   onStatusChange: (newStatus: LabScript['status']) => void;
+  onDesignInfo?: (script: LabScript) => void;
 }
 
-export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
+export const StatusButton = ({ script, onStatusChange, onDesignInfo }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
@@ -55,47 +56,44 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const status = currentScript?.status || script.status;
 
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
+    if (isUpdating || !script?.id) {
+      console.log("Cannot update status: either already updating or missing script ID");
+      return false;
+    }
+    
+    setIsUpdating(true);
+    console.log("Updating lab script status:", script.id, newStatus);
+
     try {
-      console.log("Updating status for script:", script.id, "to:", newStatus);
-      console.log("Hold reason:", holdReason);
-      console.log("Additional info:", additionalInfo);
-
-      const updates: any = { 
-        status: newStatus,
-        hold_reason: holdReason,
-        specific_instructions: additionalInfo
-      };
-
-      if (holdReason === "Hold for Approval") {
-        updates.design_link = additionalInfo;
-        updates.specific_instructions = null;
-      }
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('lab_scripts')
-        .update(updates)
-        .eq('id', script.id);
+        .update({ status: newStatus })
+        .eq('id', script.id)
+        .select()
+        .maybeSingle();
 
       if (error) {
         console.error("Error updating status:", error);
         throw error;
       }
 
-      onStatusChange(newStatus);
-      
-      if (newStatus !== 'completed') {
-        toast({
-          title: "Status Updated",
-          description: `Status changed to ${newStatus.replace('_', ' ')}`
-        });
-      }
+      console.log("Status updated successfully:", data);
+      toast({
+        title: "Status Updated",
+        description: `Lab script status changed to ${newStatus}`
+      });
+
+      return true;
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
         title: "Error",
-        description: "Failed to update status",
+        description: "Failed to update status. Please try again.",
         variant: "destructive"
       });
+      return false;
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -114,10 +112,9 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const handleCompleteDesignInfo = () => {
     handleStatusChange('completed');
     setShowCompleteDialog(false);
-    toast({
-      title: "Design Info",
-      description: "Redirecting to complete design information..."
-    });
+    if (onDesignInfo && script) {
+      onDesignInfo(script);
+    }
   };
 
   const handleSkipForNow = () => {
