@@ -96,6 +96,6 @@ export const useManufacturingData = () => {
     refetchInterval: 1,
     refetchIntervalInBackground: true,
     staleTime: 0, // This ensures data is always considered stale and will be refetched
-    cacheTime: 0  // This ensures the cache is cleared immediately
+    gcTime: 0  // Changed from cacheTime to gcTime for React Query v5
   });
 };
