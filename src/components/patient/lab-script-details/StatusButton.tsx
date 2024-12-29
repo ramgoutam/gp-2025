@@ -55,12 +55,20 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
       console.log("Updating status for script:", script.id, "to:", newStatus);
+      console.log("Hold reason:", holdReason);
+      console.log("Additional info:", additionalInfo);
+
       const updates: any = { 
         status: newStatus,
         hold_reason: holdReason,
-        design_link: holdReason === "Hold for Approval" ? additionalInfo : null,
-        specific_instructions: holdReason !== "Hold for Approval" ? additionalInfo : null
+        specific_instructions: additionalInfo
       };
+
+      // If it's a hold for approval, store the link in design_link instead
+      if (holdReason === "Hold for Approval") {
+        updates.design_link = additionalInfo;
+        updates.specific_instructions = null;
+      }
 
       const { error } = await supabase
         .from('lab_scripts')
