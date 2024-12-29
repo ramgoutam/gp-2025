@@ -14,7 +14,7 @@ import { Loader } from "lucide-react";
 interface PatientHeaderProps {
   patientData: any;
   onCreateLabScript: () => void;
-  onUpdatePatient: (data: any) => void; // Updated type to match the actual usage
+  onUpdatePatient: (data: any) => void;
 }
 
 export const PatientHeader = ({
@@ -32,6 +32,9 @@ export const PatientHeader = ({
   const handleEditPatient = async (updatedData: any) => {
     setIsUpdating(true);
     try {
+      // Combine address fields into a single string
+      const fullAddress = `${updatedData.street}, ${updatedData.city}, ${updatedData.state} ${updatedData.zipCode}`;
+      
       const { data, error } = await supabase
         .from('patients')
         .update({
@@ -43,7 +46,7 @@ export const PatientHeader = ({
           emergency_phone: updatedData.emergencyPhone,
           sex: updatedData.sex,
           dob: updatedData.dob,
-          address: updatedData.address,
+          address: fullAddress,
         })
         .eq('id', patientData.id)
         .select()
@@ -106,6 +109,12 @@ export const PatientHeader = ({
     }
   };
 
+  // Split the address string into components for the form
+  const addressParts = patientData.address ? patientData.address.split(',') : ['', '', ''];
+  const [street = '', cityStateZip = ''] = addressParts;
+  const [city = '', stateZip = ''] = (cityStateZip || '').trim().split(',');
+  const [state = '', zipCode = ''] = (stateZip || '').trim().split(' ');
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border border-gray-100">
@@ -149,6 +158,7 @@ export const PatientHeader = ({
           </div>
         </div>
       </div>
+
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl bg-white">
           {isUpdating ? (
@@ -167,9 +177,12 @@ export const PatientHeader = ({
                 emergencyPhone: patientData.emergency_phone || "",
                 sex: patientData.sex,
                 dob: patientData.dob,
-                address: patientData.address,
+                street: street.trim(),
+                city: city.trim(),
+                state: state.trim(),
+                zipCode: zipCode.trim(),
               }}
-              onSubmit={handleEditPatient} // This now matches the type signature
+              onSubmit={handleEditPatient}
               onClose={() => setShowEditDialog(false)}
             />
           )}
