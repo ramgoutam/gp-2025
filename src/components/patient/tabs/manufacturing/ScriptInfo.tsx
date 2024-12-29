@@ -8,6 +8,8 @@ interface ScriptInfoProps {
   manufacturingType: string;
   material: string;
   shade: string;
+  patientFirstName?: string;
+  patientLastName?: string;
   designInfo?: {
     appliance_type: string;
     upper_design_name: string;
@@ -23,12 +25,19 @@ export const ScriptInfo = ({
   manufacturingType,
   material,
   shade,
+  patientFirstName,
+  patientLastName,
   designInfo
 }: ScriptInfoProps) => (
   <div>
-    <h3 className="font-semibold text-lg">
-      {designInfo?.appliance_type || applianceType || 'N/A'} | {designInfo?.upper_design_name || upperDesignName || 'No upper appliance'} | {designInfo?.lower_design_name || lowerDesignName || 'No lower appliance'}
-    </h3>
+    <div className="flex items-center gap-2 mb-2">
+      <h3 className="font-semibold text-lg">
+        {designInfo?.appliance_type || applianceType || 'N/A'} | {designInfo?.upper_design_name || upperDesignName || 'No upper appliance'} | {designInfo?.lower_design_name || lowerDesignName || 'No lower appliance'}
+      </h3>
+      <span className="text-sm text-muted-foreground">
+        ({patientFirstName} {patientLastName})
+      </span>
+    </div>
     <div className="grid grid-cols-2 gap-3 text-sm mt-3">
       <div>
         <p className="text-gray-500 text-xs">Manufacturing Source</p>

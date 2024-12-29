@@ -10,6 +10,42 @@ import { ManufacturingCard } from "@/components/manufacturing/ManufacturingCard"
 import { Printer, Wrench, Factory, Settings } from "lucide-react";
 import { useState } from "react";
 
+// Let's extract the stats cards configuration to a separate component
+const statsCards = [
+  {
+    title: "Inhouse Printing",
+    icon: Printer,
+    color: "text-blue-500",
+    bgColor: "bg-blue-50",
+    progressColor: "bg-gradient-to-r from-blue-400 to-blue-500",
+    type: "inhouse_printing"
+  },
+  {
+    title: "Inhouse Milling",
+    icon: Wrench,
+    color: "text-purple-500",
+    bgColor: "bg-purple-50",
+    progressColor: "bg-gradient-to-r from-purple-400 to-purple-500",
+    type: "inhouse_milling"
+  },
+  {
+    title: "Outsource Printing",
+    icon: Factory,
+    color: "text-orange-500",
+    bgColor: "bg-orange-50",
+    progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
+    type: "outsource_printing"
+  },
+  {
+    title: "Outsource Milling",
+    icon: Settings,
+    color: "text-green-500",
+    bgColor: "bg-green-50",
+    progressColor: "bg-gradient-to-r from-green-400 to-green-500",
+    type: "outsource_milling"
+  }
+];
+
 const Manufacturing = () => {
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -135,45 +171,6 @@ const Manufacturing = () => {
     }
   };
 
-  const statsCards = [
-    {
-      title: "Inhouse Printing",
-      count: manufacturingData.counts.inhousePrinting,
-      icon: Printer,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
-      progressColor: "bg-gradient-to-r from-blue-400 to-blue-500",
-      type: "inhouse_printing"
-    },
-    {
-      title: "Inhouse Milling",
-      count: manufacturingData.counts.inhouseMilling,
-      icon: Wrench,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
-      progressColor: "bg-gradient-to-r from-purple-400 to-purple-500",
-      type: "inhouse_milling"
-    },
-    {
-      title: "Outsource Printing",
-      count: manufacturingData.counts.outsourcePrinting,
-      icon: Factory,
-      color: "text-orange-500",
-      bgColor: "bg-orange-50",
-      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
-      type: "outsource_printing"
-    },
-    {
-      title: "Outsource Milling",
-      count: manufacturingData.counts.outsourceMilling,
-      icon: Settings,
-      color: "text-green-500",
-      bgColor: "bg-green-50",
-      progressColor: "bg-gradient-to-r from-green-400 to-green-500",
-      type: "outsource_milling"
-    }
-  ];
-
   const filteredScripts = selectedType
     ? manufacturingData.scripts.filter(script => {
         const manufacturingSource = script.manufacturingSource?.toLowerCase();
@@ -193,7 +190,7 @@ const Manufacturing = () => {
           <ManufacturingCard
             key={card.title}
             title={card.title}
-            count={card.count}
+            count={manufacturingData.counts[card.type.replace('_', '') as keyof typeof manufacturingData.counts]}
             icon={card.icon}
             color={card.color}
             bgColor={card.bgColor}
@@ -222,6 +219,8 @@ const Manufacturing = () => {
                       material={script.material || ''}
                       shade={script.shade || ''}
                       designInfo={script.designInfo}
+                      patientFirstName={script.patientFirstName}
+                      patientLastName={script.patientLastName}
                     />
                     {script.manufacturingSource === 'Inhouse' && (
                       <ManufacturingSteps
