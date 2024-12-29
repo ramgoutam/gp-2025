@@ -69,8 +69,7 @@ export interface LabScript {
   material?: string;
   shade?: string;
   designInfoStatus?: string;
-  holdReason?: string;
-  designLink?: string;
+  holdReason?: string;  // Added this property
 }
 
 export interface DatabaseLabScript {

@@ -1,9 +1,9 @@
 import React from "react";
-import { format, isValid } from "date-fns";
+import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CardActions } from "./CardActions";
-import { StatusButton } from "./status/StatusButton";
+import { StatusButton } from "./StatusButton";
 import { LabScript, DatabaseLabScript, mapDatabaseLabScript } from "@/types/labScript";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,6 @@ interface LabScriptCardProps {
   onDelete: () => void;
   onEdit: () => void;
   onStatusChange: (script: LabScript, newStatus: LabScript['status']) => void;
-  onDesignInfo?: (script: LabScript) => void;
 }
 
 export const LabScriptCard = ({
@@ -25,11 +24,10 @@ export const LabScriptCard = ({
   onDelete,
   onEdit,
   onStatusChange,
-  onDesignInfo
 }: LabScriptCardProps) => {
   const { toast } = useToast();
-  const [isUpdating, setIsUpdating] = React.useState(false);
 
+  // Query for real-time script updates with better error handling
   const { data: updatedScript } = useQuery({
     queryKey: ['labScript', script.id],
     queryFn: async () => {
@@ -119,14 +117,9 @@ export const LabScriptCard = ({
     );
   };
 
-  const handleStatusChange = async (newStatus: LabScript['status']) => {
-    setIsUpdating(true);
-    try {
-      console.log("Handling status change in LabScriptCard:", script.id, newStatus);
-      onStatusChange(script, newStatus);
-    } finally {
-      setIsUpdating(false);
-    }
+  const handleStatusChange = (newStatus: LabScript['status']) => {
+    console.log("Handling status change in LabScriptCard:", updatedScript.id, newStatus);
+    onStatusChange(updatedScript, newStatus);
   };
 
   const formatDate = (dateString: string) => {
@@ -178,10 +171,8 @@ export const LabScriptCard = ({
               onEdit={onEdit}
             />
             <StatusButton 
-              script={script}
+              script={updatedScript}
               onStatusChange={handleStatusChange}
-              onDesignInfo={() => onDesignInfo?.(script)}
-              isUpdating={isUpdating}
             />
           </div>
         </div>

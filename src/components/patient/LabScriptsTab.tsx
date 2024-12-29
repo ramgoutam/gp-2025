@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptDetails } from "./LabScriptDetails";
 import { LabScriptCard } from "./lab-script-details/LabScriptCard";
@@ -84,6 +84,34 @@ export const LabScriptsTab = ({
     refetchInterval: 1,
   });
 
+  useEffect(() => {
+    const channel = supabase
+      .channel('lab-scripts-status')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'lab_scripts',
+          filter: `id=in.(${initialLabScripts.map(s => `'${s.id}'`).join(',')})`
+        },
+        (payload) => {
+          console.log("Lab script updated:", payload);
+          queryClient.setQueryData(['enrichedLabScripts', initialLabScripts], (old: any) => {
+            if (!old) return old;
+            return old.map((script: LabScript) => 
+              script.id === payload.new.id ? { ...script, ...payload.new } : script
+            );
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [initialLabScripts, queryClient]);
+
   const handleRowClick = (script: LabScript) => {
     console.log("Row clicked, script:", script);
     setSelectedScript(script);
@@ -103,12 +131,6 @@ export const LabScriptsTab = ({
 
   const handleStatusChange = (script: LabScript, newStatus: LabScript['status']) => {
     console.log("Status changed for script:", script.id, newStatus);
-  };
-
-  const handleDesignInfo = (script: LabScript) => {
-    console.log("Opening design info for script:", script);
-    setSelectedScript(script);
-    setIsEditing(true);
   };
 
   const patientName = patientData 
@@ -160,7 +182,6 @@ export const LabScriptsTab = ({
                   onDelete={() => handleDeleteClick(script)}
                   onEdit={() => handleEditClick(script)}
                   onStatusChange={handleStatusChange}
-                  onDesignInfo={handleDesignInfo}
                 />
               ))
             )}
