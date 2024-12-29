@@ -1,27 +1,71 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle } from "lucide-react";
-import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { StatusButtons } from './status/StatusButtons';
+import { HoldDialog } from './status/HoldDialog';
 
 interface StatusButtonProps {
-  script: LabScript;
-  onStatusChange: (newStatus: LabScript['status']) => void;
+  script: any;
+  onStatusChange: (newStatus: string) => void;
 }
 
 export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const [showHoldDialog, setShowHoldDialog] = useState(false);
-  const [holdReason, setHoldReason] = useState("");
+  const [selectedReason, setSelectedReason] = useState<string>("");
+  const [designLink, setDesignLink] = useState("");
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [comment, setComment] = useState("");
   const { toast } = useToast();
 
-  const handleStatusChange = async (newStatus: LabScript['status'], reason?: string) => {
+  const handleFileUpload = async () => {
+    if (!files || files.length === 0) return;
+
     try {
-      console.log("Updating status to:", newStatus, "with reason:", reason);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${script.id}/${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('lab_script_files')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { error: fileRecordError } = await supabase
+          .from('lab_script_files')
+          .insert({
+            lab_script_id: script.id,
+            file_name: file.name,
+            file_path: filePath,
+            file_type: file.type,
+            upload_type: 'design_approval'
+          });
+
+        if (fileRecordError) throw fileRecordError;
+      }
+    } catch (error) {
+      console.error("Error in file upload:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload files",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      console.log("Updating status for script:", script.id, "to:", newStatus);
       const updates: any = { status: newStatus };
       
-      if (reason) {
-        updates.hold_reason = reason;
+      if (newStatus === 'hold') {
+        if (selectedReason === 'Hold for Approval') {
+          updates.design_link = designLink;
+          await handleFileUpload();
+        } else {
+          updates.hold_reason = comment;
+        }
       }
 
       const { error } = await supabase
@@ -38,8 +82,12 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
         description: `Status changed to ${newStatus.replace('_', ' ')}`
       });
 
+      // Reset state
       setShowHoldDialog(false);
-      setHoldReason("");
+      setSelectedReason("");
+      setDesignLink("");
+      setFiles(null);
+      setComment("");
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -50,67 +98,29 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     }
   };
 
-  if (script.status === 'hold') {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleStatusChange('in_progress')}
-        className="flex items-center gap-2 hover:bg-primary/5"
-      >
-        <PlayCircle className="h-4 w-4 text-primary" />
-        Resume
-      </Button>
-    );
-  }
+  return (
+    <>
+      <StatusButtons
+        status={script.status}
+        onComplete={() => handleStatusChange('completed')}
+        onHold={() => setShowHoldDialog(true)}
+        onResume={() => handleStatusChange('in_progress')}
+        onStart={() => handleStatusChange('in_progress')}
+      />
 
-  if (script.status === 'in_progress') {
-    return (
-      <div className="flex flex-col gap-2">
-        {showHoldDialog ? (
-          <div className="flex gap-2 items-center">
-            <input
-              type="text"
-              value={holdReason}
-              onChange={(e) => setHoldReason(e.target.value)}
-              placeholder="Enter reason for hold..."
-              className="flex-1 px-3 py-1 border rounded"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange('hold', holdReason)}
-              disabled={!holdReason.trim()}
-              className="hover:bg-yellow-50 text-yellow-600 border-yellow-200"
-            >
-              Confirm Hold
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange('completed')}
-              className="flex items-center gap-2 hover:bg-green-50 text-green-600 border-green-200"
-            >
-              <CheckCircle className="h-4 w-4" />
-              Complete
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowHoldDialog(true)}
-              className="flex items-center gap-2 hover:bg-yellow-50 text-yellow-600 border-yellow-200"
-            >
-              <Pause className="h-4 w-4" />
-              Hold
-            </Button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return null;
+      <HoldDialog
+        showDialog={showHoldDialog}
+        onClose={() => setShowHoldDialog(false)}
+        selectedReason={selectedReason}
+        onReasonChange={setSelectedReason}
+        designLink={designLink}
+        onDesignLinkChange={setDesignLink}
+        files={files}
+        onFilesChange={setFiles}
+        comment={comment}
+        onCommentChange={setComment}
+        onConfirm={() => handleStatusChange('hold')}
+      />
+    </>
+  );
 };
