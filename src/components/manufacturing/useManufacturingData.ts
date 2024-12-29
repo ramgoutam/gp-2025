@@ -65,34 +65,37 @@ export const useManufacturingData = () => {
         s.manufacturingSource && s.manufacturingType
       );
 
+      // Calculate counts for each category
       const inhousePrinting = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
-      );
+      ).length;
 
       const inhouseMilling = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
-      );
+      ).length;
 
       const outsourcePrinting = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Printing'
-      );
+      ).length;
 
       const outsourceMilling = manufacturingQueue.filter(s => 
         s.manufacturingSource === 'Outsource' && s.manufacturingType === 'Milling'
-      );
+      ).length;
 
       return {
         counts: {
-          inhousePrinting: inhousePrinting.length,
-          inhouseMilling: inhouseMilling.length,
-          outsourcePrinting: outsourcePrinting.length,
-          outsourceMilling: outsourceMilling.length,
+          inhousePrinting,
+          inhouseMilling,
+          outsourcePrinting,
+          outsourceMilling,
           total: manufacturingQueue.length
         },
         scripts: manufacturingQueue
       };
     },
     refetchInterval: 1,
-    refetchIntervalInBackground: true
+    refetchIntervalInBackground: true,
+    staleTime: 0, // This ensures data is always considered stale and will be refetched
+    cacheTime: 0  // This ensures the cache is cleared immediately
   });
 };
