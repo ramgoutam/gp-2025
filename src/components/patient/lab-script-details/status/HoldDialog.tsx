@@ -64,7 +64,7 @@ export const HoldDialog = ({
               <SelectTrigger id="reason">
                 <SelectValue placeholder="Select reason" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border shadow-lg">
                 <SelectItem value="Hold for Approval">Hold for Approval</SelectItem>
                 <SelectItem value="Hold for Insufficient Data">Hold for Insufficient Data</SelectItem>
                 <SelectItem value="Hold for Insufficient Details">Hold for Insufficient Details</SelectItem>
