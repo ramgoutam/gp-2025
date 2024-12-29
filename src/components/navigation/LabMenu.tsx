@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Beaker, TestTube, FileText, Factory } from "lucide-react";
+import { Beaker, TestTube, FileText, Factory, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
