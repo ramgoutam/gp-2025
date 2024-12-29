@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -16,6 +17,7 @@ interface StatusButtonProps {
 export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
 
   const { data: currentScript } = useQuery({
@@ -64,7 +66,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
         specific_instructions: additionalInfo
       };
 
-      // If it's a hold for approval, store the link in design_link instead
       if (holdReason === "Hold for Approval") {
         updates.design_link = additionalInfo;
         updates.specific_instructions = null;
@@ -82,10 +83,12 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
       onStatusChange(newStatus);
       
-      toast({
-        title: "Status Updated",
-        description: `Status changed to ${newStatus.replace('_', ' ')}`
-      });
+      if (newStatus !== 'completed') {
+        toast({
+          title: "Status Updated",
+          description: `Status changed to ${newStatus.replace('_', ' ')}`
+        });
+      }
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -102,6 +105,28 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       setShowHoldDialog(false);
       setSelectedReason("");
     }
+  };
+
+  const handleComplete = () => {
+    setShowCompleteDialog(true);
+  };
+
+  const handleCompleteDesignInfo = () => {
+    handleStatusChange('completed');
+    setShowCompleteDialog(false);
+    toast({
+      title: "Design Info",
+      description: "Redirecting to complete design information..."
+    });
+  };
+
+  const handleSkipForNow = () => {
+    handleStatusChange('completed');
+    setShowCompleteDialog(false);
+    toast({
+      title: "Lab Script Completed",
+      description: "Lab script has been marked as completed"
+    });
   };
 
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
@@ -145,7 +170,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleStatusChange('completed')}
+              onClick={handleComplete}
               className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
             >
               <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
@@ -159,6 +184,30 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
               selectedReason={selectedReason}
               onReasonChange={setSelectedReason}
             />
+
+            <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Lab Script Completed</DialogTitle>
+                  <DialogDescription>
+                    Would you like to complete the design information now?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-end space-x-2 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleSkipForNow}
+                  >
+                    Skip for Now
+                  </Button>
+                  <Button
+                    onClick={handleCompleteDesignInfo}
+                  >
+                    Complete Design Info
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       );
