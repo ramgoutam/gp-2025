@@ -1,4 +1,5 @@
-import { Play, Pause, StopCircle, PlayCircle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Play, Pause, StopCircle, PlayCircle, CheckCircle, AlertCircle, FileCheck } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -8,10 +9,6 @@ import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
 import { CompletionDialog } from "./CompletionDialog";
 import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
-import { BaseButton } from "./buttons/BaseButton";
-import { CompletedStateButtons } from "./buttons/CompletedStateButtons";
-import { DesignInfoForm } from "@/components/patient/forms/DesignInfoForm";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -21,7 +18,7 @@ interface StatusButtonProps {
 export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
-  const [showDesignForm, setShowDesignForm] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
   const { updateStatus, isUpdating } = useLabScriptStatus();
 
@@ -63,6 +60,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     const success = await updateStatus(script, 'completed');
     if (success) {
       onStatusChange('completed');
+      setShowCompleteDialog(true);
     }
   };
 
@@ -89,46 +87,60 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     }
   };
 
-  const handleDesignInfoSave = (updatedScript: LabScript) => {
-    console.log("Design info saved:", updatedScript);
-    setShowDesignForm(false);
+  const handleDesignInfoClick = () => {
+    console.log("Opening design info form");
+    setShowCompleteDialog(true);
   };
+
+  const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const renderButton = () => {
     switch (status) {
       case 'pending':
         return (
-          <BaseButton
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleStatusChange('in_progress')}
-            icon={Play}
-            label="Start Design"
-            className="hover:bg-primary/5 group"
-          />
+            className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+          >
+            <Play className="h-4 w-4 text-primary transition-transform duration-300 group-hover:rotate-[360deg]" />
+            Start Design
+          </Button>
         );
       
       case 'in_progress':
         return (
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <BaseButton
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleStatusChange('paused')}
-                icon={Pause}
-                label="Pause"
-                className="hover:bg-yellow-50 text-yellow-600 border-yellow-200 group"
-              />
-              <BaseButton
+                className={`${buttonClass} hover:bg-yellow-50 text-yellow-600 border-yellow-200 group`}
+              >
+                <Pause className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+                Pause
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowHoldDialog(true)}
-                icon={StopCircle}
-                label="Hold"
-                className="hover:bg-red-50 text-red-600 border-red-200 group"
-              />
-              <BaseButton
+                className={`${buttonClass} hover:bg-red-50 text-red-600 border-red-200 group`}
+              >
+                <StopCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+                Hold
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleComplete}
-                icon={CheckCircle}
-                label="Complete"
-                className="hover:bg-green-50 text-green-600 border-green-200 group"
+                className={`${buttonClass} hover:bg-green-50 text-green-600 border-green-200 group`}
                 disabled={isUpdating}
-              />
+              >
+                <CheckCircle className="h-4 w-4 transition-all duration-300 group-hover:scale-110" />
+                Complete
+              </Button>
             </div>
           </div>
         );
@@ -136,21 +148,39 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
       case 'paused':
       case 'hold':
         return (
-          <BaseButton
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleStatusChange('in_progress')}
-            icon={PlayCircle}
-            label="Resume"
-            className="hover:bg-primary/5 group animate-fade-in"
-          />
+            className={`${buttonClass} hover:bg-primary/5 group animate-fade-in`}
+          >
+            <PlayCircle className="h-4 w-4 text-primary transition-all duration-300 group-hover:rotate-[360deg]" />
+            Resume
+          </Button>
         );
       
       case 'completed':
         return (
-          <CompletedStateButtons
-            script={script}
-            onDesignInfo={() => setShowDesignForm(true)}
-            onStatusChange={handleStatusChange}
-          />
+          <div className="flex gap-2 animate-fade-in">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDesignInfoClick}
+              className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+            >
+              <FileCheck className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
+              Complete Design Info
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleStatusChange('in_progress')}
+              className={`${buttonClass} hover:bg-blue-50 text-blue-600 border-blue-200 group`}
+            >
+              <AlertCircle className="h-4 w-4 transition-all duration-300 group-hover:rotate-12" />
+              Edit Status
+            </Button>
+          </div>
         );
       
       default:
@@ -170,16 +200,13 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
         onReasonChange={setSelectedReason}
       />
 
-      <Dialog open={showDesignForm} onOpenChange={setShowDesignForm}>
-        <DialogContent className="max-w-4xl">
-          <DesignInfoForm
-            onClose={() => setShowDesignForm(false)}
-            scriptId={script.id}
-            script={script}
-            onSave={handleDesignInfoSave}
-          />
-        </DialogContent>
-      </Dialog>
+      <CompletionDialog
+        open={showCompleteDialog}
+        onOpenChange={setShowCompleteDialog}
+        onSkip={() => setShowCompleteDialog(false)}
+        onComplete={() => setShowCompleteDialog(false)}
+        script={script}
+      />
     </>
   );
 };
