@@ -93,9 +93,9 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1,
+    refetchInterval: 3000, // Changed from 1 to 3000ms (3 seconds)
     refetchIntervalInBackground: true,
-    staleTime: 0, // This ensures data is always considered stale and will be refetched
-    gcTime: 0  // Changed from cacheTime to gcTime for React Query v5
+    staleTime: 0,
+    gcTime: 0
   });
 };
