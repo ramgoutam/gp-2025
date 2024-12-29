@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseLabScript } from "@/types/labScript";
 import { useState } from "react";
 import { HoldReasonDialog } from "./HoldReasonDialog";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface StatusButtonProps {
   script: LabScript;
@@ -18,7 +17,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const { toast } = useToast();
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
-  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
 
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -52,6 +50,8 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     initialData: script,
   });
 
+  const status = currentScript?.status || script.status;
+
   const handleStatusChange = async (newStatus: LabScript['status'], holdReason?: string, additionalInfo?: string) => {
     try {
       console.log("Updating status for script:", script.id, "to:", newStatus);
@@ -82,14 +82,10 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
 
       onStatusChange(newStatus);
       
-      if (newStatus === 'completed') {
-        setShowCompleteDialog(true);
-      } else {
-        toast({
-          title: "Status Updated",
-          description: `Status changed to ${newStatus.replace('_', ' ')}`
-        });
-      }
+      toast({
+        title: "Status Updated",
+        description: `Status changed to ${newStatus.replace('_', ' ')}`
+      });
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -108,26 +104,7 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
     }
   };
 
-  const handleCompleteDesignInfo = () => {
-    setShowCompleteDialog(false);
-    // Navigate to design info form or trigger design info completion
-    toast({
-      title: "Action Required",
-      description: "Please complete the design information"
-    });
-  };
-
-  const handleSkipForNow = () => {
-    setShowCompleteDialog(false);
-    toast({
-      title: "Completed",
-      description: "Lab script has been marked as completed"
-    });
-  };
-
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
-
-  const status = currentScript?.status || script.status;
 
   switch (status) {
     case 'pending':
@@ -182,32 +159,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
               selectedReason={selectedReason}
               onReasonChange={setSelectedReason}
             />
-
-            <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Lab Script Completed</DialogTitle>
-                  <DialogDescription>
-                    Would you like to complete the design information now?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex gap-2 justify-end">
-                  <Button
-                    variant="outline"
-                    onClick={handleSkipForNow}
-                    className="hover:bg-gray-100"
-                  >
-                    Skip for Now
-                  </Button>
-                  <Button
-                    onClick={handleCompleteDesignInfo}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    Complete Design Info
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
       );
