@@ -112,13 +112,31 @@ export const updateLabScript = async (script: LabScript): Promise<LabScript> => 
 
 export const deleteLabScript = async (id: string): Promise<void> => {
   console.log("Deleting lab script from database:", id);
-  const { error } = await supabase
-    .from('lab_scripts')
-    .delete()
-    .eq('id', id);
+  
+  try {
+    // First, delete related manufacturing logs
+    const { error: manufacturingLogsError } = await supabase
+      .from('manufacturing_logs')
+      .delete()
+      .eq('lab_script_id', id);
 
-  if (error) {
-    console.error("Error deleting lab script:", error);
+    if (manufacturingLogsError) {
+      console.error("Error deleting manufacturing logs:", manufacturingLogsError);
+      throw manufacturingLogsError;
+    }
+
+    // Then delete the lab script
+    const { error } = await supabase
+      .from('lab_scripts')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error("Error deleting lab script:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in deleteLabScript:", error);
     throw error;
   }
 };
