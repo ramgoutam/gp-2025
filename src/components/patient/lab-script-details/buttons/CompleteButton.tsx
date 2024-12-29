@@ -15,13 +15,13 @@ export const CompleteButton = ({ script, onStatusChange }: CompleteButtonProps) 
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const { toast } = useToast();
 
-  const handleStatusChange = async (newStatus: LabScript['status']) => {
+  const handleComplete = async () => {
     try {
-      console.log("Updating status for script:", script.id, "to:", newStatus);
+      console.log("Updating status for script:", script.id, "to: completed");
 
       const { error } = await supabase
         .from('lab_scripts')
-        .update({ status: newStatus })
+        .update({ status: 'completed' })
         .eq('id', script.id);
 
       if (error) {
@@ -29,7 +29,13 @@ export const CompleteButton = ({ script, onStatusChange }: CompleteButtonProps) 
         throw error;
       }
 
-      onStatusChange(newStatus);
+      onStatusChange('completed');
+      setShowCompleteDialog(true);
+      
+      toast({
+        title: "Lab Script Completed",
+        description: "Please choose whether to add design information now"
+      });
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -38,13 +44,6 @@ export const CompleteButton = ({ script, onStatusChange }: CompleteButtonProps) 
         variant: "destructive"
       });
     }
-  };
-
-  const handleComplete = async () => {
-    // First update the status to completed
-    await handleStatusChange('completed');
-    // Then show the dialog
-    setShowCompleteDialog(true);
   };
 
   const handleCompleteDesignInfo = () => {

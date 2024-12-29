@@ -24,14 +24,6 @@ export const CompletionDialog = ({
   const isDesignInfoCompleted = script.designInfo !== undefined;
 
   const handleDesignInfoClick = () => {
-    if (script.status !== 'completed') {
-      toast({
-        title: "Error",
-        description: "Lab script must be completed before adding design information",
-        variant: "destructive"
-      });
-      return;
-    }
     onComplete();
   };
 
@@ -67,7 +59,7 @@ export const CompletionDialog = ({
               Skip for Now
             </Button>
             <Button
-              onClick={onComplete}
+              onClick={handleDesignInfoClick}
             >
               Complete Design Info
             </Button>
