@@ -221,7 +221,7 @@ const Manufacturing = () => {
                       manufacturingType={script.manufacturingType || ''}
                       material={script.material || ''}
                       shade={script.shade || ''}
-                      designInfo={script.report_cards?.design_info}
+                      designInfo={script.designInfo}
                     />
                     {script.manufacturingSource === 'Inhouse' && (
                       <ManufacturingSteps
