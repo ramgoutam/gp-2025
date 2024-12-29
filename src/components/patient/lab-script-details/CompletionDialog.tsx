@@ -24,9 +24,15 @@ export const CompletionDialog = ({
   const isDesignInfoCompleted = script.designInfo !== undefined;
 
   const handleDesignInfoClick = () => {
-    console.log("Design info button clicked");
-    onComplete(); // This will trigger the parent component to show the design info form
-    onOpenChange(false); // Close the dialog after clicking
+    if (script.status !== 'completed') {
+      toast({
+        title: "Error",
+        description: "Lab script must be completed before adding design information",
+        variant: "destructive"
+      });
+      return;
+    }
+    onComplete();
   };
 
   return (
@@ -61,7 +67,7 @@ export const CompletionDialog = ({
               Skip for Now
             </Button>
             <Button
-              onClick={handleDesignInfoClick}
+              onClick={onComplete}
             >
               Complete Design Info
             </Button>
