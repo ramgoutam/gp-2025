@@ -14,7 +14,7 @@ import { Loader } from "lucide-react";
 interface PatientHeaderProps {
   patientData: any;
   onCreateLabScript: () => void;
-  onUpdatePatient: (data: any) => void;
+  onUpdatePatient: (data: any) => void; // Updated type to match the actual usage
 }
 
 export const PatientHeader = ({
@@ -149,7 +149,6 @@ export const PatientHeader = ({
           </div>
         </div>
       </div>
-
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl bg-white">
           {isUpdating ? (
@@ -170,7 +169,7 @@ export const PatientHeader = ({
                 dob: patientData.dob,
                 address: patientData.address,
               }}
-              onSubmit={handleEditPatient}
+              onSubmit={handleEditPatient} // This now matches the type signature
               onClose={() => setShowEditDialog(false)}
             />
           )}
