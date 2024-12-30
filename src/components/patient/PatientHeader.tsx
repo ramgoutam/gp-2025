@@ -32,6 +32,9 @@ export const PatientHeader = ({
   const handleEditPatient = async (updatedData: any) => {
     setIsUpdating(true);
     try {
+      // Combine address fields into a single string
+      const fullAddress = `${updatedData.street}, ${updatedData.city}, ${updatedData.state} ${updatedData.zipCode}`;
+      
       const { data, error } = await supabase
         .from('patients')
         .update({
@@ -43,7 +46,7 @@ export const PatientHeader = ({
           emergency_phone: updatedData.emergencyPhone,
           sex: updatedData.sex,
           dob: updatedData.dob,
-          address: updatedData.address,
+          address: fullAddress,
         })
         .eq('id', patientData.id)
         .select()
@@ -105,6 +108,12 @@ export const PatientHeader = ({
       setShowDeleteDialog(false);
     }
   };
+
+  // Split the address string into components for the form
+  const addressParts = patientData.address ? patientData.address.split(',') : ['', '', ''];
+  const [street = '', cityStateZip = ''] = addressParts;
+  const [city = '', stateZip = ''] = (cityStateZip || '').trim().split(',');
+  const [state = '', zipCode = ''] = (stateZip || '').trim().split(' ');
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -168,9 +177,12 @@ export const PatientHeader = ({
                 emergencyPhone: patientData.emergency_phone || "",
                 sex: patientData.sex,
                 dob: patientData.dob,
-                address: patientData.address,
+                street: street.trim(),
+                city: city.trim(),
+                state: state.trim(),
+                zipCode: zipCode.trim(),
               }}
-              onSubmitSuccess={handleEditPatient}
+              onSubmit={handleEditPatient}
               onClose={() => setShowEditDialog(false)}
             />
           )}

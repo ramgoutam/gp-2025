@@ -1,14 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Loader2, CheckCircle2, Files, PauseCircle, StopCircle, AlertTriangle } from "lucide-react";
-import { StatusCard } from "./StatusCard";
+import { StatusCard } from "@/components/scripts/StatusCard";
 
-type ScriptStatusCardsProps = {
-  onFilterChange: (status: string | null) => void;
-  activeFilter: string | null;
-};
-
-export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatusCardsProps) => {
+export const LabScriptsCards = () => {
   const { data: scriptCounts = { 
     pending: 0, 
     inProcess: 0, 
@@ -20,7 +15,7 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   } } = useQuery({
     queryKey: ['scriptStatusCounts'],
     queryFn: async () => {
-      console.log('Fetching script status counts');
+      console.log('Fetching script status counts for dashboard');
       
       const { data: scripts, error } = await supabase
         .from('lab_scripts')
@@ -48,14 +43,10 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
         total: scripts.length
       };
     },
-    refetchInterval: 500
+    refetchInterval: 1000
   });
 
-  const handleCardClick = (status: string | null) => {
-    onFilterChange(activeFilter === status ? null : status);
-  };
-
-  const cards = [
+  const firstRowCards = [
     {
       title: "New Lab Scripts",
       count: scriptCounts.pending,
@@ -91,7 +82,10 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
       iconColor: "text-red-500",
       progressColor: "bg-gradient-to-r from-red-400 to-red-500",
       status: 'hold'
-    },
+    }
+  ];
+
+  const secondRowCards = [
     {
       title: "Incomplete",
       count: scriptCounts.incomplete,
@@ -122,27 +116,54 @@ export const ScriptStatusCards = ({ onFilterChange, activeFilter }: ScriptStatus
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6 animate-fade-in">
-      {cards.map((card, index) => (
-        <div
-          key={card.title}
-          className="animate-fade-in"
-          style={{
-            animationDelay: `${index * 100}ms`
-          }}
-        >
-          <StatusCard
-            title={card.title}
-            count={card.count}
-            icon={card.icon}
-            color={card.color}
-            iconColor={card.iconColor}
-            progressColor={card.progressColor}
-            onClick={() => handleCardClick(card.status)}
-            isActive={activeFilter === card.status}
-          />
+    <div className="border rounded-lg p-6 bg-white h-full">
+      <h2 className="text-xl font-semibold mb-6 text-left">Lab Scripts</h2>
+      <div className="space-y-8 animate-fade-in">
+        <div className="grid grid-cols-4 gap-6">
+          {firstRowCards.map((card, index) => (
+            <div
+              key={card.title}
+              className="animate-fade-in"
+              style={{
+                animationDelay: `${index * 100}ms`
+              }}
+            >
+              <StatusCard
+                title={card.title}
+                count={card.count}
+                icon={card.icon}
+                color={card.color}
+                iconColor={card.iconColor}
+                progressColor={card.progressColor}
+                onClick={() => {}}
+                isActive={false}
+              />
+            </div>
+          ))}
         </div>
-      ))}
+        <div className="grid grid-cols-3 gap-6">
+          {secondRowCards.map((card, index) => (
+            <div
+              key={card.title}
+              className="animate-fade-in"
+              style={{
+                animationDelay: `${(index + 4) * 100}ms`
+              }}
+            >
+              <StatusCard
+                title={card.title}
+                count={card.count}
+                icon={card.icon}
+                color={card.color}
+                iconColor={card.iconColor}
+                progressColor={card.progressColor}
+                onClick={() => {}}
+                isActive={false}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

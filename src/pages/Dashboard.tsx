@@ -1,23 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, FileText, ClipboardCheck, Calendar, Clock, ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useQueryClient } from "@tanstack/react-query";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
-import { DashboardAppointments } from "@/components/dashboard/DashboardAppointments";
-import { DashboardProgress } from "@/components/dashboard/DashboardProgress";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   console.log("Rendering Dashboard component");
 
-  // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -69,22 +61,9 @@ const Dashboard = () => {
   }, [queryClient]);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Welcome to your NYDI dashboard</p>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       <DashboardStats />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardCharts />
-        <DashboardAppointments />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardProgress />
-      </div>
+      <DashboardCharts />
     </div>
   );
 };

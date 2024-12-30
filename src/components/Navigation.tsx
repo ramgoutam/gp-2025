@@ -43,7 +43,13 @@ export const Navigation = () => {
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
-            <div className="text-primary font-bold text-xl">NYDI</div>
+            <div className="flex items-center">
+              <img 
+                src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
+                alt="NYDI Logo"
+                className="h-14 w-auto"
+              />
+            </div>
             <div className="flex space-x-4">
               <MainLinks />
               <LabMenu />
