@@ -1,8 +1,3 @@
-import type { ClinicalInfo } from "./clinicalInfo";
-import type { DesignInfo } from "./designInfo";
-import type { ManufacturingLog } from "./manufacturing";
-import type { ReportCard, InfoStatus } from "./reportCard";
-
 export type LabScriptStatus = 
   | "pending"
   | "processing"
