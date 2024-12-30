@@ -1,53 +1,15 @@
-export type LabScriptStatus = "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
-
-export interface DesignInfo {
-  report_card_id: string;
-  design_date: string;
-  implant_library?: string;
-  teeth_library?: string;
-  actions_taken?: string;
-  appliance_type?: string;
-  upper_treatment?: string;
-  lower_treatment?: string;
-  screw?: string;
-  upper_design_name?: string;
-  lower_design_name?: string;
-}
-
-export interface ClinicalInfo {
-  report_card_id: string;
-  insertion_date: string;
-  appliance_fit?: string;
-  design_feedback?: string;
-  occlusion?: string;
-  esthetics?: string;
-  adjustments_made?: string;
-  material?: string;
-  shade?: string;
-}
-
-export interface ReportCard {
-  id: string;
-  lab_script_id: string;
-  patient_id: string;
-  design_info?: DesignInfo;
-  clinical_info?: ClinicalInfo;
-  design_info_status: string;
-  clinical_info_status: string;
-  status: string;
-}
+import { Database } from "@/integrations/supabase/types";
+import { ManufacturingLog } from "./manufacturing";
 
 export interface LabScript {
   id: string;
   requestNumber?: string;
   patientId?: string;
-  patientFirstName?: string;
-  patientLastName?: string;
   doctorName: string;
   clinicName: string;
   requestDate: string;
   dueDate: string;
-  status: LabScriptStatus;
+  status: string;
   upperTreatment?: string;
   lowerTreatment?: string;
   upperDesignName?: string;
@@ -56,96 +18,43 @@ export interface LabScript {
   screwType?: string;
   vdoOption?: string;
   specificInstructions?: string;
-  designInfo?: DesignInfo;
-  clinicalInfo?: ClinicalInfo;
-  reportCard?: ReportCard;
-  fileUploads?: Record<string, File>;
-  treatments?: {
-    upper: string[];
-    lower: string[];
-  };
+  createdAt: string;
+  updatedAt: string;
   manufacturingSource?: string;
   manufacturingType?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;
-  holdReason?: string;  // Added this property
+  designLink?: string;
+  holdReason?: string;
+  manufacturingLog?: ManufacturingLog | null;
 }
 
-export interface DatabaseLabScript {
-  id: string;
-  request_number?: string;
-  patient_id?: string;
-  doctor_name: string;
-  clinic_name: string;
-  request_date: string;
-  due_date: string;
-  status: string;
-  upper_treatment?: string;
-  lower_treatment?: string;
-  upper_design_name?: string;
-  lower_design_name?: string;
-  appliance_type?: string;
-  screw_type?: string;
-  vdo_option?: string;
-  specific_instructions?: string;
-  created_at: string;
-  updated_at: string;
-  manufacturing_source?: string;
-  manufacturing_type?: string;
-  material?: string;
-  shade?: string;
-  hold_reason?: string;  // Added this property
-}
-
-export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
+export const mapDatabaseLabScript = (data: any): LabScript => {
   return {
-    id: dbScript.id,
-    requestNumber: dbScript.request_number,
-    patientId: dbScript.patient_id,
-    doctorName: dbScript.doctor_name,
-    clinicName: dbScript.clinic_name,
-    requestDate: dbScript.request_date,
-    dueDate: dbScript.due_date,
-    status: dbScript.status as LabScriptStatus,
-    upperTreatment: dbScript.upper_treatment,
-    lowerTreatment: dbScript.lower_treatment,
-    upperDesignName: dbScript.upper_design_name,
-    lowerDesignName: dbScript.lower_design_name,
-    applianceType: dbScript.appliance_type,
-    screwType: dbScript.screw_type,
-    vdoOption: dbScript.vdo_option,
-    specificInstructions: dbScript.specific_instructions,
-    manufacturingSource: dbScript.manufacturing_source,
-    manufacturingType: dbScript.manufacturing_type,
-    material: dbScript.material,
-    shade: dbScript.shade,
-    holdReason: dbScript.hold_reason,  // Added this mapping
-  };
-};
-
-export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabScript> => {
-  return {
-    id: script.id,
-    request_number: script.requestNumber,
-    patient_id: script.patientId,
-    doctor_name: script.doctorName,
-    clinic_name: script.clinicName,
-    request_date: script.requestDate,
-    due_date: script.dueDate,
-    status: script.status,
-    upper_treatment: script.upperTreatment,
-    lower_treatment: script.lowerTreatment,
-    upper_design_name: script.upperDesignName,
-    lower_design_name: script.lowerDesignName,
-    appliance_type: script.applianceType,
-    screw_type: script.screwType,
-    vdo_option: script.vdoOption,
-    specific_instructions: script.specificInstructions,
-    manufacturing_source: script.manufacturingSource,
-    manufacturing_type: script.manufacturingType,
-    material: script.material,
-    shade: script.shade,
-    hold_reason: script.holdReason,  // Added this mapping
+    id: data.id,
+    requestNumber: data.request_number,
+    patientId: data.patient_id,
+    doctorName: data.doctor_name,
+    clinicName: data.clinic_name,
+    requestDate: data.request_date,
+    dueDate: data.due_date,
+    status: data.status,
+    upperTreatment: data.upper_treatment,
+    lowerTreatment: data.lower_treatment,
+    upperDesignName: data.upper_design_name,
+    lowerDesignName: data.lower_design_name,
+    applianceType: data.appliance_type,
+    screwType: data.screw_type,
+    vdoOption: data.vdo_option,
+    specificInstructions: data.specific_instructions,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    manufacturingSource: data.manufacturing_source,
+    manufacturingType: data.manufacturing_type,
+    material: data.material,
+    shade: data.shade,
+    designLink: data.design_link,
+    holdReason: data.hold_reason,
+    manufacturingLog: data.manufacturing_logs?.[0] || null
   };
 };
