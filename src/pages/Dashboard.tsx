@@ -1,15 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, FileText, ClipboardCheck, Calendar, Clock, ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useQueryClient } from "@tanstack/react-query";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
-import { DashboardAppointments } from "@/components/dashboard/DashboardAppointments";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -76,9 +70,8 @@ const Dashboard = () => {
       </div>
 
       <DashboardStats />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         <DashboardCharts />
-        <DashboardAppointments />
       </div>
     </div>
   );
