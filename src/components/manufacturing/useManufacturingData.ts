@@ -106,6 +106,9 @@ export const useManufacturingData = () => {
           // Immediately refetch the data and update the cache
           const newData = await fetchManufacturingData();
           queryClient.setQueryData(['manufacturingData'], newData);
+          
+          // Also invalidate the query to ensure UI updates
+          queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
         }
       )
       .subscribe();
