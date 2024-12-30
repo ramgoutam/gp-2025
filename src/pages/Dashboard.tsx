@@ -61,14 +61,7 @@ const Dashboard = () => {
   }, [queryClient]);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Welcome to your NYDI dashboard</p>
-        </div>
-      </div>
-
+    <div className="space-y-6">
       <DashboardStats />
       <DashboardCharts />
     </div>
