@@ -11,9 +11,9 @@ interface ScriptInfoProps {
   patientFirstName?: string;
   patientLastName?: string;
   designInfo?: {
-    appliance_type?: string;  // Made optional
-    upper_design_name?: string;  // Made optional
-    lower_design_name?: string;  // Made optional
+    appliance_type: string;
+    upper_design_name: string;
+    lower_design_name: string;
   };
 }
 
