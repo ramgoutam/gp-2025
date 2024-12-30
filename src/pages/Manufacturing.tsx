@@ -62,7 +62,8 @@ const Manufacturing = () => {
           // Show in Miyo tab if manufacturing is completed and miyo is not completed
           return manufacturing_status === 'completed' && miyo_status !== 'completed';
         case 'inspection':
-          return miyo_status === 'completed' && inspection_status === 'in_progress';
+          // Show in Inspection tab if miyo is completed and inspection is not completed
+          return miyo_status === 'completed' && inspection_status !== 'completed';
         case 'completed':
           return inspection_status === 'completed';
         case 'rejected':
@@ -139,7 +140,6 @@ const Manufacturing = () => {
         scripts={manufacturingData.scripts}
       />
       
-      {/* Filter Buttons Section */}
       {selectedType && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="flex flex-wrap gap-2">
