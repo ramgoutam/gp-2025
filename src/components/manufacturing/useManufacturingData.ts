@@ -119,7 +119,7 @@ export const useManufacturingData = () => {
     };
   }, [queryClient]);
 
-  // Use React Query with real-time updates
+  // Use React Query with real-time updates and frequent refetching
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: fetchManufacturingData,
