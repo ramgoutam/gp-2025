@@ -88,7 +88,7 @@ export const ReportStatusCards = () => {
   return (
     <div className="border rounded-lg p-6 bg-white">
       <h2 className="text-xl font-semibold mb-4 text-left">Report Cards</h2>
-      <div className="grid grid-cols-2 gap-4 animate-fade-in">
+      <div className="grid grid-cols-4 gap-4 animate-fade-in">
         {reportCards.map((card, index) => (
           <div
             key={card.title}
