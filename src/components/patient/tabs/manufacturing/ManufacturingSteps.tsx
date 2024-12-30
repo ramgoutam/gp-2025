@@ -53,8 +53,6 @@ export const ManufacturingSteps = ({
   onResumeInspection,
   manufacturingType = 'Milling'
 }: ManufacturingStepsProps) => {
-  const isPrinting = manufacturingType === 'Printing';
-
   // Show manufacturing stage if not completed
   if (manufacturingStatus !== 'completed') {
     return (
@@ -70,51 +68,35 @@ export const ManufacturingSteps = ({
     );
   }
 
-  // For Printing, skip sintering and go directly to Miyo after manufacturing
-  if (isPrinting) {
-    if (miyoStatus !== 'completed') {
-      return (
-        <MiyoStage
-          scriptId={scriptId}
-          status={miyoStatus}
-          onStart={() => onStartMiyo?.(scriptId)}
-          onComplete={() => onCompleteMiyo?.(scriptId)}
-          onHold={() => onHoldMiyo?.(scriptId)}
-          onResume={() => onResumeMiyo?.(scriptId)}
-        />
-      );
-    }
-  } else {
-    // For Milling, show sintering stage if manufacturing is completed
-    if (sinteringStatus !== 'completed') {
-      return (
-        <SinteringStage
-          scriptId={scriptId}
-          status={sinteringStatus}
-          onStart={() => onStartSintering?.(scriptId)}
-          onComplete={() => onCompleteSintering?.(scriptId)}
-          onHold={() => onHoldSintering?.(scriptId)}
-          onResume={() => onResumeSintering?.(scriptId)}
-        />
-      );
-    }
-
-    // Show Miyo stage if sintering is completed
-    if (miyoStatus !== 'completed') {
-      return (
-        <MiyoStage
-          scriptId={scriptId}
-          status={miyoStatus}
-          onStart={() => onStartMiyo?.(scriptId)}
-          onComplete={() => onCompleteMiyo?.(scriptId)}
-          onHold={() => onHoldMiyo?.(scriptId)}
-          onResume={() => onResumeMiyo?.(scriptId)}
-        />
-      );
-    }
+  // Show sintering stage if manufacturing is completed
+  if (sinteringStatus !== 'completed') {
+    return (
+      <SinteringStage
+        scriptId={scriptId}
+        status={sinteringStatus}
+        onStart={() => onStartSintering?.(scriptId)}
+        onComplete={() => onCompleteSintering?.(scriptId)}
+        onHold={() => onHoldSintering?.(scriptId)}
+        onResume={() => onResumeSintering?.(scriptId)}
+      />
+    );
   }
 
-  // Show Inspection stage if previous stages are completed
+  // Show Miyo stage if sintering is completed
+  if (miyoStatus !== 'completed') {
+    return (
+      <MiyoStage
+        scriptId={scriptId}
+        status={miyoStatus}
+        onStart={() => onStartMiyo?.(scriptId)}
+        onComplete={() => onCompleteMiyo?.(scriptId)}
+        onHold={() => onHoldMiyo?.(scriptId)}
+        onResume={() => onResumeMiyo?.(scriptId)}
+      />
+    );
+  }
+
+  // Show Inspection stage if Miyo is completed
   if (inspectionStatus !== 'completed') {
     return (
       <InspectionStage

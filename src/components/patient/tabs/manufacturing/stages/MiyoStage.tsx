@@ -37,6 +37,7 @@ export const MiyoStage = ({
         miyo_status: newStatus,
       };
 
+      // Add appropriate timestamp based on status
       if (newStatus === 'in_progress') {
         updates.miyo_started_at = timestamp;
       } else if (newStatus === 'completed') {
@@ -58,17 +59,6 @@ export const MiyoStage = ({
         title: "Status Updated",
         description: `Miyo ${newStatus.replace('_', ' ')}`
       });
-
-      // Call the appropriate callback to update parent state
-      if (newStatus === 'in_progress') {
-        onStart();
-      } else if (newStatus === 'completed') {
-        onComplete();
-      } else if (newStatus === 'on_hold') {
-        onHold();
-      } else if (newStatus === 'resumed') {
-        onResume();
-      }
     } catch (error) {
       console.error("Error updating miyo status:", error);
       toast({
@@ -81,16 +71,19 @@ export const MiyoStage = ({
 
   const handleStart = async () => {
     await updateMiyoStatus('in_progress');
+    onStart();
   };
 
   const handleComplete = async () => {
     await updateMiyoStatus('completed');
+    onComplete();
   };
 
   const handleHold = async () => {
     if (holdReason.trim()) {
       await updateMiyoStatus('on_hold', holdReason);
       setSavedHoldReason(holdReason);
+      onHold();
       setShowReasonInput(false);
       setHoldReason("");
     }
@@ -98,6 +91,7 @@ export const MiyoStage = ({
 
   const handleResume = async () => {
     await updateMiyoStatus('in_progress');
+    onResume();
   };
 
   if (status === 'pending') {

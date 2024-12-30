@@ -4,7 +4,6 @@ import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface ManufacturingQueueProps {
   scripts: LabScript[];
@@ -22,87 +21,107 @@ export const ManufacturingQueue = ({
   inspectionStatus
 }: ManufacturingQueueProps) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const updateManufacturingLog = async (scriptId: string, updates: any) => {
+  const handleStartManufacturing = async (scriptId: string) => {
     try {
       const { error } = await supabase
         .from('manufacturing_logs')
-        .update(updates)
+        .update({
+          manufacturing_status: 'in_progress',
+          manufacturing_started_at: new Date().toISOString()
+        })
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
 
-      // Optimistically update the cache
-      queryClient.setQueryData(['manufacturingLogs', scriptId], (oldData: any) => ({
-        ...oldData,
-        ...updates
-      }));
-
-      return true;
-    } catch (error) {
-      console.error('Error updating manufacturing log:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update manufacturing status",
-        variant: "destructive"
-      });
-      return false;
-    }
-  };
-
-  const handleStartManufacturing = async (scriptId: string) => {
-    const success = await updateManufacturingLog(scriptId, {
-      manufacturing_status: 'in_progress',
-      manufacturing_started_at: new Date().toISOString()
-    });
-
-    if (success) {
       toast({
         title: "Manufacturing Started",
         description: "The manufacturing process has been initiated."
+      });
+    } catch (error) {
+      console.error('Error starting manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start manufacturing process",
+        variant: "destructive"
       });
     }
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
-    const success = await updateManufacturingLog(scriptId, {
-      manufacturing_status: 'completed',
-      manufacturing_completed_at: new Date().toISOString()
-    });
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'completed',
+          manufacturing_completed_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
 
-    if (success) {
+      if (error) throw error;
+
       toast({
         title: "Manufacturing Completed",
         description: "The manufacturing process has been completed."
+      });
+    } catch (error) {
+      console.error('Error completing manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete manufacturing process",
+        variant: "destructive"
       });
     }
   };
 
   const handleHoldManufacturing = async (scriptId: string) => {
-    const success = await updateManufacturingLog(scriptId, {
-      manufacturing_status: 'on_hold',
-      manufacturing_hold_at: new Date().toISOString()
-    });
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'on_hold',
+          manufacturing_hold_at: new Date().toISOString()
+        })
+        .eq('lab_script_id', scriptId);
 
-    if (success) {
+      if (error) throw error;
+
       toast({
         title: "Manufacturing On Hold",
         description: "The manufacturing process has been put on hold."
+      });
+    } catch (error) {
+      console.error('Error holding manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to put manufacturing process on hold",
+        variant: "destructive"
       });
     }
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
-    const success = await updateManufacturingLog(scriptId, {
-      manufacturing_status: 'in_progress',
-      manufacturing_hold_at: null
-    });
+    try {
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update({
+          manufacturing_status: 'in_progress',
+          manufacturing_hold_at: null
+        })
+        .eq('lab_script_id', scriptId);
 
-    if (success) {
+      if (error) throw error;
+
       toast({
         title: "Manufacturing Resumed",
         description: "The manufacturing process has been resumed."
+      });
+    } catch (error) {
+      console.error('Error resuming manufacturing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resume manufacturing process",
+        variant: "destructive"
       });
     }
   };
