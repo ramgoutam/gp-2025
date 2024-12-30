@@ -47,7 +47,7 @@ export const DashboardCharts = () => {
     refetchInterval: 1000
   });
 
-  const cards = [
+  const firstRowCards = [
     {
       title: "New Lab Scripts",
       count: scriptCounts.pending,
@@ -83,7 +83,10 @@ export const DashboardCharts = () => {
       iconColor: "text-red-500",
       progressColor: "bg-gradient-to-r from-red-400 to-red-500",
       status: 'hold'
-    },
+    }
+  ];
+
+  const secondRowCards = [
     {
       title: "Incomplete",
       count: scriptCounts.incomplete,
@@ -114,14 +117,36 @@ export const DashboardCharts = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="grid grid-cols-7 gap-4">
-        {cards.map((card, index) => (
+    <div className="space-y-4 animate-fade-in">
+      <div className="grid grid-cols-4 gap-4">
+        {firstRowCards.map((card, index) => (
           <div
             key={card.title}
             className="animate-fade-in"
             style={{
               animationDelay: `${index * 100}ms`
+            }}
+          >
+            <StatusCard
+              title={card.title}
+              count={card.count}
+              icon={card.icon}
+              color={card.color}
+              iconColor={card.iconColor}
+              progressColor={card.progressColor}
+              onClick={() => {}}
+              isActive={false}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        {secondRowCards.map((card, index) => (
+          <div
+            key={card.title}
+            className="animate-fade-in"
+            style={{
+              animationDelay: `${(index + 4) * 100}ms`
             }}
           >
             <StatusCard
