@@ -102,10 +102,7 @@ export const useManufacturingData = () => {
         },
         async (payload) => {
           console.log("Received real-time update for manufacturing log:", payload);
-          
-          // Immediately refetch the data and update the cache
-          const newData = await fetchManufacturingData();
-          queryClient.setQueryData(['manufacturingData'], newData);
+          await queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
         }
       )
       .subscribe();
@@ -120,8 +117,10 @@ export const useManufacturingData = () => {
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: fetchManufacturingData,
-    refetchInterval: 1000, // Refetch every second as a fallback
+    refetchInterval: 1, // Refetch every millisecond
     staleTime: 0, // Consider data always stale to enable refetching
-    gcTime: 0 // Don't garbage collect the data
+    gcTime: 0, // Don't garbage collect the data
+    retry: true, // Retry failed requests
+    retryDelay: 100 // Wait 100ms between retries
   });
 };
