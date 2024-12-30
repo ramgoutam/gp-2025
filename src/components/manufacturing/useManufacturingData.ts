@@ -76,13 +76,30 @@ export const useManufacturingData = () => {
         s.manufacturingSource && s.manufacturingType
       );
 
-      // Calculate counts for each category
-      const inhousePrinting = manufacturingQueue.filter(s => 
-        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Printing'
-      ).length;
+      // Calculate counts for each category based on manufacturing status and type
+      const inhousePrinting = manufacturingQueue.filter(s => {
+        if (s.manufacturingSource !== 'Inhouse' || s.manufacturingType !== 'Printing') return false;
+        
+        const log = s.manufacturingLogs?.[0];
+        if (!log) return false;
+
+        // For printing workflow:
+        // If manufacturing is not completed, count as printing
+        if (log.manufacturing_status !== 'completed') return true;
+        
+        // If manufacturing is completed but miyo not started/completed, count as miyo
+        if (log.miyo_status !== 'completed') return false;
+        
+        // If miyo is completed but inspection not completed, count as inspection
+        if (log.inspection_status !== 'completed') return false;
+
+        return false;
+      }).length;
 
       const inhouseMilling = manufacturingQueue.filter(s => 
-        s.manufacturingSource === 'Inhouse' && s.manufacturingType === 'Milling'
+        s.manufacturingSource === 'Inhouse' && 
+        s.manufacturingType === 'Milling' &&
+        s.manufacturingLogs?.[0]?.manufacturing_status !== 'completed'
       ).length;
 
       const outsourcePrinting = manufacturingQueue.filter(s => 
