@@ -1,51 +1,31 @@
 import { Card } from "@/components/ui/card";
-import { LabScript } from "@/types/labScript";
-import { StatusMap } from "@/types/manufacturing";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
+import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ManufacturingQueueProps {
   scripts: LabScript[];
-  manufacturingStatus: StatusMap;
-  sinteringStatus: StatusMap;
-  miyoStatus: StatusMap;
-  inspectionStatus: StatusMap;
+  manufacturingStatus: Record<string, string>;
+  sinteringStatus: Record<string, string>;
+  miyoStatus: Record<string, string>;
+  inspectionStatus: Record<string, string>;
 }
 
-export const ManufacturingQueue = ({ 
+export const ManufacturingQueue = ({
   scripts,
   manufacturingStatus,
   sinteringStatus,
   miyoStatus,
-  inspectionStatus 
+  inspectionStatus
 }: ManufacturingQueueProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const updateManufacturingStatus = async (
-    scriptId: string, 
-    newStatus: string, 
-    stage: string,
-    timestamp: string,
-    holdReason?: string
-  ) => {
+  const updateManufacturingLog = async (scriptId: string, updates: any) => {
     try {
-      console.log(`Updating ${stage} status:`, newStatus, "for script:", scriptId);
-      
-      const updates: any = {
-        [`${stage}_status`]: newStatus,
-      };
-
-      if (timestamp) {
-        updates[timestamp] = new Date().toISOString();
-      }
-
-      if (holdReason) {
-        updates[`${stage}_hold_reason`] = holdReason;
-      }
-
       const { error } = await supabase
         .from('manufacturing_logs')
         .update(updates)
@@ -53,118 +33,97 @@ export const ManufacturingQueue = ({
 
       if (error) throw error;
 
-      console.log(`${stage} status updated successfully`);
-      toast({
-        title: "Status Updated",
-        description: `${stage} ${newStatus.replace('_', ' ')}`
-      });
+      // Optimistically update the cache
+      queryClient.setQueryData(['manufacturingLogs', scriptId], (oldData: any) => ({
+        ...oldData,
+        ...updates
+      }));
+
+      return true;
     } catch (error) {
-      console.error(`Error updating ${stage} status:`, error);
+      console.error('Error updating manufacturing log:', error);
       toast({
         title: "Error",
-        description: `Failed to update ${stage} status`,
+        description: "Failed to update manufacturing status",
         variant: "destructive"
       });
+      return false;
     }
   };
 
   const handleStartManufacturing = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'in_progress',
-      'manufacturing',
-      'manufacturing_started_at'
-    );
+    const success = await updateManufacturingLog(scriptId, {
+      manufacturing_status: 'in_progress',
+      manufacturing_started_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Manufacturing Started",
+        description: "The manufacturing process has been initiated."
+      });
+    }
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'completed',
-      'manufacturing',
-      'manufacturing_completed_at'
-    );
+    const success = await updateManufacturingLog(scriptId, {
+      manufacturing_status: 'completed',
+      manufacturing_completed_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Manufacturing Completed",
+        description: "The manufacturing process has been completed."
+      });
+    }
   };
 
   const handleHoldManufacturing = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'on_hold',
-      'manufacturing',
-      'manufacturing_hold_at'
-    );
+    const success = await updateManufacturingLog(scriptId, {
+      manufacturing_status: 'on_hold',
+      manufacturing_hold_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Manufacturing On Hold",
+        description: "The manufacturing process has been put on hold."
+      });
+    }
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'in_progress',
-      'manufacturing',
-      'manufacturing_started_at'
-    );
-  };
+    const success = await updateManufacturingLog(scriptId, {
+      manufacturing_status: 'in_progress',
+      manufacturing_hold_at: null
+    });
 
-  const handleStartInspection = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'in_progress',
-      'inspection',
-      'inspection_started_at'
-    );
+    if (success) {
+      toast({
+        title: "Manufacturing Resumed",
+        description: "The manufacturing process has been resumed."
+      });
+    }
   };
-
-  const handleCompleteInspection = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'completed',
-      'inspection',
-      'inspection_completed_at'
-    );
-  };
-
-  const handleHoldInspection = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'on_hold',
-      'inspection',
-      'inspection_hold_at'
-    );
-  };
-
-  const handleResumeInspection = async (scriptId: string) => {
-    await updateManufacturingStatus(
-      scriptId,
-      'in_progress',
-      'inspection',
-      'inspection_started_at'
-    );
-  };
-
-  if (scripts.length === 0) {
-    return (
-      <Card className="p-4">
-        <div className="text-center text-gray-500">
-          No manufacturing items available
-        </div>
-      </Card>
-    );
-  }
 
   return (
-    <ScrollArea className="h-[calc(100vh-200px)]">
-      <div className="space-y-4 pr-4">
+    <Card className="p-6">
+      <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
+      <div className="space-y-4">
         {scripts.map((script) => (
           <Card key={script.id} className="p-4 transition-all duration-300 hover:shadow-lg">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <ScriptInfo
-                  applianceType={script.applianceType}
-                  upperDesignName={script.upperDesignName}
-                  lowerDesignName={script.lowerDesignName}
-                  manufacturingSource={script.manufacturingSource}
-                  manufacturingType={script.manufacturingType}
-                  material={script.material}
-                  shade={script.shade}
+                  applianceType={script.applianceType || ''}
+                  upperDesignName={script.upperDesignName || ''}
+                  lowerDesignName={script.lowerDesignName || ''}
+                  manufacturingSource={script.manufacturingSource || ''}
+                  manufacturingType={script.manufacturingType || ''}
+                  material={script.material || ''}
+                  shade={script.shade || ''}
+                  designInfo={script.designInfo}
                   patientFirstName={script.patientFirstName}
                   patientLastName={script.patientLastName}
                 />
@@ -179,10 +138,6 @@ export const ManufacturingQueue = ({
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
                     onResumeManufacturing={handleResumeManufacturing}
-                    onStartInspection={handleStartInspection}
-                    onCompleteInspection={handleCompleteInspection}
-                    onHoldInspection={handleHoldInspection}
-                    onResumeInspection={handleResumeInspection}
                     manufacturingType={script.manufacturingType}
                   />
                 )}
@@ -191,6 +146,6 @@ export const ManufacturingQueue = ({
           </Card>
         ))}
       </div>
-    </ScrollArea>
+    </Card>
   );
 };
