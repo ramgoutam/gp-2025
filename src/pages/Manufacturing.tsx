@@ -1,6 +1,5 @@
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
-import { StatsCards } from "@/components/manufacturing/StatsCards";
 import { ManufacturingQueue } from "@/components/manufacturing/ManufacturingQueue";
 import { useState } from "react";
 
@@ -35,18 +34,7 @@ const Manufacturing = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-4">
-      <StatsCards
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        scripts={manufacturingData.scripts}
-      />
-      <ManufacturingQueue
-        scripts={filteredScripts}
-        manufacturingStatus={manufacturingStatus}
-        sinteringStatus={sinteringStatus}
-        miyoStatus={miyoStatus}
-        inspectionStatus={inspectionStatus}
-      />
+      <div className="text-2xl font-bold">Manufacturing Queue</div>
     </div>
   );
 };
