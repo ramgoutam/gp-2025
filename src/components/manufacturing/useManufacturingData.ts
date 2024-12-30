@@ -123,7 +123,7 @@ export const useManufacturingData = () => {
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: fetchManufacturingData,
-    refetchInterval: 1000, // Refetch every second as a fallback
+    refetchInterval: 1000, // Refetch every second
     staleTime: 0, // Consider data always stale to enable refetching
     gcTime: 0 // Don't garbage collect the data
   });
