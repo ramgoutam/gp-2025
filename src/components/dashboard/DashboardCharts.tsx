@@ -268,112 +268,106 @@ export const DashboardCharts = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-6">
-      {/* Left Column - Lab Scripts */}
-      <div className="space-y-4">
-        <div className="border rounded-lg p-6 bg-white">
-          <h2 className="text-xl font-semibold mb-4 text-left">Lab Scripts</h2>
-          <div className="space-y-4 animate-fade-in">
-            <div className="grid grid-cols-2 gap-4">
-              {firstRowCards.map((card, index) => (
-                <div
-                  key={card.title}
-                  className="animate-fade-in"
-                  style={{
-                    animationDelay: `${index * 100}ms`
-                  }}
-                >
-                  <StatusCard
-                    title={card.title}
-                    count={card.count}
-                    icon={card.icon}
-                    color={card.color}
-                    iconColor={card.iconColor}
-                    progressColor={card.progressColor}
-                    onClick={() => {}}
-                    isActive={false}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {secondRowCards.map((card, index) => (
-                <div
-                  key={card.title}
-                  className="animate-fade-in"
-                  style={{
-                    animationDelay: `${(index + 4) * 100}ms`
-                  }}
-                >
-                  <StatusCard
-                    title={card.title}
-                    count={card.count}
-                    icon={card.icon}
-                    color={card.color}
-                    iconColor={card.iconColor}
-                    progressColor={card.progressColor}
-                    onClick={() => {}}
-                    isActive={false}
-                  />
-                </div>
-              ))}
-            </div>
+    <div className="space-y-4">
+      <div className="border rounded-lg p-6 bg-white">
+        <h2 className="text-xl font-semibold mb-4 text-left">Lab Scripts</h2>
+        <div className="space-y-4 animate-fade-in">
+          <div className="grid grid-cols-4 gap-4">
+            {firstRowCards.map((card, index) => (
+              <div
+                key={card.title}
+                className="animate-fade-in"
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
+              >
+                <StatusCard
+                  title={card.title}
+                  count={card.count}
+                  icon={card.icon}
+                  color={card.color}
+                  iconColor={card.iconColor}
+                  progressColor={card.progressColor}
+                  onClick={() => {}}
+                  isActive={false}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            {secondRowCards.map((card, index) => (
+              <div
+                key={card.title}
+                className="animate-fade-in"
+                style={{
+                  animationDelay: `${(index + 4) * 100}ms`
+                }}
+              >
+                <StatusCard
+                  title={card.title}
+                  count={card.count}
+                  icon={card.icon}
+                  color={card.color}
+                  iconColor={card.iconColor}
+                  progressColor={card.progressColor}
+                  onClick={() => {}}
+                  isActive={false}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Right Column - Report Cards and Manufacturing */}
-      <div className="space-y-4">
-        <div className="border rounded-lg p-6 bg-white">
-          <h2 className="text-xl font-semibold mb-4 text-left">Report Cards</h2>
-          <div className="grid grid-cols-2 gap-4 animate-fade-in">
-            {reportCards.map((card, index) => (
-              <div
-                key={card.title}
-                className="animate-fade-in"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
-              >
-                <StatusCard
-                  title={card.title}
-                  count={card.count}
-                  icon={card.icon}
-                  color={card.color}
-                  iconColor={card.iconColor}
-                  progressColor={card.progressColor}
-                  onClick={() => {}}
-                  isActive={false}
-                />
-              </div>
-            ))}
-          </div>
+      <div className="border rounded-lg p-6 bg-white">
+        <h2 className="text-xl font-semibold mb-4 text-left">Report Cards</h2>
+        <div className="grid grid-cols-4 gap-4 animate-fade-in">
+          {reportCards.map((card, index) => (
+            <div
+              key={card.title}
+              className="animate-fade-in"
+              style={{
+                animationDelay: `${index * 100}ms`
+              }}
+            >
+              <StatusCard
+                title={card.title}
+                count={card.count}
+                icon={card.icon}
+                color={card.color}
+                iconColor={card.iconColor}
+                progressColor={card.progressColor}
+                onClick={() => {}}
+                isActive={false}
+              />
+            </div>
+          ))}
         </div>
+      </div>
 
-        <div className="border rounded-lg p-6 bg-white">
-          <h2 className="text-xl font-semibold mb-4 text-left">Manufacturing</h2>
-          <div className="grid grid-cols-2 gap-4 animate-fade-in">
-            {manufacturingCards.map((card, index) => (
-              <div
-                key={card.title}
-                className="animate-fade-in"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
-              >
-                <StatusCard
-                  title={card.title}
-                  count={card.count}
-                  icon={card.icon}
-                  color={card.color}
-                  iconColor={card.iconColor}
-                  progressColor={card.progressColor}
-                  onClick={() => {}}
-                  isActive={false}
-                />
-              </div>
-            ))}
-          </div>
+      <div className="border rounded-lg p-6 bg-white">
+        <h2 className="text-xl font-semibold mb-4 text-left">Manufacturing</h2>
+        <div className="grid grid-cols-4 gap-4 animate-fade-in">
+          {manufacturingCards.map((card, index) => (
+            <div
+              key={card.title}
+              className="animate-fade-in"
+              style={{
+                animationDelay: `${index * 100}ms`
+              }}
+            >
+              <StatusCard
+                title={card.title}
+                count={card.count}
+                icon={card.icon}
+                color={card.color}
+                iconColor={card.iconColor}
+                progressColor={card.progressColor}
+                onClick={() => {}}
+                isActive={false}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
