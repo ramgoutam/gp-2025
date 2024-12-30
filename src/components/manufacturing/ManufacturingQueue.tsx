@@ -4,6 +4,8 @@ import { StatusMap } from "@/types/manufacturing";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ManufacturingSteps } from "@/components/patient/tabs/manufacturing/ManufacturingSteps";
 import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ManufacturingQueueProps {
   scripts: LabScript[];
@@ -20,36 +22,122 @@ export const ManufacturingQueue = ({
   miyoStatus,
   inspectionStatus 
 }: ManufacturingQueueProps) => {
+  const { toast } = useToast();
+
+  const updateManufacturingStatus = async (
+    scriptId: string, 
+    newStatus: string, 
+    stage: string,
+    timestamp: string,
+    holdReason?: string
+  ) => {
+    try {
+      console.log(`Updating ${stage} status:`, newStatus, "for script:", scriptId);
+      
+      const updates: any = {
+        [`${stage}_status`]: newStatus,
+      };
+
+      if (timestamp) {
+        updates[timestamp] = new Date().toISOString();
+      }
+
+      if (holdReason) {
+        updates[`${stage}_hold_reason`] = holdReason;
+      }
+
+      const { error } = await supabase
+        .from('manufacturing_logs')
+        .update(updates)
+        .eq('lab_script_id', scriptId);
+
+      if (error) throw error;
+
+      console.log(`${stage} status updated successfully`);
+      toast({
+        title: "Status Updated",
+        description: `${stage} ${newStatus.replace('_', ' ')}`
+      });
+    } catch (error) {
+      console.error(`Error updating ${stage} status:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to update ${stage} status`,
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleStartManufacturing = async (scriptId: string) => {
-    console.log('Starting manufacturing process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'in_progress',
+      'manufacturing',
+      'manufacturing_started_at'
+    );
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
-    console.log('Completing manufacturing process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'completed',
+      'manufacturing',
+      'manufacturing_completed_at'
+    );
   };
 
   const handleHoldManufacturing = async (scriptId: string) => {
-    console.log('Holding manufacturing process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'on_hold',
+      'manufacturing',
+      'manufacturing_hold_at'
+    );
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
-    console.log('Resuming manufacturing process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'in_progress',
+      'manufacturing',
+      'manufacturing_started_at'
+    );
   };
 
   const handleStartInspection = async (scriptId: string) => {
-    console.log('Starting inspection process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'in_progress',
+      'inspection',
+      'inspection_started_at'
+    );
   };
 
   const handleCompleteInspection = async (scriptId: string) => {
-    console.log('Completing inspection process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'completed',
+      'inspection',
+      'inspection_completed_at'
+    );
   };
 
   const handleHoldInspection = async (scriptId: string) => {
-    console.log('Holding inspection process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'on_hold',
+      'inspection',
+      'inspection_hold_at'
+    );
   };
 
   const handleResumeInspection = async (scriptId: string) => {
-    console.log('Resuming inspection process for script:', scriptId);
+    await updateManufacturingStatus(
+      scriptId,
+      'in_progress',
+      'inspection',
+      'inspection_started_at'
+    );
   };
 
   if (scripts.length === 0) {
