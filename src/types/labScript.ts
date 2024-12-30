@@ -37,6 +37,31 @@ export interface ReportCard {
   status: string;
 }
 
+export interface ManufacturingLog {
+  id: string;
+  lab_script_id: string;
+  manufacturing_status: string;
+  manufacturing_started_at: string | null;
+  manufacturing_completed_at: string | null;
+  manufacturing_hold_at: string | null;
+  manufacturing_hold_reason: string | null;
+  sintering_status: string;
+  sintering_started_at: string | null;
+  sintering_completed_at: string | null;
+  sintering_hold_at: string | null;
+  sintering_hold_reason: string | null;
+  miyo_status: string;
+  miyo_started_at: string | null;
+  miyo_completed_at: string | null;
+  miyo_hold_at: string | null;
+  miyo_hold_reason: string | null;
+  inspection_status: string;
+  inspection_started_at: string | null;
+  inspection_completed_at: string | null;
+  inspection_hold_at: string | null;
+  inspection_hold_reason: string | null;
+}
+
 export interface LabScript {
   id: string;
   requestNumber?: string;
@@ -69,7 +94,8 @@ export interface LabScript {
   material?: string;
   shade?: string;
   designInfoStatus?: string;
-  holdReason?: string;  // Added this property
+  holdReason?: string;
+  manufacturingLogs?: ManufacturingLog[];
 }
 
 export interface DatabaseLabScript {
@@ -95,7 +121,8 @@ export interface DatabaseLabScript {
   manufacturing_type?: string;
   material?: string;
   shade?: string;
-  hold_reason?: string;  // Added this property
+  hold_reason?: string;
+  manufacturing_logs?: ManufacturingLog[];
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -120,7 +147,8 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     manufacturingType: dbScript.manufacturing_type,
     material: dbScript.material,
     shade: dbScript.shade,
-    holdReason: dbScript.hold_reason,  // Added this mapping
+    holdReason: dbScript.hold_reason,
+    manufacturingLogs: dbScript.manufacturing_logs,
   };
 };
 
@@ -146,6 +174,6 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     manufacturing_type: script.manufacturingType,
     material: script.material,
     shade: script.shade,
-    hold_reason: script.holdReason,  // Added this mapping
+    hold_reason: script.holdReason,
   };
 };
