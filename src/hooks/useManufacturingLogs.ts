@@ -3,12 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { ManufacturingLog, StatusMap } from "@/types/manufacturing";
 import { LabScript } from "@/types/labScript";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
   const [manufacturingStatus, setManufacturingStatus] = useState<StatusMap>({});
   const [sinteringStatus, setSinteringStatus] = useState<StatusMap>({});
   const [miyoStatus, setMiyoStatus] = useState<StatusMap>({});
   const [inspectionStatus, setInspectionStatus] = useState<StatusMap>({});
+  const queryClient = useQueryClient();
 
   const fetchManufacturingLogs = async () => {
     try {
@@ -67,6 +69,7 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
             const newData = payload.new;
             const scriptId = newData.lab_script_id;
             
+            // Immediately update local state
             setManufacturingStatus(prev => ({
               ...prev,
               [scriptId]: newData.manufacturing_status || 'pending'
@@ -83,6 +86,9 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
               ...prev,
               [scriptId]: newData.inspection_status || 'pending'
             }));
+
+            // Update React Query cache
+            queryClient.setQueryData(['manufacturingLogs', scriptId], newData);
           }
         }
       )
@@ -92,7 +98,7 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
       console.log("Cleaning up manufacturing logs subscription");
       supabase.removeChannel(channel);
     };
-  }, [manufacturingScripts]);
+  }, [manufacturingScripts, queryClient]);
 
   return {
     manufacturingStatus,
