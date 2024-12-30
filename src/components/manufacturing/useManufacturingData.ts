@@ -50,6 +50,13 @@ export const useManufacturingData = () => {
 
       const mappedScripts = scripts.map(script => {
         const mappedScript = mapDatabaseLabScript(script);
+        // Ensure manufacturing_logs is always an array
+        const manufacturingLogs = script.manufacturing_logs 
+          ? Array.isArray(script.manufacturing_logs)
+            ? script.manufacturing_logs
+            : [script.manufacturing_logs]
+          : [];
+
         return {
           ...mappedScript,
           patientFirstName: script.patients?.first_name,
@@ -58,11 +65,7 @@ export const useManufacturingData = () => {
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
           clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingLogs: Array.isArray(script.manufacturing_logs) 
-            ? script.manufacturing_logs 
-            : script.manufacturing_logs 
-              ? [script.manufacturing_logs]
-              : []
+          manufacturingLogs
         };
       });
 
