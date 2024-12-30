@@ -84,6 +84,39 @@ const Manufacturing = () => {
     });
   };
 
+  const getFilterCount = (filterName: string) => {
+    return filteredScripts.filter(script => {
+      const manufacturingLog = script.manufacturingLogs?.[0];
+      if (!manufacturingLog) return filterName.toLowerCase() === 'ready for printing';
+
+      const { 
+        manufacturing_status,
+        miyo_status,
+        inspection_status,
+        inspection_hold_reason 
+      } = manufacturingLog;
+
+      switch (filterName.toLowerCase()) {
+        case 'ready for printing':
+          return manufacturing_status === 'pending';
+        case 'in progress':
+          return (
+            (manufacturing_status === 'in_progress') ||
+            (manufacturing_status === 'completed' && miyo_status !== 'completed') ||
+            (miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold')
+          );
+        case 'printing':
+          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
+        case 'miyo':
+          return manufacturing_status === 'completed' && miyo_status !== 'completed';
+        case 'inspection':
+          return miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold';
+        default:
+          return false;
+      }
+    }).length;
+  };
+
   const getFilterIcon = (filter: string) => {
     switch (filter.toLowerCase()) {
       case 'all':
@@ -157,19 +190,29 @@ const Manufacturing = () => {
       {selectedType && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="flex flex-wrap gap-2">
-            {renderFilters()?.map((filter) => (
-              <Button
-                key={`filter-${filter}`}
-                variant="outline"
-                size="sm"
-                onClick={() => setActiveFilter(filter.toLowerCase())}
-                className={`flex items-center gap-2 bg-transparent hover:bg-transparent ${getFilterColor(filter)} 
-                  ${activeFilter === filter.toLowerCase() ? 'ring-2 ring-primary' : ''}`}
-              >
-                {getFilterIcon(filter)}
-                {filter}
-              </Button>
-            ))}
+            {renderFilters()?.map((filter) => {
+              const shouldShowCount = ['Ready for Printing', 'In Progress', 'Printing', 'Miyo', 'Inspection'].includes(filter);
+              const count = shouldShowCount ? getFilterCount(filter) : null;
+              
+              return (
+                <Button
+                  key={`filter-${filter}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveFilter(filter.toLowerCase())}
+                  className={`flex items-center gap-2 bg-transparent hover:bg-transparent ${getFilterColor(filter)} 
+                    ${activeFilter === filter.toLowerCase() ? 'ring-2 ring-primary' : ''}`}
+                >
+                  {getFilterIcon(filter)}
+                  {filter}
+                  {count !== null && (
+                    <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-gray-100">
+                      {count}
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
           </div>
         </div>
       )}
