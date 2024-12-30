@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Play, CheckCircle, Pause, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from '@tanstack/react-query';
 
 interface MiyoStageProps {
   scriptId: string;
@@ -26,6 +27,7 @@ export const MiyoStage = ({
   const [showReasonInput, setShowReasonInput] = useState(false);
   const [savedHoldReason, setSavedHoldReason] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const updateMiyoStatus = async (newStatus: string, holdReason?: string) => {
@@ -53,6 +55,10 @@ export const MiyoStage = ({
         .eq('lab_script_id', scriptId);
 
       if (error) throw error;
+
+      // Invalidate and refetch queries
+      await queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
+      await queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
 
       console.log("Miyo status updated successfully");
       toast({
