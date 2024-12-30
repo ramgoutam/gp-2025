@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Play, CheckCircle, Pause, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from '@tanstack/react-query';
 
 interface MiyoStageProps {
   scriptId: string;
@@ -27,7 +26,6 @@ export const MiyoStage = ({
   const [showReasonInput, setShowReasonInput] = useState(false);
   const [savedHoldReason, setSavedHoldReason] = useState("");
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const updateMiyoStatus = async (newStatus: string, holdReason?: string) => {
@@ -39,7 +37,6 @@ export const MiyoStage = ({
         miyo_status: newStatus,
       };
 
-      // Add appropriate timestamp based on status
       if (newStatus === 'in_progress') {
         updates.miyo_started_at = timestamp;
       } else if (newStatus === 'completed') {
@@ -56,15 +53,22 @@ export const MiyoStage = ({
 
       if (error) throw error;
 
-      // Invalidate and refetch queries
-      await queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
-      await queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
-
       console.log("Miyo status updated successfully");
       toast({
         title: "Status Updated",
         description: `Miyo ${newStatus.replace('_', ' ')}`
       });
+
+      // Call the appropriate callback to update parent state
+      if (newStatus === 'in_progress') {
+        onStart();
+      } else if (newStatus === 'completed') {
+        onComplete();
+      } else if (newStatus === 'on_hold') {
+        onHold();
+      } else if (newStatus === 'resumed') {
+        onResume();
+      }
     } catch (error) {
       console.error("Error updating miyo status:", error);
       toast({
@@ -77,19 +81,16 @@ export const MiyoStage = ({
 
   const handleStart = async () => {
     await updateMiyoStatus('in_progress');
-    onStart();
   };
 
   const handleComplete = async () => {
     await updateMiyoStatus('completed');
-    onComplete();
   };
 
   const handleHold = async () => {
     if (holdReason.trim()) {
       await updateMiyoStatus('on_hold', holdReason);
       setSavedHoldReason(holdReason);
-      onHold();
       setShowReasonInput(false);
       setHoldReason("");
     }
@@ -97,7 +98,6 @@ export const MiyoStage = ({
 
   const handleResume = async () => {
     await updateMiyoStatus('in_progress');
-    onResume();
   };
 
   if (status === 'pending') {

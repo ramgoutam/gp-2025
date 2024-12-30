@@ -10,43 +10,43 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
   const [miyoStatus, setMiyoStatus] = useState<StatusMap>({});
   const [inspectionStatus, setInspectionStatus] = useState<StatusMap>({});
 
+  const fetchManufacturingLogs = async () => {
+    try {
+      if (manufacturingScripts.length === 0) return;
+
+      console.log("Fetching manufacturing logs for scripts:", manufacturingScripts.map(s => s.id));
+
+      const { data: logs, error } = await supabase
+        .from('manufacturing_logs')
+        .select('*')
+        .in('lab_script_id', manufacturingScripts.map(s => s.id));
+
+      if (error) throw error;
+
+      console.log("Retrieved manufacturing logs:", logs);
+
+      const newManufacturingStatus: StatusMap = {};
+      const newSinteringStatus: StatusMap = {};
+      const newMiyoStatus: StatusMap = {};
+      const newInspectionStatus: StatusMap = {};
+
+      logs?.forEach(log => {
+        newManufacturingStatus[log.lab_script_id] = log.manufacturing_status || 'pending';
+        newSinteringStatus[log.lab_script_id] = log.sintering_status || 'pending';
+        newMiyoStatus[log.lab_script_id] = log.miyo_status || 'pending';
+        newInspectionStatus[log.lab_script_id] = log.inspection_status || 'pending';
+      });
+
+      setManufacturingStatus(newManufacturingStatus);
+      setSinteringStatus(newSinteringStatus);
+      setMiyoStatus(newMiyoStatus);
+      setInspectionStatus(newInspectionStatus);
+    } catch (error) {
+      console.error('Error fetching manufacturing logs:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchManufacturingLogs = async () => {
-      try {
-        if (manufacturingScripts.length === 0) return;
-
-        console.log("Fetching manufacturing logs for scripts:", manufacturingScripts.map(s => s.id));
-
-        const { data: logs, error } = await supabase
-          .from('manufacturing_logs')
-          .select('*')
-          .in('lab_script_id', manufacturingScripts.map(s => s.id));
-
-        if (error) throw error;
-
-        console.log("Retrieved manufacturing logs:", logs);
-
-        const newManufacturingStatus: StatusMap = {};
-        const newSinteringStatus: StatusMap = {};
-        const newMiyoStatus: StatusMap = {};
-        const newInspectionStatus: StatusMap = {};
-
-        logs?.forEach(log => {
-          newManufacturingStatus[log.lab_script_id] = log.manufacturing_status || 'pending';
-          newSinteringStatus[log.lab_script_id] = log.sintering_status || 'pending';
-          newMiyoStatus[log.lab_script_id] = log.miyo_status || 'pending';
-          newInspectionStatus[log.lab_script_id] = log.inspection_status || 'pending';
-        });
-
-        setManufacturingStatus(newManufacturingStatus);
-        setSinteringStatus(newSinteringStatus);
-        setMiyoStatus(newMiyoStatus);
-        setInspectionStatus(newInspectionStatus);
-      } catch (error) {
-        console.error('Error fetching manufacturing logs:', error);
-      }
-    };
-
     fetchManufacturingLogs();
 
     // Set up real-time subscription
@@ -83,9 +83,6 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
               ...prev,
               [scriptId]: newData.inspection_status || 'pending'
             }));
-
-            // Trigger immediate refetch of manufacturing data
-            fetchManufacturingLogs();
           }
         }
       )
