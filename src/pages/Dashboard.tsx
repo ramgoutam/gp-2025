@@ -10,14 +10,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { DashboardAppointments } from "@/components/dashboard/DashboardAppointments";
-import { DashboardProgress } from "@/components/dashboard/DashboardProgress";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   console.log("Rendering Dashboard component");
 
-  // Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -81,9 +79,6 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DashboardCharts />
         <DashboardAppointments />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardProgress />
       </div>
     </div>
   );
