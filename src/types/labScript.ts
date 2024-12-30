@@ -38,7 +38,6 @@ export interface LabScript {
   shade?: string;
   designLink?: string;
   holdReason?: string;
-  // Additional properties from joins
   designInfo?: DesignInfo;
   clinicalInfo?: ClinicalInfo;
   fileUploads?: Record<string, File[]>;
