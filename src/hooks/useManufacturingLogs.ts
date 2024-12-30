@@ -62,7 +62,7 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
           table: 'manufacturing_logs',
           filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
         },
-        (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
+        async (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
           console.log("Received real-time update for manufacturing log:", payload);
           
           if (payload.new && 'lab_script_id' in payload.new) {
@@ -89,6 +89,9 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
 
             // Update React Query cache
             queryClient.setQueryData(['manufacturingLogs', scriptId], newData);
+            
+            // Invalidate the manufacturing data query to trigger a refetch
+            queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
           }
         }
       )
