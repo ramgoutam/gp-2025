@@ -1,5 +1,4 @@
 import { useManufacturingData } from "@/components/manufacturing/useManufacturingData";
-import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 import { StatsCards } from "@/components/manufacturing/StatsCards";
 import { ManufacturingQueue } from "@/components/manufacturing/ManufacturingQueue";
 import { useState } from "react";
@@ -17,13 +16,6 @@ const Manufacturing = () => {
     scripts: []
   }} = useManufacturingData();
 
-  const {
-    manufacturingStatus,
-    sinteringStatus,
-    miyoStatus,
-    inspectionStatus,
-  } = useManufacturingLogs(manufacturingData.scripts);
-
   const filteredScripts = selectedType
     ? manufacturingData.scripts.filter(script => {
         const manufacturingSource = script.manufacturingSource?.toLowerCase();
@@ -40,13 +32,7 @@ const Manufacturing = () => {
         setSelectedType={setSelectedType}
         scripts={manufacturingData.scripts}
       />
-      <ManufacturingQueue
-        scripts={filteredScripts}
-        manufacturingStatus={manufacturingStatus}
-        sinteringStatus={sinteringStatus}
-        miyoStatus={miyoStatus}
-        inspectionStatus={inspectionStatus}
-      />
+      <ManufacturingQueue scripts={filteredScripts} />
     </div>
   );
 };

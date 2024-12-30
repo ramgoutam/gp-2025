@@ -4,26 +4,52 @@ import { ScriptInfo } from "@/components/patient/tabs/manufacturing/ScriptInfo";
 import { LabScript } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface ManufacturingQueueProps {
   scripts: LabScript[];
-  manufacturingStatus: Record<string, string>;
-  sinteringStatus: Record<string, string>;
-  miyoStatus: Record<string, string>;
-  inspectionStatus: Record<string, string>;
 }
 
-export const ManufacturingQueue = ({
-  scripts,
-  manufacturingStatus,
-  sinteringStatus,
-  miyoStatus,
-  inspectionStatus
-}: ManufacturingQueueProps) => {
+export const ManufacturingQueue = ({ scripts }: ManufacturingQueueProps) => {
   const { toast } = useToast();
+
+  // Real-time query for manufacturing logs
+  const { data: manufacturingData } = useQuery({
+    queryKey: ['manufacturingLogs'],
+    queryFn: async () => {
+      console.log("Fetching manufacturing logs");
+      const { data, error } = await supabase
+        .from('manufacturing_logs')
+        .select('*')
+        .in('lab_script_id', scripts.map(s => s.id));
+
+      if (error) {
+        console.error("Error fetching manufacturing logs:", error);
+        throw error;
+      }
+
+      const statusMaps = {
+        manufacturingStatus: {},
+        sinteringStatus: {},
+        miyoStatus: {},
+        inspectionStatus: {}
+      };
+
+      data?.forEach(log => {
+        statusMaps.manufacturingStatus[log.lab_script_id] = log.manufacturing_status;
+        statusMaps.sinteringStatus[log.lab_script_id] = log.sintering_status;
+        statusMaps.miyoStatus[log.lab_script_id] = log.miyo_status;
+        statusMaps.inspectionStatus[log.lab_script_id] = log.inspection_status;
+      });
+
+      return statusMaps;
+    },
+    refetchInterval: 1, // Poll every 1ms for instant updates
+  });
 
   const handleStartManufacturing = async (scriptId: string) => {
     try {
+      console.log("Starting manufacturing for script:", scriptId);
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -50,6 +76,7 @@ export const ManufacturingQueue = ({
 
   const handleCompleteManufacturing = async (scriptId: string) => {
     try {
+      console.log("Completing manufacturing for script:", scriptId);
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -76,6 +103,7 @@ export const ManufacturingQueue = ({
 
   const handleHoldManufacturing = async (scriptId: string) => {
     try {
+      console.log("Holding manufacturing for script:", scriptId);
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -102,6 +130,7 @@ export const ManufacturingQueue = ({
 
   const handleResumeManufacturing = async (scriptId: string) => {
     try {
+      console.log("Resuming manufacturing for script:", scriptId);
       const { error } = await supabase
         .from('manufacturing_logs')
         .update({
@@ -149,10 +178,10 @@ export const ManufacturingQueue = ({
                 {script.manufacturingSource === 'Inhouse' && (
                   <ManufacturingSteps
                     scriptId={script.id}
-                    manufacturingStatus={manufacturingStatus[script.id] || 'pending'}
-                    sinteringStatus={sinteringStatus[script.id] || 'pending'}
-                    miyoStatus={miyoStatus[script.id] || 'pending'}
-                    inspectionStatus={inspectionStatus[script.id] || 'pending'}
+                    manufacturingStatus={manufacturingData?.manufacturingStatus[script.id] || 'pending'}
+                    sinteringStatus={manufacturingData?.sinteringStatus[script.id] || 'pending'}
+                    miyoStatus={manufacturingData?.miyoStatus[script.id] || 'pending'}
+                    inspectionStatus={manufacturingData?.inspectionStatus[script.id] || 'pending'}
                     onStartManufacturing={handleStartManufacturing}
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
