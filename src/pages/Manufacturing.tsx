@@ -35,6 +35,13 @@ const Manufacturing = () => {
   return (
     <div className="container mx-auto p-6 space-y-4">
       <div className="text-2xl font-bold">Manufacturing Queue</div>
+      <ManufacturingQueue
+        scripts={filteredScripts}
+        manufacturingStatus={manufacturingStatus}
+        sinteringStatus={sinteringStatus}
+        miyoStatus={miyoStatus}
+        inspectionStatus={inspectionStatus}
+      />
     </div>
   );
 };
