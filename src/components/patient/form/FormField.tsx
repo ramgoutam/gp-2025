@@ -22,6 +22,39 @@ export const FormField = ({
   placeholder,
   autoComplete,
 }: FormFieldProps) => {
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-numeric characters
+    const phoneNumber = value.replace(/\D/g, '');
+    
+    // Format to (XXX) XXX-XXXX
+    if (phoneNumber.length >= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    } else if (phoneNumber.length > 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    } else if (phoneNumber.length > 3) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    } else if (phoneNumber.length > 0) {
+      return `(${phoneNumber}`;
+    }
+    return phoneNumber;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === 'tel') {
+      const formattedValue = formatPhoneNumber(e.target.value);
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: formattedValue,
+        },
+      };
+      onChange(syntheticEvent);
+    } else {
+      onChange(e);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
@@ -30,9 +63,9 @@ export const FormField = ({
         name={id}
         type={type}
         value={value}
-        onChange={onChange}
+        onChange={handlePhoneChange}
         required={required}
-        placeholder={placeholder}
+        placeholder={type === 'tel' ? '(555) 555-5555' : placeholder}
         autoComplete={autoComplete}
       />
     </div>
