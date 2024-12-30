@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { LabScript } from "@/types/labScript";
 import { QueueItem } from "./QueueItem";
+import { useQueueHandlers } from "./useQueueHandlers";
 
 interface ManufacturingQueueProps {
   scripts: LabScript[];
@@ -17,6 +18,19 @@ export const ManufacturingQueue = ({
   miyoStatus,
   inspectionStatus
 }: ManufacturingQueueProps) => {
+  const {
+    handleStartManufacturing,
+    handleCompleteManufacturing,
+    handleHoldManufacturing,
+    handleResumeManufacturing,
+    handleStartSintering,
+    handleCompleteSintering,
+    handleStartMiyo,
+    handleCompleteMiyo,
+    handleStartInspection,
+    handleCompleteInspection,
+  } = useQueueHandlers();
+
   return (
     <Card className="p-6">
       <h2 className="text-lg font-semibold mb-4">Manufacturing Queue</h2>
@@ -29,6 +43,16 @@ export const ManufacturingQueue = ({
             sinteringStatus={sinteringStatus[script.id] || 'pending'}
             miyoStatus={miyoStatus[script.id] || 'pending'}
             inspectionStatus={inspectionStatus[script.id] || 'pending'}
+            onStartManufacturing={handleStartManufacturing}
+            onCompleteManufacturing={handleCompleteManufacturing}
+            onHoldManufacturing={handleHoldManufacturing}
+            onResumeManufacturing={handleResumeManufacturing}
+            onStartSintering={handleStartSintering}
+            onCompleteSintering={handleCompleteSintering}
+            onStartMiyo={handleStartMiyo}
+            onCompleteMiyo={handleCompleteMiyo}
+            onStartInspection={handleStartInspection}
+            onCompleteInspection={handleCompleteInspection}
           />
         ))}
       </div>
