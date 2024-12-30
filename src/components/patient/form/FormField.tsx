@@ -98,13 +98,13 @@ export const FormField = ({
       {type === 'tel' ? (
         <div className="flex gap-2">
           <Select defaultValue={countryCode} onValueChange={handleCountryCodeChange}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className="w-[90px]">
               <SelectValue placeholder="Code" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white min-w-[90px]">
               {countryCodes.map((country) => (
                 <SelectItem key={country.code} value={country.code}>
-                  {country.code} ({country.country})
+                  {country.code}
                 </SelectItem>
               ))}
             </SelectContent>
