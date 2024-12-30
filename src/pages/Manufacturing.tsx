@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   XCircle,
   Microscope,
-  Wrench 
+  Wrench,
+  Clock 
 } from "lucide-react";
 
 const Manufacturing = () => {
@@ -55,6 +56,13 @@ const Manufacturing = () => {
       switch (activeFilter) {
         case 'pending':
           return manufacturing_status === 'pending';
+        case 'in_progress':
+          // Show items that are either in printing, miyo, or inspection stages
+          return (
+            (manufacturing_status === 'in_progress') || // In printing
+            (manufacturing_status === 'completed' && miyo_status !== 'completed') || // In miyo
+            (miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold') // In inspection
+          );
         case 'printing':
           return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
         case 'milling':
@@ -82,6 +90,8 @@ const Manufacturing = () => {
         return <Filter className="h-4 w-4" />;
       case 'pending':
         return <CircleDot className="h-4 w-4" />;
+      case 'in_progress':
+        return <Clock className="h-4 w-4" />;
       case 'printing':
         return <Printer className="h-4 w-4" />;
       case 'milling':
@@ -105,6 +115,8 @@ const Manufacturing = () => {
         return 'text-primary hover:text-primary/80 border-primary/20';
       case 'pending':
         return 'text-yellow-600 hover:text-yellow-500 border-yellow-200';
+      case 'in_progress':
+        return 'text-blue-600 hover:text-blue-500 border-blue-200';
       case 'printing':
         return 'text-blue-600 hover:text-blue-500 border-blue-200';
       case 'milling':
@@ -124,7 +136,7 @@ const Manufacturing = () => {
 
   const renderFilters = () => {
     if (selectedType === 'inhouse_printing') {
-      return ['All', 'Pending', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
+      return ['All', 'Pending', 'In Progress', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
     }
 
     if (selectedType === 'inhouse_milling') {
