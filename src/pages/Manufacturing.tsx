@@ -48,7 +48,8 @@ const Manufacturing = () => {
       const { 
         manufacturing_status,
         miyo_status,
-        inspection_status 
+        inspection_status,
+        inspection_hold_reason 
       } = manufacturingLog;
 
       switch (activeFilter) {
@@ -62,12 +63,13 @@ const Manufacturing = () => {
           // Show in Miyo tab if manufacturing is completed and miyo is not completed
           return manufacturing_status === 'completed' && miyo_status !== 'completed';
         case 'inspection':
-          // Show in Inspection tab if miyo is completed and inspection is not completed
-          return miyo_status === 'completed' && inspection_status !== 'completed';
+          // Show in Inspection tab if miyo is completed and inspection is not completed or rejected
+          return miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold';
         case 'completed':
           return inspection_status === 'completed';
         case 'rejected':
-          return inspection_status === 'rejected';
+          // Show in Rejected tab if inspection is on hold (rejected) and has a reason
+          return inspection_status === 'on_hold' && !!inspection_hold_reason;
         default:
           return true;
       }
