@@ -26,6 +26,7 @@ export const ManufacturingQueue = ({
 
   const updateManufacturingLog = async (scriptId: string, updates: any) => {
     try {
+      console.log("Updating manufacturing log:", { scriptId, updates });
       const { error } = await supabase
         .from('manufacturing_logs')
         .update(updates)
@@ -38,6 +39,10 @@ export const ManufacturingQueue = ({
         ...oldData,
         ...updates
       }));
+
+      // Invalidate queries to ensure UI updates
+      queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
+      queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
 
       return true;
     } catch (error) {
@@ -52,6 +57,7 @@ export const ManufacturingQueue = ({
   };
 
   const handleStartManufacturing = async (scriptId: string) => {
+    console.log("Starting manufacturing for script:", scriptId);
     const success = await updateManufacturingLog(scriptId, {
       manufacturing_status: 'in_progress',
       manufacturing_started_at: new Date().toISOString()
@@ -66,6 +72,7 @@ export const ManufacturingQueue = ({
   };
 
   const handleCompleteManufacturing = async (scriptId: string) => {
+    console.log("Completing manufacturing for script:", scriptId);
     const success = await updateManufacturingLog(scriptId, {
       manufacturing_status: 'completed',
       manufacturing_completed_at: new Date().toISOString()
@@ -79,10 +86,12 @@ export const ManufacturingQueue = ({
     }
   };
 
-  const handleHoldManufacturing = async (scriptId: string) => {
+  const handleHoldManufacturing = async (scriptId: string, reason?: string) => {
+    console.log("Putting manufacturing on hold for script:", scriptId);
     const success = await updateManufacturingLog(scriptId, {
       manufacturing_status: 'on_hold',
-      manufacturing_hold_at: new Date().toISOString()
+      manufacturing_hold_at: new Date().toISOString(),
+      manufacturing_hold_reason: reason
     });
 
     if (success) {
@@ -94,15 +103,102 @@ export const ManufacturingQueue = ({
   };
 
   const handleResumeManufacturing = async (scriptId: string) => {
+    console.log("Resuming manufacturing for script:", scriptId);
     const success = await updateManufacturingLog(scriptId, {
       manufacturing_status: 'in_progress',
-      manufacturing_hold_at: null
+      manufacturing_hold_at: null,
+      manufacturing_hold_reason: null
     });
 
     if (success) {
       toast({
         title: "Manufacturing Resumed",
         description: "The manufacturing process has been resumed."
+      });
+    }
+  };
+
+  // Add handlers for other stages
+  const handleStartSintering = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      sintering_status: 'in_progress',
+      sintering_started_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Sintering Started",
+        description: "The sintering process has been initiated."
+      });
+    }
+  };
+
+  const handleCompleteSintering = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      sintering_status: 'completed',
+      sintering_completed_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Sintering Completed",
+        description: "The sintering process has been completed."
+      });
+    }
+  };
+
+  const handleStartMiyo = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      miyo_status: 'in_progress',
+      miyo_started_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Miyo Started",
+        description: "The Miyo process has been initiated."
+      });
+    }
+  };
+
+  const handleCompleteMiyo = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      miyo_status: 'completed',
+      miyo_completed_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Miyo Completed",
+        description: "The Miyo process has been completed."
+      });
+    }
+  };
+
+  const handleStartInspection = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      inspection_status: 'in_progress',
+      inspection_started_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Inspection Started",
+        description: "The inspection process has been initiated."
+      });
+    }
+  };
+
+  const handleCompleteInspection = async (scriptId: string) => {
+    const success = await updateManufacturingLog(scriptId, {
+      inspection_status: 'completed',
+      inspection_completed_at: new Date().toISOString()
+    });
+
+    if (success) {
+      toast({
+        title: "Inspection Completed",
+        description: "The inspection process has been completed."
       });
     }
   };
@@ -138,6 +234,12 @@ export const ManufacturingQueue = ({
                     onCompleteManufacturing={handleCompleteManufacturing}
                     onHoldManufacturing={handleHoldManufacturing}
                     onResumeManufacturing={handleResumeManufacturing}
+                    onStartSintering={handleStartSintering}
+                    onCompleteSintering={handleCompleteSintering}
+                    onStartMiyo={handleStartMiyo}
+                    onCompleteMiyo={handleCompleteMiyo}
+                    onStartInspection={handleStartInspection}
+                    onCompleteInspection={handleCompleteInspection}
                     manufacturingType={script.manufacturingType}
                   />
                 )}
