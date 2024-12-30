@@ -116,10 +116,10 @@ export const LabScriptsCards = () => {
   ];
 
   return (
-    <div className="border rounded-lg p-6 bg-white">
-      <h2 className="text-xl font-semibold mb-4 text-left">Lab Scripts</h2>
-      <div className="space-y-4 animate-fade-in">
-        <div className="grid grid-cols-4 gap-4">
+    <div className="border rounded-lg p-6 bg-white h-full">
+      <h2 className="text-xl font-semibold mb-6 text-left">Lab Scripts</h2>
+      <div className="space-y-8 animate-fade-in">
+        <div className="grid grid-cols-4 gap-6">
           {firstRowCards.map((card, index) => (
             <div
               key={card.title}
@@ -141,7 +141,7 @@ export const LabScriptsCards = () => {
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-6">
           {secondRowCards.map((card, index) => (
             <div
               key={card.title}
