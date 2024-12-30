@@ -1,6 +1,7 @@
 import { ClinicalInfo } from "./clinicalInfo";
 import { DesignInfo } from "./designInfo";
 import { ManufacturingLog } from "./manufacturing";
+import { ReportCard } from "./reportCard";
 
 export type LabScriptStatus = 
   | "pending"
@@ -42,6 +43,7 @@ export interface LabScript {
   clinicalInfo?: ClinicalInfo;
   fileUploads?: Record<string, File[]>;
   manufacturingLog?: ManufacturingLog;
+  reportCard?: ReportCard;
   treatments?: {
     upper: string[];
     lower: string[];
@@ -78,6 +80,7 @@ export interface DatabaseLabScript {
     last_name: string;
   };
   manufacturing_logs?: ManufacturingLog[];
+  report_cards?: ReportCard[];
 }
 
 export const mapDatabaseLabScript = (data: DatabaseLabScript): LabScript => {
@@ -109,6 +112,7 @@ export const mapDatabaseLabScript = (data: DatabaseLabScript): LabScript => {
     designLink: data.design_link,
     holdReason: data.hold_reason,
     manufacturingLog: data.manufacturing_logs?.[0],
+    reportCard: data.report_cards?.[0],
     treatments: {
       upper: data.upper_treatment ? [data.upper_treatment] : [],
       lower: data.lower_treatment ? [data.lower_treatment] : []
@@ -138,6 +142,8 @@ export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabSc
     material: script.material,
     shade: script.shade,
     design_link: script.designLink,
-    hold_reason: script.holdReason
+    hold_reason: script.holdReason,
+    created_at: script.createdAt,
+    updated_at: script.updatedAt
   };
 };
