@@ -23,6 +23,7 @@ const Manufacturing = () => {
       inhouseMilling: 0,
       outsourcePrinting: 0,
       outsourceMilling: 0,
+      inhouseMiyo: 0,
       total: 0
     },
     scripts: []
@@ -58,7 +59,8 @@ const Manufacturing = () => {
         case 'milling':
           return manufacturing_status === 'in_progress' && script.manufacturingType === 'Milling';
         case 'miyo':
-          return manufacturing_status === 'completed' && miyo_status === 'in_progress';
+          // Show in Miyo tab if manufacturing is completed and miyo is not completed
+          return manufacturing_status === 'completed' && miyo_status !== 'completed';
         case 'inspection':
           return miyo_status === 'completed' && inspection_status === 'in_progress';
         case 'completed':
