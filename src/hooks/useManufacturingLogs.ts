@@ -15,12 +15,16 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
       try {
         if (manufacturingScripts.length === 0) return;
 
+        console.log("Fetching manufacturing logs for scripts:", manufacturingScripts.map(s => s.id));
+
         const { data: logs, error } = await supabase
           .from('manufacturing_logs')
           .select('*')
           .in('lab_script_id', manufacturingScripts.map(s => s.id));
 
         if (error) throw error;
+
+        console.log("Retrieved manufacturing logs:", logs);
 
         const newManufacturingStatus: StatusMap = {};
         const newSinteringStatus: StatusMap = {};
@@ -57,24 +61,27 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
           filter: `lab_script_id=in.(${manufacturingScripts.map(s => `'${s.id}'`).join(',')})`
         },
         (payload: RealtimePostgresChangesPayload<ManufacturingLog>) => {
+          console.log("Received real-time update for manufacturing log:", payload);
+          
           if (payload.new && 'lab_script_id' in payload.new) {
             const newData = payload.new;
+            const scriptId = newData.lab_script_id;
             
             setManufacturingStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.manufacturing_status || 'pending'
+              [scriptId]: newData.manufacturing_status || 'pending'
             }));
             setSinteringStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.sintering_status || 'pending'
+              [scriptId]: newData.sintering_status || 'pending'
             }));
             setMiyoStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.miyo_status || 'pending'
+              [scriptId]: newData.miyo_status || 'pending'
             }));
             setInspectionStatus(prev => ({
               ...prev,
-              [newData.lab_script_id]: newData.inspection_status || 'pending'
+              [scriptId]: newData.inspection_status || 'pending'
             }));
           }
         }
@@ -82,6 +89,7 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
       .subscribe();
 
     return () => {
+      console.log("Cleaning up manufacturing logs subscription");
       supabase.removeChannel(channel);
     };
   }, [manufacturingScripts]);
