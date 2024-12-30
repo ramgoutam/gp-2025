@@ -5,6 +5,9 @@ import { useState } from "react";
 
 const Manufacturing = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [printingFilter, setPrintingFilter] = useState("all");
+  const [millingFilter, setMillingFilter] = useState("all");
+
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -31,6 +34,10 @@ const Manufacturing = () => {
         selectedType={selectedType}
         setSelectedType={setSelectedType}
         scripts={manufacturingData.scripts}
+        printingFilter={printingFilter}
+        millingFilter={millingFilter}
+        onPrintingFilterChange={setPrintingFilter}
+        onMillingFilterChange={setMillingFilter}
       />
       <ManufacturingQueue scripts={filteredScripts} />
     </div>
