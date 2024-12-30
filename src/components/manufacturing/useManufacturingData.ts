@@ -36,7 +36,7 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           ),
-          manufacturing_logs!left (*)
+          manufacturing_logs (*)
         `)
         .eq('report_cards.design_info_status', 'completed')
         .order('created_at', { ascending: false });
