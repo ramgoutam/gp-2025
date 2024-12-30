@@ -36,7 +36,7 @@ export const useManufacturingData = () => {
             design_info_status,
             clinical_info_status
           ),
-          manufacturing_logs (*)
+          manufacturing_logs!left (*)
         `)
         .eq('report_cards.design_info_status', 'completed')
         .order('created_at', { ascending: false });
@@ -58,7 +58,11 @@ export const useManufacturingData = () => {
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
           clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingLogs: script.manufacturing_logs
+          manufacturingLogs: Array.isArray(script.manufacturing_logs) 
+            ? script.manufacturing_logs 
+            : script.manufacturing_logs 
+              ? [script.manufacturing_logs]
+              : []
         };
       });
 
