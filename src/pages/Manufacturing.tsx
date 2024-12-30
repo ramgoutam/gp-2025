@@ -30,7 +30,6 @@ const Manufacturing = () => {
     if (selectedType === 'inhouse_printing') {
       return (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-500">Printing Filters</h4>
           <div className="flex flex-wrap gap-2">
             {['All', 'Pending', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'].map((filter) => (
               <Button
@@ -50,7 +49,6 @@ const Manufacturing = () => {
     if (selectedType === 'inhouse_milling') {
       return (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-500">Milling Filters</h4>
           <div className="flex flex-wrap gap-2">
             {['All', 'Pending', 'Milling', 'Sintering', 'Miyo', 'Inspection', 'Rejected', 'Completed'].map((filter) => (
               <Button
