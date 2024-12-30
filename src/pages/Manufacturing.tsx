@@ -2,13 +2,10 @@ import { useManufacturingData } from "@/components/manufacturing/useManufacturin
 import { useManufacturingLogs } from "@/hooks/useManufacturingLogs";
 import { StatsCards } from "@/components/manufacturing/StatsCards";
 import { ManufacturingQueue } from "@/components/manufacturing/ManufacturingQueue";
-import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 const Manufacturing = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -18,7 +15,7 @@ const Manufacturing = () => {
       total: 0
     },
     scripts: []
-  }, refetch } = useManufacturingData();
+  }} = useManufacturingData();
 
   const {
     manufacturingStatus,
@@ -26,23 +23,6 @@ const Manufacturing = () => {
     miyoStatus,
     inspectionStatus,
   } = useManufacturingLogs(manufacturingData.scripts);
-
-  // Set up periodic refetching
-  useEffect(() => {
-    console.log("Setting up manufacturing data refresh interval");
-    const interval = setInterval(() => {
-      console.log("Refetching manufacturing data");
-      refetch();
-      // Also invalidate queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ['manufacturingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
-    }, 1); // Update every 1ms
-
-    return () => {
-      console.log("Cleaning up manufacturing data refresh interval");
-      clearInterval(interval);
-    };
-  }, [refetch, queryClient]);
 
   const filteredScripts = selectedType
     ? manufacturingData.scripts.filter(script => {

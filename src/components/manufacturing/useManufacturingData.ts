@@ -106,10 +106,6 @@ export const useManufacturingData = () => {
           // Immediately refetch the data and update the cache
           const newData = await fetchManufacturingData();
           queryClient.setQueryData(['manufacturingData'], newData);
-          
-          // Also invalidate the query to ensure UI updates
-          queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
-          queryClient.invalidateQueries({ queryKey: ['manufacturingLogs'] });
         }
       )
       .subscribe();
@@ -120,11 +116,11 @@ export const useManufacturingData = () => {
     };
   }, [queryClient]);
 
-  // Use React Query with real-time updates and extremely frequent refetching
+  // Use React Query with real-time updates
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: fetchManufacturingData,
-    refetchInterval: 1, // Refetch every 1ms for immediate updates
+    refetchInterval: 1000, // Refetch every second as a fallback
     staleTime: 0, // Consider data always stale to enable refetching
     gcTime: 0 // Don't garbage collect the data
   });
