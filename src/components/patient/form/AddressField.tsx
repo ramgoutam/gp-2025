@@ -1,64 +1,49 @@
-import { Input } from "@/components/ui/input";
+import { useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
-import { useDebounce } from "@/hooks/useDebounce";
-import { MapboxFeature, searchAddress } from "@/utils/mapboxService";
+import { Input } from "@/components/ui/input";
+import { PlaceSuggestion } from "@/utils/googlePlaces";
 
-export interface AddressFieldProps {
+interface AddressFieldProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSuggestionClick: (suggestion: MapboxFeature) => void;
+  suggestions: PlaceSuggestion[];
+  showSuggestions: boolean;
+  onSuggestionClick: (suggestion: PlaceSuggestion) => void;
 }
 
 export const AddressField = ({
   value,
   onChange,
+  suggestions,
+  showSuggestions,
   onSuggestionClick,
 }: AddressFieldProps) => {
-  const [suggestions, setSuggestions] = useState<MapboxFeature[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const debouncedValue = useDebounce(value, 500);
-
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (debouncedValue.length > 2) {
-        const results = await searchAddress(debouncedValue);
-        setSuggestions(results);
-        setShowSuggestions(true);
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    };
-
-    fetchSuggestions();
-  }, [debouncedValue]);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="relative">
+    <div className="space-y-2 relative">
       <Label htmlFor="address">Address</Label>
       <Input
         id="address"
+        name="address"
         value={value}
         onChange={onChange}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => {
-          // Delay hiding suggestions to allow clicking them
-          setTimeout(() => setShowSuggestions(false), 200);
-        }}
+        placeholder="Start typing to search address..."
+        required
+        autoComplete="off"
       />
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+        <div 
+          ref={suggestionsRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+        >
           {suggestions.map((suggestion) => (
             <div
-              key={suggestion.id}
-              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-              onClick={() => {
-                onSuggestionClick(suggestion);
-                setShowSuggestions(false);
-              }}
+              key={suggestion.place_id}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              onClick={() => onSuggestionClick(suggestion)}
             >
-              {suggestion.place_name}
+              {suggestion.description}
             </div>
           ))}
         </div>

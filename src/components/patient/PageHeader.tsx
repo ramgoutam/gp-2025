@@ -36,11 +36,20 @@ export const PageHeader = () => {
     },
   });
 
-  const handleAddPatient = async () => {
-    const closeButton = document.querySelector('[aria-label="Close"]');
-    if (closeButton instanceof HTMLButtonElement) {
-      closeButton.click();
-    }
+  const handleAddPatient = async (formData: any) => {
+    const transformedData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      emergency_contact_name: formData.emergencyContactName,
+      emergency_phone: formData.emergencyPhone,
+      sex: formData.sex,
+      dob: formData.dob,
+      address: formData.address
+    };
+
+    createPatientMutation.mutate(transformedData);
   };
 
   return (
@@ -64,7 +73,7 @@ export const PageHeader = () => {
               <DialogTitle>New Patient Registration</DialogTitle>
             </DialogHeader>
             <PatientForm 
-              onSubmit={handleAddPatient}
+              onSubmitSuccess={handleAddPatient}
               onClose={() => {
                 const closeButton = document.querySelector('[aria-label="Close"]');
                 if (closeButton instanceof HTMLButtonElement) {

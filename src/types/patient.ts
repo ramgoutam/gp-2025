@@ -8,6 +8,4 @@ export interface PatientFormData {
   sex: string;
   dob: string;
   address: string;
-  patientPicture?: string;
-  insuranceCardPicture?: string;
 }

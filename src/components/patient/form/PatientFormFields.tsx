@@ -1,43 +1,34 @@
 import { FormField } from "./FormField";
 import { AddressField } from "./AddressField";
 import { SexField } from "./SexField";
-import { FileUploadField } from "./FileUploadField";
-import { MapboxFeature } from "@/utils/mapboxService";
+import { PatientFormData } from "@/types/patient";
 
 interface PatientFormFieldsProps {
-  formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    emergencyContactName?: string;
-    emergencyPhone?: string;
-    sex: string;
-    dob: string;
-    address: string;
-  };
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  formData: PatientFormData;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleFileChange: (file: File) => void;
-  handleSuggestionClick: (suggestion: MapboxFeature) => void;
+  suggestions: any[];
+  showSuggestions: boolean;
+  onSuggestionClick: (suggestion: any) => void;
   setSex: (value: string) => void;
 }
 
 export const PatientFormFields = ({
   formData,
-  handleInputChange,
+  handleChange,
   handleAddressChange,
-  handleFileChange,
-  handleSuggestionClick,
+  suggestions,
+  showSuggestions,
+  onSuggestionClick,
   setSex,
 }: PatientFormFieldsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <>
       <FormField
         id="firstName"
         label="First Name"
         value={formData.firstName}
-        onChange={handleInputChange}
+        onChange={handleChange}
         required
       />
 
@@ -45,7 +36,7 @@ export const PatientFormFields = ({
         id="lastName"
         label="Last Name"
         value={formData.lastName}
-        onChange={handleInputChange}
+        onChange={handleChange}
         required
       />
 
@@ -54,7 +45,7 @@ export const PatientFormFields = ({
         label="Email"
         type="email"
         value={formData.email}
-        onChange={handleInputChange}
+        onChange={handleChange}
         required
       />
 
@@ -63,32 +54,34 @@ export const PatientFormFields = ({
         label="Phone"
         type="tel"
         value={formData.phone}
-        onChange={handleInputChange}
+        onChange={handleChange}
         required
       />
 
       <FormField
         id="emergencyContactName"
         label="Emergency Contact Name"
-        value={formData.emergencyContactName || ''}
-        onChange={handleInputChange}
+        value={formData.emergencyContactName}
+        onChange={handleChange}
+        required
       />
 
       <FormField
         id="emergencyPhone"
         label="Emergency Phone"
         type="tel"
-        value={formData.emergencyPhone || ''}
-        onChange={handleInputChange}
+        value={formData.emergencyPhone}
+        onChange={handleChange}
+        required
       />
 
-      <div className="md:col-span-2">
-        <AddressField
-          value={formData.address}
-          onChange={handleAddressChange}
-          onSuggestionClick={handleSuggestionClick}
-        />
-      </div>
+      <AddressField
+        value={formData.address}
+        onChange={handleAddressChange}
+        suggestions={suggestions}
+        showSuggestions={showSuggestions}
+        onSuggestionClick={onSuggestionClick}
+      />
 
       <SexField
         value={formData.sex}
@@ -100,18 +93,9 @@ export const PatientFormFields = ({
         label="Date of Birth"
         type="date"
         value={formData.dob}
-        onChange={handleInputChange}
+        onChange={handleChange}
         required
       />
-
-      <div className="md:col-span-2">
-        <FileUploadField
-          id="profilePicture"
-          onChange={handleFileChange}
-          label="Profile Picture"
-          accept="image/*"
-        />
-      </div>
-    </div>
+    </>
   );
 };

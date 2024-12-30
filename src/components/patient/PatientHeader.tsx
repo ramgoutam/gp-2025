@@ -170,7 +170,7 @@ export const PatientHeader = ({
                 dob: patientData.dob,
                 address: patientData.address,
               }}
-              onSubmit={handleEditPatient}
+              onSubmitSuccess={handleEditPatient}
               onClose={() => setShowEditDialog(false)}
             />
           )}

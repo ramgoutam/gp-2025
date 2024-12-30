@@ -1,159 +1,151 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { validateGoogleApiKey, getPlaceSuggestions, PlaceSuggestion } from "@/utils/googlePlaces";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
-import { MapboxFeature } from "@/utils/mapboxService";
+import { PatientFormData } from "@/types/patient";
 
 interface PatientFormProps {
-  onSubmit: () => void;
+  initialData?: PatientFormData;
+  onSubmitSuccess?: (data: PatientFormData) => void;
   onClose?: () => void;
-  initialData?: {
-    id?: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    emergencyContactName?: string;
-    emergencyPhone?: string;
-    dob: string;
-    address: string;
-    sex: string;
-  };
 }
 
-export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps) => {
+export const PatientForm = ({ initialData, onSubmitSuccess, onClose }: PatientFormProps) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState(
-    initialData || {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      emergencyContactName: "",
-      emergencyPhone: "",
-      dob: "",
-      address: "",
-      sex: "",
+  const [formData, setFormData] = useState<PatientFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    emergencyContactName: "", // Added this line
+    emergencyPhone: "",
+    sex: "",
+    dob: "",
+    address: "",
+  });
+
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [googleApiKey, setGoogleApiKey] = useState<string>("");
+
+  useEffect(() => {
+    const key = localStorage.getItem('GOOGLE_MAPS_API_KEY');
+    if (key) {
+      validateAndSetKey(key);
     }
-  );
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  }, []);
 
-  const setSex = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      sex: value,
-    }));
-  };
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      address: value,
-    }));
-  };
-
-  const handleFileChange = (file: File) => {
-    setProfileImage(file);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+  const validateAndSetKey = async (key: string) => {
     try {
-      let profileImageUrl = null;
-
-      if (profileImage) {
-        const fileExt = profileImage.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('profile-images')
-          .upload(filePath, profileImage);
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('profile-images')
-          .getPublicUrl(filePath);
-
-        profileImageUrl = publicUrl;
-      }
-
-      const { error } = await supabase.from('patients').upsert({
-        id: initialData?.id,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        emergency_contact_name: formData.emergencyContactName,
-        emergency_phone: formData.emergencyPhone,
-        dob: formData.dob,
-        address: formData.address,
-        sex: formData.sex,
-        profile_image_url: profileImageUrl,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: `Patient ${initialData ? "updated" : "created"} successfully`,
-      });
-
-      onSubmit();
-      if (onClose) {
-        onClose();
+      const isValid = await validateGoogleApiKey(key);
+      if (isValid) {
+        localStorage.setItem('GOOGLE_MAPS_API_KEY', key);
+        setGoogleApiKey(key);
+        return true;
       }
     } catch (error) {
-      console.error('Error saving patient:', error);
+      console.error('Key validation failed:', error);
       toast({
-        title: "Error",
-        description: "Failed to save patient information",
+        title: "Invalid API Key",
+        description: "Please provide a valid Google Maps API key with Places API enabled",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
+      localStorage.removeItem('GOOGLE_MAPS_API_KEY');
+      return false;
     }
   };
 
-  const handleSuggestionClick = (suggestion: MapboxFeature) => {
-    setFormData(prev => ({
-      ...prev,
-      address: suggestion.place_name
-    }));
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, address: value }));
+
+    if (!googleApiKey && value.length > 2) {
+      const key = prompt("Please enter your Google Maps API key with Places API enabled");
+      if (key) {
+        const isValid = await validateAndSetKey(key);
+        if (!isValid) return;
+      } else {
+        return;
+      }
+    }
+
+    if (value.length > 2 && googleApiKey) {
+      try {
+        const suggestions = await getPlaceSuggestions(value);
+        setSuggestions(suggestions);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching address suggestions:', error);
+        if (error instanceof Error && error.message.includes('InvalidKeyMapError')) {
+          localStorage.removeItem('GOOGLE_MAPS_API_KEY');
+          setGoogleApiKey("");
+        }
+      }
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: PlaceSuggestion) => {
+    setFormData(prev => ({ ...prev, address: suggestion.description }));
+    setShowSuggestions(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Patient data:", formData);
+    
+    onSubmitSuccess?.(formData);
+    onClose?.();
+    
+    if (!onSubmitSuccess) {
+      toast({
+        title: "Success",
+        description: "Patient information saved successfully",
+      });
+
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        emergencyContactName: "", // Added this line
+        emergencyPhone: "",
+        sex: "",
+        dob: "",
+        address: "",
+      });
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       <PatientFormFields
         formData={formData}
-        handleInputChange={handleInputChange}
-        handleFileChange={handleFileChange}
+        handleChange={handleChange}
         handleAddressChange={handleAddressChange}
-        handleSuggestionClick={handleSuggestionClick}
-        setSex={setSex}
+        suggestions={suggestions}
+        showSuggestions={showSuggestions}
+        onSuggestionClick={handleSuggestionClick}
+        setSex={(value) => setFormData((prev) => ({ ...prev, sex: value }))}
       />
-      
-      <div className="flex justify-end space-x-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Patient"}
-        </Button>
-      </div>
+
+      <Button type="submit" className="w-full">
+        {initialData ? "Update Patient Information" : "Create"}
+      </Button>
     </form>
   );
 };
