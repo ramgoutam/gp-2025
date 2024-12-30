@@ -1,5 +1,5 @@
-import { ClinicalInfo } from "./clinicalInfo";
-import { DesignInfo } from "./designInfo";
+import type { ClinicalInfo } from "./clinicalInfo";
+import type { DesignInfo } from "./designInfo";
 
 export type InfoStatus = 'pending' | 'in_progress' | 'completed';
 
@@ -29,6 +29,8 @@ export interface ReportCardState {
   reportStatus: InfoStatus;
   isDesignInfoComplete: boolean;
   isClinicalInfoComplete: boolean;
+  designInfo?: DesignInfo;
+  clinicalInfo?: ClinicalInfo;
 }
 
-export { ClinicalInfo, DesignInfo };
+export type { ClinicalInfo, DesignInfo };
