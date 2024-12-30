@@ -35,7 +35,8 @@ const Manufacturing = () => {
       refetch();
       // Also invalidate the manufacturing logs query to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['manufacturingLogs'] });
-    }, 1000);
+      queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
+    }, 100); // Update every 100ms
 
     return () => {
       console.log("Cleaning up manufacturing data refresh interval");

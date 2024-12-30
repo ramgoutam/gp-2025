@@ -90,8 +90,9 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
             // Update React Query cache
             queryClient.setQueryData(['manufacturingLogs', scriptId], newData);
             
-            // Invalidate the manufacturing data query to trigger a refetch
+            // Invalidate queries to trigger refetch
             queryClient.invalidateQueries({ queryKey: ['manufacturingStatusCounts'] });
+            queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
           }
         }
       )
