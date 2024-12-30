@@ -49,23 +49,25 @@ export const useManufacturingData = () => {
       console.log("Retrieved scripts with completed design info:", scripts);
 
       const mappedScripts = scripts.map(script => {
-        const mappedScript = mapDatabaseLabScript(script);
-        // Ensure manufacturing_logs is always an array
-        const manufacturingLogs = script.manufacturing_logs 
-          ? Array.isArray(script.manufacturing_logs)
-            ? script.manufacturing_logs
-            : [script.manufacturing_logs]
-          : [];
+        // First map the base lab script data
+        const baseScript = mapDatabaseLabScript({
+          ...script,
+          manufacturing_logs: Array.isArray(script.manufacturing_logs) 
+            ? script.manufacturing_logs 
+            : script.manufacturing_logs 
+              ? [script.manufacturing_logs]
+              : []
+        });
 
+        // Then add the additional properties
         return {
-          ...mappedScript,
+          ...baseScript,
           patientFirstName: script.patients?.first_name,
           patientLastName: script.patients?.last_name,
           designInfo: script.report_cards?.[0]?.design_info,
           clinicalInfo: script.report_cards?.[0]?.clinical_info,
           designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
           clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
-          manufacturingLogs
         };
       });
 
