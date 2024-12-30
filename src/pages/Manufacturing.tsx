@@ -81,10 +81,10 @@ const Manufacturing = () => {
     });
   };
 
-  const getFilterCount = (filterName: string) => {
+  const getFilterCount = (filter: string) => {
     return filteredScripts.filter(script => {
       const manufacturingLog = script.manufacturingLogs?.[0];
-      if (!manufacturingLog) return filterName.toLowerCase() === 'ready for printing';
+      if (!manufacturingLog) return filter.toLowerCase() === 'ready for printing';
 
       const { 
         manufacturing_status,
@@ -93,7 +93,7 @@ const Manufacturing = () => {
         inspection_hold_reason 
       } = manufacturingLog;
 
-      switch (filterName.toLowerCase()) {
+      switch (filter.toLowerCase()) {
         case 'ready for printing':
           return manufacturing_status === 'pending';
         case 'in progress':
@@ -112,6 +112,56 @@ const Manufacturing = () => {
           return false;
       }
     }).length;
+  };
+
+  const getFilterIcon = (filter: string) => {
+    switch (filter.toLowerCase()) {
+      case 'all':
+        return <Filter className="h-4 w-4" />;
+      case 'ready for printing':
+        return <CircleDot className="h-4 w-4" />;
+      case 'in_progress':
+        return <Clock className="h-4 w-4" />;
+      case 'printing':
+        return <Printer className="h-4 w-4" />;
+      case 'milling':
+        return <Wrench className="h-4 w-4" />;
+      case 'miyo':
+        return <Paintbrush className="h-4 w-4" />;
+      case 'inspection':
+        return <Microscope className="h-4 w-4" />;
+      case 'completed':
+        return <CheckCircle2 className="h-4 w-4" />;
+      case 'rejected':
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <CircleDot className="h-4 w-4" />;
+    }
+  };
+
+  const getFilterColor = (filter: string) => {
+    switch (filter.toLowerCase()) {
+      case 'all':
+        return 'text-primary hover:text-primary/80 border-primary/20';
+      case 'ready for printing':
+        return 'text-yellow-600 hover:text-yellow-500 border-yellow-200';
+      case 'in_progress':
+        return 'text-blue-600 hover:text-blue-500 border-blue-200';
+      case 'printing':
+        return 'text-blue-600 hover:text-blue-500 border-blue-200';
+      case 'milling':
+        return 'text-purple-600 hover:text-purple-500 border-purple-200';
+      case 'miyo':
+        return 'text-orange-600 hover:text-orange-500 border-orange-200';
+      case 'inspection':
+        return 'text-cyan-600 hover:text-cyan-500 border-cyan-200';
+      case 'completed':
+        return 'text-green-600 hover:text-green-500 border-green-200';
+      case 'rejected':
+        return 'text-red-600 hover:text-red-500 border-red-200';
+      default:
+        return 'text-gray-600 hover:text-gray-500 border-gray-200';
+    }
   };
 
   const renderFilters = () => {
