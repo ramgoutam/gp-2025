@@ -54,6 +54,9 @@ export const ManufacturingSteps = ({
   manufacturingType = 'Milling'
 }: ManufacturingStepsProps) => {
   const isPrinting = manufacturingType === 'Printing';
+  console.log("Current manufacturing type:", manufacturingType);
+  console.log("Manufacturing status:", manufacturingStatus);
+  console.log("Miyo status:", miyoStatus);
 
   // Show manufacturing stage if not completed
   if (manufacturingStatus !== 'completed') {
@@ -70,9 +73,10 @@ export const ManufacturingSteps = ({
     );
   }
 
-  // For Printing, skip sintering and go directly to Miyo after manufacturing
+  // For Printing, go directly to Miyo after manufacturing
   if (isPrinting) {
     if (miyoStatus !== 'completed') {
+      console.log("Showing Miyo stage for printing workflow");
       return (
         <MiyoStage
           scriptId={scriptId}
@@ -81,6 +85,20 @@ export const ManufacturingSteps = ({
           onComplete={() => onCompleteMiyo?.(scriptId)}
           onHold={() => onHoldMiyo?.(scriptId)}
           onResume={() => onResumeMiyo?.(scriptId)}
+        />
+      );
+    }
+
+    // After Miyo is completed, show inspection
+    if (inspectionStatus !== 'completed') {
+      return (
+        <InspectionStage
+          scriptId={scriptId}
+          status={inspectionStatus}
+          onStart={() => onStartInspection?.(scriptId)}
+          onComplete={() => onCompleteInspection?.(scriptId)}
+          onHold={() => onHoldInspection?.(scriptId)}
+          onResume={() => onResumeInspection?.(scriptId)}
         />
       );
     }
@@ -112,20 +130,20 @@ export const ManufacturingSteps = ({
         />
       );
     }
-  }
 
-  // Show Inspection stage if previous stages are completed
-  if (inspectionStatus !== 'completed') {
-    return (
-      <InspectionStage
-        scriptId={scriptId}
-        status={inspectionStatus}
-        onStart={() => onStartInspection?.(scriptId)}
-        onComplete={() => onCompleteInspection?.(scriptId)}
-        onHold={() => onHoldInspection?.(scriptId)}
-        onResume={() => onResumeInspection?.(scriptId)}
-      />
-    );
+    // Show Inspection stage if Miyo is completed
+    if (inspectionStatus !== 'completed') {
+      return (
+        <InspectionStage
+          scriptId={scriptId}
+          status={inspectionStatus}
+          onStart={() => onStartInspection?.(scriptId)}
+          onComplete={() => onCompleteInspection?.(scriptId)}
+          onHold={() => onHoldInspection?.(scriptId)}
+          onResume={() => onResumeInspection?.(scriptId)}
+        />
+      );
+    }
   }
 
   // Show final status
