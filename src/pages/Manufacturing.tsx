@@ -10,11 +10,13 @@ import {
   Paintbrush, 
   CheckCircle2, 
   XCircle,
-  Microscope 
+  Microscope,
+  Wrench 
 } from "lucide-react";
 
 const Manufacturing = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
   const { data: manufacturingData = {
     counts: {
       inhousePrinting: 0,
@@ -35,6 +37,40 @@ const Manufacturing = () => {
       })
     : manufacturingData.scripts;
 
+  const getFilteredScripts = () => {
+    if (activeFilter === 'all') return filteredScripts;
+
+    return filteredScripts.filter(script => {
+      const manufacturingLog = script.manufacturingLogs?.[0];
+      if (!manufacturingLog) return activeFilter === 'pending';
+
+      const { 
+        manufacturing_status,
+        miyo_status,
+        inspection_status 
+      } = manufacturingLog;
+
+      switch (activeFilter) {
+        case 'pending':
+          return manufacturing_status === 'pending';
+        case 'printing':
+          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
+        case 'milling':
+          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Milling';
+        case 'miyo':
+          return manufacturing_status === 'completed' && miyo_status === 'in_progress';
+        case 'inspection':
+          return miyo_status === 'completed' && inspection_status === 'in_progress';
+        case 'completed':
+          return inspection_status === 'completed';
+        case 'rejected':
+          return inspection_status === 'rejected';
+        default:
+          return true;
+      }
+    });
+  };
+
   const getFilterIcon = (filter: string) => {
     switch (filter.toLowerCase()) {
       case 'all':
@@ -43,6 +79,8 @@ const Manufacturing = () => {
         return <CircleDot className="h-4 w-4" />;
       case 'printing':
         return <Printer className="h-4 w-4" />;
+      case 'milling':
+        return <Wrench className="h-4 w-4" />;
       case 'miyo':
         return <Paintbrush className="h-4 w-4" />;
       case 'inspection':
@@ -64,8 +102,10 @@ const Manufacturing = () => {
         return 'text-yellow-600 hover:text-yellow-500 border-yellow-200';
       case 'printing':
         return 'text-blue-600 hover:text-blue-500 border-blue-200';
-      case 'miyo':
+      case 'milling':
         return 'text-purple-600 hover:text-purple-500 border-purple-200';
+      case 'miyo':
+        return 'text-orange-600 hover:text-orange-500 border-orange-200';
       case 'inspection':
         return 'text-cyan-600 hover:text-cyan-500 border-cyan-200';
       case 'completed':
@@ -79,43 +119,11 @@ const Manufacturing = () => {
 
   const renderFilters = () => {
     if (selectedType === 'inhouse_printing') {
-      return (
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {['All', 'Pending', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'].map((filter) => (
-              <Button
-                key={`printing-${filter}`}
-                variant="outline"
-                size="sm"
-                className={`flex items-center gap-2 bg-transparent hover:bg-transparent ${getFilterColor(filter)}`}
-              >
-                {getFilterIcon(filter)}
-                {filter}
-              </Button>
-            ))}
-          </div>
-        </div>
-      );
+      return ['All', 'Pending', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
     }
 
     if (selectedType === 'inhouse_milling') {
-      return (
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            {['All', 'Pending', 'Milling', 'Sintering', 'Miyo', 'Inspection', 'Rejected', 'Completed'].map((filter) => (
-              <Button
-                key={`milling-${filter}`}
-                variant="outline"
-                size="sm"
-                className={`flex items-center gap-2 bg-transparent hover:bg-transparent ${getFilterColor(filter)}`}
-              >
-                {getFilterIcon(filter)}
-                {filter}
-              </Button>
-            ))}
-          </div>
-        </div>
-      );
+      return ['All', 'Pending', 'Milling', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
     }
 
     return null;
@@ -132,11 +140,25 @@ const Manufacturing = () => {
       {/* Filter Buttons Section */}
       {selectedType && (
         <div className="bg-white p-4 rounded-lg shadow-sm">
-          {renderFilters()}
+          <div className="flex flex-wrap gap-2">
+            {renderFilters()?.map((filter) => (
+              <Button
+                key={`filter-${filter}`}
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveFilter(filter.toLowerCase())}
+                className={`flex items-center gap-2 bg-transparent hover:bg-transparent ${getFilterColor(filter)} 
+                  ${activeFilter === filter.toLowerCase() ? 'ring-2 ring-primary' : ''}`}
+              >
+                {getFilterIcon(filter)}
+                {filter}
+              </Button>
+            ))}
+          </div>
         </div>
       )}
 
-      <ManufacturingQueue scripts={filteredScripts} />
+      <ManufacturingQueue scripts={getFilteredScripts()} />
     </div>
   );
 };
