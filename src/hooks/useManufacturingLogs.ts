@@ -51,9 +51,9 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
   useEffect(() => {
     fetchManufacturingLogs();
 
-    // Set up real-time subscription
+    // Set up real-time subscription for manufacturing logs
     const channel = supabase
-      .channel('manufacturing-updates')
+      .channel('manufacturing-logs-updates')
       .on<ManufacturingLog>(
         'postgres_changes',
         {

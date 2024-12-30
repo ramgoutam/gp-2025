@@ -1,8 +1,35 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mapDatabaseLabScript } from "@/types/labScript";
+import { useEffect } from "react";
 
 export const useManufacturingData = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    console.log("Setting up real-time subscription for manufacturing logs");
+    const channel = supabase
+      .channel('manufacturing-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'manufacturing_logs'
+        },
+        (payload) => {
+          console.log("Received real-time update for manufacturing log:", payload);
+          queryClient.invalidateQueries({ queryKey: ['manufacturingData'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log("Cleaning up manufacturing logs subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['manufacturingData'],
     queryFn: async () => {
@@ -93,7 +120,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1, // 1ms interval for near real-time updates
+    refetchInterval: 1000, // 1 second interval for near real-time updates
     refetchIntervalInBackground: true,
     staleTime: 0,
     gcTime: 0
