@@ -4,11 +4,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PatientFormProps {
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: () => void;
   onClose?: () => void;
   initialData?: {
     id?: string;
@@ -19,10 +17,7 @@ interface PatientFormProps {
     emergencyContactName?: string;
     emergencyPhone?: string;
     dob: string;
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
+    address: string;
     sex: string;
   };
 }
@@ -39,10 +34,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
       emergencyContactName: "",
       emergencyPhone: "",
       dob: "",
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
+      address: "",
       sex: "",
     }
   );
@@ -63,10 +55,11 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     }));
   };
 
-  const handleAddressChange = (field: string, value: string) => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      address: value,
     }));
   };
 
@@ -101,29 +94,28 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         profileImageUrl = publicUrl;
       }
 
-      const address = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
-
-      const patientData = {
+      const { error } = await supabase.from('patients').upsert({
         id: initialData?.id,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        emergencyContactName: formData.emergencyContactName,
-        emergencyPhone: formData.emergencyPhone,
+        emergency_contact_name: formData.emergencyContactName,
+        emergency_phone: formData.emergencyPhone,
         dob: formData.dob,
-        address: address,
+        address: formData.address,
         sex: formData.sex,
-        profileImageUrl: profileImageUrl,
-      };
+        profile_image_url: profileImageUrl,
+      });
 
-      await onSubmit(patientData);
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: `Patient ${initialData ? "updated" : "created"} successfully`,
       });
 
+      onSubmit();
       if (onClose) {
         onClose();
       }
@@ -139,43 +131,29 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     }
   };
 
+  const handleSuggestionClick = (suggestion: MapboxFeature) => {
+    setFormData(prev => ({
+      ...prev,
+      address: suggestion.place_name
+    }));
+  };
+
   return (
-    <Card className="w-full max-h-[80vh] flex flex-col">
-      <ScrollArea className="flex-1">
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <PatientFormFields
-              formData={formData}
-              handleInputChange={handleInputChange}
-              handleFileChange={setProfileImage}
-              handleAddressChange={handleAddressChange}
-              handleSuggestionClick={(suggestion: MapboxFeature) => {
-                const addressParts = suggestion.place_name.split(',');
-                setFormData(prev => ({
-                  ...prev,
-                  street: addressParts[0]?.trim() || '',
-                  city: addressParts[1]?.trim() || '',
-                  state: addressParts[2]?.trim() || '',
-                  zipCode: addressParts[3]?.trim() || ''
-                }));
-              }}
-              setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
-            />
-          </form>
-        </CardContent>
-      </ScrollArea>
-      <div className="p-6 border-t mt-auto">
-        <div className="flex justify-end space-x-2">
-          {onClose && (
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          )}
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : initialData ? "Update Patient" : "Create Patient"}
-          </Button>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PatientFormFields
+        formData={formData}
+        handleInputChange={handleInputChange}
+        handleFileChange={handleFileChange}
+        handleAddressChange={handleAddressChange}
+        handleSuggestionClick={handleSuggestionClick}
+        setSex={setSex}
+      />
+      
+      <div className="flex justify-end space-x-2">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : "Save Patient"}
+        </Button>
       </div>
-    </Card>
+    </form>
   );
 };
