@@ -44,7 +44,7 @@ const Manufacturing = () => {
 
     return filteredScripts.filter(script => {
       const manufacturingLog = script.manufacturingLogs?.[0];
-      if (!manufacturingLog) return activeFilter === 'pending';
+      if (!manufacturingLog) return activeFilter === 'ready for printing';
 
       const { 
         manufacturing_status,
@@ -54,7 +54,7 @@ const Manufacturing = () => {
       } = manufacturingLog;
 
       switch (activeFilter) {
-        case 'pending':
+        case 'ready for printing':
           return manufacturing_status === 'pending';
         case 'in_progress':
           // Show items that are either in printing, miyo, or inspection stages
@@ -88,7 +88,7 @@ const Manufacturing = () => {
     switch (filter.toLowerCase()) {
       case 'all':
         return <Filter className="h-4 w-4" />;
-      case 'pending':
+      case 'ready for printing':
         return <CircleDot className="h-4 w-4" />;
       case 'in_progress':
         return <Clock className="h-4 w-4" />;
@@ -113,7 +113,7 @@ const Manufacturing = () => {
     switch (filter.toLowerCase()) {
       case 'all':
         return 'text-primary hover:text-primary/80 border-primary/20';
-      case 'pending':
+      case 'ready for printing':
         return 'text-yellow-600 hover:text-yellow-500 border-yellow-200';
       case 'in_progress':
         return 'text-blue-600 hover:text-blue-500 border-blue-200';
@@ -136,7 +136,7 @@ const Manufacturing = () => {
 
   const renderFilters = () => {
     if (selectedType === 'inhouse_printing') {
-      return ['All', 'Pending', 'In Progress', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
+      return ['All', 'Ready for Printing', 'In Progress', 'Printing', 'Miyo', 'Inspection', 'Rejected', 'Completed'];
     }
 
     if (selectedType === 'inhouse_milling') {
