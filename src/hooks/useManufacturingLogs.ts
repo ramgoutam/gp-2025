@@ -83,6 +83,9 @@ export const useManufacturingLogs = (manufacturingScripts: LabScript[]) => {
               ...prev,
               [scriptId]: newData.inspection_status || 'pending'
             }));
+
+            // Trigger immediate refetch of manufacturing data
+            fetchManufacturingLogs();
           }
         }
       )

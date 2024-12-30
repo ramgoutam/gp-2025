@@ -93,7 +93,7 @@ export const useManufacturingData = () => {
         scripts: manufacturingQueue
       };
     },
-    refetchInterval: 1, // Changed from 3000ms to 1ms for faster updates
+    refetchInterval: 1, // 1ms interval for near real-time updates
     refetchIntervalInBackground: true,
     staleTime: 0,
     gcTime: 0
