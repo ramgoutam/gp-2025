@@ -57,11 +57,11 @@ const Manufacturing = () => {
         case 'ready for printing':
           return manufacturing_status === 'pending';
         case 'in_progress':
-          // Show items that are either in printing, miyo, or inspection stages
+          // Show items that are in printing, miyo, or inspection stages, excluding completed/rejected items
           return (
             (manufacturing_status === 'in_progress') || // In printing
-            (manufacturing_status === 'completed' && miyo_status !== 'completed') || // In miyo
-            (miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold') // In inspection
+            (manufacturing_status === 'completed' && miyo_status === 'in_progress') || // In miyo
+            (miyo_status === 'completed' && inspection_status === 'in_progress') // In inspection
           );
         case 'printing':
           return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
