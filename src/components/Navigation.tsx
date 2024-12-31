@@ -4,16 +4,35 @@ import { useEffect } from "react";
 import { MainLinks } from "./navigation/MainLinks";
 import { LabMenu } from "./navigation/LabMenu";
 import { SignOutButton } from "./navigation/SignOutButton";
+import { useToast } from "@/hooks/use-toast";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Check authentication on mount and redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session && location.pathname !== '/login') {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking auth session:", error);
+          throw error;
+        }
+
+        if (!session && location.pathname !== '/login') {
+          console.log("No active session, redirecting to login");
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in again",
+          variant: "destructive"
+        });
         navigate('/login');
       }
     };
@@ -21,17 +40,21 @@ export const Navigation = () => {
     checkAuth();
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
-      if (!session && location.pathname !== '/login') {
-        navigate('/login');
+      
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || !session) {
+        if (location.pathname !== '/login') {
+          console.log("Session ended or token refresh failed, redirecting to login");
+          navigate('/login');
+        }
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, toast]);
 
   // Hide navigation on login page
   if (location.pathname === "/login") {
