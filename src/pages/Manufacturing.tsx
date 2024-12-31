@@ -3,6 +3,7 @@ import { StatsCards } from "@/components/manufacturing/StatsCards";
 import { ManufacturingQueue } from "@/components/manufacturing/ManufacturingQueue";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { filterManufacturingScripts } from "@/utils/manufacturingFilters";
 import { 
   Filter, 
   CircleDot, 
@@ -41,80 +42,11 @@ const Manufacturing = () => {
 
   const getFilteredScripts = () => {
     if (activeFilter === 'all') return filteredScripts;
-
-    return filteredScripts.filter(script => {
-      const manufacturingLog = script.manufacturingLogs?.[0];
-      if (!manufacturingLog) return activeFilter === 'ready for printing';
-
-      const { 
-        manufacturing_status,
-        miyo_status,
-        inspection_status,
-        inspection_hold_reason 
-      } = manufacturingLog;
-
-      switch (activeFilter) {
-        case 'ready for printing':
-          return manufacturing_status === 'pending';
-        case 'in_progress':
-          // Show items that are in printing, miyo, or inspection stages, excluding completed/rejected items
-          return (
-            (manufacturing_status === 'in_progress') || // In printing
-            (manufacturing_status === 'completed' && miyo_status === 'in_progress') || // In miyo
-            (miyo_status === 'completed' && inspection_status === 'in_progress') // In inspection
-          );
-        case 'printing':
-          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
-        case 'milling':
-          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Milling';
-        case 'miyo':
-          // Show in Miyo tab if manufacturing is completed and miyo is not completed
-          return manufacturing_status === 'completed' && miyo_status !== 'completed';
-        case 'inspection':
-          // Show in Inspection tab if miyo is completed and inspection is not completed or rejected
-          return miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold';
-        case 'completed':
-          return inspection_status === 'completed';
-        case 'rejected':
-          // Show in Rejected tab if inspection is on hold (rejected) and has a reason
-          return inspection_status === 'on_hold' && !!inspection_hold_reason;
-        default:
-          return true;
-      }
-    });
+    return filterManufacturingScripts(filteredScripts, activeFilter);
   };
 
   const getFilterCount = (filterName: string) => {
-    return filteredScripts.filter(script => {
-      const manufacturingLog = script.manufacturingLogs?.[0];
-      if (!manufacturingLog) return filterName.toLowerCase() === 'ready for printing';
-
-      const { 
-        manufacturing_status,
-        miyo_status,
-        inspection_status,
-        inspection_hold_reason 
-      } = manufacturingLog;
-
-      switch (filterName.toLowerCase()) {
-        case 'ready for printing':
-          return manufacturing_status === 'pending';
-        case 'in progress':
-          return (
-            (manufacturing_status === 'in_progress') ||
-            (manufacturing_status === 'completed' && miyo_status !== 'completed') ||
-            (miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold')
-          );
-        case 'printing':
-          return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
-        case 'miyo':
-          return manufacturing_status === 'completed' && miyo_status !== 'completed';
-        case 'inspection':
-          return miyo_status === 'completed' && inspection_status !== 'completed' && inspection_status !== 'on_hold';
-        default:
-          return false;
-      }
-    }).length;
+    return filterManufacturingScripts(filteredScripts, filterName).length;
   };
 
   const getFilterIcon = (filter: string) => {
