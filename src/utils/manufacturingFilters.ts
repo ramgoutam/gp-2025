@@ -16,14 +16,14 @@ export const filterManufacturingScripts = (scripts: LabScript[], filter: string)
       case 'ready for printing':
         return manufacturing_status === 'pending';
       case 'in_progress':
-        // Show ONLY items that are actively in one of these stages:
+        // Only show items that are actively in one of these stages:
         // 1. Currently in printing (manufacturing in progress)
-        // 2. Currently in miyo (miyo in progress)
-        // 3. Currently in inspection (inspection in progress)
+        // 2. Currently in miyo (miyo in progress and manufacturing completed)
+        // 3. Currently in inspection (inspection in progress and miyo completed)
         return (
-          manufacturing_status === 'in_progress' ||  // In printing stage
-          miyo_status === 'in_progress' ||          // In miyo stage
-          (inspection_status === 'in_progress')     // In inspection stage
+          (manufacturing_status === 'in_progress') || // In printing
+          (manufacturing_status === 'completed' && miyo_status === 'in_progress') || // In miyo
+          (manufacturing_status === 'completed' && miyo_status === 'completed' && inspection_status === 'in_progress') // In inspection
         );
       case 'printing':
         return manufacturing_status === 'in_progress' && script.manufacturingType === 'Printing';
