@@ -25,6 +25,45 @@ interface Lead {
   created_at: string;
 }
 
+const mockLeads: Lead[] = [
+  {
+    id: '1',
+    first_name: 'John',
+    last_name: 'Doe',
+    email: 'john.doe@example.com',
+    phone: '(555) 123-4567',
+    company: 'Acme Inc.',
+    message: 'Interested in your dental services',
+    source: 'website',
+    status: 'new',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    first_name: 'Jane',
+    last_name: 'Smith',
+    email: 'jane.smith@company.com',
+    phone: '(555) 987-6543',
+    company: 'Tech Solutions',
+    message: 'Looking for consultation',
+    source: 'referral',
+    status: 'contacted',
+    created_at: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+  },
+  {
+    id: '3',
+    first_name: 'Mike',
+    last_name: 'Johnson',
+    email: 'mike.johnson@gmail.com',
+    phone: '(555) 246-8135',
+    company: null,
+    message: 'Need more information about treatments',
+    source: 'social media',
+    status: 'pending',
+    created_at: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  }
+];
+
 const Leads = () => {
   const { data: leads, isLoading } = useQuery({
     queryKey: ["leads"],
@@ -43,6 +82,7 @@ const Leads = () => {
       console.log("Fetched leads:", data);
       return data as Lead[];
     },
+    placeholderData: mockLeads // Use mock data when loading or no data
   });
 
   if (isLoading) {
