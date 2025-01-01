@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -47,6 +48,7 @@ export const ConsultationDialog = ({
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>("09:00");
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSchedule = async () => {
     if (!date || !lead) return;
@@ -64,14 +66,42 @@ export const ConsultationDialog = ({
       consultationDate: consultationDate.toISOString()
     });
 
-    try {
-      const { error } = await supabase.from("consultations").insert({
-        lead_id: lead.id,
-        consultation_date: consultationDate.toISOString(),
-        status: "scheduled",
-      });
+    setIsSubmitting(true);
 
-      if (error) throw error;
+    try {
+      // First verify if the lead exists in the database
+      const { data: existingLead, error: leadError } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("id", lead.id)
+        .single();
+
+      if (leadError || !existingLead) {
+        // If the lead doesn't exist in the database, create it first
+        const { error: insertLeadError } = await supabase
+          .from("leads")
+          .insert({
+            id: lead.id,
+            first_name: lead.first_name,
+            last_name: lead.last_name,
+            email: lead.email,
+            phone: lead.phone,
+            company: lead.company,
+          });
+
+        if (insertLeadError) throw insertLeadError;
+      }
+
+      // Now schedule the consultation
+      const { error: consultationError } = await supabase
+        .from("consultations")
+        .insert({
+          lead_id: lead.id,
+          consultation_date: consultationDate.toISOString(),
+          status: "scheduled",
+        });
+
+      if (consultationError) throw consultationError;
 
       toast({
         title: "Success",
@@ -79,13 +109,15 @@ export const ConsultationDialog = ({
       });
 
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error scheduling consultation:", error);
       toast({
         title: "Error",
-        description: "Failed to schedule consultation",
+        description: error.message || "Failed to schedule consultation",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -94,6 +126,9 @@ export const ConsultationDialog = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Schedule Consultation</DialogTitle>
+          <DialogDescription>
+            Schedule a consultation with {lead?.first_name} {lead?.last_name}
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -102,6 +137,7 @@ export const ConsultationDialog = ({
               selected={date}
               onSelect={setDate}
               className="rounded-md border"
+              disabled={(date) => date < new Date()}
             />
           </div>
           <div className="grid gap-2">
@@ -118,7 +154,12 @@ export const ConsultationDialog = ({
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleSchedule}>Schedule Consultation</Button>
+          <Button 
+            onClick={handleSchedule} 
+            disabled={isSubmitting || !date}
+          >
+            {isSubmitting ? "Scheduling..." : "Schedule Consultation"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
