@@ -140,7 +140,6 @@ const Leads = () => {
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         lead={selectedLead}
-        onSchedule={handleScheduleConsultation}
       />
     </div>
   );

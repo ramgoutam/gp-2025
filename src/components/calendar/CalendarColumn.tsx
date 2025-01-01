@@ -2,7 +2,7 @@ import { EventCard } from "./EventCard";
 import { Event } from "@/types/calendar";
 
 interface CalendarColumnProps {
-  category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
+  category: "lab" | "followup" | "emergency" | "surgery" | "dentist" | "consultation";
   categoryLabel: string;
   timeSlots: number[];
   events: Event[];
