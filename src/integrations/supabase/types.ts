@@ -62,6 +62,41 @@ export type Database = {
           },
         ]
       }
+      consultations: {
+        Row: {
+          consultation_date: string
+          created_at: string
+          id: string
+          lead_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          consultation_date: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          consultation_date?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       design_info: {
         Row: {
           actions_taken: string | null

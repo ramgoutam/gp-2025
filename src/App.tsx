@@ -13,6 +13,7 @@ import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
 import Manufacturing from "@/pages/Manufacturing";
 import Reports from "@/pages/Reports";
+import Consultations from "@/pages/Consultations";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -57,6 +58,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Leads />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultations"
+                  element={
+                    <ProtectedRoute>
+                      <Consultations />
                     </ProtectedRoute>
                   }
                 />

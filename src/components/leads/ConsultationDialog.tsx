@@ -11,6 +11,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface Lead {
   id: string;
@@ -29,7 +32,6 @@ interface ConsultationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Lead | null;
-  onSchedule: (date: Date, time: string) => void;
 }
 
 const timeSlots = [
@@ -42,21 +44,54 @@ export const ConsultationDialog = ({
   isOpen,
   onClose,
   lead,
-  onSchedule,
 }: ConsultationDialogProps) => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = React.useState<string>("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSchedule = () => {
-    if (!selectedDate || !selectedTime) return;
+  const handleSchedule = async () => {
+    if (!selectedDate || !selectedTime || !lead) return;
     
     const consultationDate = new Date(selectedDate);
     const [hours, minutes] = selectedTime.split(":").map(Number);
     consultationDate.setHours(hours, minutes);
     
-    onSchedule(consultationDate, selectedTime);
-    setSelectedDate(undefined);
-    setSelectedTime("");
+    try {
+      const { data, error } = await supabase
+        .from('consultations')
+        .insert([
+          {
+            lead_id: lead.id,
+            consultation_date: consultationDate.toISOString(),
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Consultation Scheduled",
+        description: `Consultation scheduled for ${lead.first_name} ${
+          lead.last_name
+        } on ${format(consultationDate, "PPP")} at ${selectedTime}`,
+      });
+
+      onClose();
+      setSelectedDate(undefined);
+      setSelectedTime("");
+      
+      // Navigate to the consultations page
+      navigate('/consultations');
+    } catch (error) {
+      console.error('Error scheduling consultation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to schedule consultation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
