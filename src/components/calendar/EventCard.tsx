@@ -7,7 +7,7 @@ interface EventCardProps {
   startTime: string;
   endTime: string;
   attendees: Attendee[];
-  category: "lab" | "followup" | "emergency" | "surgery" | "dentist";
+  category: "lab" | "followup" | "emergency" | "surgery" | "dentist" | "consultation";
   onDragStart?: (id: string, e: React.MouseEvent) => void;
   isDragging?: boolean;
 }
@@ -27,7 +27,8 @@ export const EventCard = ({
     followup: "bg-purple-50 border-purple-200 hover:bg-purple-100/90 text-purple-800",
     emergency: "bg-pink-50 border-pink-200 hover:bg-pink-100/90 text-pink-800",
     surgery: "bg-orange-50 border-orange-200 hover:bg-orange-100/90 text-orange-800",
-    dentist: "bg-cyan-50 border-cyan-200 hover:bg-cyan-100/90 text-cyan-800"
+    dentist: "bg-cyan-50 border-cyan-200 hover:bg-cyan-100/90 text-cyan-800",
+    consultation: "bg-green-50 border-green-200 hover:bg-green-100/90 text-green-800"
   };
 
   return (

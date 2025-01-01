@@ -59,6 +59,11 @@ export const ConsultationDialog = ({
       parseInt(time.split(":")[1])
     );
 
+    console.log("Scheduling consultation for:", {
+      leadId: lead.id,
+      consultationDate: consultationDate.toISOString()
+    });
+
     try {
       const { error } = await supabase.from("consultations").insert({
         lead_id: lead.id,
