@@ -1,28 +1,11 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
+import { LeadsTable } from "@/components/leads/LeadsTable";
+import { ConsultationDialog } from "@/components/leads/ConsultationDialog";
 
 interface Lead {
   id: string;
@@ -80,7 +63,6 @@ const Leads = () => {
   const { toast } = useToast();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const { data: leads = mockLeads, isLoading } = useQuery({
     queryKey: ["leads"],
@@ -107,23 +89,21 @@ const Leads = () => {
     setIsDialogOpen(true);
   };
 
-  const handleScheduleConsultation = () => {
-    if (!selectedDate || !selectedLead) return;
-
+  const handleScheduleConsultation = (date: Date, time: string) => {
     console.log("Scheduling consultation:", {
       lead: selectedLead,
-      date: selectedDate,
+      date,
+      time,
     });
 
     toast({
       title: "Consultation Scheduled",
-      description: `Consultation scheduled for ${selectedLead.first_name} ${
-        selectedLead.last_name
-      } on ${format(selectedDate, "PPP")}`,
+      description: `Consultation scheduled for ${selectedLead?.first_name} ${
+        selectedLead?.last_name
+      } on ${format(date, "PPP")} at ${time}`,
     });
 
     setIsDialogOpen(false);
-    setSelectedDate(undefined);
     setSelectedLead(null);
   };
 
@@ -152,95 +132,16 @@ const Leads = () => {
           <CardTitle>All Leads</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {leads?.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell>
-                    {lead.first_name} {lead.last_name}
-                  </TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.phone || "-"}</TableCell>
-                  <TableCell>{lead.company || "-"}</TableCell>
-                  <TableCell>{lead.source || "website"}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {lead.status || "new"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(lead.created_at), "MMM d, yyyy")}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAddConsultation(lead)}
-                      className="flex items-center gap-2"
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      Add Consultation
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <LeadsTable leads={leads} onAddConsultation={handleAddConsultation} />
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Schedule Consultation</DialogTitle>
-          </DialogHeader>
-          {selectedLead && (
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label>Patient</Label>
-                <p className="text-sm text-gray-500">
-                  {selectedLead.first_name} {selectedLead.last_name}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label>Select Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border"
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleScheduleConsultation}
-              disabled={!selectedDate}
-            >
-              Schedule
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConsultationDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        lead={selectedLead}
+        onSchedule={handleScheduleConsultation}
+      />
     </div>
   );
 };
