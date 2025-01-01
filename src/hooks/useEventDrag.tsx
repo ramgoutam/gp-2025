@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
-interface DragState {
+export interface DragState {
   eventId: string;
   initialY: number;
   currentY: number;
@@ -10,8 +10,17 @@ interface DragState {
   element: HTMLElement;
 }
 
+interface PreviewEvent {
+  startTime: string;
+  endTime: string;
+  category: string;
+}
+
 export const useEventDrag = (updateEvent: (id: string, startTime: string, endTime: string) => void) => {
   const [dragState, setDragState] = useState<DragState | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ time: string; category: string } | null>(null);
+  const [previewEvent, setPreviewEvent] = useState<PreviewEvent | null>(null);
 
   const handleDragStart = (eventId: string, e: React.MouseEvent) => {
     const element = e.currentTarget as HTMLElement;
@@ -27,10 +36,46 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
       currentX: e.clientX,
       element
     });
+    setIsDragging(true);
 
-    // Add a class to the body to prevent text selection during drag
     document.body.classList.add('select-none');
-    console.log('Event drag started:', { eventId, initialY, initialX });
+  };
+
+  const handleNewEventDragStart = (e: React.MouseEvent, hour: number, category: string) => {
+    setDragStart({
+      time: `${hour}:00`,
+      category
+    });
+    setIsDragging(true);
+  };
+
+  const handleNewEventDragMove = (e: React.MouseEvent, hour: number) => {
+    if (dragStart) {
+      setPreviewEvent({
+        startTime: dragStart.time,
+        endTime: `${hour + 1}:00`,
+        category: dragStart.category
+      });
+    }
+  };
+
+  const handleNewEventDragEnd = (e: React.MouseEvent, hour: number) => {
+    setIsDragging(false);
+    setDragStart(null);
+    setPreviewEvent(null);
+  };
+
+  const calculatePosition = (time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return (hours - 9) * 64 + (minutes / 60) * 64;
+  };
+
+  const calculateHeight = (startTime: string, endTime: string): number => {
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    const start = startHours + startMinutes / 60;
+    const end = endHours + endMinutes / 60;
+    return (end - start) * 64;
   };
 
   const handleDragMove = (e: MouseEvent) => {
@@ -44,32 +89,23 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
       currentY: e.clientY,
       currentX: e.clientX
     });
-
-    console.log('Event being dragged:', { 
-      eventId: dragState.eventId,
-      currentY: e.clientY,
-      currentX: e.clientX 
-    });
   };
 
-  const handleDragEnd = (
-    e: MouseEvent, 
-    getTimeFromY: (y: number) => { hour: number; minutes: number }
-  ) => {
+  const handleDragEnd = (e: MouseEvent) => {
     if (!dragState) return;
 
-    // Reset the transform
     dragState.element.style.transform = '';
     document.body.classList.remove('select-none');
 
-    const deltaY = e.clientY - dragState.currentY;
+    const getTimeFromY = (y: number) => {
+      const hour = Math.floor(y / 64) + 9;
+      const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
+      return { hour, minutes };
+    };
+
     const newPosition = getTimeFromY(e.clientY - dragState.initialY);
-    
-    // Format the new time
     const newStartTime = `${newPosition.hour}:${newPosition.minutes.toString().padStart(2, '0')}`;
-    
-    // Calculate end time (maintain same duration)
-    const durationInMinutes = 30; // Default to 30 min if needed
+    const durationInMinutes = 30;
     const newEndMinutes = newPosition.minutes + durationInMinutes;
     const newEndHour = newPosition.hour + Math.floor(newEndMinutes / 60);
     const adjustedEndMinutes = newEndMinutes % 60;
@@ -77,42 +113,35 @@ export const useEventDrag = (updateEvent: (id: string, startTime: string, endTim
 
     updateEvent(dragState.eventId, newStartTime, newEndTime);
     setDragState(null);
-    toast.success('Event time updated');
-
-    console.log('Event drag ended:', {
-      eventId: dragState.eventId,
-      newStartTime,
-      newEndTime,
-      deltaY
+    setIsDragging(false);
+    toast({
+      title: "Event updated",
+      description: `Event time updated to ${newStartTime} - ${newEndTime}`
     });
   };
 
   useEffect(() => {
     if (dragState) {
-      const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
-      const handleMouseUp = (e: MouseEvent) => {
-        const getTimeFromY = (y: number) => {
-          const hour = Math.floor(y / 64) + 6; // 6 is the starting hour
-          const minutes = Math.round((y % 64) / (64 / 60) / 30) * 30;
-          return { hour, minutes };
-        };
-        handleDragEnd(e, getTimeFromY);
-      };
-
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
 
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mouseup', handleDragEnd);
       };
     }
   }, [dragState]);
 
   return {
     dragState,
+    isDragging,
+    dragStart,
+    previewEvent,
     handleDragStart,
-    handleDragMove,
-    handleDragEnd
+    handleNewEventDragStart,
+    handleNewEventDragMove,
+    handleNewEventDragEnd,
+    calculatePosition,
+    calculateHeight
   };
 };

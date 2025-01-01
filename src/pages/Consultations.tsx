@@ -45,11 +45,16 @@ const Consultations = () => {
         title: `${consultation.leads.first_name} ${consultation.leads.last_name}`,
         startTime: format(new Date(consultation.consultation_date), "HH:mm"),
         endTime: format(new Date(new Date(consultation.consultation_date).getTime() + 1800000), "HH:mm"),
-        category: "consultation",
+        category: "consultation" as const,
         attendees: []
       }));
     }
   });
+
+  const updateEvent = async (id: string, startTime: string, endTime: string) => {
+    // Implementation for updating event times
+    console.log("Updating event:", { id, startTime, endTime });
+  };
 
   const {
     dragState,
@@ -61,8 +66,8 @@ const Consultations = () => {
     handleNewEventDragMove,
     handleNewEventDragEnd,
     calculatePosition,
-    calculateHeight,
-  } = useEventDrag();
+    calculateHeight
+  } = useEventDrag(updateEvent);
 
   const handleDateChange = (date: Date) => {
     setCurrentDate(date);
