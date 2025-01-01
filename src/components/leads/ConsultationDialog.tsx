@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -6,14 +6,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 
 interface Lead {
   id: string;
@@ -22,10 +25,6 @@ interface Lead {
   email: string;
   phone: string | null;
   company: string | null;
-  message: string | null;
-  source: string | null;
-  status: string | null;
-  created_at: string;
 }
 
 interface ConsultationDialogProps {
@@ -45,50 +44,41 @@ export const ConsultationDialog = ({
   onClose,
   lead,
 }: ConsultationDialogProps) => {
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
-  const [selectedTime, setSelectedTime] = React.useState<string>("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [time, setTime] = useState<string>("09:00");
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSchedule = async () => {
-    if (!selectedDate || !selectedTime || !lead) return;
-    
-    const consultationDate = new Date(selectedDate);
-    const [hours, minutes] = selectedTime.split(":").map(Number);
-    consultationDate.setHours(hours, minutes);
-    
+    if (!date || !lead) return;
+
+    const consultationDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      parseInt(time.split(":")[0]),
+      parseInt(time.split(":")[1])
+    );
+
     try {
-      const { data, error } = await supabase
-        .from('consultations')
-        .insert([
-          {
-            lead_id: lead.id,
-            consultation_date: consultationDate.toISOString(),
-          }
-        ])
-        .select()
-        .single();
+      const { error } = await supabase.from("consultations").insert({
+        lead_id: lead.id,
+        consultation_date: consultationDate.toISOString(),
+        status: "scheduled",
+      });
 
       if (error) throw error;
 
       toast({
-        title: "Consultation Scheduled",
-        description: `Consultation scheduled for ${lead.first_name} ${
-          lead.last_name
-        } on ${format(consultationDate, "PPP")} at ${selectedTime}`,
+        title: "Success",
+        description: "Consultation scheduled successfully",
       });
 
       onClose();
-      setSelectedDate(undefined);
-      setSelectedTime("");
-      
-      // Navigate to the consultations page
-      navigate('/consultations');
     } catch (error) {
-      console.error('Error scheduling consultation:', error);
+      console.error("Error scheduling consultation:", error);
       toast({
         title: "Error",
-        description: "Failed to schedule consultation. Please try again.",
+        description: "Failed to schedule consultation",
         variant: "destructive",
       });
     }
@@ -100,51 +90,31 @@ export const ConsultationDialog = ({
         <DialogHeader>
           <DialogTitle>Schedule Consultation</DialogTitle>
         </DialogHeader>
-        {lead && (
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label>Patient</Label>
-              <p className="text-sm text-gray-500">
-                {lead.first_name} {lead.last_name}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label>Select Date</Label>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Select Time</Label>
-              <Select value={selectedTime} onValueChange={setSelectedTime}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select time" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              className="rounded-md border"
+            />
           </div>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSchedule}
-            disabled={!selectedDate || !selectedTime}
-          >
-            Schedule
-          </Button>
-        </DialogFooter>
+          <div className="grid gap-2">
+            <Select value={time} onValueChange={setTime}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSlots.map((slot) => (
+                  <SelectItem key={slot} value={slot}>
+                    {slot}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleSchedule}>Schedule Consultation</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

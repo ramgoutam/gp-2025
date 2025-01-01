@@ -1,37 +1,49 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { DateSelector } from "@/components/calendar/DateSelector";
-import { CalendarColumn } from "@/components/calendar/CalendarColumn";
-import { useEventDrag } from "@/hooks/useEventDrag";
-import { Event } from "@/types/calendar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const timeSlots = Array.from({ length: 24 }, (_, i) => i + 1);
-
-const categories = [
-  { id: "consultation", label: "Consultations" }
-];
+interface Consultation {
+  id: string;
+  lead_id: string;
+  consultation_date: string;
+  status: string;
+  lead: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    company: string;
+  };
+}
 
 const Consultations = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  const { data: consultations = [], isLoading } = useQuery({
-    queryKey: ["consultations", format(currentDate, "yyyy-MM-dd")],
+  const { data: consultations, isLoading } = useQuery({
+    queryKey: ["consultations"],
     queryFn: async () => {
-      console.log("Fetching consultations for date:", format(currentDate, "yyyy-MM-dd"));
+      console.log("Fetching consultations...");
       const { data, error } = await supabase
         .from("consultations")
         .select(`
-          id,
-          consultation_date,
-          leads (
+          *,
+          lead:leads (
             first_name,
-            last_name
+            last_name,
+            email,
+            phone,
+            company
           )
         `)
-        .gte('consultation_date', format(currentDate, "yyyy-MM-dd"))
-        .lt('consultation_date', format(new Date(currentDate.getTime() + 86400000), "yyyy-MM-dd"));
+        .order("consultation_date", { ascending: true });
 
       if (error) {
         console.error("Error fetching consultations:", error);
@@ -39,45 +51,9 @@ const Consultations = () => {
       }
 
       console.log("Fetched consultations:", data);
-
-      return data.map((consultation: any) => ({
-        id: consultation.id,
-        title: `${consultation.leads.first_name} ${consultation.leads.last_name}`,
-        startTime: format(new Date(consultation.consultation_date), "HH:mm"),
-        endTime: format(new Date(new Date(consultation.consultation_date).getTime() + 1800000), "HH:mm"),
-        category: "consultation" as const,
-        attendees: []
-      }));
-    }
+      return data as Consultation[];
+    },
   });
-
-  const updateEvent = async (id: string, startTime: string, endTime: string) => {
-    // Implementation for updating event times
-    console.log("Updating event:", { id, startTime, endTime });
-  };
-
-  const {
-    dragState,
-    isDragging,
-    dragStart,
-    previewEvent,
-    handleDragStart,
-    handleNewEventDragStart,
-    handleNewEventDragMove,
-    handleNewEventDragEnd,
-    calculatePosition,
-    calculateHeight
-  } = useEventDrag(updateEvent);
-
-  const handleDateChange = (date: Date) => {
-    setCurrentDate(date);
-  };
-
-  const navigateDay = (days: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + days);
-    setCurrentDate(newDate);
-  };
 
   if (isLoading) {
     return (
@@ -96,36 +72,48 @@ const Consultations = () => {
     <div className="p-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Consultations</h1>
-        <p className="text-gray-500 mt-1">View and manage your scheduled consultations</p>
+        <p className="text-gray-500 mt-1">View and manage scheduled consultations</p>
       </div>
 
-      <DateSelector
-        currentDate={currentDate}
-        onDateChange={handleDateChange}
-        onNavigateDay={navigateDay}
-      />
-
-      <div className="grid grid-cols-1 gap-4 mt-4">
-        {categories.map(({ id, label }) => (
-          <CalendarColumn
-            key={id}
-            category={id as any}
-            categoryLabel={label}
-            timeSlots={timeSlots}
-            events={consultations}
-            onDragStart={handleDragStart}
-            onNewEventDragStart={handleNewEventDragStart}
-            onNewEventDragMove={handleNewEventDragMove}
-            onNewEventDragEnd={handleNewEventDragEnd}
-            dragState={dragState}
-            isDragging={isDragging}
-            dragStart={dragStart}
-            previewEvent={previewEvent}
-            calculatePosition={calculatePosition}
-            calculateHeight={calculateHeight}
-          />
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Scheduled Consultations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {consultations?.map((consultation) => (
+                <TableRow key={consultation.id}>
+                  <TableCell>
+                    {consultation.lead.first_name} {consultation.lead.last_name}
+                  </TableCell>
+                  <TableCell>{consultation.lead.email}</TableCell>
+                  <TableCell>{consultation.lead.phone || "-"}</TableCell>
+                  <TableCell>{consultation.lead.company || "-"}</TableCell>
+                  <TableCell>
+                    {format(new Date(consultation.consultation_date), "PPp")}
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {consultation.status}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

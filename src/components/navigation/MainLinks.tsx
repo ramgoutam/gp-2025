@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Megaphone, UserPlus, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -38,7 +38,9 @@ export const MainLinks = () => {
         <DropdownMenuTrigger
           className={cn(
             "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-            (location.pathname === "/marketing" || location.pathname === "/leads")
+            (location.pathname === "/marketing" || 
+             location.pathname === "/leads" || 
+             location.pathname === "/consultations")
               ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-100"
           )}
@@ -64,6 +66,15 @@ export const MainLinks = () => {
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Leads
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link 
+              to="/consultations" 
+              className="flex items-center w-full"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Consultations
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
