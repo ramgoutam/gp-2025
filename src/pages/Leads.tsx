@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Lead {
   id: string;
@@ -48,7 +51,7 @@ const mockLeads: Lead[] = [
     message: 'Looking for consultation',
     source: 'referral',
     status: 'contacted',
-    created_at: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+    created_at: new Date(Date.now() - 86400000).toISOString()
   },
   {
     id: '3',
@@ -60,11 +63,12 @@ const mockLeads: Lead[] = [
     message: 'Need more information about treatments',
     source: 'social media',
     status: 'pending',
-    created_at: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+    created_at: new Date(Date.now() - 172800000).toISOString()
   }
 ];
 
 const Leads = () => {
+  const { toast } = useToast();
   const { data: leads = mockLeads, isLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
@@ -84,6 +88,14 @@ const Leads = () => {
     },
     placeholderData: mockLeads
   });
+
+  const handleAddConsultation = (lead: Lead) => {
+    console.log("Adding consultation for lead:", lead);
+    toast({
+      title: "Adding Consultation",
+      description: `Creating consultation for ${lead.first_name} ${lead.last_name}`,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -120,6 +132,7 @@ const Leads = () => {
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,6 +152,17 @@ const Leads = () => {
                   </TableCell>
                   <TableCell>
                     {format(new Date(lead.created_at), "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddConsultation(lead)}
+                      className="flex items-center gap-2"
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                      Add Consultation
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
