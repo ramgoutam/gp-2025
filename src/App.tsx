@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import Marketing from "@/pages/Marketing";
+import Leads from "@/pages/Leads";
 import PatientProfile from "@/pages/PatientProfile";
 import Login from "@/pages/Login";
 import Scripts from "@/pages/Scripts";
@@ -48,6 +49,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Marketing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/leads"
+                  element={
+                    <ProtectedRoute>
+                      <Leads />
                     </ProtectedRoute>
                   }
                 />
