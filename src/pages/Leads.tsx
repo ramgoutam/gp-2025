@@ -1,8 +1,16 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Lead {
   id: string;
@@ -57,38 +65,47 @@ const Leads = () => {
         <p className="text-gray-500 mt-1">Manage and track your leads</p>
       </div>
 
-      <div className="grid gap-4">
-        {leads?.map((lead) => (
-          <Card key={lead.id}>
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>
-                  {lead.first_name} {lead.last_name}
-                </span>
-                <span className="text-sm font-normal text-gray-500">
-                  {format(new Date(lead.created_at), "MMM d, yyyy")}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Contact Information</p>
-                  <p className="mt-1">{lead.email}</p>
-                  {lead.phone && <p className="mt-1">{lead.phone}</p>}
-                  {lead.company && <p className="mt-1">{lead.company}</p>}
-                </div>
-                {lead.message && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Message</p>
-                    <p className="mt-1 text-gray-700">{lead.message}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>All Leads</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {leads?.map((lead) => (
+                <TableRow key={lead.id}>
+                  <TableCell>
+                    {lead.first_name} {lead.last_name}
+                  </TableCell>
+                  <TableCell>{lead.email}</TableCell>
+                  <TableCell>{lead.phone || "-"}</TableCell>
+                  <TableCell>{lead.company || "-"}</TableCell>
+                  <TableCell>{lead.source || "website"}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {lead.status || "new"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(lead.created_at), "MMM d, yyyy")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
