@@ -14,6 +14,7 @@ import Scripts from "@/pages/Scripts";
 import Manufacturing from "@/pages/Manufacturing";
 import Reports from "@/pages/Reports";
 import Consultations from "@/pages/Consultations";
+import Calendar from "@/pages/Calendar";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -66,6 +67,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Consultations />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <Calendar />
                     </ProtectedRoute>
                   }
                 />
