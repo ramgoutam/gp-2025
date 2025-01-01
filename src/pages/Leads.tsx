@@ -22,7 +22,7 @@ interface Lead {
 
 const mockLeads: Lead[] = [
   {
-    id: '1',
+    id: 'c9f5d15e-0b5f-4b6d-8c3a-18e2f3c5d789',
     first_name: 'John',
     last_name: 'Doe',
     email: 'john.doe@example.com',
@@ -34,7 +34,7 @@ const mockLeads: Lead[] = [
     created_at: new Date().toISOString()
   },
   {
-    id: '2',
+    id: 'f7d9e123-4b5c-6a7b-8c9d-0e1f2a3b4c5d',
     first_name: 'Jane',
     last_name: 'Smith',
     email: 'jane.smith@company.com',
@@ -46,7 +46,7 @@ const mockLeads: Lead[] = [
     created_at: new Date(Date.now() - 86400000).toISOString()
   },
   {
-    id: '3',
+    id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
     first_name: 'Mike',
     last_name: 'Johnson',
     email: 'mike.johnson@gmail.com',
