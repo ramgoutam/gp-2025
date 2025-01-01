@@ -65,7 +65,7 @@ const mockLeads: Lead[] = [
 ];
 
 const Leads = () => {
-  const { data: leads, isLoading } = useQuery({
+  const { data: leads = mockLeads, isLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
       console.log("Fetching leads...");
@@ -80,9 +80,9 @@ const Leads = () => {
       }
 
       console.log("Fetched leads:", data);
-      return data as Lead[];
+      return (data?.length ? data : mockLeads) as Lead[];
     },
-    placeholderData: mockLeads // Use mock data when loading or no data
+    placeholderData: mockLeads
   });
 
   if (isLoading) {
