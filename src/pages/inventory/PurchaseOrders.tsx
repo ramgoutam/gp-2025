@@ -12,6 +12,9 @@ import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import type { Database } from "@/integrations/supabase/types";
+
+type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 
 const PurchaseOrders = () => {
   const { data: orders } = useQuery({
@@ -23,7 +26,7 @@ const PurchaseOrders = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as PurchaseOrder[];
     }
   });
 

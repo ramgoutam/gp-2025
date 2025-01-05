@@ -11,6 +11,9 @@ import {
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type InventoryItem = Database['public']['Tables']['inventory_items']['Row'];
 
 const InventoryItems = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +27,7 @@ const InventoryItems = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as InventoryItem[];
     }
   });
 

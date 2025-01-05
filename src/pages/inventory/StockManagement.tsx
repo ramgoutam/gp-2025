@@ -10,6 +10,12 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type StockWithRelations = Database['public']['Tables']['inventory_stock']['Row'] & {
+  inventory_items: Pick<Database['public']['Tables']['inventory_items']['Row'], 'name' | 'sku'>;
+  inventory_locations: Pick<Database['public']['Tables']['inventory_locations']['Row'], 'name'>;
+};
 
 const StockManagement = () => {
   const { data: stock } = useQuery({
@@ -25,7 +31,7 @@ const StockManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as StockWithRelations[];
     }
   });
 
