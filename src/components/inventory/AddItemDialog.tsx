@@ -17,6 +17,11 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     sku: "",
     unit: "",
     min_stock: 0,
+    product_id: "",
+    category: "",
+    manufacturing_id: "",
+    manufacturer: "",
+    order_link: "",
   });
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -41,6 +46,11 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
         sku: "",
         unit: "",
         min_stock: 0,
+        product_id: "",
+        category: "",
+        manufacturing_id: "",
+        manufacturer: "",
+        order_link: "",
       });
     } catch (error) {
       console.error('Error adding item:', error);
@@ -68,6 +78,15 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
         </DialogHeader>
         <form onSubmit={handleAddItem} className="space-y-4 mt-4">
           <div className="space-y-2">
+            <Label htmlFor="product_id">Product ID</Label>
+            <Input
+              id="product_id"
+              value={newItem.product_id}
+              onChange={(e) => setNewItem({ ...newItem, product_id: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -77,11 +96,12 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sku">SKU</Label>
+            <Label htmlFor="category">Category</Label>
             <Input
-              id="sku"
-              value={newItem.sku}
-              onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
+              id="category"
+              value={newItem.category}
+              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              required
             />
           </div>
           <div className="space-y-2">
@@ -93,12 +113,36 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="unit">Unit</Label>
+            <Label htmlFor="unit">UOM</Label>
             <Input
               id="unit"
               value={newItem.unit}
               onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
+            <Input
+              id="manufacturing_id"
+              value={newItem.manufacturing_id}
+              onChange={(e) => setNewItem({ ...newItem, manufacturing_id: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="manufacturer">Manufacturer</Label>
+            <Input
+              id="manufacturer"
+              value={newItem.manufacturer}
+              onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="order_link">Order Link</Label>
+            <Input
+              id="order_link"
+              value={newItem.order_link}
+              onChange={(e) => setNewItem({ ...newItem, order_link: e.target.value })}
             />
           </div>
           <div className="space-y-2">
@@ -108,6 +152,14 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               type="number"
               value={newItem.min_stock}
               onChange={(e) => setNewItem({ ...newItem, min_stock: parseInt(e.target.value) })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sku">SKU</Label>
+            <Input
+              id="sku"
+              value={newItem.sku}
+              onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
