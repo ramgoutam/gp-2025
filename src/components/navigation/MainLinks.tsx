@@ -14,7 +14,6 @@ export const MainLinks = () => {
   const mainLinks = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/inventory", label: "Inventory", icon: Package },
   ];
 
   return (
@@ -80,6 +79,19 @@ export const MainLinks = () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Link
+        to="/inventory"
+        className={cn(
+          "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+          location.pathname === "/inventory"
+            ? "bg-primary text-white"
+            : "text-gray-600 hover:bg-gray-100"
+        )}
+      >
+        <Package className="w-4 h-4" />
+        <span>Inventory</span>
+      </Link>
     </div>
   );
 };
