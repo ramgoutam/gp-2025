@@ -40,7 +40,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
           
           return {
             product_id,
-            name: product_name, // Map product_name to name for database
+            product_name,
             category,
             uom,
             manufacturing_id,
@@ -50,7 +50,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
             sku,
             description
           };
-        }).filter(item => item.name && item.uom); // Ensure required fields are present
+        }).filter(item => item.product_name && item.uom); // Ensure required fields are present
 
         const { error } = await supabase
           .from('inventory_items')
@@ -77,7 +77,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   const downloadTemplate = () => {
-    const csvContent = "product_id,Product name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description\n";
+    const csvContent = "product_id,product_name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description\n";
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');

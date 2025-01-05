@@ -9,9 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
-
-type InventoryItem = Database['public']['Tables']['inventory_items']['Row'];
+import type { InventoryItem } from "@/types/database/inventory";
 
 export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => {
   return (
@@ -20,7 +18,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
         <TableRow>
           <TableHead className="w-12"></TableHead>
           <TableHead>SKU</TableHead>
-          <TableHead>Name</TableHead>
+          <TableHead>Product Name</TableHead>
           <TableHead>Description</TableHead>
           <TableHead>UOM</TableHead>
           <TableHead>Min Stock</TableHead>
@@ -34,7 +32,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
               <Package className="h-5 w-5 text-gray-400" />
             </TableCell>
             <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-            <TableCell className="font-medium">{item.name}</TableCell>
+            <TableCell className="font-medium">{item.product_name}</TableCell>
             <TableCell className="text-gray-600">{item.description}</TableCell>
             <TableCell>{item.uom}</TableCell>
             <TableCell>{item.min_stock}</TableCell>

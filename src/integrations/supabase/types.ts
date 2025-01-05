@@ -284,9 +284,9 @@ export type Database = {
           manufacturer: string | null
           manufacturing_id: string | null
           min_stock: number | null
-          name: string
           order_link: string | null
           product_id: string | null
+          product_name: string
           sku: string | null
           uom: string
           updated_at: string
@@ -299,9 +299,9 @@ export type Database = {
           manufacturer?: string | null
           manufacturing_id?: string | null
           min_stock?: number | null
-          name: string
           order_link?: string | null
           product_id?: string | null
+          product_name: string
           sku?: string | null
           uom: string
           updated_at?: string
@@ -314,9 +314,9 @@ export type Database = {
           manufacturer?: string | null
           manufacturing_id?: string | null
           min_stock?: number | null
-          name?: string
           order_link?: string | null
           product_id?: string | null
+          product_name?: string
           sku?: string | null
           uom?: string
           updated_at?: string
