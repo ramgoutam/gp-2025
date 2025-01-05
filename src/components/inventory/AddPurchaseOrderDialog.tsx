@@ -20,30 +20,102 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type FormData = {
   supplier: string;
   order_date: string;
   expected_delivery_date: string;
   notes: string;
+  items: OrderItem[];
+};
+
+type OrderItem = {
+  item_id: string;
+  quantity: number;
+  unit_price: number;
+};
+
+type InventoryItem = {
+  id: string;
+  product_name: string;
+  price: number | null;
 };
 
 export function AddPurchaseOrderDialog() {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const form = useForm<FormData>();
+  const form = useForm<FormData>({
+    defaultValues: {
+      items: [],
+    },
+  });
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+
+  // Fetch inventory items
+  const { data: inventoryItems } = useQuery({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('id, product_name, price');
+      
+      if (error) throw error;
+      return data as InventoryItem[];
+    }
+  });
+
+  const addOrderItem = () => {
+    setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
+  };
+
+  const removeOrderItem = (index: number) => {
+    const newItems = [...orderItems];
+    newItems.splice(index, 1);
+    setOrderItems(newItems);
+  };
+
+  const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
+    const newItems = [...orderItems];
+    if (field === 'item_id' && typeof value === 'string') {
+      const item = inventoryItems?.find(i => i.id === value);
+      newItems[index] = {
+        ...newItems[index],
+        [field]: value,
+        unit_price: item?.price || 0,
+      };
+    } else {
+      newItems[index] = {
+        ...newItems[index],
+        [field]: value,
+      };
+    }
+    setOrderItems(newItems);
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Creating new purchase order:", data);
+      console.log("Creating new purchase order:", { ...data, items: orderItems });
       
-      // Generate PO number (simple format: PO-YYYYMMDD-XXX)
+      // Generate PO number
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       const poNumber = `PO-${timestamp}-${random}`;
 
-      const { error } = await supabase
+      // Calculate total amount
+      const totalAmount = orderItems.reduce((sum, item) => 
+        sum + (item.quantity * item.unit_price), 0);
+
+      // Create purchase order
+      const { data: po, error: poError } = await supabase
         .from('purchase_orders')
         .insert({
           po_number: poNumber,
@@ -52,10 +124,28 @@ export function AddPurchaseOrderDialog() {
           expected_delivery_date: data.expected_delivery_date,
           notes: data.notes,
           status: 'draft',
-          total_amount: 0
-        });
+          total_amount: totalAmount
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (poError) throw poError;
+
+      // Create purchase order items
+      if (orderItems.length > 0) {
+        const { error: itemsError } = await supabase
+          .from('purchase_order_items')
+          .insert(
+            orderItems.map(item => ({
+              purchase_order_id: po.id,
+              item_id: item.item_id,
+              quantity: item.quantity,
+              unit_price: item.unit_price
+            }))
+          );
+
+        if (itemsError) throw itemsError;
+      }
 
       toast({
         title: "Success",
@@ -64,6 +154,7 @@ export function AddPurchaseOrderDialog() {
 
       setOpen(false);
       form.reset();
+      setOrderItems([]);
     } catch (error) {
       console.error("Error creating purchase order:", error);
       toast({
@@ -82,7 +173,7 @@ export function AddPurchaseOrderDialog() {
           New Order
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create Purchase Order</DialogTitle>
         </DialogHeader>
@@ -129,6 +220,70 @@ export function AddPurchaseOrderDialog() {
                 </FormItem>
               )}
             />
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Order Items</h3>
+                <Button type="button" variant="outline" size="sm" onClick={addOrderItem}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+              </div>
+
+              {orderItems.map((item, index) => (
+                <div key={index} className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <FormLabel>Product</FormLabel>
+                    <Select
+                      value={item.item_id}
+                      onValueChange={(value) => updateOrderItem(index, 'item_id', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select product" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {inventoryItems?.map((invItem) => (
+                          <SelectItem key={invItem.id} value={invItem.id}>
+                            {invItem.product_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="w-24">
+                    <FormLabel>Quantity</FormLabel>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updateOrderItem(index, 'quantity', parseInt(e.target.value))}
+                    />
+                  </div>
+
+                  <div className="w-32">
+                    <FormLabel>Unit Price</FormLabel>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.unit_price}
+                      onChange={(e) => updateOrderItem(index, 'unit_price', parseFloat(e.target.value))}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="mb-2"
+                    onClick={() => removeOrderItem(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
 
             <FormField
               control={form.control}
