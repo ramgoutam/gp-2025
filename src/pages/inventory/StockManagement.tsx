@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type StockWithRelations = Database['public']['Tables']['inventory_stock']['Row'] & {
-  inventory_items: Pick<Database['public']['Tables']['inventory_items']['Row'], 'name' | 'sku'>;
+  inventory_items: Pick<Database['public']['Tables']['inventory_items']['Row'], 'product_name' | 'sku'>;
   inventory_locations: Pick<Database['public']['Tables']['inventory_locations']['Row'], 'name'>;
 };
 
@@ -25,7 +25,7 @@ const StockManagement = () => {
         .from('inventory_stock')
         .select(`
           *,
-          inventory_items (name, sku),
+          inventory_items (product_name, sku),
           inventory_locations (name)
         `)
         .order('created_at', { ascending: false });
@@ -62,7 +62,7 @@ const StockManagement = () => {
             <TableBody>
               {stock?.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.inventory_items.name}</TableCell>
+                  <TableCell>{item.inventory_items.product_name}</TableCell>
                   <TableCell>{item.inventory_items.sku}</TableCell>
                   <TableCell>{item.inventory_locations.name}</TableCell>
                   <TableCell>{item.quantity}</TableCell>

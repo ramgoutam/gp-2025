@@ -54,16 +54,45 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
           };
         }).filter(item => item.product_name && item.uom); // Ensure required fields are present
 
-        const { error } = await supabase
-          .from('inventory_items')
-          .insert(items);
+        // First check for existing SKUs
+        const skus = items.map(item => item.sku).filter(Boolean);
+        if (skus.length > 0) {
+          const { data: existingItems } = await supabase
+            .from('inventory_items')
+            .select('sku')
+            .in('sku', skus);
 
-        if (error) throw error;
+          const existingSkus = new Set(existingItems?.map(item => item.sku));
+          const newItems = items.filter(item => !item.sku || !existingSkus.has(item.sku));
 
-        toast({
-          title: "Success",
-          description: `${items.length} items imported successfully`,
-        });
+          if (newItems.length < items.length) {
+            toast({
+              title: "Warning",
+              description: `${items.length - newItems.length} items skipped due to duplicate SKUs`,
+              variant: "destructive",
+            });
+          }
+
+          if (newItems.length === 0) {
+            toast({
+              title: "Error",
+              description: "All items have duplicate SKUs",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const { error } = await supabase
+            .from('inventory_items')
+            .insert(newItems);
+
+          if (error) throw error;
+
+          toast({
+            title: "Success",
+            description: `${newItems.length} items imported successfully`,
+          });
+        }
         
         onSuccess();
       } catch (error) {
