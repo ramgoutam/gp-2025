@@ -22,7 +22,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
           <TableHead>SKU</TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead>Unit</TableHead>
+          <TableHead>UOM</TableHead>
           <TableHead>Min Stock</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
@@ -36,7 +36,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
             <TableCell className="font-mono text-sm">{item.sku}</TableCell>
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell className="text-gray-600">{item.description}</TableCell>
-            <TableCell>{item.unit}</TableCell>
+            <TableCell>{item.uom}</TableCell>
             <TableCell>{item.min_stock}</TableCell>
             <TableCell>
               <Button variant="ghost" size="sm">

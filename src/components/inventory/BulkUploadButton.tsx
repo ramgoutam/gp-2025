@@ -18,15 +18,15 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
         const rows = csvData.split('\n').slice(1); // Skip header row
         
         const items = rows.map(row => {
-          const [name, description, sku, unit, min_stock] = row.split(',');
+          const [name, description, sku, uom, min_stock] = row.split(',');
           return {
             name: name?.trim(),
             description: description?.trim(),
             sku: sku?.trim(),
-            unit: unit?.trim(),
+            uom: uom?.trim(), // Changed from unit to uom
             min_stock: parseInt(min_stock?.trim() || '0'),
           };
-        }).filter(item => item.name);
+        }).filter(item => item.name && item.uom); // Ensure required fields are present
 
         const { error } = await supabase
           .from('inventory_items')
