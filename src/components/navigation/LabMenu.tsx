@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Beaker, TestTube, FileText, Factory, ChevronDown } from "lucide-react";
+import { Beaker, TestTube, FileText, Factory, Package, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ export const LabMenu = () => {
     { to: "/scripts", label: "Lab Scripts", icon: TestTube },
     { to: "/reports", label: "Report Cards", icon: FileText },
     { to: "/manufacturing", label: "Manufacturing", icon: Factory },
+    { to: "/inventory", label: "Inventory", icon: Package },
   ];
 
   const isLabRoute = labLinks.some(link => location.pathname === link.to);
