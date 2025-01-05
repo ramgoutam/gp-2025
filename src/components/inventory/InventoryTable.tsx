@@ -22,6 +22,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
           <TableHead>Description</TableHead>
           <TableHead>UOM</TableHead>
           <TableHead>Min Stock</TableHead>
+          <TableHead>Price</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -36,6 +37,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
             <TableCell className="text-gray-600">{item.description}</TableCell>
             <TableCell>{item.uom}</TableCell>
             <TableCell>{item.min_stock}</TableCell>
+            <TableCell>${item.price?.toFixed(2) || '0.00'}</TableCell>
             <TableCell>
               <Button variant="ghost" size="sm">
                 Edit
@@ -45,7 +47,7 @@ export const InventoryTable = ({ items }: { items: InventoryItem[] | null }) => 
         ))}
         {!items?.length && (
           <TableRow>
-            <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+            <TableCell colSpan={8} className="text-center py-8 text-gray-500">
               No items found. Add some items to get started.
             </TableCell>
           </TableRow>

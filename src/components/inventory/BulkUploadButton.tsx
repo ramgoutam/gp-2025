@@ -35,7 +35,8 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
             order_link,
             min_stock,
             sku,
-            description
+            description,
+            price
           ] = row.split(',').map(field => field.trim());
           
           return {
@@ -48,7 +49,8 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
             order_link,
             min_stock: parseInt(min_stock || '0'),
             sku,
-            description
+            description,
+            price: parseFloat(price || '0')
           };
         }).filter(item => item.product_name && item.uom); // Ensure required fields are present
 
@@ -77,7 +79,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   const downloadTemplate = () => {
-    const csvContent = "product_id,product_name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description\n";
+    const csvContent = "product_id,product_name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description,price\n";
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');

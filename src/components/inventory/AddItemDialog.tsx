@@ -13,7 +13,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [newItem, setNewItem] = useState({
-    name: "",
+    product_name: "",
     description: "",
     sku: "",
     uom: "",
@@ -23,6 +23,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     manufacturing_id: "",
     manufacturer: "",
     order_link: "",
+    price: 0,
   });
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -42,7 +43,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
       
       onSuccess();
       setNewItem({
-        name: "",
+        product_name: "",
         description: "",
         sku: "",
         uom: "",
@@ -52,6 +53,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
         manufacturing_id: "",
         manufacturer: "",
         order_link: "",
+        price: 0,
       });
     } catch (error) {
       console.error('Error adding item:', error);
@@ -90,11 +92,11 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="product_name">Name</Label>
                 <Input
-                  id="name"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  id="product_name"
+                  value={newItem.product_name}
+                  onChange={(e) => setNewItem({ ...newItem, product_name: e.target.value })}
                   required
                 />
               </div>
@@ -147,6 +149,16 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
                   type="number"
                   value={newItem.min_stock}
                   onChange={(e) => setNewItem({ ...newItem, min_stock: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={newItem.price}
+                  onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) })}
                 />
               </div>
               <div className="space-y-2">
