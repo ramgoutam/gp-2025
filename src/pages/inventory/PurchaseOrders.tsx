@@ -8,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { AddPurchaseOrderDialog } from "@/components/inventory/AddPurchaseOrderDialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
@@ -55,10 +55,7 @@ const PurchaseOrders = () => {
               Create and manage purchase orders
             </p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Order
-          </Button>
+          <AddPurchaseOrderDialog />
         </div>
 
         <div className="bg-white rounded-lg shadow">
