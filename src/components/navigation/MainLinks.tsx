@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LabMenu } from "./LabMenu";
 
 export const MainLinks = () => {
   const location = useLocation();
