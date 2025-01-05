@@ -31,3 +31,33 @@ export type InventoryStock = {
   created_at: string;
   updated_at: string;
 };
+
+export type StockWithRelations = InventoryStock & {
+  inventory_items: Pick<InventoryItem, 'product_name' | 'sku'>;
+  inventory_locations: Pick<InventoryLocation, 'name'>;
+};
+
+export type PurchaseOrder = {
+  id: string;
+  po_number: string;
+  supplier: string;
+  order_date: string;
+  expected_delivery_date: string | null;
+  status: string;
+  total_amount: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PurchaseOrderItem = {
+  id: string;
+  purchase_order_id: string;
+  item_id: string;
+  quantity: number;
+  unit_price: number;
+  received_quantity: number;
+  created_at: string;
+  updated_at: string;
+  inventory_items?: Pick<InventoryItem, 'product_name' | 'sku'>;
+};
