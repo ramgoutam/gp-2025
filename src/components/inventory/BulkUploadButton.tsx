@@ -21,6 +21,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
+        console.log("Starting bulk upload process");
         const csvData = event.target?.result as string;
         const rows = csvData.split('\n').slice(1); // Skip header row
         
@@ -48,22 +49,34 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
             manufacturer,
             order_link,
             min_stock: parseInt(min_stock || '0'),
-            sku,
+            sku: sku || null, // Make SKU nullable if empty
             description,
             price: parseFloat(price || '0')
           };
         }).filter(item => item.product_name && item.uom); // Ensure required fields are present
 
+        console.log("Parsed items:", items);
+
         // First check for existing SKUs
         const skus = items.map(item => item.sku).filter(Boolean);
         if (skus.length > 0) {
-          const { data: existingItems } = await supabase
+          console.log("Checking for existing SKUs:", skus);
+          const { data: existingItems, error: skuCheckError } = await supabase
             .from('inventory_items')
             .select('sku')
             .in('sku', skus);
 
+          if (skuCheckError) {
+            console.error("Error checking SKUs:", skuCheckError);
+            throw skuCheckError;
+          }
+
           const existingSkus = new Set(existingItems?.map(item => item.sku));
+          console.log("Found existing SKUs:", existingSkus);
+
+          // Filter out items with duplicate SKUs
           const newItems = items.filter(item => !item.sku || !existingSkus.has(item.sku));
+          console.log("Filtered new items:", newItems);
 
           if (newItems.length < items.length) {
             toast({
@@ -82,24 +95,42 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
             return;
           }
 
-          const { error } = await supabase
-            .from('inventory_items')
-            .insert(newItems);
+          // Insert items one by one to better handle errors
+          let successCount = 0;
+          for (const item of newItems) {
+            try {
+              const { error: insertError } = await supabase
+                .from('inventory_items')
+                .insert([item]);
 
-          if (error) throw error;
+              if (insertError) {
+                console.error("Error inserting item:", item, insertError);
+                toast({
+                  title: "Error",
+                  description: `Failed to insert item ${item.product_name}: ${insertError.message}`,
+                  variant: "destructive",
+                });
+              } else {
+                successCount++;
+              }
+            } catch (error) {
+              console.error("Error processing item:", item, error);
+            }
+          }
 
-          toast({
-            title: "Success",
-            description: `${newItems.length} items imported successfully`,
-          });
+          if (successCount > 0) {
+            toast({
+              title: "Success",
+              description: `${successCount} items imported successfully`,
+            });
+            onSuccess();
+          }
         }
-        
-        onSuccess();
       } catch (error) {
         console.error('Error importing items:', error);
         toast({
           title: "Error",
-          description: "Failed to import items",
+          description: "Failed to import items. Please check the console for details.",
           variant: "destructive",
         });
       }
