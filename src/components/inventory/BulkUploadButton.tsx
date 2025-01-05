@@ -27,7 +27,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
         const items = rows.map(row => {
           const [
             product_id,
-            name,
+            product_name,
             category,
             uom,
             manufacturing_id,
@@ -40,7 +40,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
           
           return {
             product_id,
-            name,
+            name: product_name, // Map product_name to name for database
             category,
             uom,
             manufacturing_id,
@@ -77,7 +77,7 @@ export const BulkUploadButton = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   const downloadTemplate = () => {
-    const csvContent = "product_id,name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description\n";
+    const csvContent = "product_id,Product name,category,uom,manufacturing_id,manufacturer,order_link,min_stock,sku,description\n";
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
