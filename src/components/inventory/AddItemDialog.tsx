@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { toast } = useToast();
@@ -15,7 +16,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     name: "",
     description: "",
     sku: "",
-    unit: "",
+    uom: "",
     min_stock: 0,
     product_id: "",
     category: "",
@@ -30,7 +31,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     try {
       const { error } = await supabase
         .from('inventory_items')
-        .insert([newItem]);
+        .insert(newItem);
 
       if (error) throw error;
 
@@ -44,7 +45,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
         name: "",
         description: "",
         sku: "",
-        unit: "",
+        uom: "",
         min_stock: 0,
         product_id: "",
         category: "",
@@ -72,100 +73,104 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
           Add Item
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[700px] h-[90vh]">
         <DialogHeader>
           <DialogTitle>Add New Item</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleAddItem} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="product_id">Product ID</Label>
-            <Input
-              id="product_id"
-              value={newItem.product_id}
-              onChange={(e) => setNewItem({ ...newItem, product_id: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
-              value={newItem.category}
-              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={newItem.description}
-              onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="unit">UOM</Label>
-            <Input
-              id="unit"
-              value={newItem.unit}
-              onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
-            <Input
-              id="manufacturing_id"
-              value={newItem.manufacturing_id}
-              onChange={(e) => setNewItem({ ...newItem, manufacturing_id: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="manufacturer">Manufacturer</Label>
-            <Input
-              id="manufacturer"
-              value={newItem.manufacturer}
-              onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="order_link">Order Link</Label>
-            <Input
-              id="order_link"
-              value={newItem.order_link}
-              onChange={(e) => setNewItem({ ...newItem, order_link: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="min_stock">Minimum Stock</Label>
-            <Input
-              id="min_stock"
-              type="number"
-              value={newItem.min_stock}
-              onChange={(e) => setNewItem({ ...newItem, min_stock: parseInt(e.target.value) })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sku">SKU</Label>
-            <Input
-              id="sku"
-              value={newItem.sku}
-              onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Adding..." : "Add Item"}
-          </Button>
-        </form>
+        <ScrollArea className="h-full pr-4">
+          <form onSubmit={handleAddItem} className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="product_id">Product ID</Label>
+                <Input
+                  id="product_id"
+                  value={newItem.product_id}
+                  onChange={(e) => setNewItem({ ...newItem, product_id: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={newItem.name}
+                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={newItem.category}
+                  onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="uom">UOM</Label>
+                <Input
+                  id="uom"
+                  value={newItem.uom}
+                  onChange={(e) => setNewItem({ ...newItem, uom: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
+                <Input
+                  id="manufacturing_id"
+                  value={newItem.manufacturing_id}
+                  onChange={(e) => setNewItem({ ...newItem, manufacturing_id: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturer">Manufacturer</Label>
+                <Input
+                  id="manufacturer"
+                  value={newItem.manufacturer}
+                  onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order_link">Order Link</Label>
+                <Input
+                  id="order_link"
+                  value={newItem.order_link}
+                  onChange={(e) => setNewItem({ ...newItem, order_link: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="min_stock">Minimum Stock</Label>
+                <Input
+                  id="min_stock"
+                  type="number"
+                  value={newItem.min_stock}
+                  onChange={(e) => setNewItem({ ...newItem, min_stock: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={newItem.sku}
+                  onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={newItem.description}
+                  onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                />
+              </div>
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Adding..." : "Add Item"}
+            </Button>
+          </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
