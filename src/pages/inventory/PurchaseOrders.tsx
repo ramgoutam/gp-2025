@@ -89,7 +89,7 @@ const PurchaseOrders = () => {
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>${order.total_amount}</TableCell>
+                  <TableCell>${order.total_amount?.toFixed(2) || '0.00'}</TableCell>
                   <TableCell className="space-x-2">
                     <Button variant="ghost" size="sm">
                       View

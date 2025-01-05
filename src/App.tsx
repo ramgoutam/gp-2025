@@ -17,6 +17,9 @@ import Consultations from "@/pages/Consultations";
 import Calendar from "@/pages/Calendar";
 import Inventory from "@/pages/Inventory";
 import InventoryItems from "@/pages/inventory/InventoryItems";
+import StockManagement from "@/pages/inventory/StockManagement";
+import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
+import StockMovements from "@/pages/inventory/StockMovements";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -133,6 +136,30 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <InventoryItems />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory/stock"
+                  element={
+                    <ProtectedRoute>
+                      <StockManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory/purchase-orders"
+                  element={
+                    <ProtectedRoute>
+                      <PurchaseOrders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory/movements"
+                  element={
+                    <ProtectedRoute>
+                      <StockMovements />
                     </ProtectedRoute>
                   }
                 />
