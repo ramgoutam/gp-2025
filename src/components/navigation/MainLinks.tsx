@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package, Beaker } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LabMenu } from "./LabMenu";
 
 export const MainLinks = () => {
   const location = useLocation();
@@ -34,21 +33,6 @@ export const MainLinks = () => {
           <span>{label}</span>
         </Link>
       ))}
-
-      <LabMenu />
-
-      <Link
-        to="/inventory"
-        className={cn(
-          "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-          location.pathname === "/inventory"
-            ? "bg-primary text-white"
-            : "text-gray-600 hover:bg-gray-100"
-        )}
-      >
-        <Package className="w-4 h-4" />
-        <span>Inventory</span>
-      </Link>
 
       <DropdownMenu>
         <DropdownMenuTrigger
@@ -95,6 +79,19 @@ export const MainLinks = () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Link
+        to="/inventory"
+        className={cn(
+          "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+          location.pathname === "/inventory"
+            ? "bg-primary text-white"
+            : "text-gray-600 hover:bg-gray-100"
+        )}
+      >
+        <Package className="w-4 h-4" />
+        <span>Inventory</span>
+      </Link>
     </div>
   );
 };
