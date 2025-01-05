@@ -15,6 +15,7 @@ import Manufacturing from "@/pages/Manufacturing";
 import Reports from "@/pages/Reports";
 import Consultations from "@/pages/Consultations";
 import Calendar from "@/pages/Calendar";
+import Inventory from "@/pages/Inventory";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -115,6 +116,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Manufacturing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory"
+                  element={
+                    <ProtectedRoute>
+                      <Inventory />
                     </ProtectedRoute>
                   }
                 />
