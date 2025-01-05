@@ -12,11 +12,13 @@ import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 
 const PurchaseOrders = () => {
+  const navigate = useNavigate();
   const { data: orders } = useQuery({
     queryKey: ['purchase-orders'],
     queryFn: async () => {
@@ -29,6 +31,8 @@ const PurchaseOrders = () => {
       return data as PurchaseOrder[];
     }
   });
+
+  console.log("Purchase orders loaded:", orders);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -91,7 +95,11 @@ const PurchaseOrders = () => {
                   </TableCell>
                   <TableCell>${order.total_amount}</TableCell>
                   <TableCell className="space-x-2">
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => navigate(`/inventory/purchase-orders/${order.id}`)}
+                    >
                       View
                     </Button>
                     <Button variant="ghost" size="sm">
