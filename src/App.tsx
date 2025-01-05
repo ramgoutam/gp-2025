@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import InventoryItems from "@/pages/inventory/InventoryItems";
-import Home from "@/pages/Home"; // Example of an existing route
-import About from "@/pages/About"; // Example of an existing route
+import Home from "@/pages/Home";
+import About from "@/pages/About";
 
 function App() {
   return (
