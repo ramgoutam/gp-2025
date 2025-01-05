@@ -277,33 +277,48 @@ export type Database = {
       }
       inventory_items: {
         Row: {
+          category: string | null
           created_at: string
           description: string | null
           id: string
+          manufacturer: string | null
+          manufacturing_id: string | null
           min_stock: number | null
           name: string
+          order_link: string | null
+          product_id: string | null
           sku: string | null
-          unit: string
+          uom: string
           updated_at: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          manufacturer?: string | null
+          manufacturing_id?: string | null
           min_stock?: number | null
           name: string
+          order_link?: string | null
+          product_id?: string | null
           sku?: string | null
-          unit: string
+          uom: string
           updated_at?: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          manufacturer?: string | null
+          manufacturing_id?: string | null
           min_stock?: number | null
           name?: string
+          order_link?: string | null
+          product_id?: string | null
           sku?: string | null
-          unit?: string
+          uom?: string
           updated_at?: string
         }
         Relationships: []
