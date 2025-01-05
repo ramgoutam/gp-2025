@@ -5,6 +5,7 @@ import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { Package } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 const InventoryItems = () => {
   const { data: items, refetch } = useQuery({
@@ -19,6 +20,8 @@ const InventoryItems = () => {
       return data;
     }
   });
+
+  console.log("Inventory items loaded:", items); // Debug log
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -39,7 +42,7 @@ const InventoryItems = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <Card className="bg-white overflow-hidden shadow">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -57,7 +60,7 @@ const InventoryItems = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Table Section */}
