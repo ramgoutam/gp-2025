@@ -1,63 +1,37 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
-import { MainLinks } from "./navigation/MainLinks";
-import { LabMenu } from "./navigation/LabMenu";
-import { SignOutButton } from "./navigation/SignOutButton";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Package, Users, FileText, Home, Settings, ClipboardList, FileCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export const Navigation = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Check authentication on mount and redirect if needed
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session && location.pathname !== '/login') {
-        navigate('/login');
-      }
-    };
-
-    checkAuth();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session);
-      if (!session && location.pathname !== '/login') {
-        navigate('/login');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, location.pathname]);
-
-  // Hide navigation on login page
-  if (location.pathname === "/login") {
-    return null;
-  }
-
+const Navigation = () => {
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center">
-              <img 
-                src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
-                alt="NYDI Logo"
-                className="h-14 w-auto"
-              />
-            </div>
-            <div className="flex space-x-4">
-              <MainLinks />
-              <LabMenu />
-            </div>
-          </div>
-          <SignOutButton />
-        </div>
-      </div>
+    <nav>
+      <Link to="/" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <Home className="h-5 w-5" />
+        <span>Home</span>
+      </Link>
+      <Link to="/patients" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <Users className="h-5 w-5" />
+        <span>Patients</span>
+      </Link>
+      <Link to="/lab-scripts" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <FileText className="h-5 w-5" />
+        <span>Lab Scripts</span>
+      </Link>
+      <Link to="/report-cards" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <FileCheck className="h-5 w-5" />
+        <span>Report Cards</span>
+      </Link>
+      <Link to="/inventory/items" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <Package className="h-5 w-5" />
+        <span>Inventory</span>
+      </Link>
+      <Link to="/settings" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md">
+        <Settings className="h-5 w-5" />
+        <span>Settings</span>
+      </Link>
     </nav>
   );
 };
+
+export default Navigation;
