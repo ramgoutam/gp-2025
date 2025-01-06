@@ -56,14 +56,6 @@ export function OrderItemsForm({
 
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleItemSelect = (index: number, value: string) => {
-    const selectedItem = inventoryItems?.find(item => item.id === value);
-    onUpdateItem(index, 'item_id', value);
-    if (selectedItem?.price !== null && selectedItem?.price !== undefined) {
-      onUpdateItem(index, 'unit_price', selectedItem.price);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -115,7 +107,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => handleItemSelect(index, value)}
+                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
                     />
                   </td>
                   <td className="py-2 px-2">
