@@ -42,7 +42,7 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
           aria-expanded={open}
           className="w-full justify-between bg-white min-h-[40px] h-auto whitespace-normal text-left"
         >
-          <span className="line-clamp-2">
+          <span className="whitespace-normal break-words">
             {selectedItem ? `${selectedItem.product_name} (${selectedItem.product_id})` : "Select product..."}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

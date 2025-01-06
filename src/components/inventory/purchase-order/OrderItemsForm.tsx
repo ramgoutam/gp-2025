@@ -95,7 +95,7 @@ export function OrderItemsForm({
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
               
               return (
-                <tr key={index} className="border-b">
+                <tr key={index} className="border-b align-top">
                   <td className="py-2">
                     <Input
                       value={selectedItem?.product_id || ''}
