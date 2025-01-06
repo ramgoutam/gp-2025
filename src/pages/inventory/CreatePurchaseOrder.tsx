@@ -12,7 +12,6 @@ type FormData = {
   supplier: string;
   order_date: string;
   expected_delivery_date: string;
-  notes: string;
 };
 
 type OrderItem = {
@@ -74,7 +73,6 @@ export default function CreatePurchaseOrder() {
           supplier: data.supplier,
           order_date: data.order_date,
           expected_delivery_date: data.expected_delivery_date,
-          notes: data.notes,
           status: 'draft',
           total_amount: totalAmount
         })
