@@ -133,9 +133,12 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={selectedItem?.price?.toFixed(2) || ''}
-                      readOnly
-                      className="bg-gray-50"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.unit_price || selectedItem?.price || ''}
+                      onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
+                      className="bg-white"
                     />
                   </td>
                   <td className="py-2 px-2">
