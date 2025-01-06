@@ -8,9 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 type OrderItem = {
   item_id: string;
@@ -24,6 +25,7 @@ type InventoryItem = {
   product_id: string;
   uom: string;
   manufacturing_id: string;
+  manufacturer: string;
   price: number | null;
 };
 
@@ -40,17 +42,24 @@ export function OrderItemsForm({
   onRemoveItem, 
   onUpdateItem 
 }: OrderItemsFormProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const { data: inventoryItems } = useQuery({
     queryKey: ['inventory-items'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, product_name, product_id, uom, manufacturing_id, price');
+        .select('id, product_name, product_id, uom, manufacturing_id, manufacturer, price');
       
       if (error) throw error;
       return data as InventoryItem[];
     }
   });
+
+  const filteredItems = inventoryItems?.filter(item => 
+    item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -64,6 +73,16 @@ export function OrderItemsForm({
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          className="pl-10"
+          placeholder="Search by product name or ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -72,6 +91,7 @@ export function OrderItemsForm({
               <th className="text-left py-2">Product Name</th>
               <th className="text-left py-2">UOM</th>
               <th className="text-left py-2">Manufacturing ID</th>
+              <th className="text-left py-2">Manufacturer</th>
               <th className="text-left py-2">Quantity</th>
               <th className="text-left py-2">Unit Price</th>
               <th className="text-left py-2"></th>
@@ -102,9 +122,9 @@ export function OrderItemsForm({
                           <SelectValue placeholder="Select product" />
                         </SelectTrigger>
                         <SelectContent>
-                          {inventoryItems?.map((invItem) => (
+                          {filteredItems?.map((invItem) => (
                             <SelectItem key={invItem.id} value={invItem.id}>
-                              {invItem.product_name}
+                              {invItem.product_name} ({invItem.product_id})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -124,6 +144,15 @@ export function OrderItemsForm({
                     <div className="w-32">
                       <Input
                         value={selectedItem?.manufacturing_id || ''}
+                        readOnly
+                        className="bg-gray-50"
+                      />
+                    </div>
+                  </td>
+                  <td className="py-2">
+                    <div className="w-32">
+                      <Input
+                        value={selectedItem?.manufacturer || ''}
                         readOnly
                         className="bg-gray-50"
                       />
@@ -166,7 +195,7 @@ export function OrderItemsForm({
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={4} className="py-2 text-right font-medium">Total Units:</td>
+              <td colSpan={5} className="py-2 text-right font-medium">Total Units:</td>
               <td className="py-2 font-medium">{totalUnits}</td>
               <td colSpan={2}></td>
             </tr>
