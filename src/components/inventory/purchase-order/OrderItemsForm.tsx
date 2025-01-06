@@ -37,6 +37,7 @@ export function OrderItemsForm({
   onUpdateItem 
 }: OrderItemsFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   const { data: inventoryItems } = useQuery({
     queryKey: ['inventory-items'],
@@ -66,22 +67,30 @@ export function OrderItemsForm({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2">
         <h3 className="text-lg font-medium">Order Items</h3>
-        <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Item
-        </Button>
-      </div>
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input
-          className="pl-10"
-          placeholder="Search by product name, ID, or description..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="flex items-center gap-2">
+          {showSearch && (
+            <Input
+              className="w-[300px]"
+              placeholder="Search by product name, ID, or description..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          )}
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="icon"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
