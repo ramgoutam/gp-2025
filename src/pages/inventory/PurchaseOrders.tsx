@@ -13,11 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const { data: orders } = useQuery({
     queryKey: ['purchase-orders'],
@@ -31,6 +33,14 @@ const PurchaseOrders = () => {
       return data as PurchaseOrder[];
     }
   });
+
+  const handleView = (orderId: string) => {
+    navigate(`/inventory/purchase-orders/${orderId}`);
+  };
+
+  const handleEdit = (orderId: string) => {
+    navigate(`/inventory/purchase-orders/${orderId}/edit`);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -96,10 +106,19 @@ const PurchaseOrders = () => {
                   </TableCell>
                   <TableCell>${order.total_amount?.toFixed(2) || '0.00'}</TableCell>
                   <TableCell className="space-x-2">
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleView(order.id)}
+                    >
                       View
                     </Button>
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleEdit(order.id)}
+                      disabled={order.status === 'received' || order.status === 'cancelled'}
+                    >
                       Edit
                     </Button>
                   </TableCell>
