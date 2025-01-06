@@ -56,6 +56,14 @@ export function OrderItemsForm({
     (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const handleItemSelect = (index: number, itemId: string) => {
+    const selectedItem = inventoryItems?.find(item => item.id === itemId);
+    onUpdateItem(index, 'item_id', itemId);
+    if (selectedItem?.price) {
+      onUpdateItem(index, 'unit_price', selectedItem.price);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -107,7 +115,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                      onSelect={(value) => handleItemSelect(index, value)}
                     />
                   </td>
                   <td className="py-2 px-2">
