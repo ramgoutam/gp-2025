@@ -14,12 +14,16 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   
   const { data: orders } = useQuery({
     queryKey: ['purchase-orders'],
@@ -34,8 +38,30 @@ const PurchaseOrders = () => {
     }
   });
 
-  const handleView = (orderId: string) => {
-    navigate(`/inventory/purchase-orders/${orderId}`);
+  const { data: orderItems } = useQuery({
+    queryKey: ['purchase-order-items', selectedOrder?.id],
+    enabled: !!selectedOrder,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('purchase_order_items')
+        .select(`
+          *,
+          inventory_items (
+            product_name,
+            product_id,
+            uom
+          )
+        `)
+        .eq('purchase_order_id', selectedOrder?.id);
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const handleView = (order: PurchaseOrder) => {
+    setSelectedOrder(order);
+    setIsViewDialogOpen(true);
   };
 
   const handleEdit = (orderId: string) => {
@@ -109,7 +135,7 @@ const PurchaseOrders = () => {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => handleView(order.id)}
+                      onClick={() => handleView(order)}
                     >
                       View
                     </Button>
@@ -128,6 +154,87 @@ const PurchaseOrders = () => {
           </Table>
         </div>
       </div>
+
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Purchase Order Details</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {selectedOrder && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">PO Number</h3>
+                    <p>{selectedOrder.po_number}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Supplier</h3>
+                    <p>{selectedOrder.supplier}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Order Date</h3>
+                    <p>{new Date(selectedOrder.order_date).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Expected Delivery</h3>
+                    <p>
+                      {selectedOrder.expected_delivery_date && 
+                        new Date(selectedOrder.expected_delivery_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Status</h3>
+                    <Badge className={getStatusColor(selectedOrder.status)}>
+                      {selectedOrder.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Total Amount</h3>
+                    <p>${selectedOrder.total_amount?.toFixed(2) || '0.00'}</p>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="font-medium mb-3">Order Items</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product ID</TableHead>
+                        <TableHead>Product Name</TableHead>
+                        <TableHead>UOM</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Unit Price</TableHead>
+                        <TableHead>Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orderItems?.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.inventory_items?.product_id}</TableCell>
+                          <TableCell>{item.inventory_items?.product_name}</TableCell>
+                          <TableCell>{item.inventory_items?.uom}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>${item.unit_price}</TableCell>
+                          <TableCell>${(item.quantity * item.unit_price).toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {selectedOrder.notes && (
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-500">Notes</h3>
+                    <p className="mt-1 text-sm">{selectedOrder.notes}</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
