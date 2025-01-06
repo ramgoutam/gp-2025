@@ -40,9 +40,11 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between bg-white"
+          className="w-full justify-between bg-white truncate"
         >
-          {selectedItem ? `${selectedItem.product_name} (${selectedItem.product_id})` : "Select product..."}
+          <span className="truncate">
+            {selectedItem ? `${selectedItem.product_name} (${selectedItem.product_id})` : "Select product..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -70,10 +72,12 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
                   value === item.id && "bg-accent text-accent-foreground"
                 )}
               >
-                <span>{item.product_name}</span>
-                <span className="ml-2 text-muted-foreground">({item.product_id})</span>
+                <div className="flex flex-col">
+                  <span className="font-medium">{item.product_name}</span>
+                  <span className="text-xs text-muted-foreground">ID: {item.product_id}</span>
+                </div>
                 {value === item.id && (
-                  <Check className="ml-auto h-4 w-4" />
+                  <Check className="ml-auto h-4 w-4 flex-shrink-0" />
                 )}
               </div>
             ))}

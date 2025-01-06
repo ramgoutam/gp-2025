@@ -77,17 +77,17 @@ export function OrderItemsForm({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse min-w-[1200px]">
           <thead>
             <tr className="border-b text-sm">
-              <th className="text-left py-2">Product ID</th>
-              <th className="text-left py-2">Product Name</th>
-              <th className="text-left py-2">UOM</th>
-              <th className="text-left py-2">Manufacturing ID</th>
-              <th className="text-left py-2">Manufacturer</th>
-              <th className="text-left py-2">Quantity</th>
-              <th className="text-left py-2">Unit Price</th>
-              <th className="text-left py-2"></th>
+              <th className="text-left py-2 w-[120px]">Product ID</th>
+              <th className="text-left py-2 w-[300px]">Product Name</th>
+              <th className="text-left py-2 w-[100px]">UOM</th>
+              <th className="text-left py-2 w-[150px]">Manufacturing ID</th>
+              <th className="text-left py-2 w-[200px]">Manufacturer</th>
+              <th className="text-left py-2 w-[100px]">Quantity</th>
+              <th className="text-left py-2 w-[120px]">Unit Price</th>
+              <th className="text-left py-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -97,70 +97,56 @@ export function OrderItemsForm({
               return (
                 <tr key={index} className="border-b">
                   <td className="py-2">
-                    <div className="w-32">
-                      <Input
-                        value={selectedItem?.product_id || ''}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
+                    <Input
+                      value={selectedItem?.product_id || ''}
+                      readOnly
+                      className="bg-gray-50"
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-48">
-                      <ProductSelector
-                        items={filteredItems || []}
-                        value={item.item_id}
-                        onSelect={(value) => onUpdateItem(index, 'item_id', value)}
-                      />
-                    </div>
+                    <ProductSelector
+                      items={filteredItems || []}
+                      value={item.item_id}
+                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-24">
-                      <Input
-                        value={selectedItem?.uom || ''}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
+                    <Input
+                      value={selectedItem?.uom || ''}
+                      readOnly
+                      className="bg-gray-50"
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-32">
-                      <Input
-                        value={selectedItem?.manufacturing_id || ''}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
+                    <Input
+                      value={selectedItem?.manufacturing_id || ''}
+                      readOnly
+                      className="bg-gray-50"
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-32">
-                      <Input
-                        value={selectedItem?.manufacturer || ''}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
+                    <Input
+                      value={selectedItem?.manufacturer || ''}
+                      readOnly
+                      className="bg-gray-50"
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-24">
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
+                    />
                   </td>
                   <td className="py-2">
-                    <div className="w-32">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unit_price}
-                        onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.unit_price}
+                      onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
+                    />
                   </td>
                   <td className="py-2">
                     <Button
