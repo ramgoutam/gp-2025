@@ -80,14 +80,14 @@ export function OrderItemsForm({
         <table className="w-full border-collapse min-w-[1200px]">
           <thead>
             <tr className="border-b text-sm">
-              <th className="text-left py-2 px-4 w-[120px]">Product ID</th>
-              <th className="text-left py-2 px-4 w-[300px]">Product Name</th>
-              <th className="text-left py-2 px-4 w-[100px]">UOM</th>
-              <th className="text-left py-2 px-4 w-[150px]">Manufacturing ID</th>
-              <th className="text-left py-2 px-4 w-[200px]">Manufacturer</th>
-              <th className="text-left py-2 px-4 w-[100px]">Quantity</th>
-              <th className="text-left py-2 px-4 w-[120px]">Unit Price</th>
-              <th className="text-left py-2 px-4 w-[80px]"></th>
+              <th className="text-left py-2 px-2 w-[120px]">Product ID</th>
+              <th className="text-left py-2 px-2 w-[300px]">Product Name</th>
+              <th className="text-left py-2 px-2 w-[100px]">UOM</th>
+              <th className="text-left py-2 px-2 w-[150px]">Manufacturing ID</th>
+              <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
+              <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
+              <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
+              <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -96,42 +96,42 @@ export function OrderItemsForm({
               
               return (
                 <tr key={index} className="border-b align-top">
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       value={selectedItem?.product_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
                       onSelect={(value) => onUpdateItem(index, 'item_id', value)}
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       value={selectedItem?.uom || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       value={selectedItem?.manufacturing_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       value={selectedItem?.manufacturer || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       type="number"
                       min="1"
@@ -139,7 +139,7 @@ export function OrderItemsForm({
                       onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Input
                       type="number"
                       min="0"
@@ -148,7 +148,7 @@ export function OrderItemsForm({
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
                     />
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -164,8 +164,8 @@ export function OrderItemsForm({
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={5} className="py-2 px-4 text-right font-medium">Total Units:</td>
-              <td className="py-2 px-4 font-medium">{totalUnits}</td>
+              <td colSpan={5} className="py-2 px-2 text-right font-medium">Total Units:</td>
+              <td className="py-2 px-2 font-medium">{totalUnits}</td>
               <td colSpan={2}></td>
             </tr>
           </tfoot>
