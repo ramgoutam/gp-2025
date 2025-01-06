@@ -86,7 +86,6 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[150px]">Manufacturing ID</th>
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
-              <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
@@ -140,15 +139,6 @@ export function OrderItemsForm({
                     />
                   </td>
                   <td className="py-2 px-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={item.unit_price}
-                      onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
-                    />
-                  </td>
-                  <td className="py-2 px-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -166,7 +156,7 @@ export function OrderItemsForm({
             <tr>
               <td colSpan={5} className="py-2 px-2 text-right font-medium">Total Units:</td>
               <td className="py-2 px-2 font-medium">{totalUnits}</td>
-              <td colSpan={2}></td>
+              <td></td>
             </tr>
           </tfoot>
         </table>
