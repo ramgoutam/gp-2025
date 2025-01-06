@@ -1,13 +1,11 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 
 type FormData = {
   supplier: string;
   order_date: string;
   expected_delivery_date: string;
-  notes: string;
 };
 
 interface OrderDetailsFormProps {
@@ -53,20 +51,6 @@ export function OrderDetailsForm({ form }: OrderDetailsFormProps) {
             <FormLabel>Expected Delivery Date</FormLabel>
             <FormControl>
               <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="notes"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Notes</FormLabel>
-            <FormControl>
-              <Textarea {...field} placeholder="Add any additional notes" />
             </FormControl>
             <FormMessage />
           </FormItem>
