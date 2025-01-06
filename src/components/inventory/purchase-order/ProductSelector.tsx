@@ -13,6 +13,7 @@ type InventoryItem = {
   id: string;
   product_name: string;
   product_id: string;
+  price: number | null;
 };
 
 interface ProductSelectorProps {
@@ -75,6 +76,11 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
                 <div className="flex flex-col flex-1 min-h-[40px]">
                   <span className="font-medium break-words">{item.product_name}</span>
                   <span className="text-xs text-muted-foreground">ID: {item.product_id}</span>
+                  {item.price !== null && (
+                    <span className="text-xs text-emerald-600 font-medium">
+                      Price: ${item.price.toFixed(2)}
+                    </span>
+                  )}
                 </div>
                 {value === item.id && (
                   <Check className="ml-2 h-4 w-4 flex-shrink-0 mt-1" />
