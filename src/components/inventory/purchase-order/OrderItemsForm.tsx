@@ -37,7 +37,6 @@ export function OrderItemsForm({
   onUpdateItem 
 }: OrderItemsFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
 
   const { data: inventoryItems } = useQuery({
     queryKey: ['inventory-items'],
@@ -67,30 +66,22 @@ export function OrderItemsForm({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center gap-2">
+      <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Order Items</h3>
-        <div className="flex items-center gap-2">
-          {showSearch && (
-            <Input
-              className="w-[300px]"
-              placeholder="Search by product name, ID, or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          )}
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="icon"
-            onClick={() => setShowSearch(!showSearch)}
-          >
-            <Search className="h-4 w-4" />
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Item
-          </Button>
-        </div>
+        <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Item
+        </Button>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Input
+          className="pl-10"
+          placeholder="Search by product name, ID, or description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       <div className="overflow-x-auto">
@@ -104,14 +95,12 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
               <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
-              <th className="text-left py-2 px-2 w-[120px]">Total Price</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const totalPrice = item.quantity * item.unit_price;
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -165,13 +154,6 @@ export function OrderItemsForm({
                       step="0.01"
                       value={item.unit_price}
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      value={`$${totalPrice.toFixed(2)}`}
-                      readOnly
-                      className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
