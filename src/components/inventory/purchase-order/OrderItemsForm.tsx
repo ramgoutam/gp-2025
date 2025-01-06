@@ -16,6 +16,7 @@ type InventoryItem = {
   id: string;
   product_name: string;
   product_id: string;
+  description: string | null;
   uom: string;
   manufacturing_id: string;
   manufacturer: string;
@@ -42,7 +43,7 @@ export function OrderItemsForm({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, product_name, product_id, uom, manufacturing_id, manufacturer, price');
+        .select('id, product_name, product_id, description, uom, manufacturing_id, manufacturer, price');
       
       if (error) throw error;
       return data as InventoryItem[];
@@ -51,7 +52,8 @@ export function OrderItemsForm({
 
   const filteredItems = inventoryItems?.filter(item => 
     item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
+    (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -68,7 +70,7 @@ export function OrderItemsForm({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           className="pl-10"
-          placeholder="Search by product name or ID..."
+          placeholder="Search by product name, ID, or description..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
