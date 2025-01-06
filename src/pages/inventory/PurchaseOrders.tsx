@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,12 +10,15 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { AddPurchaseOrderDialog } from "@/components/inventory/AddPurchaseOrderDialog";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 
 const PurchaseOrders = () => {
+  const navigate = useNavigate();
+  
   const { data: orders } = useQuery({
     queryKey: ['purchase-orders'],
     queryFn: async () => {
@@ -55,7 +57,13 @@ const PurchaseOrders = () => {
               Create and manage purchase orders
             </p>
           </div>
-          <AddPurchaseOrderDialog />
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => navigate("/inventory/purchase-orders/create")}
+          >
+            <Plus className="h-4 w-4" />
+            New Order
+          </Button>
         </div>
 
         <div className="bg-white rounded-lg shadow">
