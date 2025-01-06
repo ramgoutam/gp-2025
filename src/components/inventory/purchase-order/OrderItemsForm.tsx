@@ -105,7 +105,7 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
               <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
               <th className="text-left py-2 px-2 w-[120px]">Total Price</th>
-              <th className="text-left py-2 px-2 w-[80px]"></th>
+              <th className="text-left py-2 px-2 w-[50px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -174,14 +174,15 @@ export function OrderItemsForm({
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-2 text-right">
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
+                      size="sm"
+                      className="h-8 w-8 p-0"
                       onClick={() => onRemoveItem(index)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </td>
                 </tr>
