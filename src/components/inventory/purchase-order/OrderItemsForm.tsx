@@ -54,6 +54,16 @@ export function OrderItemsForm({
     (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const handleItemSelect = (index: number, itemId: string) => {
+    onUpdateItem(index, 'item_id', itemId);
+    
+    // Find the selected item and sync its price
+    const selectedItem = inventoryItems?.find(item => item.id === itemId);
+    if (selectedItem?.price) {
+      onUpdateItem(index, 'unit_price', selectedItem.price);
+    }
+  };
+
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -107,7 +117,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                      onSelect={(value) => handleItemSelect(index, value)}
                     />
                   </td>
                   <td className="py-2 px-2">
