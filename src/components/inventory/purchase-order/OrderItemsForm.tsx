@@ -85,6 +85,7 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[100px]">UOM</th>
               <th className="text-left py-2 px-2 w-[150px]">Manufacturing ID</th>
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
+              <th className="text-left py-2 px-2 w-[100px]">Price</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
@@ -132,6 +133,13 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2 px-2">
                     <Input
+                      value={selectedItem?.price?.toFixed(2) || ''}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                  </td>
+                  <td className="py-2 px-2">
+                    <Input
                       type="number"
                       min="1"
                       value={item.quantity}
@@ -154,7 +162,7 @@ export function OrderItemsForm({
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={5} className="py-2 px-2 text-right font-medium">Total Units:</td>
+              <td colSpan={6} className="py-2 px-2 text-right font-medium">Total Units:</td>
               <td className="py-2 px-2 font-medium">{totalUnits}</td>
               <td></td>
             </tr>
