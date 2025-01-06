@@ -16,7 +16,6 @@ type InventoryItem = {
   id: string;
   product_name: string;
   product_id: string;
-  description: string | null;
   uom: string;
   manufacturing_id: string;
   manufacturer: string;
@@ -43,7 +42,7 @@ export function OrderItemsForm({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('id, product_name, product_id, description, uom, manufacturing_id, manufacturer, price');
+        .select('id, product_name, product_id, uom, manufacturing_id, manufacturer, price');
       
       if (error) throw error;
       return data as InventoryItem[];
@@ -52,17 +51,10 @@ export function OrderItemsForm({
 
   const filteredItems = inventoryItems?.filter(item => 
     item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleItemSelect = (index: number, itemId: string) => {
-    const selectedItem = inventoryItems?.find(item => item.id === itemId);
-    onUpdateItem(index, 'item_id', itemId);
-    if (selectedItem?.price) {
-      onUpdateItem(index, 'unit_price', selectedItem.price);
-    }
-  };
+  const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="space-y-4">
@@ -78,7 +70,7 @@ export function OrderItemsForm({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           className="pl-10"
-          placeholder="Search by product name, ID, or description..."
+          placeholder="Search by product name or ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -88,14 +80,14 @@ export function OrderItemsForm({
         <table className="w-full border-collapse min-w-[1200px]">
           <thead>
             <tr className="border-b text-sm">
-              <th className="text-left py-2 px-2 w-[120px]">Product ID</th>
-              <th className="text-left py-2 px-2 w-[300px]">Product Name</th>
-              <th className="text-left py-2 px-2 w-[100px]">UOM</th>
-              <th className="text-left py-2 px-2 w-[150px]">Manufacturing ID</th>
-              <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
-              <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
-              <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
-              <th className="text-left py-2 px-2 w-[80px]"></th>
+              <th className="text-left py-2 px-4 w-[120px]">Product ID</th>
+              <th className="text-left py-2 px-4 w-[300px]">Product Name</th>
+              <th className="text-left py-2 px-4 w-[100px]">UOM</th>
+              <th className="text-left py-2 px-4 w-[150px]">Manufacturing ID</th>
+              <th className="text-left py-2 px-4 w-[200px]">Manufacturer</th>
+              <th className="text-left py-2 px-4 w-[100px]">Quantity</th>
+              <th className="text-left py-2 px-4 w-[120px]">Unit Price</th>
+              <th className="text-left py-2 px-4 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -104,42 +96,42 @@ export function OrderItemsForm({
               
               return (
                 <tr key={index} className="border-b align-top">
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       value={selectedItem?.product_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => handleItemSelect(index, value)}
+                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       value={selectedItem?.uom || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       value={selectedItem?.manufacturing_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       value={selectedItem?.manufacturer || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       type="number"
                       min="1"
@@ -147,7 +139,7 @@ export function OrderItemsForm({
                       onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Input
                       type="number"
                       min="0"
@@ -156,7 +148,7 @@ export function OrderItemsForm({
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
                     />
                   </td>
-                  <td className="py-2 px-2">
+                  <td className="py-2 px-4">
                     <Button
                       type="button"
                       variant="ghost"
@@ -170,6 +162,13 @@ export function OrderItemsForm({
               );
             })}
           </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={5} className="py-2 px-4 text-right font-medium">Total Units:</td>
+              <td className="py-2 px-4 font-medium">{totalUnits}</td>
+              <td colSpan={2}></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
