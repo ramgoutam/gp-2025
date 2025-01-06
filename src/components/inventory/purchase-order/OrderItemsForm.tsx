@@ -54,8 +54,6 @@ export function OrderItemsForm({
     (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -162,13 +160,6 @@ export function OrderItemsForm({
               );
             })}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={5} className="py-2 px-2 text-right font-medium">Total Units:</td>
-              <td className="py-2 px-2 font-medium">{totalUnits}</td>
-              <td colSpan={2}></td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>
