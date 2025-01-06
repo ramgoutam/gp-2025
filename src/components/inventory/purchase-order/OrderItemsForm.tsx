@@ -1,17 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Plus, Trash2, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { ProductSelector } from "./ProductSelector";
 
 type OrderItem = {
   item_id: string;
@@ -114,21 +107,11 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2">
                     <div className="w-48">
-                      <Select
+                      <ProductSelector
+                        items={filteredItems || []}
                         value={item.item_id}
-                        onValueChange={(value) => onUpdateItem(index, 'item_id', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredItems?.map((invItem) => (
-                            <SelectItem key={invItem.id} value={invItem.id}>
-                              {invItem.product_name} ({invItem.product_id})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                      />
                     </div>
                   </td>
                   <td className="py-2">
