@@ -104,12 +104,14 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
               <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
+              <th className="text-left py-2 px-2 w-[120px]">Total Price</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
+              const totalPrice = item.quantity * item.unit_price;
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -163,6 +165,13 @@ export function OrderItemsForm({
                       step="0.01"
                       value={item.unit_price}
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
+                    />
+                  </td>
+                  <td className="py-2 px-2">
+                    <Input
+                      value={`$${totalPrice.toFixed(2)}`}
+                      readOnly
+                      className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
