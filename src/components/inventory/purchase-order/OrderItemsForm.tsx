@@ -54,17 +54,6 @@ export function OrderItemsForm({
     (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleItemSelect = (index: number, itemId: string) => {
-    // Update the item_id
-    onUpdateItem(index, 'item_id', itemId);
-    
-    // Find the selected item and update the unit price
-    const selectedItem = inventoryItems?.find(item => item.id === itemId);
-    if (selectedItem && selectedItem.price !== null) {
-      onUpdateItem(index, 'unit_price', selectedItem.price);
-    }
-  };
-
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -98,7 +87,7 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
               <th className="text-left py-2 px-2 w-[120px]">Unit Price</th>
-              <th className="text-left py-2 px-2 w-[50px]"></th>
+              <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -118,7 +107,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => handleItemSelect(index, value)}
+                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
                     />
                   </td>
                   <td className="py-2 px-2">
