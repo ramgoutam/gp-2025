@@ -35,6 +35,11 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
       item.product_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSelect = (itemId: string) => {
+    onSelect(itemId);
+    setOpen(false);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -62,15 +67,11 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
           </div>
           <div className="max-h-[300px] overflow-auto">
             {filteredItems?.map((item) => (
-              <div
+              <button
                 key={item.id}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  onSelect(item.id);
-                  setOpen(false);
-                }}
+                onClick={() => handleSelect(item.id)}
                 className={cn(
-                  "relative flex cursor-pointer select-none items-start rounded-sm px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  "relative flex w-full cursor-pointer select-none items-start rounded-sm px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                   value === item.id && "bg-accent text-accent-foreground"
                 )}
               >
@@ -85,7 +86,7 @@ export function ProductSelector({ items, value, onSelect }: ProductSelectorProps
                 {value === item.id && (
                   <Check className="ml-2 h-4 w-4 flex-shrink-0 mt-1" />
                 )}
-              </div>
+              </button>
             ))}
           </div>
         </Command>
