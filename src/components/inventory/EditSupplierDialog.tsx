@@ -61,7 +61,7 @@ export function EditSupplierDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supplier) return;
-    
+
     setIsSubmitting(true);
 
     try {
