@@ -55,11 +55,12 @@ export function OrderItemsForm({
   );
 
   const handleItemSelect = (index: number, itemId: string) => {
+    // First update the item_id
     onUpdateItem(index, 'item_id', itemId);
     
     // Find the selected item and sync its price
     const selectedItem = inventoryItems?.find(item => item.id === itemId);
-    if (selectedItem?.price) {
+    if (selectedItem?.price !== null && selectedItem?.price !== undefined) {
       onUpdateItem(index, 'unit_price', selectedItem.price);
     }
   };
