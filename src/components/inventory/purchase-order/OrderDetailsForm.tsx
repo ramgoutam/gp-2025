@@ -14,13 +14,13 @@ interface OrderDetailsFormProps {
 
 export function OrderDetailsForm({ form }: OrderDetailsFormProps) {
   return (
-    <div className="space-y-4">
+    <div className="grid gap-6 sm:grid-cols-2">
       <FormField
         control={form.control}
         name="supplier"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Supplier</FormLabel>
+            <FormLabel>Supplier Name</FormLabel>
             <FormControl>
               <Input {...field} placeholder="Enter supplier name" />
             </FormControl>

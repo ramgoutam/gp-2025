@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderDetailsForm } from "@/components/inventory/purchase-order/OrderDetailsForm";
 import { OrderItemsForm } from "@/components/inventory/purchase-order/OrderItemsForm";
+import { ArrowLeft } from "lucide-react";
 
 type FormData = {
   supplier: string;
@@ -114,29 +115,71 @@ export default function CreatePurchaseOrder() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Create Purchase Order</h1>
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate("/inventory/purchase-orders")}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-semibold">Create Purchase Order</h1>
+          </div>
           <Button variant="outline" onClick={() => navigate("/inventory/purchase-orders")}>
             Cancel
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* Main Content */}
+        <div className="grid gap-6 bg-white rounded-lg shadow-sm border">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <OrderDetailsForm form={form} />
-              
-              <OrderItemsForm
-                orderItems={orderItems}
-                onAddItem={addOrderItem}
-                onRemoveItem={removeOrderItem}
-                onUpdateItem={updateOrderItem}
-              />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
+              {/* Order Details Section */}
+              <div className="space-y-4">
+                <div className="border-b pb-3">
+                  <h2 className="text-lg font-medium">Order Details</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Enter the basic information for this purchase order
+                  </p>
+                </div>
+                <OrderDetailsForm form={form} />
+              </div>
 
-              <div className="flex justify-end gap-4">
-                <Button type="submit">Create Order</Button>
+              {/* Order Items Section */}
+              <div className="space-y-4 pt-6">
+                <div className="border-b pb-3">
+                  <h2 className="text-lg font-medium">Order Items</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Add the items you want to order
+                  </p>
+                </div>
+                <OrderItemsForm
+                  orderItems={orderItems}
+                  onAddItem={addOrderItem}
+                  onRemoveItem={removeOrderItem}
+                  onUpdateItem={updateOrderItem}
+                />
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end gap-4 pt-6 border-t">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate("/inventory/purchase-orders")}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={orderItems.length === 0}
+                >
+                  Create Order
+                </Button>
               </div>
             </form>
           </Form>
