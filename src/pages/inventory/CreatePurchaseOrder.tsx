@@ -151,12 +151,6 @@ export default function CreatePurchaseOrder() {
 
               {/* Order Items Section */}
               <div className="space-y-4 pt-6">
-                <div className="border-b pb-3">
-                  <h2 className="text-lg font-medium">Order Items</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Add the items you want to order
-                  </p>
-                </div>
                 <OrderItemsForm
                   orderItems={orderItems}
                   onAddItem={addOrderItem}
