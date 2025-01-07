@@ -14,7 +14,6 @@ interface FormFieldProps {
   autoComplete?: string;
 }
 
-// Country codes data
 const countryCodes = [
   { code: "+1", country: "US" },
   { code: "+44", country: "UK" },
@@ -38,37 +37,37 @@ export const FormField = ({
   placeholder,
   autoComplete,
 }: FormFieldProps) => {
-  const [countryCode, setCountryCode] = useState("+1"); // Default to US
+  const [countryCode, setCountryCode] = useState("+1");
 
-  const formatPhoneNumber = (value: string) => {
+  const formatPhoneNumber = (input: string) => {
     // Remove all non-numeric characters
-    const phoneNumber = value.replace(/\D/g, '');
+    const phoneNumber = input.replace(/\D/g, '');
     
-    // Format to (XXX) XXX-XXXX for US numbers
     if (countryCode === "+1") {
-      if (phoneNumber.length >= 10) {
-        return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
-      } else if (phoneNumber.length > 6) {
-        return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
-      } else if (phoneNumber.length > 3) {
+      // Format for US numbers (XXX) XXX-XXXX
+      if (phoneNumber.length <= 3) {
+        return phoneNumber;
+      } else if (phoneNumber.length <= 6) {
         return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-      } else if (phoneNumber.length > 0) {
-        return `(${phoneNumber}`;
+      } else {
+        return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
       }
-    } else {
-      // For other country codes, just group by 3 digits
-      return phoneNumber.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
     }
-    return phoneNumber;
+    
+    // For other countries, just group by 3 digits
+    return phoneNumber.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (type === 'tel') {
-      const formattedValue = formatPhoneNumber(e.target.value);
+      const rawValue = e.target.value.replace(/\D/g, '');
+      const formattedValue = formatPhoneNumber(rawValue);
+      
       const syntheticEvent = {
         ...e,
         target: {
           ...e.target,
+          name: id,
           value: formattedValue,
         },
       };
@@ -81,15 +80,13 @@ export const FormField = ({
   const handleCountryCodeChange = (newCode: string) => {
     setCountryCode(newCode);
     // Clear the current phone number when changing country code
-    if (type === 'tel') {
-      const syntheticEvent = {
-        target: {
-          name: id,
-          value: '',
-        },
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(syntheticEvent);
-    }
+    const syntheticEvent = {
+      target: {
+        name: id,
+        value: '',
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
   };
 
   return (
@@ -112,13 +109,14 @@ export const FormField = ({
           <Input
             id={id}
             name={id}
-            type={type}
+            type="tel"
             value={value}
             onChange={handlePhoneChange}
             required={required}
             placeholder={countryCode === "+1" ? "(555) 555-5555" : "123 456 789"}
             autoComplete={autoComplete}
             className="flex-1"
+            maxLength={countryCode === "+1" ? 14 : 15}
           />
         </div>
       ) : (
@@ -127,7 +125,7 @@ export const FormField = ({
           name={id}
           type={type}
           value={value}
-          onChange={handlePhoneChange}
+          onChange={onChange}
           required={required}
           placeholder={placeholder}
           autoComplete={autoComplete}
