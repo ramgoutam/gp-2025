@@ -59,7 +59,7 @@ export const PageHeader = () => {
               Add New Patient
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[910px] w-[90vw]">
+          <DialogContent className="max-w-[910px] w-[90vw] h-[90vh] overflow-hidden">
             <DialogHeader>
               <DialogTitle>New Patient Registration</DialogTitle>
             </DialogHeader>

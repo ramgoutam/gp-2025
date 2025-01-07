@@ -167,9 +167,9 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
   };
 
   return (
-    <Card className="w-full max-h-[80vh] flex flex-col">
-      <ScrollArea className="flex-1">
-        <CardContent>
+    <Card className="w-full h-full flex flex-col">
+      <ScrollArea className="flex-1 px-6 py-4">
+        <CardContent className="space-y-6 pb-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <PatientFormFields
               formData={formData}
@@ -191,7 +191,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
           </form>
         </CardContent>
       </ScrollArea>
-      <div className="p-6 border-t mt-auto">
+      <div className="p-4 border-t mt-auto bg-white">
         <div className="flex justify-end space-x-2">
           {onClose && (
             <Button type="button" variant="outline" onClick={onClose}>
