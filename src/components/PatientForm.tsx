@@ -79,31 +79,37 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     setIsSubmitting(true);
 
     try {
-      let profileImageUrl = null;
-
       // Validate required fields
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.sex || !formData.dob) {
         throw new Error("Please fill in all required fields");
       }
 
+      let profileImageUrl = null;
+
+      // Only handle image upload if a file was selected
       if (profileImage) {
-        const fileExt = profileImage.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        try {
+          const fileExt = profileImage.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('profile-images')
-          .upload(filePath, profileImage);
+          const { error: uploadError } = await supabase.storage
+            .from('profile-images')
+            .upload(filePath, profileImage);
 
-        if (uploadError) {
-          throw uploadError;
+          if (uploadError) {
+            console.error('Error uploading profile image:', uploadError);
+            // Continue with patient creation even if image upload fails
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('profile-images')
+              .getPublicUrl(filePath);
+            profileImageUrl = publicUrl;
+          }
+        } catch (uploadError) {
+          console.error('Error handling profile image:', uploadError);
+          // Continue with patient creation even if image handling fails
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('profile-images')
-          .getPublicUrl(filePath);
-
-        profileImageUrl = publicUrl;
       }
 
       const address = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
@@ -119,7 +125,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         dob: formData.dob,
         address: address,
         sex: formData.sex,
-        profile_image_url: profileImageUrl,
+        ...(profileImageUrl && { profile_image_url: profileImageUrl }),
       };
 
       // If we're updating an existing patient
