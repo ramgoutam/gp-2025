@@ -6,6 +6,7 @@ import { PatientFormFields } from "@/components/patient/form/PatientFormFields";
 import { MapboxFeature } from "@/utils/mapboxService";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNavigate } from "react-router-dom";
 
 interface PatientFormProps {
   onSubmit: (data: any) => Promise<void>;
@@ -29,6 +30,7 @@ interface PatientFormProps {
 
 export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(
     initialData || {
@@ -150,9 +152,8 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         description: `Patient ${initialData ? "updated" : "created"} successfully`,
       });
 
-      if (onClose) {
-        onClose();
-      }
+      // Navigate to the patients page after successful submission
+      navigate('/patients');
     } catch (error: any) {
       console.error('Error saving patient:', error);
       toast({
