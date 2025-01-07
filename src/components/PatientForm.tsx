@@ -81,6 +81,11 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
     try {
       let profileImageUrl = null;
 
+      // Validate required fields
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.sex || !formData.dob) {
+        throw new Error("Please fill in all required fields");
+      }
+
       if (profileImage) {
         const fileExt = profileImage.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -103,21 +108,36 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
 
       const address = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
 
+      // Prepare patient data for insertion
       const patientData = {
-        id: initialData?.id,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
-        emergencyContactName: formData.emergencyContactName,
-        emergencyPhone: formData.emergencyPhone,
+        emergency_contact_name: formData.emergencyContactName,
+        emergency_phone: formData.emergencyPhone,
         dob: formData.dob,
         address: address,
         sex: formData.sex,
-        profileImageUrl: profileImageUrl,
+        profile_image_url: profileImageUrl,
       };
 
-      await onSubmit(patientData);
+      // If we're updating an existing patient
+      if (initialData?.id) {
+        const { error: updateError } = await supabase
+          .from('patients')
+          .update(patientData)
+          .eq('id', initialData.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // If we're creating a new patient
+        const { error: insertError } = await supabase
+          .from('patients')
+          .insert([patientData]);
+
+        if (insertError) throw insertError;
+      }
 
       toast({
         title: "Success",
@@ -127,11 +147,11 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
       if (onClose) {
         onClose();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving patient:', error);
       toast({
         title: "Error",
-        description: "Failed to save patient information",
+        description: error.message || "Failed to save patient information",
         variant: "destructive",
       });
     } finally {
@@ -147,7 +167,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
             <PatientFormFields
               formData={formData}
               handleInputChange={handleInputChange}
-              handleFileChange={setProfileImage}
+              handleFileChange={handleFileChange}
               handleAddressChange={handleAddressChange}
               handleSuggestionClick={(suggestion: MapboxFeature) => {
                 const addressParts = suggestion.place_name.split(',');
@@ -159,7 +179,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
                   zipCode: addressParts[3]?.trim() || ''
                 }));
               }}
-              setSex={(value) => setFormData(prev => ({ ...prev, sex: value }))}
+              setSex={setSex}
             />
           </form>
         </CardContent>
