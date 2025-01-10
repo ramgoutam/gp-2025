@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Supplier = {
   id: string;
-  name: string;
+  supplier_name: string;
 };
 
 type DeleteSupplierDialogProps = {
@@ -71,7 +71,7 @@ export function DeleteSupplierDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete {supplier?.name}? This action cannot be
+            Are you sure you want to delete {supplier?.supplier_name}? This action cannot be
             undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
