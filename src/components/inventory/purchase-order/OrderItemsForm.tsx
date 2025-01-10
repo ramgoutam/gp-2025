@@ -54,12 +54,7 @@ export function OrderItemsForm({
     (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = orderItems.reduce((sum, item) => {
-    const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
-    return sum + itemTotal;
-  }, 0);
 
   return (
     <div className="space-y-4">
@@ -90,16 +85,14 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[100px]">UOM</th>
               <th className="text-left py-2 px-2 w-[150px]">Manufacturing ID</th>
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
-              <th className="text-left py-2 px-2 w-[100px]">Unit Price</th>
+              <th className="text-left py-2 px-2 w-[100px]">Price</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
-              <th className="text-left py-2 px-2 w-[100px]">Total Price</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const totalPrice = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -157,13 +150,6 @@ export function OrderItemsForm({
                     />
                   </td>
                   <td className="py-2 px-2">
-                    <Input
-                      value={`$${totalPrice.toFixed(2)}`}
-                      readOnly
-                      className="bg-gray-50"
-                    />
-                  </td>
-                  <td className="py-2 px-2">
                     <Button
                       type="button"
                       variant="ghost"
@@ -181,7 +167,6 @@ export function OrderItemsForm({
             <tr>
               <td colSpan={6} className="py-2 px-2 text-right font-medium">Total Units:</td>
               <td className="py-2 px-2 font-medium">{totalUnits}</td>
-              <td className="py-2 px-2 font-medium">${totalAmount.toFixed(2)}</td>
               <td></td>
             </tr>
           </tfoot>
