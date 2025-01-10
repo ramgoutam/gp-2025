@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Supplier = {
   id: string;
-  name: string;
+  supplier_name: string;
   contact_person: string | null;
   email: string | null;
   phone: string | null;
@@ -37,7 +37,7 @@ export function EditSupplierDialog({
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<Omit<Supplier, "id">>({
-    name: "",
+    supplier_name: "",
     contact_person: "",
     email: "",
     phone: "",
@@ -48,7 +48,7 @@ export function EditSupplierDialog({
   useEffect(() => {
     if (supplier) {
       setFormData({
-        name: supplier.name,
+        supplier_name: supplier.supplier_name,
         contact_person: supplier.contact_person || "",
         email: supplier.email || "",
         phone: supplier.phone || "",
@@ -99,12 +99,12 @@ export function EditSupplierDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="supplier_name">Name *</Label>
             <Input
-              id="name"
-              value={formData.name}
+              id="supplier_name"
+              value={formData.supplier_name}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, supplier_name: e.target.value })
               }
               required
             />
