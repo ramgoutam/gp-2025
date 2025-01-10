@@ -20,8 +20,11 @@ const EditPurchaseOrder = () => {
         .select(`
           *,
           purchase_order_items (
-            *,
-            inventory_items (*)
+            id,
+            item_id,
+            quantity,
+            unit_price,
+            received_quantity
           )
         `)
         .eq('id', id)
@@ -31,10 +34,9 @@ const EditPurchaseOrder = () => {
         console.error("Error fetching purchase order:", error);
         toast({
           title: "Error",
-          description: "Failed to load purchase order details",
+          description: "Failed to fetch purchase order details",
           variant: "destructive"
         });
-        navigate("/inventory/purchase-orders");
         throw error;
       }
 
@@ -45,15 +47,21 @@ const EditPurchaseOrder = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-8">
-        <Skeleton className="h-8 w-[200px]" />
-        <Skeleton className="h-[400px] w-full" />
+      <div className="container mx-auto p-6">
+        <Skeleton className="h-[600px] w-full" />
       </div>
     );
   }
 
   if (!purchaseOrder) {
-    return null;
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">Purchase Order Not Found</h2>
+          <p className="text-gray-500">The requested purchase order could not be found.</p>
+        </div>
+      </div>
+    );
   }
 
   return <CreatePurchaseOrder initialData={purchaseOrder} />;
