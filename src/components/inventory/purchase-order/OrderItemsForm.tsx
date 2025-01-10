@@ -57,18 +57,9 @@ export function OrderItemsForm({
   // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = orderItems.reduce((sum, item) => {
-    const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-    const unitPrice = item.unit_price || selectedItem?.price || 0;
-    return sum + (item.quantity * unitPrice);
+    const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+    return sum + itemTotal;
   }, 0);
-
-  const handleItemSelect = (index: number, itemId: string) => {
-    const selectedItem = inventoryItems?.find(item => item.id === itemId);
-    onUpdateItem(index, 'item_id', itemId);
-    if (selectedItem?.price) {
-      onUpdateItem(index, 'unit_price', selectedItem.price);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -101,15 +92,12 @@ export function OrderItemsForm({
               <th className="text-left py-2 px-2 w-[200px]">Manufacturer</th>
               <th className="text-left py-2 px-2 w-[100px]">Unit Price</th>
               <th className="text-left py-2 px-2 w-[100px]">Quantity</th>
-              <th className="text-left py-2 px-2 w-[100px]">Total Cost</th>
               <th className="text-left py-2 px-2 w-[80px]"></th>
             </tr>
           </thead>
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const unitPrice = item.unit_price || selectedItem?.price || 0;
-              const itemTotal = item.quantity * unitPrice;
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -124,7 +112,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => handleItemSelect(index, value)}
+                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
                     />
                   </td>
                   <td className="py-2 px-2">
@@ -153,7 +141,7 @@ export function OrderItemsForm({
                       type="number"
                       step="0.01"
                       min="0"
-                      value={unitPrice}
+                      value={item.unit_price || selectedItem?.price || ''}
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
                       className="bg-white"
                     />
@@ -164,13 +152,6 @@ export function OrderItemsForm({
                       min="1"
                       value={item.quantity}
                       onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      value={`$${itemTotal.toFixed(2)}`}
-                      readOnly
-                      className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
@@ -191,7 +172,6 @@ export function OrderItemsForm({
             <tr>
               <td colSpan={6} className="py-2 px-2 text-right font-medium">Total Units:</td>
               <td className="py-2 px-2 font-medium">{totalUnits}</td>
-              <td className="py-2 px-2 font-medium">${totalAmount.toFixed(2)}</td>
               <td></td>
             </tr>
           </tfoot>
