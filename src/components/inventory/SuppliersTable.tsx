@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Supplier = {
   id: string;
-  name: string;
+  supplier_name: string;
   contact_person: string | null;
   email: string | null;
   phone: string | null;
@@ -36,7 +36,7 @@ export function SuppliersTable() {
       const { data, error } = await supabase
         .from("suppliers")
         .select("*")
-        .order("name");
+        .order("supplier_name");
 
       if (error) {
         console.error("Error fetching suppliers:", error);
@@ -61,7 +61,7 @@ export function SuppliersTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
+            <TableHead>Supplier Name</TableHead>
             <TableHead>Contact Person</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
@@ -73,7 +73,7 @@ export function SuppliersTable() {
         <TableBody>
           {suppliers?.map((supplier) => (
             <TableRow key={supplier.id}>
-              <TableCell>{supplier.name}</TableCell>
+              <TableCell>{supplier.supplier_name}</TableCell>
               <TableCell>{supplier.contact_person}</TableCell>
               <TableCell>{supplier.email}</TableCell>
               <TableCell>{supplier.phone}</TableCell>
