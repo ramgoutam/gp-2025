@@ -53,8 +53,8 @@ export function OrderDetailsForm({ form }: OrderDetailsFormProps) {
   );
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
-      <div className="col-span-2">
+    <div className="grid gap-6">
+      <div className="grid grid-cols-2 gap-6">
         <FormField
           control={form.control}
           name="supplier"
@@ -129,35 +129,35 @@ export function OrderDetailsForm({ form }: OrderDetailsFormProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="order_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Order Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="expected_delivery_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Expected Delivery Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
-
-      <FormField
-        control={form.control}
-        name="order_date"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Order Date</FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="expected_delivery_date"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Expected Delivery Date</FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
 
       <AddSupplierDialog 
         open={showAddSupplier} 
