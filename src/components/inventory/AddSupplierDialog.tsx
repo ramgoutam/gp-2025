@@ -31,6 +31,14 @@ const countryCodes = [
   { code: "+61", country: "AU" },
 ];
 
+const usStates = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+];
+
 export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -41,7 +49,10 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
     contact_person: "",
     email: "",
     phone: "",
-    address: "",
+    street_address: "",
+    city: "",
+    state: "AL",
+    zip_code: "",
     notes: "",
   });
 
@@ -79,7 +90,15 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("suppliers").insert([formData]);
+      const fullAddress = `${formData.street_address}, ${formData.city}, ${formData.state} ${formData.zip_code}`;
+      const { error } = await supabase.from("suppliers").insert([{
+        name: formData.name,
+        contact_person: formData.contact_person,
+        email: formData.email,
+        phone: formData.phone,
+        address: fullAddress,
+        notes: formData.notes,
+      }]);
 
       if (error) throw error;
 
@@ -95,7 +114,10 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
         contact_person: "",
         email: "",
         phone: "",
-        address: "",
+        street_address: "",
+        city: "",
+        state: "AL",
+        zip_code: "",
         notes: "",
       });
     } catch (error) {
@@ -175,13 +197,56 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="street_address">Street Address</Label>
             <Input
-              id="address"
-              value={formData.address}
+              id="street_address"
+              value={formData.street_address}
               onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
+                setFormData({ ...formData, street_address: e.target.value })
               }
+              placeholder="123 Main St"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData({ ...formData, city: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="state">State</Label>
+              <Select 
+                defaultValue={formData.state} 
+                onValueChange={(value) => setFormData({ ...formData, state: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {usStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="zip_code">ZIP Code</Label>
+            <Input
+              id="zip_code"
+              value={formData.zip_code}
+              onChange={(e) =>
+                setFormData({ ...formData, zip_code: e.target.value })
+              }
+              placeholder="12345"
+              maxLength={5}
             />
           </div>
           <div className="space-y-2">
