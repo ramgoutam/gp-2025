@@ -74,6 +74,24 @@ export default function CreatePurchaseOrder() {
     try {
       console.log("Creating new purchase order:", { ...data, items: orderItems });
       
+      if (!data.supplier) {
+        toast({
+          title: "Error",
+          description: "Please select a supplier",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data.order_date) {
+        toast({
+          title: "Error",
+          description: "Please select an order date",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Generate PO number
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -90,7 +108,7 @@ export default function CreatePurchaseOrder() {
           po_number: poNumber,
           supplier: data.supplier,
           order_date: data.order_date,
-          expected_delivery_date: data.expected_delivery_date,
+          expected_delivery_date: data.expected_delivery_date || null,
           status: 'draft',
           total_amount: totalAmount
         })
