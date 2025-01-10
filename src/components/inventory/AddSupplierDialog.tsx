@@ -45,7 +45,7 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countryCode, setCountryCode] = useState("+1");
   const [formData, setFormData] = useState({
-    name: "",
+    supplier_name: "",
     contact_person: "",
     email: "",
     phone: "",
@@ -92,7 +92,7 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
     try {
       const fullAddress = `${formData.street_address}, ${formData.city}, ${formData.state} ${formData.zip_code}`;
       const { error } = await supabase.from("suppliers").insert([{
-        name: formData.name,
+        supplier_name: formData.supplier_name,
         contact_person: formData.contact_person,
         email: formData.email,
         phone: formData.phone,
@@ -110,7 +110,7 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       onOpenChange(false);
       setFormData({
-        name: "",
+        supplier_name: "",
         contact_person: "",
         email: "",
         phone: "",
@@ -140,12 +140,12 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="supplier_name">Supplier Name *</Label>
             <Input
-              id="name"
-              value={formData.name}
+              id="supplier_name"
+              value={formData.supplier_name}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, supplier_name: e.target.value })
               }
               required
             />
