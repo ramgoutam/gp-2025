@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { OrderDetailsForm } from "@/components/inventory/purchase-order/OrderDetailsForm";
 import { OrderItemsForm } from "@/components/inventory/purchase-order/OrderItemsForm";
 import { ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type FormData = {
   supplier: string;
@@ -27,6 +28,19 @@ export default function CreatePurchaseOrder() {
   const navigate = useNavigate();
   const form = useForm<FormData>();
 
+  // Fetch inventory items for price lookup
+  const { data: inventoryItems } = useQuery({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('id, price');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const addOrderItem = () => {
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
   };
@@ -40,9 +54,12 @@ export default function CreatePurchaseOrder() {
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...orderItems];
     if (field === 'item_id' && typeof value === 'string') {
+      // When item is selected, update its unit price from inventory
+      const selectedItem = inventoryItems?.find(item => item.id === value);
       newItems[index] = {
         ...newItems[index],
         [field]: value,
+        unit_price: selectedItem?.price || 0
       };
     } else {
       newItems[index] = {
@@ -62,7 +79,7 @@ export default function CreatePurchaseOrder() {
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       const poNumber = `PO-${timestamp}-${random}`;
 
-      // Calculate total amount
+      // Calculate total amount using the unit prices from inventory items
       const totalAmount = orderItems.reduce((sum, item) => 
         sum + (item.quantity * item.unit_price), 0);
 
