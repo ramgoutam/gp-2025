@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { CreatePurchaseOrder } from "./CreatePurchaseOrder";
+import CreatePurchaseOrder from "./CreatePurchaseOrder";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
-export const EditPurchaseOrder = () => {
+const EditPurchaseOrder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -57,3 +57,5 @@ export const EditPurchaseOrder = () => {
 
   return <CreatePurchaseOrder initialData={purchaseOrder} />;
 };
+
+export default EditPurchaseOrder;
