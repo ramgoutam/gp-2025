@@ -8,11 +8,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { OrderDetailsForm } from "@/components/inventory/purchase-order/OrderDetailsForm";
 import { OrderItemsForm } from "@/components/inventory/purchase-order/OrderItemsForm";
 import { ArrowLeft } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 type FormData = {
   supplier: string;
   order_date: string;
   expected_delivery_date: string;
+  billing_address: string;
+  shipping_address: string;
+  payment_terms: string;
+  shipping_method: string;
+  currency: string;
+  tax_rate: number;
+  notes: string;
 };
 
 type OrderItem = {
@@ -25,7 +34,13 @@ export default function CreatePurchaseOrder() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const form = useForm<FormData>();
+  const form = useForm<FormData>({
+    defaultValues: {
+      tax_rate: 0,
+      currency: 'USD',
+      payment_terms: 'Net 30',
+    }
+  });
 
   const addOrderItem = () => {
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
@@ -39,17 +54,10 @@ export default function CreatePurchaseOrder() {
 
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...orderItems];
-    if (field === 'item_id' && typeof value === 'string') {
-      newItems[index] = {
-        ...newItems[index],
-        [field]: value,
-      };
-    } else {
-      newItems[index] = {
-        ...newItems[index],
-        [field]: value,
-      };
-    }
+    newItems[index] = {
+      ...newItems[index],
+      [field]: value,
+    };
     setOrderItems(newItems);
   };
 
@@ -62,9 +70,11 @@ export default function CreatePurchaseOrder() {
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       const poNumber = `PO-${timestamp}-${random}`;
 
-      // Calculate total amount
-      const totalAmount = orderItems.reduce((sum, item) => 
+      // Calculate total amount and tax
+      const subtotal = orderItems.reduce((sum, item) => 
         sum + (item.quantity * item.unit_price), 0);
+      const taxAmount = subtotal * (data.tax_rate / 100);
+      const totalAmount = subtotal + taxAmount;
 
       // Create purchase order
       const { data: po, error: poError } = await supabase
@@ -74,8 +84,17 @@ export default function CreatePurchaseOrder() {
           supplier: data.supplier,
           order_date: data.order_date,
           expected_delivery_date: data.expected_delivery_date,
+          billing_address: data.billing_address,
+          shipping_address: data.shipping_address,
+          payment_terms: data.payment_terms,
+          shipping_method: data.shipping_method,
+          currency: data.currency,
+          tax_rate: data.tax_rate,
+          notes: data.notes,
           status: 'draft',
-          total_amount: totalAmount
+          total_amount: totalAmount,
+          subtotal: subtotal,
+          tax_amount: taxAmount
         })
         .select()
         .single();
@@ -135,32 +154,41 @@ export default function CreatePurchaseOrder() {
         </div>
 
         {/* Main Content */}
-        <div className="grid gap-6 bg-white rounded-lg shadow-sm border">
+        <div className="grid gap-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
-              {/* Order Details Section */}
-              <div className="space-y-4">
-                <div className="border-b pb-3">
-                  <h2 className="text-lg font-medium">Order Details</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Enter the basic information for this purchase order
-                  </p>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <Card className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-lg font-medium">Order Details</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Enter the basic information for this purchase order
+                    </p>
+                  </div>
+                  <Separator />
+                  <OrderDetailsForm form={form} />
                 </div>
-                <OrderDetailsForm form={form} />
-              </div>
+              </Card>
 
-              {/* Order Items Section */}
-              <div className="space-y-4 pt-6">
-                <OrderItemsForm
-                  orderItems={orderItems}
-                  onAddItem={addOrderItem}
-                  onRemoveItem={removeOrderItem}
-                  onUpdateItem={updateOrderItem}
-                />
-              </div>
+              <Card className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-lg font-medium">Order Items</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Add items to your purchase order
+                    </p>
+                  </div>
+                  <Separator />
+                  <OrderItemsForm
+                    orderItems={orderItems}
+                    onAddItem={addOrderItem}
+                    onRemoveItem={removeOrderItem}
+                    onUpdateItem={updateOrderItem}
+                  />
+                </div>
+              </Card>
 
-              {/* Form Actions */}
-              <div className="flex justify-end gap-4 pt-6 border-t">
+              <div className="flex justify-end gap-4">
                 <Button 
                   type="button" 
                   variant="outline" 
