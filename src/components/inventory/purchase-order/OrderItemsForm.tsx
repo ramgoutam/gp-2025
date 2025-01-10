@@ -99,7 +99,7 @@ export function OrderItemsForm({
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const totalPrice = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+              const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -158,7 +158,7 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={`$${totalPrice.toFixed(2)}`}
+                      value={`$${itemTotal.toFixed(2)}`}
                       readOnly
                       className="bg-gray-50"
                     />
