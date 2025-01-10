@@ -11,16 +11,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type AddSupplierDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
+const countryCodes = [
+  { code: "+1", country: "US" },
+  { code: "+44", country: "UK" },
+  { code: "+33", country: "FR" },
+  { code: "+49", country: "DE" },
+  { code: "+81", country: "JP" },
+  { code: "+86", country: "CN" },
+  { code: "+91", country: "IN" },
+  { code: "+52", country: "MX" },
+  { code: "+55", country: "BR" },
+  { code: "+61", country: "AU" },
+];
+
 export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countryCode, setCountryCode] = useState("+1");
   const [formData, setFormData] = useState({
     name: "",
     contact_person: "",
@@ -29,6 +44,35 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
     address: "",
     notes: "",
   });
+
+  const formatPhoneNumber = (input: string) => {
+    // Remove all non-numeric characters
+    const phoneNumber = input.replace(/\D/g, '');
+    
+    if (countryCode === "+1") {
+      // Format for US numbers (XXX) XXX-XXXX
+      if (phoneNumber.length <= 3) {
+        return phoneNumber;
+      } else if (phoneNumber.length <= 6) {
+        return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+      } else {
+        return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+      }
+    }
+    
+    // For other countries, just group by 3 digits
+    return phoneNumber.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatPhoneNumber(e.target.value);
+    setFormData({ ...formData, phone: formattedValue });
+  };
+
+  const handleCountryCodeChange = (newCode: string) => {
+    setCountryCode(newCode);
+    setFormData({ ...formData, phone: '' }); // Clear phone when country code changes
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,13 +151,28 @@ export function AddSupplierDialog({ open, onOpenChange }: AddSupplierDialogProps
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-            />
+            <div className="flex gap-2">
+              <Select defaultValue={countryCode} onValueChange={handleCountryCodeChange}>
+                <SelectTrigger className="w-[90px]">
+                  <SelectValue placeholder="Code" />
+                </SelectTrigger>
+                <SelectContent className="bg-white min-w-[90px]">
+                  {countryCodes.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      {country.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={handlePhoneChange}
+                placeholder={countryCode === "+1" ? "(555) 555-5555" : "123 456 789"}
+                className="flex-1"
+                maxLength={countryCode === "+1" ? 14 : 15}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
