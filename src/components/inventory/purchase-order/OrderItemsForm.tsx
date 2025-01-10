@@ -57,9 +57,17 @@ export function OrderItemsForm({
   // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = orderItems.reduce((sum, item) => {
-    const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+    const itemTotal = item.quantity * item.unit_price;
     return sum + itemTotal;
   }, 0);
+
+  const handleItemSelect = (index: number, itemId: string) => {
+    const selectedItem = inventoryItems?.find(item => item.id === itemId);
+    onUpdateItem(index, 'item_id', itemId);
+    if (selectedItem?.price) {
+      onUpdateItem(index, 'unit_price', selectedItem.price);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -99,7 +107,7 @@ export function OrderItemsForm({
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+              const itemTotal = item.quantity * item.unit_price;
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -114,7 +122,7 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                      onSelect={(value) => handleItemSelect(index, value)}
                     />
                   </td>
                   <td className="py-2 px-2">
@@ -143,7 +151,7 @@ export function OrderItemsForm({
                       type="number"
                       step="0.01"
                       min="0"
-                      value={item.unit_price || selectedItem?.price || ''}
+                      value={item.unit_price || ''}
                       onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
                       className="bg-white"
                     />
