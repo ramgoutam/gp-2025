@@ -7,14 +7,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 
 type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
@@ -22,8 +23,11 @@ type PurchaseOrder = Database['public']['Tables']['purchase_orders']['Row'];
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<PurchaseOrder | null>(null);
   
   const { data: orders } = useQuery({
     queryKey: ['purchase-orders'],
@@ -66,6 +70,33 @@ const PurchaseOrders = () => {
 
   const handleEdit = (orderId: string) => {
     navigate(`/inventory/purchase-orders/${orderId}/edit`);
+  };
+
+  const handleDelete = async () => {
+    if (!orderToDelete) return;
+
+    const { error } = await supabase
+      .from('purchase_orders')
+      .delete()
+      .eq('id', orderToDelete.id);
+
+    if (error) {
+      console.error('Error deleting purchase order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete purchase order. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Purchase order deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+    }
+
+    setOrderToDelete(null);
+    setIsDeleteDialogOpen(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -146,6 +177,18 @@ const PurchaseOrders = () => {
                       disabled={order.status === 'received' || order.status === 'cancelled'}
                     >
                       Edit
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setOrderToDelete(order);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                      disabled={order.status === 'received'}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -235,6 +278,23 @@ const PurchaseOrders = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Purchase Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this purchase order? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOrderToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
