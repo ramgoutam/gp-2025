@@ -13,8 +13,9 @@ const EditPurchaseOrder = () => {
   const { data: purchaseOrder, isLoading } = useQuery({
     queryKey: ['purchase-order', id],
     queryFn: async () => {
-      console.log("Fetching purchase order:", id);
-      const { data, error } = await supabase
+      if (!id) return null;
+      
+      const { data: order, error } = await supabase
         .from('purchase_orders')
         .select(`
           *,
@@ -37,8 +38,8 @@ const EditPurchaseOrder = () => {
         throw error;
       }
 
-      console.log("Found purchase order:", data);
-      return data;
+      console.log("Found purchase order:", order);
+      return order;
     }
   });
 

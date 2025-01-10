@@ -9,13 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface OrderItem {
-  id?: string;
-  item_id: string;
-  quantity: number;
-  unit_price: number;
-}
-
 interface FormData {
   supplier: string;
   order_date: string;
@@ -23,7 +16,18 @@ interface FormData {
   notes?: string;
 }
 
-const CreatePurchaseOrder = () => {
+interface OrderItem {
+  id?: string;
+  item_id: string;
+  quantity: number;
+  unit_price: number;
+}
+
+interface CreatePurchaseOrderProps {
+  initialData?: any;
+}
+
+const CreatePurchaseOrder: React.FC<CreatePurchaseOrderProps> = ({ initialData }) => {
   const { id } = useParams(); // Get the order ID from URL if editing
   const navigate = useNavigate();
   const { toast } = useToast();
