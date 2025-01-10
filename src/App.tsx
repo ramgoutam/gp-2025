@@ -21,6 +21,7 @@ import StockManagement from "@/pages/inventory/StockManagement";
 import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import StockMovements from "@/pages/inventory/StockMovements";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
+import Suppliers from "@/pages/inventory/Suppliers";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
@@ -169,6 +170,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <StockMovements />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory/suppliers"
+                  element={
+                    <ProtectedRoute>
+                      <Suppliers />
                     </ProtectedRoute>
                   }
                 />
