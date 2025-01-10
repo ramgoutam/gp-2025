@@ -54,8 +54,12 @@ export function OrderItemsForm({
     (item.product_id && item.product_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = orderItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+  const totalAmount = orderItems.reduce((sum, item) => {
+    const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+    return sum + itemTotal;
+  }, 0);
 
   return (
     <div className="space-y-4">
@@ -95,7 +99,7 @@ export function OrderItemsForm({
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const totalPrice = item.quantity * item.unit_price;
+              const totalPrice = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
               
               return (
                 <tr key={index} className="border-b align-top">
