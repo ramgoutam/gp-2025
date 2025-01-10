@@ -1,19 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import { OrderDetailsForm } from "@/components/inventory/purchase-order/OrderDetailsForm";
+import { OrderItemsForm } from "@/components/inventory/purchase-order/OrderItemsForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-interface FormData {
-  supplier: string;
-  order_date: string;
-  expected_delivery_date?: string;
-  notes?: string;
-}
 
 interface OrderItem {
   id?: string;
@@ -22,119 +16,233 @@ interface OrderItem {
   unit_price: number;
 }
 
-interface PurchaseOrder {
-  id: string;
-  po_number: string;
+interface FormData {
   supplier: string;
   order_date: string;
   expected_delivery_date?: string;
-  status: string;
-  total_amount: number;
   notes?: string;
-  created_at: string;
-  updated_at: string;
-  purchase_order_items: OrderItem[];
 }
 
-interface CreatePurchaseOrderProps {
-  initialData?: PurchaseOrder;
-}
-
-const CreatePurchaseOrder: React.FC<CreatePurchaseOrderProps> = ({ initialData }) => {
-  const { id } = useParams();
+const CreatePurchaseOrder = () => {
+  const { id } = useParams(); // Get the order ID from URL if editing
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [formData, setFormData] = useState<FormData>({
+    supplier: "",
+    order_date: "",
+  });
+  const [totalAmount, setTotalAmount] = useState(0);
 
-  const [formData, setFormData] = React.useState<FormData>({
-    supplier: initialData?.supplier || "",
-    order_date: initialData?.order_date || "",
-    expected_delivery_date: initialData?.expected_delivery_date || "",
-    notes: initialData?.notes || "",
+  // Fetch existing order data if editing
+  const { data: existingOrder, isLoading } = useQuery({
+    queryKey: ['purchase-order', id],
+    queryFn: async () => {
+      if (!id) return null;
+      
+      const { data: order, error } = await supabase
+        .from('purchase_orders')
+        .select(`
+          *,
+          purchase_order_items (
+            *,
+            inventory_items (*)
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return order;
+    },
+    enabled: !!id
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    if (existingOrder) {
+      setFormData({
+        supplier: existingOrder.supplier,
+        order_date: existingOrder.order_date,
+        expected_delivery_date: existingOrder.expected_delivery_date,
+        notes: existingOrder.notes
+      });
+      
+      const items = existingOrder.purchase_order_items.map((item: any) => ({
+        id: item.id,
+        item_id: item.item_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price
+      }));
+      
+      setOrderItems(items);
+      setTotalAmount(existingOrder.total_amount || 0);
+    }
+  }, [existingOrder]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: FormData) => {
     try {
-      if (initialData) {
-        await supabase
+      console.log("Submitting purchase order:", { ...data, items: orderItems });
+      
+      if (!data.supplier) {
+        toast({
+          title: "Error",
+          description: "Please select a supplier",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data.order_date) {
+        toast({
+          title: "Error",
+          description: "Please select an order date",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (id) {
+        // Update existing order
+        const { error: updateError } = await supabase
           .from('purchase_orders')
-          .update(formData)
-          .eq('id', initialData.id);
+          .update({
+            supplier: data.supplier,
+            order_date: data.order_date,
+            expected_delivery_date: data.expected_delivery_date || null,
+            notes: data.notes,
+            total_amount: totalAmount
+          })
+          .eq('id', id);
+
+        if (updateError) throw updateError;
+
+        // Delete existing items and insert new ones
+        await supabase
+          .from('purchase_order_items')
+          .delete()
+          .eq('purchase_order_id', id);
+
+        if (orderItems.length > 0) {
+          const { error: itemsError } = await supabase
+            .from('purchase_order_items')
+            .insert(
+              orderItems.map(item => ({
+                ...item,
+                purchase_order_id: id
+              }))
+            );
+
+          if (itemsError) throw itemsError;
+        }
+
         toast({
           title: "Success",
           description: "Purchase order updated successfully",
         });
       } else {
-        await supabase
+        // Generate PO number for new order
+        const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        const poNumber = `PO-${timestamp}-${random}`;
+
+        // Create new order
+        const { data: newOrder, error } = await supabase
           .from('purchase_orders')
-          .insert(formData);
+          .insert({
+            po_number: poNumber,
+            supplier: data.supplier,
+            order_date: data.order_date,
+            expected_delivery_date: data.expected_delivery_date || null,
+            status: 'draft',
+            total_amount: totalAmount,
+            notes: data.notes
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        if (orderItems.length > 0) {
+          const { error: itemsError } = await supabase
+            .from('purchase_order_items')
+            .insert(
+              orderItems.map(item => ({
+                ...item,
+                purchase_order_id: newOrder.id
+              }))
+            );
+
+          if (itemsError) throw itemsError;
+        }
+
         toast({
           title: "Success",
           description: "Purchase order created successfully",
         });
       }
-      queryClient.invalidateQueries(['purchase-orders']);
+
+      // Invalidate queries and navigate back
+      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
       navigate('/inventory/purchase-orders');
     } catch (error) {
-      console.error("Error saving purchase order:", error);
+      console.error('Error saving purchase order:', error);
       toast({
         title: "Error",
-        description: "Failed to save purchase order",
+        description: "Failed to save purchase order. Please try again.",
         variant: "destructive",
       });
     }
   };
 
+  if (id && isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="supplier">Supplier</Label>
-        <Input
-          id="supplier"
-          name="supplier"
-          value={formData.supplier}
-          onChange={handleChange}
-          required
-        />
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/inventory/purchase-orders')}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {id ? 'Edit Purchase Order' : 'Create Purchase Order'}
+              </h1>
+              <p className="mt-1 text-sm text-gray-600">
+                {id ? 'Update purchase order details' : 'Create a new purchase order'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          <Card className="p-6">
+            <OrderDetailsForm
+              data={formData}
+              onChange={setFormData}
+              onSubmit={handleSubmit}
+              isEditing={!!id}
+            />
+          </Card>
+
+          <Card className="p-6">
+            <OrderItemsForm
+              items={orderItems}
+              onChange={setOrderItems}
+              onTotalChange={setTotalAmount}
+            />
+          </Card>
+        </div>
       </div>
-      <div>
-        <Label htmlFor="order_date">Order Date</Label>
-        <Input
-          id="order_date"
-          name="order_date"
-          type="date"
-          value={formData.order_date}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="expected_delivery_date">Expected Delivery Date</Label>
-        <Input
-          id="expected_delivery_date"
-          name="expected_delivery_date"
-          type="date"
-          value={formData.expected_delivery_date}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea
-          id="notes"
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
-        />
-      </div>
-      <Button type="submit">{initialData ? "Update Purchase Order" : "Create Purchase Order"}</Button>
-    </form>
+    </div>
   );
 };
 
