@@ -763,69 +763,31 @@ export type Database = {
         }
         Relationships: []
       }
-      purchase_order_files: {
-        Row: {
-          file_name: string
-          file_path: string
-          file_type: string
-          id: string
-          purchase_order_id: string | null
-          uploaded_at: string
-        }
-        Insert: {
-          file_name: string
-          file_path: string
-          file_type: string
-          id?: string
-          purchase_order_id?: string | null
-          uploaded_at?: string
-        }
-        Update: {
-          file_name?: string
-          file_path?: string
-          file_type?: string
-          id?: string
-          purchase_order_id?: string | null
-          uploaded_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "purchase_order_files_purchase_order_id_fkey"
-            columns: ["purchase_order_id"]
-            isOneToOne: false
-            referencedRelation: "purchase_orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       purchase_order_items: {
         Row: {
           created_at: string
           id: string
-          item_id: string | null
-          purchase_order_id: string | null
+          item_id: string
+          purchase_order_id: string
           quantity: number
-          received_quantity: number | null
           unit_price: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
-          item_id?: string | null
-          purchase_order_id?: string | null
-          quantity: number
-          received_quantity?: number | null
-          unit_price: number
+          item_id: string
+          purchase_order_id: string
+          quantity?: number
+          unit_price?: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
-          item_id?: string | null
-          purchase_order_id?: string | null
+          item_id?: string
+          purchase_order_id?: string
           quantity?: number
-          received_quantity?: number | null
           unit_price?: number
           updated_at?: string
         }
