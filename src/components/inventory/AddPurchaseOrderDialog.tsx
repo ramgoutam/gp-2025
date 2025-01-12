@@ -74,6 +74,7 @@ export function AddPurchaseOrderDialog() {
   });
 
   const addOrderItem = () => {
+    console.log('Adding new order item');
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
   };
 
@@ -87,7 +88,6 @@ export function AddPurchaseOrderDialog() {
     const newItems = [...orderItems];
     
     if (field === 'item_id' && typeof value === 'string') {
-      // When an item is selected, set its unit price from inventory
       const selectedItem = inventoryItems?.find(item => item.id === value);
       const itemPrice = selectedItem?.price || 0;
       console.log('Setting unit price for item:', selectedItem?.product_name, 'to:', itemPrice);
@@ -95,7 +95,7 @@ export function AddPurchaseOrderDialog() {
       newItems[index] = {
         ...newItems[index],
         item_id: value,
-        unit_price: itemPrice
+        unit_price: itemPrice // Set the unit price from inventory item
       };
     } else {
       newItems[index] = {
@@ -110,7 +110,7 @@ export function AddPurchaseOrderDialog() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Creating new purchase order:", { ...data, items: orderItems });
+      console.log("Creating new purchase order with items:", orderItems);
       
       // Generate PO number
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -149,7 +149,7 @@ export function AddPurchaseOrderDialog() {
           purchase_order_id: po.id,
           item_id: item.item_id,
           quantity: item.quantity,
-          unit_price: item.unit_price
+          unit_price: item.unit_price // Ensure unit_price is included
         }));
 
         console.log('Creating purchase order items:', purchaseOrderItems);
@@ -158,7 +158,10 @@ export function AddPurchaseOrderDialog() {
           .from('purchase_order_items')
           .insert(purchaseOrderItems);
 
-        if (itemsError) throw itemsError;
+        if (itemsError) {
+          console.error('Error creating purchase order items:', itemsError);
+          throw itemsError;
+        }
       }
 
       toast({
