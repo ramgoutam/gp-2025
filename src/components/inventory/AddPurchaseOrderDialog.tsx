@@ -69,26 +69,11 @@ export function AddPurchaseOrderDialog() {
         .select('id, product_name, price');
       
       if (error) throw error;
-      console.log('Fetched inventory items:', data);
       return data as InventoryItem[];
     }
   });
 
-  // Fetch suppliers
-  const { data: suppliers } = useQuery({
-    queryKey: ['suppliers'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('suppliers')
-        .select('id, supplier_name');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const addOrderItem = () => {
-    console.log('Adding new order item');
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
   };
 
@@ -100,54 +85,25 @@ export function AddPurchaseOrderDialog() {
 
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...orderItems];
-    
     if (field === 'item_id' && typeof value === 'string') {
-      const selectedItem = inventoryItems?.find(item => item.id === value);
-      const itemPrice = selectedItem?.price || 0;
-      console.log('Selected item:', selectedItem);
-      console.log('Setting unit price for item:', selectedItem?.product_name, 'to:', itemPrice);
-      
+      const item = inventoryItems?.find(i => i.id === value);
       newItems[index] = {
         ...newItems[index],
-        item_id: value,
-        unit_price: Number(itemPrice) // Ensure price is converted to number
+        [field]: value,
+        unit_price: item?.price || 0,
       };
-    } else if (field === 'quantity') {
-      // Ensure quantity is a positive number
-      const quantity = Math.max(1, Number(value));
+    } else {
       newItems[index] = {
         ...newItems[index],
-        quantity: quantity
-      };
-    } else if (field === 'unit_price') {
-      // Ensure unit_price is a number
-      newItems[index] = {
-        ...newItems[index],
-        unit_price: Number(value)
+        [field]: value,
       };
     }
-    
-    console.log('Updated order items:', newItems);
     setOrderItems(newItems);
-  };
-
-  const calculateTotalAmount = (items: OrderItem[]): number => {
-    return items.reduce((sum, item) => {
-      const itemTotal = Number(item.quantity) * Number(item.unit_price);
-      console.log(`Calculating total for item: quantity=${item.quantity} * unit_price=${item.unit_price} = ${itemTotal}`);
-      return sum + itemTotal;
-    }, 0);
   };
 
   const onSubmit = async (data: FormData) => {
     try {
-      console.log("Creating new purchase order with items:", orderItems);
-      
-      // Get supplier name from ID
-      const selectedSupplier = suppliers?.find(s => s.id === data.supplier);
-      if (!selectedSupplier) {
-        throw new Error("Selected supplier not found");
-      }
+      console.log("Creating new purchase order:", { ...data, items: orderItems });
       
       // Generate PO number
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -155,15 +111,15 @@ export function AddPurchaseOrderDialog() {
       const poNumber = `PO-${timestamp}-${random}`;
 
       // Calculate total amount
-      const totalAmount = calculateTotalAmount(orderItems);
-      console.log('Final calculated total amount:', totalAmount);
+      const totalAmount = orderItems.reduce((sum, item) => 
+        sum + (item.quantity * item.unit_price), 0);
 
       // Create purchase order
       const { data: po, error: poError } = await supabase
         .from('purchase_orders')
         .insert({
           po_number: poNumber,
-          supplier: selectedSupplier.supplier_name,
+          supplier: data.supplier,
           order_date: data.order_date,
           expected_delivery_date: data.expected_delivery_date,
           notes: data.notes,
@@ -173,32 +129,22 @@ export function AddPurchaseOrderDialog() {
         .select()
         .single();
 
-      if (poError) {
-        console.error("Error creating purchase order:", poError);
-        throw poError;
-      }
-
-      console.log("Created purchase order:", po);
+      if (poError) throw poError;
 
       // Create purchase order items
       if (orderItems.length > 0) {
-        const purchaseOrderItems = orderItems.map(item => ({
-          purchase_order_id: po.id,
-          item_id: item.item_id,
-          quantity: Number(item.quantity),
-          unit_price: Number(item.unit_price) // Ensure unit_price is saved as a number
-        }));
-
-        console.log('Creating purchase order items:', purchaseOrderItems);
-
         const { error: itemsError } = await supabase
           .from('purchase_order_items')
-          .insert(purchaseOrderItems);
+          .insert(
+            orderItems.map(item => ({
+              purchase_order_id: po.id,
+              item_id: item.item_id,
+              quantity: item.quantity,
+              unit_price: item.unit_price
+            }))
+          );
 
-        if (itemsError) {
-          console.error('Error creating purchase order items:', itemsError);
-          throw itemsError;
-        }
+        if (itemsError) throw itemsError;
       }
 
       toast({
@@ -240,21 +186,7 @@ export function AddPurchaseOrderDialog() {
                 <FormItem>
                   <FormLabel>Supplier</FormLabel>
                   <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select supplier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {suppliers?.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id}>
-                            {supplier.supplier_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input {...field} placeholder="Enter supplier name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -312,7 +244,7 @@ export function AddPurchaseOrderDialog() {
                       <SelectContent>
                         {inventoryItems?.map((invItem) => (
                           <SelectItem key={invItem.id} value={invItem.id}>
-                            {invItem.product_name} (${invItem.price?.toFixed(2)})
+                            {invItem.product_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -336,8 +268,7 @@ export function AddPurchaseOrderDialog() {
                       min="0"
                       step="0.01"
                       value={item.unit_price}
-                      readOnly
-                      className="bg-gray-50"
+                      onChange={(e) => updateOrderItem(index, 'unit_price', parseFloat(e.target.value))}
                     />
                   </div>
 

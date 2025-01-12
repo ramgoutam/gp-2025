@@ -14,7 +14,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 
@@ -34,27 +34,11 @@ const PurchaseOrders = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('purchase_orders')
-        .select(`
-          *,
-          purchase_order_items (
-            quantity,
-            unit_price
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Calculate total amount for each order based on its items
-      const ordersWithTotals = data.map(order => ({
-        ...order,
-        total_amount: order.purchase_order_items?.reduce(
-          (sum, item) => sum + (item.quantity * item.unit_price), 
-          0
-        ) || 0
-      }));
-      
-      return ordersWithTotals as PurchaseOrder[];
+      return data as PurchaseOrder[];
     }
   });
 
@@ -177,7 +161,7 @@ const PurchaseOrders = () => {
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>${order.total_amount?.toFixed(2)}</TableCell>
+                  <TableCell>${order.total_amount?.toFixed(2) || '0.00'}</TableCell>
                   <TableCell className="space-x-2">
                     <Button 
                       variant="ghost" 
