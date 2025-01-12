@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { OrderDetailsForm } from "@/components/inventory/purchase-order/OrderDetailsForm";
 import { OrderItemsForm } from "@/components/inventory/purchase-order/OrderItemsForm";
 import { ArrowLeft } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 type FormData = {
   supplier: string;
@@ -27,7 +26,6 @@ export default function CreatePurchaseOrder() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const form = useForm<FormData>();
-  const queryClient = useQueryClient();
 
   const addOrderItem = () => {
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
@@ -41,10 +39,17 @@ export default function CreatePurchaseOrder() {
 
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...orderItems];
-    newItems[index] = {
-      ...newItems[index],
-      [field]: value,
-    };
+    if (field === 'item_id' && typeof value === 'string') {
+      newItems[index] = {
+        ...newItems[index],
+        [field]: value,
+      };
+    } else {
+      newItems[index] = {
+        ...newItems[index],
+        [field]: value,
+      };
+    }
     setOrderItems(newItems);
   };
 
@@ -92,8 +97,6 @@ export default function CreatePurchaseOrder() {
 
         if (itemsError) throw itemsError;
       }
-
-      await queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
 
       toast({
         title: "Success",
