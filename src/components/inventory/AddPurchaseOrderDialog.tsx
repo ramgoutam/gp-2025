@@ -89,12 +89,14 @@ export function AddPurchaseOrderDialog() {
     if (field === 'item_id' && typeof value === 'string') {
       // When an item is selected, set its unit price from inventory
       const selectedItem = inventoryItems?.find(item => item.id === value);
+      const itemPrice = selectedItem?.price || 0;
+      console.log('Setting unit price for item:', selectedItem?.product_name, 'to:', itemPrice);
+      
       newItems[index] = {
         ...newItems[index],
         item_id: value,
-        unit_price: selectedItem?.price || 0
+        unit_price: itemPrice
       };
-      console.log('Selected item price:', selectedItem?.price);
     } else {
       newItems[index] = {
         ...newItems[index],
@@ -116,11 +118,13 @@ export function AddPurchaseOrderDialog() {
       const poNumber = `PO-${timestamp}-${random}`;
 
       // Calculate total amount
-      const totalAmount = orderItems.reduce((sum, item) => 
-        sum + (item.quantity * item.unit_price), 0);
+      const totalAmount = orderItems.reduce((sum, item) => {
+        const itemTotal = item.quantity * item.unit_price;
+        console.log(`Item total for ${item.item_id}: ${item.quantity} * ${item.unit_price} = ${itemTotal}`);
+        return sum + itemTotal;
+      }, 0);
 
-      console.log('Calculated total amount:', totalAmount);
-      console.log('Order items for calculation:', orderItems);
+      console.log('Final calculated total amount:', totalAmount);
 
       // Create purchase order
       const { data: po, error: poError } = await supabase
@@ -141,23 +145,18 @@ export function AddPurchaseOrderDialog() {
 
       // Create purchase order items
       if (orderItems.length > 0) {
-        console.log('Creating purchase order items:', orderItems.map(item => ({
+        const purchaseOrderItems = orderItems.map(item => ({
           purchase_order_id: po.id,
           item_id: item.item_id,
           quantity: item.quantity,
           unit_price: item.unit_price
-        })));
+        }));
+
+        console.log('Creating purchase order items:', purchaseOrderItems);
 
         const { error: itemsError } = await supabase
           .from('purchase_order_items')
-          .insert(
-            orderItems.map(item => ({
-              purchase_order_id: po.id,
-              item_id: item.item_id,
-              quantity: item.quantity,
-              unit_price: item.unit_price
-            }))
-          );
+          .insert(purchaseOrderItems);
 
         if (itemsError) throw itemsError;
       }
