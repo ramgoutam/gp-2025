@@ -85,19 +85,24 @@ export function AddPurchaseOrderDialog() {
 
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...orderItems];
+    
     if (field === 'item_id' && typeof value === 'string') {
-      const item = inventoryItems?.find(i => i.id === value);
+      // When an item is selected, set its unit price from inventory
+      const selectedItem = inventoryItems?.find(item => item.id === value);
       newItems[index] = {
         ...newItems[index],
-        [field]: value,
-        unit_price: item?.price || 0,
+        item_id: value,
+        unit_price: selectedItem?.price || 0
       };
+      console.log('Selected item price:', selectedItem?.price);
     } else {
       newItems[index] = {
         ...newItems[index],
         [field]: value,
       };
     }
+    
+    console.log('Updated order items:', newItems);
     setOrderItems(newItems);
   };
 
@@ -113,6 +118,9 @@ export function AddPurchaseOrderDialog() {
       // Calculate total amount
       const totalAmount = orderItems.reduce((sum, item) => 
         sum + (item.quantity * item.unit_price), 0);
+
+      console.log('Calculated total amount:', totalAmount);
+      console.log('Order items for calculation:', orderItems);
 
       // Create purchase order
       const { data: po, error: poError } = await supabase
@@ -133,6 +141,13 @@ export function AddPurchaseOrderDialog() {
 
       // Create purchase order items
       if (orderItems.length > 0) {
+        console.log('Creating purchase order items:', orderItems.map(item => ({
+          purchase_order_id: po.id,
+          item_id: item.item_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price
+        })));
+
         const { error: itemsError } = await supabase
           .from('purchase_order_items')
           .insert(
@@ -244,7 +259,7 @@ export function AddPurchaseOrderDialog() {
                       <SelectContent>
                         {inventoryItems?.map((invItem) => (
                           <SelectItem key={invItem.id} value={invItem.id}>
-                            {invItem.product_name}
+                            {invItem.product_name} (${invItem.price?.toFixed(2)})
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -268,7 +283,8 @@ export function AddPurchaseOrderDialog() {
                       min="0"
                       step="0.01"
                       value={item.unit_price}
-                      onChange={(e) => updateOrderItem(index, 'unit_price', parseFloat(e.target.value))}
+                      readOnly
+                      className="bg-gray-50"
                     />
                   </div>
 
