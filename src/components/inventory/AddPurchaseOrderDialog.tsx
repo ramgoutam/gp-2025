@@ -69,6 +69,7 @@ export function AddPurchaseOrderDialog() {
         .select('id, product_name, price');
       
       if (error) throw error;
+      console.log('Fetched inventory items:', data);
       return data as InventoryItem[];
     }
   });
@@ -111,6 +112,13 @@ export function AddPurchaseOrderDialog() {
         item_id: value,
         unit_price: Number(itemPrice) // Ensure price is converted to number
       };
+    } else if (field === 'quantity') {
+      // Ensure quantity is a positive number
+      const quantity = Math.max(1, Number(value));
+      newItems[index] = {
+        ...newItems[index],
+        quantity: quantity
+      };
     } else {
       newItems[index] = {
         ...newItems[index],
@@ -120,6 +128,14 @@ export function AddPurchaseOrderDialog() {
     
     console.log('Updated order items:', newItems);
     setOrderItems(newItems);
+  };
+
+  const calculateTotalAmount = (items: OrderItem[]): number => {
+    return items.reduce((sum, item) => {
+      const itemTotal = Number(item.quantity) * Number(item.unit_price);
+      console.log(`Calculating total for item: quantity=${item.quantity} * unit_price=${item.unit_price} = ${itemTotal}`);
+      return sum + itemTotal;
+    }, 0);
   };
 
   const onSubmit = async (data: FormData) => {
@@ -138,12 +154,7 @@ export function AddPurchaseOrderDialog() {
       const poNumber = `PO-${timestamp}-${random}`;
 
       // Calculate total amount
-      const totalAmount = orderItems.reduce((sum, item) => {
-        const itemTotal = Number(item.quantity) * Number(item.unit_price);
-        console.log(`Item total calculation: ${item.quantity} * ${item.unit_price} = ${itemTotal}`);
-        return sum + itemTotal;
-      }, 0);
-
+      const totalAmount = calculateTotalAmount(orderItems);
       console.log('Final calculated total amount:', totalAmount);
 
       // Create purchase order
@@ -151,7 +162,7 @@ export function AddPurchaseOrderDialog() {
         .from('purchase_orders')
         .insert({
           po_number: poNumber,
-          supplier: selectedSupplier.supplier_name, // Use supplier name instead of ID
+          supplier: selectedSupplier.supplier_name,
           order_date: data.order_date,
           expected_delivery_date: data.expected_delivery_date,
           notes: data.notes,
@@ -173,8 +184,8 @@ export function AddPurchaseOrderDialog() {
         const purchaseOrderItems = orderItems.map(item => ({
           purchase_order_id: po.id,
           item_id: item.item_id,
-          quantity: item.quantity,
-          unit_price: Number(item.unit_price) // Ensure price is a number
+          quantity: Number(item.quantity),
+          unit_price: Number(item.unit_price)
         }));
 
         console.log('Creating purchase order items:', purchaseOrderItems);
@@ -367,4 +378,4 @@ export function AddPurchaseOrderDialog() {
       </DialogContent>
     </Dialog>
   );
-}
+});
