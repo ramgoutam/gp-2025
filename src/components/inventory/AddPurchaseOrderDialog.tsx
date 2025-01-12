@@ -73,6 +73,19 @@ export function AddPurchaseOrderDialog() {
     }
   });
 
+  // Fetch suppliers
+  const { data: suppliers } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('id, supplier_name');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const addOrderItem = () => {
     console.log('Adding new order item');
     setOrderItems([...orderItems, { item_id: '', quantity: 1, unit_price: 0 }]);
@@ -113,6 +126,12 @@ export function AddPurchaseOrderDialog() {
     try {
       console.log("Creating new purchase order with items:", orderItems);
       
+      // Get supplier name from ID
+      const selectedSupplier = suppliers?.find(s => s.id === data.supplier);
+      if (!selectedSupplier) {
+        throw new Error("Selected supplier not found");
+      }
+      
       // Generate PO number
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -132,7 +151,7 @@ export function AddPurchaseOrderDialog() {
         .from('purchase_orders')
         .insert({
           po_number: poNumber,
-          supplier: data.supplier,
+          supplier: selectedSupplier.supplier_name, // Use supplier name instead of ID
           order_date: data.order_date,
           expected_delivery_date: data.expected_delivery_date,
           notes: data.notes,
@@ -209,7 +228,21 @@ export function AddPurchaseOrderDialog() {
                 <FormItem>
                   <FormLabel>Supplier</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter supplier name" />
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {suppliers?.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.supplier_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
