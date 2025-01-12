@@ -90,12 +90,13 @@ export function AddPurchaseOrderDialog() {
     if (field === 'item_id' && typeof value === 'string') {
       const selectedItem = inventoryItems?.find(item => item.id === value);
       const itemPrice = selectedItem?.price || 0;
+      console.log('Selected item:', selectedItem);
       console.log('Setting unit price for item:', selectedItem?.product_name, 'to:', itemPrice);
       
       newItems[index] = {
         ...newItems[index],
         item_id: value,
-        unit_price: itemPrice // Set the unit price from inventory item
+        unit_price: Number(itemPrice) // Ensure price is converted to number
       };
     } else {
       newItems[index] = {
@@ -119,8 +120,8 @@ export function AddPurchaseOrderDialog() {
 
       // Calculate total amount
       const totalAmount = orderItems.reduce((sum, item) => {
-        const itemTotal = item.quantity * item.unit_price;
-        console.log(`Item total for ${item.item_id}: ${item.quantity} * ${item.unit_price} = ${itemTotal}`);
+        const itemTotal = Number(item.quantity) * Number(item.unit_price);
+        console.log(`Item total calculation: ${item.quantity} * ${item.unit_price} = ${itemTotal}`);
         return sum + itemTotal;
       }, 0);
 
@@ -141,7 +142,12 @@ export function AddPurchaseOrderDialog() {
         .select()
         .single();
 
-      if (poError) throw poError;
+      if (poError) {
+        console.error("Error creating purchase order:", poError);
+        throw poError;
+      }
+
+      console.log("Created purchase order:", po);
 
       // Create purchase order items
       if (orderItems.length > 0) {
@@ -149,7 +155,7 @@ export function AddPurchaseOrderDialog() {
           purchase_order_id: po.id,
           item_id: item.item_id,
           quantity: item.quantity,
-          unit_price: item.unit_price // Ensure unit_price is included
+          unit_price: Number(item.unit_price) // Ensure price is a number
         }));
 
         console.log('Creating purchase order items:', purchaseOrderItems);
