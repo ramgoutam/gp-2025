@@ -119,10 +119,11 @@ export function AddPurchaseOrderDialog() {
         ...newItems[index],
         quantity: quantity
       };
-    } else {
+    } else if (field === 'unit_price') {
+      // Ensure unit_price is a number
       newItems[index] = {
         ...newItems[index],
-        [field]: value,
+        unit_price: Number(value)
       };
     }
     
@@ -185,7 +186,7 @@ export function AddPurchaseOrderDialog() {
           purchase_order_id: po.id,
           item_id: item.item_id,
           quantity: Number(item.quantity),
-          unit_price: Number(item.unit_price)
+          unit_price: Number(item.unit_price) // Ensure unit_price is saved as a number
         }));
 
         console.log('Creating purchase order items:', purchaseOrderItems);
