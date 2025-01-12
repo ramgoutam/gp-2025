@@ -57,7 +57,9 @@ export function OrderItemsForm({
   // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = orderItems.reduce((sum, item) => {
-    const itemTotal = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+    const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
+    const itemPrice = selectedItem?.price || 0;
+    const itemTotal = parseFloat((item.quantity * itemPrice).toFixed(2));
     return sum + itemTotal;
   }, 0);
 
@@ -99,7 +101,8 @@ export function OrderItemsForm({
           <tbody>
             {orderItems.map((item, index) => {
               const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const totalCost = parseFloat((item.quantity * (item.unit_price || 0)).toFixed(2));
+              const itemPrice = selectedItem?.price || 0;
+              const totalCost = parseFloat((item.quantity * itemPrice).toFixed(2));
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -140,12 +143,9 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={item.unit_price || selectedItem?.price || ''}
-                      onChange={(e) => onUpdateItem(index, 'unit_price', parseFloat(e.target.value))}
-                      className="bg-white"
+                      value={itemPrice.toFixed(2)}
+                      readOnly
+                      className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
