@@ -768,27 +768,42 @@ export type Database = {
           created_at: string
           id: string
           item_id: string
+          manufacturer: string | null
+          manufacturing_id: string | null
+          product_id: string | null
+          product_name: string | null
           purchase_order_id: string
           quantity: number
           unit_price: number
+          uom: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           item_id: string
+          manufacturer?: string | null
+          manufacturing_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
           purchase_order_id: string
           quantity?: number
           unit_price?: number
+          uom?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           item_id?: string
+          manufacturer?: string | null
+          manufacturing_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
           purchase_order_id?: string
           quantity?: number
           unit_price?: number
+          uom?: string | null
           updated_at?: string
         }
         Relationships: [

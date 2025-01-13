@@ -10,6 +10,11 @@ type OrderItem = {
   item_id: string;
   quantity: number;
   unit_price: number;
+  product_id?: string;
+  product_name?: string;
+  uom?: string;
+  manufacturing_id?: string;
+  manufacturer?: string;
 };
 
 type InventoryItem = {
@@ -63,6 +68,19 @@ export function OrderItemsForm({
     return sum + itemTotal;
   }, 0);
 
+  const handleItemSelect = (index: number, itemId: string) => {
+    const selectedItem = inventoryItems?.find(item => item.id === itemId);
+    if (selectedItem) {
+      onUpdateItem(index, 'item_id', itemId);
+      onUpdateItem(index, 'product_id', selectedItem.product_id);
+      onUpdateItem(index, 'product_name', selectedItem.product_name);
+      onUpdateItem(index, 'uom', selectedItem.uom);
+      onUpdateItem(index, 'manufacturing_id', selectedItem.manufacturing_id);
+      onUpdateItem(index, 'manufacturer', selectedItem.manufacturer);
+      onUpdateItem(index, 'unit_price', selectedItem.price || 0);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -108,7 +126,7 @@ export function OrderItemsForm({
                 <tr key={index} className="border-b align-top">
                   <td className="py-2 px-2">
                     <Input
-                      value={selectedItem?.product_id || ''}
+                      value={item.product_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
@@ -117,26 +135,26 @@ export function OrderItemsForm({
                     <ProductSelector
                       items={filteredItems || []}
                       value={item.item_id}
-                      onSelect={(value) => onUpdateItem(index, 'item_id', value)}
+                      onSelect={(value) => handleItemSelect(index, value)}
                     />
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={selectedItem?.uom || ''}
+                      value={item.uom || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={selectedItem?.manufacturing_id || ''}
+                      value={item.manufacturing_id || ''}
                       readOnly
                       className="bg-gray-50"
                     />
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={selectedItem?.manufacturer || ''}
+                      value={item.manufacturer || ''}
                       readOnly
                       className="bg-gray-50"
                     />
