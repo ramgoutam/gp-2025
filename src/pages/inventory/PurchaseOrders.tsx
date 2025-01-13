@@ -50,7 +50,7 @@ const PurchaseOrders = () => {
         .from('purchase_order_items')
         .select(`
           *,
-          inventory_items (
+          inventory_items!purchase_order_items_item_id_fkey (
             product_name,
             product_id,
             uom
