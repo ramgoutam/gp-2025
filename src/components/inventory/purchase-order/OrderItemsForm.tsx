@@ -62,9 +62,7 @@ export function OrderItemsForm({
   // Calculate totals
   const totalUnits = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = orderItems.reduce((sum, item) => {
-    const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-    const itemPrice = selectedItem?.price || 0;
-    const itemTotal = parseFloat((item.quantity * itemPrice).toFixed(2));
+    const itemTotal = parseFloat((item.quantity * item.unit_price).toFixed(2));
     return sum + itemTotal;
   }, 0);
 
@@ -79,6 +77,16 @@ export function OrderItemsForm({
       onUpdateItem(index, 'manufacturer', selectedItem.manufacturer);
       onUpdateItem(index, 'unit_price', selectedItem.price || 0);
     }
+  };
+
+  const handleQuantityChange = (index: number, value: string) => {
+    const quantity = parseInt(value) || 0;
+    onUpdateItem(index, 'quantity', quantity);
+  };
+
+  const handleUnitPriceChange = (index: number, value: string) => {
+    const unitPrice = parseFloat(value) || 0;
+    onUpdateItem(index, 'unit_price', unitPrice);
   };
 
   return (
@@ -118,9 +126,7 @@ export function OrderItemsForm({
           </thead>
           <tbody>
             {orderItems.map((item, index) => {
-              const selectedItem = inventoryItems?.find(invItem => invItem.id === item.item_id);
-              const itemPrice = selectedItem?.price || 0;
-              const totalCost = parseFloat((item.quantity * itemPrice).toFixed(2));
+              const totalCost = parseFloat((item.quantity * item.unit_price).toFixed(2));
               
               return (
                 <tr key={index} className="border-b align-top">
@@ -161,9 +167,11 @@ export function OrderItemsForm({
                   </td>
                   <td className="py-2 px-2">
                     <Input
-                      value={itemPrice.toFixed(2)}
-                      readOnly
-                      className="bg-gray-50"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.unit_price}
+                      onChange={(e) => handleUnitPriceChange(index, e.target.value)}
                     />
                   </td>
                   <td className="py-2 px-2">
@@ -171,7 +179,7 @@ export function OrderItemsForm({
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => onUpdateItem(index, 'quantity', parseInt(e.target.value))}
+                      onChange={(e) => handleQuantityChange(index, e.target.value)}
                     />
                   </td>
                   <td className="py-2 px-2">
