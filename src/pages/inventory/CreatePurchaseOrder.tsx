@@ -19,6 +19,11 @@ type OrderItem = {
   item_id: string;
   quantity: number;
   unit_price: number;
+  product_id?: string;
+  product_name?: string;
+  uom?: string;
+  manufacturing_id?: string;
+  manufacturer?: string;
 };
 
 export default function CreatePurchaseOrder() {
@@ -38,6 +43,7 @@ export default function CreatePurchaseOrder() {
   };
 
   const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number) => {
+    console.log("Updating order item:", { index, field, value });
     const newItems = [...orderItems];
     if (field === 'item_id' && typeof value === 'string') {
       newItems[index] = {
@@ -55,6 +61,24 @@ export default function CreatePurchaseOrder() {
 
   const onSubmit = async (data: FormData) => {
     try {
+      if (!data.supplier || !data.order_date) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (orderItems.length === 0) {
+        toast({
+          title: "Error",
+          description: "Please add at least one item to the order",
+          variant: "destructive",
+        });
+        return;
+      }
+
       console.log("Creating new purchase order:", { ...data, items: orderItems });
       
       // Generate PO number
@@ -82,18 +106,34 @@ export default function CreatePurchaseOrder() {
 
       if (poError) throw poError;
 
-      // Create purchase order items
-      if (orderItems.length > 0) {
+      // Fetch full item details for each order item
+      const enrichedOrderItems = await Promise.all(
+        orderItems.map(async (item) => {
+          const { data: itemData } = await supabase
+            .from('inventory_items')
+            .select('product_id, product_name, uom, manufacturing_id, manufacturer, price')
+            .eq('id', item.item_id)
+            .single();
+          
+          return {
+            purchase_order_id: po.id,
+            item_id: item.item_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            product_id: itemData?.product_id,
+            product_name: itemData?.product_name,
+            uom: itemData?.uom,
+            manufacturing_id: itemData?.manufacturing_id,
+            manufacturer: itemData?.manufacturer
+          };
+        })
+      );
+
+      // Create purchase order items with full details
+      if (enrichedOrderItems.length > 0) {
         const { error: itemsError } = await supabase
           .from('purchase_order_items')
-          .insert(
-            orderItems.map(item => ({
-              purchase_order_id: po.id,
-              item_id: item.item_id,
-              quantity: item.quantity,
-              unit_price: item.unit_price
-            }))
-          );
+          .insert(enrichedOrderItems);
 
         if (itemsError) throw itemsError;
       }
