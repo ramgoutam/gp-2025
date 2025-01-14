@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type PurchaseOrderItem = {
   id: string;
@@ -43,31 +44,53 @@ const CreatePurchaseOrder = () => {
   const [open, setOpen] = useState<{ [key: string]: boolean }>({});
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
-  // Fetch suppliers
-  const { data: suppliers = [] } = useQuery({
+  // Fetch suppliers with error handling
+  const { data: suppliers = [], isError: isSuppliersError } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("suppliers")
-        .select("*")
-        .order("supplier_name");
+      try {
+        const { data, error } = await supabase
+          .from("suppliers")
+          .select("*")
+          .order("supplier_name");
 
-      if (error) throw error;
-      return data || [];
+        if (error) {
+          console.error("Error fetching suppliers:", error);
+          toast.error("Failed to load suppliers");
+          throw error;
+        }
+        return data || [];
+      } catch (error) {
+        console.error("Error in suppliers query:", error);
+        throw error;
+      }
     },
   });
 
-  // Fetch inventory items
-  const { data: inventoryItems = [], isLoading: isLoadingItems } = useQuery({
+  // Fetch inventory items with error handling
+  const { 
+    data: inventoryItems = [], 
+    isLoading: isLoadingItems,
+    isError: isInventoryError 
+  } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("inventory_items")
-        .select("*")
-        .order("product_name");
+      try {
+        const { data, error } = await supabase
+          .from("inventory_items")
+          .select("*")
+          .order("product_name");
 
-      if (error) throw error;
-      return data || [];
+        if (error) {
+          console.error("Error fetching inventory items:", error);
+          toast.error("Failed to load inventory items");
+          throw error;
+        }
+        return data || [];
+      } catch (error) {
+        console.error("Error in inventory items query:", error);
+        throw error;
+      }
     },
   });
 
@@ -116,6 +139,21 @@ const CreatePurchaseOrder = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
   };
 
+  if (isSuppliersError || isInventoryError) {
+    return (
+      <div className="container mx-auto py-8 text-center">
+        <p className="text-red-500">Error loading data. Please try again later.</p>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/inventory/purchase-orders")}
+          className="mt-4"
+        >
+          Go Back
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-6">
@@ -138,7 +176,7 @@ const CreatePurchaseOrder = () => {
                 <SelectValue placeholder="Select supplier" />
               </SelectTrigger>
               <SelectContent className="bg-white border shadow-lg">
-                {suppliers?.map((supplier) => (
+                {suppliers.map((supplier) => (
                   <SelectItem key={supplier.id} value={supplier.id}>
                     {supplier.supplier_name}
                   </SelectItem>
@@ -206,6 +244,8 @@ const CreatePurchaseOrder = () => {
                             <CommandInput placeholder="Search items..." />
                             {isLoadingItems ? (
                               <div className="py-6 text-center text-sm">Loading items...</div>
+                            ) : inventoryItems.length === 0 ? (
+                              <div className="py-6 text-center text-sm">No items available</div>
                             ) : (
                               <>
                                 <CommandEmpty>No items found.</CommandEmpty>
