@@ -124,10 +124,10 @@ const CreatePurchaseOrder = () => {
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier</Label>
             <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select supplier" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border shadow-lg">
                 {suppliers?.map((supplier) => (
                   <SelectItem key={supplier.id} value={supplier.id}>
                     {supplier.supplier_name}
@@ -179,10 +179,10 @@ const CreatePurchaseOrder = () => {
                         value={item.item_id}
                         onValueChange={(value) => updateItem(item.id, 'item_id', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Select item" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border shadow-lg z-50">
                           {inventoryItems?.map((invItem) => (
                             <SelectItem key={invItem.id} value={invItem.id}>
                               {invItem.product_name}
