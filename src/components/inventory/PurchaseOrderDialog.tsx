@@ -117,9 +117,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Item</TableHead>
                         <TableHead>Product Name</TableHead>
-                        <TableHead>SKU</TableHead>
+                        <TableHead>Product ID</TableHead>
                         <TableHead>Manufacturing ID</TableHead>
                         <TableHead>Manufacturer</TableHead>
                         <TableHead>Quantity</TableHead>
@@ -130,9 +129,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                     <TableBody>
                       {order.purchase_order_items?.map((item) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.inventory_items?.product_name}</TableCell>
                           <TableCell>{item.product_name}</TableCell>
-                          <TableCell>{item.inventory_items?.sku}</TableCell>
+                          <TableCell>{item.product_id}</TableCell>
                           <TableCell>{item.manufacturing_id}</TableCell>
                           <TableCell>{item.manufacturer}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
@@ -143,7 +141,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                         </TableRow>
                       ))}
                       <TableRow>
-                        <TableCell colSpan={7} className="text-right font-medium">
+                        <TableCell colSpan={6} className="text-right font-medium">
                           Total Amount
                         </TableCell>
                         <TableCell className="font-medium">
