@@ -25,7 +25,11 @@ const PrintableContent = ({ order }: { order: any }) => {
       {/* Company Logo and Info */}
       <div className="flex justify-between mb-8">
         <div>
-          <img src="/logo.png" alt="Company Logo" className="h-16 mb-4" />
+          <img 
+            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png" 
+            alt="Company Logo" 
+            className="h-16 mb-4" 
+          />
           <h2 className="text-xl font-bold">NYDI</h2>
           <p className="text-sm text-gray-600">123 Business Street</p>
           <p className="text-sm text-gray-600">New York, NY 10001</p>
