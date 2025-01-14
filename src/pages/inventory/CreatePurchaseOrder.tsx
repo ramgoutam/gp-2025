@@ -222,107 +222,107 @@ const CreatePurchaseOrder = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Items</h2>
-            <Button onClick={addItem} variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
-            </Button>
-          </div>
-
-          <div className="border rounded-lg">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="px-4 py-2 text-left">Item</th>
-                  <th className="px-4 py-2 text-left">Product ID</th>
-                  <th className="px-4 py-2 text-left">UOM</th>
-                  <th className="px-4 py-2 text-left">Manf ID</th>
-                  <th className="px-4 py-2 text-left">Manufacturer</th>
-                  <th className="px-4 py-2 text-left">Quantity</th>
-                  <th className="px-4 py-2 text-left">Unit Price</th>
-                  <th className="px-4 py-2 text-left">Total</th>
-                  <th className="px-4 py-2 text-left w-[50px]"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id} className="border-b">
-                    <td className="px-4 py-2">
-                      <Select
-                        value={item.item_id}
-                        onValueChange={(value) => updateItem(item.id, 'item_id', value)}
-                      >
-                        <SelectTrigger className="bg-white">
-                          <SelectValue placeholder="Select item" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border shadow-lg z-50">
-                          {inventoryItems?.map((invItem) => (
-                            <SelectItem key={invItem.id} value={invItem.id}>
-                              {invItem.product_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="px-4 py-2">{item.product_id}</td>
-                    <td className="px-4 py-2">{item.uom}</td>
-                    <td className="px-4 py-2">{item.manufacturing_id}</td>
-                    <td className="px-4 py-2">{item.manufacturer}</td>
-                    <td className="px-4 py-2">
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value))}
-                        className="w-[100px]"
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={item.unit_price}
-                        onChange={(e) => updateItem(item.id, 'unit_price', parseFloat(e.target.value))}
-                        className="w-[100px]"
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      ${(item.quantity * item.unit_price).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {items.length === 0 && (
-                  <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
-                      No items added. Click "Add Item" to start building your purchase order.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="border-t bg-gray-50 font-medium">
-                  <td colSpan={7} className="px-4 py-2 text-right">
-                    Total:
-                  </td>
-                  <td colSpan={2} className="px-4 py-2">
-                    ${calculateTotal().toFixed(2)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Items</h2>
+          <Button onClick={addItem} variant="outline" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
         </div>
+
+        <div className="border rounded-lg">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="px-4 py-2 text-left">Product ID</th>
+                <th className="px-4 py-2 text-left">Item</th>
+                <th className="px-4 py-2 text-left">UOM</th>
+                <th className="px-4 py-2 text-left">Manf ID</th>
+                <th className="px-4 py-2 text-left">Manufacturer</th>
+                <th className="px-4 py-2 text-left">Quantity</th>
+                <th className="px-4 py-2 text-left">Unit Price</th>
+                <th className="px-4 py-2 text-left">Total</th>
+                <th className="px-4 py-2 text-left w-[50px]"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id} className="border-b">
+                  <td className="px-4 py-2">{item.product_id}</td>
+                  <td className="px-4 py-2">
+                    <Select
+                      value={item.item_id}
+                      onValueChange={(value) => updateItem(item.id, 'item_id', value)}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select item" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border shadow-lg z-50">
+                        {inventoryItems?.map((invItem) => (
+                          <SelectItem key={invItem.id} value={invItem.id}>
+                            {invItem.product_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </td>
+                  <td className="px-4 py-2">{item.uom}</td>
+                  <td className="px-4 py-2">{item.manufacturing_id}</td>
+                  <td className="px-4 py-2">{item.manufacturer}</td>
+                  <td className="px-4 py-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value))}
+                      className="w-[100px]"
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={item.unit_price}
+                      onChange={(e) => updateItem(item.id, 'unit_price', parseFloat(e.target.value))}
+                      className="w-[100px]"
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    ${(item.quantity * item.unit_price).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {items.length === 0 && (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                    No items added. Click "Add Item" to start building your purchase order.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              <tr className="border-t bg-gray-50 font-medium">
+                <td colSpan={7} className="px-4 py-2 text-right">
+                  Total:
+                </td>
+                <td colSpan={2} className="px-4 py-2">
+                  ${calculateTotal().toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
 
         <div className="flex justify-end gap-2">
           <Button
@@ -335,7 +335,6 @@ const CreatePurchaseOrder = () => {
             Create Purchase Order
           </Button>
         </div>
-      </div>
     </div>
   );
 };
