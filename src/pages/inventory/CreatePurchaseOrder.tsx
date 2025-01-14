@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
 import {
   Select,
@@ -40,6 +41,8 @@ const CreatePurchaseOrder = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
+  const [notes, setNotes] = useState("");
   const currentDate = format(new Date(), "yyyy-MM-dd");
   const { toast } = useToast();
 
@@ -134,6 +137,8 @@ const CreatePurchaseOrder = () => {
           po_number: poNumber,
           supplier_id: selectedSupplier,
           order_date: currentDate,
+          expected_delivery_date: expectedDeliveryDate || null,
+          notes: notes || null,
           status: "draft",
           total_amount: calculateTotal(),
         })
@@ -220,6 +225,26 @@ const CreatePurchaseOrder = () => {
               id="date"
               value={currentDate}
               disabled
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="expectedDeliveryDate">Expected Delivery Date</Label>
+            <Input
+              type="date"
+              id="expectedDeliveryDate"
+              value={expectedDeliveryDate}
+              onChange={(e) => setExpectedDeliveryDate(e.target.value)}
+              min={currentDate}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional notes here..."
+              className="resize-none"
             />
           </div>
         </div>
