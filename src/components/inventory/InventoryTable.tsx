@@ -8,13 +8,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search, Trash2 } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +35,7 @@ import {
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeletingItem, setIsDeletingItem] = useState<InventoryItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<keyof InventoryItem>("product_name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -82,6 +85,43 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const handleEditClick = (item: InventoryItem) => {
     setEditingItem(item);
     setIsDialogOpen(true);
+  };
+
+  const handleDeleteClick = (item: InventoryItem) => {
+    setIsDeletingItem(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!isDeletingItem) return;
+
+    try {
+      console.log("Deleting inventory item:", isDeletingItem.id);
+      
+      const { error } = await supabase
+        .from('inventory_items')
+        .delete()
+        .eq('id', isDeletingItem.id);
+
+      if (error) {
+        console.error('Error deleting item:', error);
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Item deleted successfully",
+      });
+      
+      setIsDeletingItem(null);
+      onUpdate();
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -241,15 +281,26 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               <TableCell>{item.min_stock}</TableCell>
               <TableCell>${item.price?.toFixed(2) || '0.00'}</TableCell>
               <TableCell>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => handleEditClick(item)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:text-primary"
-                >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleEditClick(item)}
+                    className="hover:text-primary"
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleDeleteClick(item)}
+                    className="hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -383,6 +434,33 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!isDeletingItem} onOpenChange={(open) => !open && setIsDeletingItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Inventory Item</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{isDeletingItem?.product_name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeletingItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              className="bg-destructive hover:bg-destructive/90 transition-colors duration-200"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
