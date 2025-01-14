@@ -281,12 +281,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               <TableCell>{item.min_stock}</TableCell>
               <TableCell>${item.price?.toFixed(2) || '0.00'}</TableCell>
               <TableCell>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="flex gap-2 transition-all duration-200">
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={() => handleEditClick(item)}
-                    className="hover:text-primary"
+                    className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
                     <Pencil className="h-4 w-4 mr-2" />
                     Edit
@@ -295,7 +295,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     variant="ghost" 
                     size="sm"
                     onClick={() => handleDeleteClick(item)}
-                    className="hover:text-destructive"
+                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
