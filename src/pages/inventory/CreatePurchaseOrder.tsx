@@ -324,7 +324,7 @@ const CreatePurchaseOrder = () => {
       </div>
 
       <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Select Item</DialogTitle>
           </DialogHeader>
