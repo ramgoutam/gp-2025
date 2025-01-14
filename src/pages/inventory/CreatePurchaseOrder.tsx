@@ -186,7 +186,10 @@ const CreatePurchaseOrder = () => {
                   <tr key={item.id} className="border-b">
                     <td className="px-4 py-2">{item.product_id}</td>
                     <td className="px-4 py-2">
-                      <Popover open={open[item.id]} onOpenChange={(isOpen) => setOpen({ ...open, [item.id]: isOpen })}>
+                      <Popover 
+                        open={open[item.id]} 
+                        onOpenChange={(isOpen) => setOpen({ ...open, [item.id]: isOpen })}
+                      >
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -202,11 +205,10 @@ const CreatePurchaseOrder = () => {
                           <Command>
                             <CommandInput placeholder="Search items..." />
                             <CommandEmpty>No items found.</CommandEmpty>
-                            <CommandGroup className="max-h-[300px] overflow-auto">
+                            <CommandGroup>
                               {inventoryItems?.map((invItem) => (
                                 <CommandItem
                                   key={invItem.id}
-                                  value={invItem.product_name}
                                   onSelect={() => {
                                     updateItem(item.id, 'item_id', invItem.id);
                                     setOpen({ ...open, [item.id]: false });
