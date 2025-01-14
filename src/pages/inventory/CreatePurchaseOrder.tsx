@@ -214,7 +214,10 @@ const CreatePurchaseOrder = () => {
                       {itemsLoading ? (
                         <div className="h-10 bg-gray-100 animate-pulse rounded w-[200px]" />
                       ) : (
-                        <Popover open={openItem === item.id} onOpenChange={(open) => setOpenItem(open ? item.id : null)}>
+                        <Popover 
+                          open={openItem === item.id} 
+                          onOpenChange={(open) => setOpenItem(open ? item.id : null)}
+                        >
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
@@ -224,12 +227,12 @@ const CreatePurchaseOrder = () => {
                               {item.product_name || "Select item..."}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-[200px] p-0" side="bottom">
+                          <PopoverContent className="w-[200px] p-0" align="start">
                             <Command>
-                              <CommandInput placeholder="Search items..." className="h-9" />
+                              <CommandInput placeholder="Search items..." />
                               <CommandEmpty>No items found.</CommandEmpty>
                               <CommandGroup>
-                                {inventoryItems?.map((invItem) => (
+                                {inventoryItems.map((invItem) => (
                                   <CommandItem
                                     key={invItem.id}
                                     value={invItem.product_name}
