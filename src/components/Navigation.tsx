@@ -5,11 +5,7 @@ import { MainLinks } from "./navigation/MainLinks";
 import { LabMenu } from "./navigation/LabMenu";
 import { SignOutButton } from "./navigation/SignOutButton";
 
-interface NavigationProps {
-  children: React.ReactNode;
-}
-
-export const Navigation = ({ children }: NavigationProps) => {
+export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,32 +35,29 @@ export const Navigation = ({ children }: NavigationProps) => {
 
   // Hide navigation on login page
   if (location.pathname === "/login") {
-    return <>{children}</>;
+    return null;
   }
 
   return (
-    <div>
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center">
-                <img 
-                  src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
-                  alt="NYDI Logo"
-                  className="h-14 w-auto"
-                />
-              </div>
-              <div className="flex space-x-4">
-                <MainLinks />
-                <LabMenu />
-              </div>
+    <nav className="bg-white shadow-sm">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center">
+              <img 
+                src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
+                alt="NYDI Logo"
+                className="h-14 w-auto"
+              />
             </div>
-            <SignOutButton />
+            <div className="flex space-x-4">
+              <MainLinks />
+              <LabMenu />
+            </div>
           </div>
+          <SignOutButton />
         </div>
-      </nav>
-      {children}
-    </div>
+      </div>
+    </nav>
   );
 };
