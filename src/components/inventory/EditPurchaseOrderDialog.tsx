@@ -127,7 +127,9 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         description: "Failed to print purchase order"
       });
     },
-    removeAfterPrint: true,
+    onAfterPrint: () => {
+      console.log('Print completed');
+    },
     reactToPrintRef: printRef
   });
 
