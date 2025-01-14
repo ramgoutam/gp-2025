@@ -245,8 +245,25 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
-                        <p className="mt-1">{order.suppliers?.supplier_name}</p>
+                        <h3 className="text-sm font-medium text-gray-500 mb-2">Supplier Details</h3>
+                        <div className="space-y-2">
+                          <p><span className="font-medium">Name:</span> {order.suppliers?.supplier_name}</p>
+                          {order.suppliers?.contact_person && (
+                            <p><span className="font-medium">Contact Person:</span> {order.suppliers.contact_person}</p>
+                          )}
+                          {order.suppliers?.email && (
+                            <p><span className="font-medium">Email:</span> {order.suppliers.email}</p>
+                          )}
+                          {order.suppliers?.phone && (
+                            <p><span className="font-medium">Phone:</span> {order.suppliers.phone}</p>
+                          )}
+                          {order.suppliers?.address && (
+                            <p><span className="font-medium">Address:</span> {order.suppliers.address}</p>
+                          )}
+                          {order.suppliers?.notes && (
+                            <p><span className="font-medium">Notes:</span> {order.suppliers.notes}</p>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-4">
                         <div>
@@ -271,19 +288,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                             </p>
                           )}
                         </div>
-                      </div>
-                      <div className="col-span-2">
-                        <h3 className="text-sm font-medium text-gray-500">Notes</h3>
-                        {isEditing ? (
-                          <textarea
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            value={editedOrder.notes || ''}
-                            onChange={(e) => setEditedOrder({ ...editedOrder, notes: e.target.value })}
-                            rows={3}
-                          />
-                        ) : (
-                          <p className="mt-1">{order.notes || 'No notes'}</p>
-                        )}
                       </div>
                     </div>
                   </CardContent>
