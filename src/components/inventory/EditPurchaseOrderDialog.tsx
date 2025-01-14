@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Pencil, Plus, Trash2, Save } from "lucide-react";
+import { Pencil, Plus, Trash2, Save, Search } from "lucide-react";
 
 interface EditPurchaseOrderDialogProps {
   orderId: string | null;
@@ -24,14 +24,19 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const [editedOrder, setEditedOrder] = useState<any>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showAddItem, setShowAddItem] = useState(false);
-  const [newItem, setNewItem] = useState({
-    product_id: '',
-    product_name: '',
-    manufacturing_id: '',
-    manufacturer: '',
-    quantity: 1,
-    unit_price: 0,
-    uom: ''
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: inventoryItems } = useQuery({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .order('product_name');
+
+      if (error) throw error;
+      return data;
+    },
   });
 
   const { data: order, isLoading } = useQuery({
@@ -164,41 +169,35 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     });
   };
 
-  const handleAddNewItem = () => {
-    if (!newItem.product_id || !newItem.product_name) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please fill in all required fields",
-      });
-      return;
-    }
-
-    const newItemWithId = {
-      ...newItem,
+  const handleAddInventoryItem = (item: any) => {
+    const newItem = {
       id: crypto.randomUUID(),
       purchase_order_id: orderId,
+      item_id: item.id,
+      quantity: 1,
+      unit_price: item.price || 0,
+      product_id: item.product_id,
+      product_name: item.product_name,
+      manufacturing_id: item.manufacturing_id,
+      manufacturer: item.manufacturer,
+      uom: item.uom
     };
 
-    const updatedItems = [...editedOrder.purchase_order_items, newItemWithId];
+    const updatedItems = [...(editedOrder.purchase_order_items || []), newItem];
     setEditedOrder({
       ...editedOrder,
       purchase_order_items: updatedItems,
       total_amount: updatedItems.reduce((sum: number, item: any) => 
         sum + (item.quantity * item.unit_price), 0)
     });
-
-    setNewItem({
-      product_id: '',
-      product_name: '',
-      manufacturing_id: '',
-      manufacturer: '',
-      quantity: 1,
-      unit_price: 0,
-      uom: ''
-    });
     setShowAddItem(false);
   };
+
+  const filteredInventoryItems = inventoryItems?.filter((item: any) =>
+    item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.product_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -332,73 +331,65 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
 
                   {showAddItem && (
                     <div className="mb-6 p-4 border rounded-lg bg-gray-50">
-                      <h4 className="text-sm font-medium mb-4">Add New Item</h4>
-                      <div className="grid grid-cols-4 gap-4 mb-4">
-                        <div>
-                          <label className="text-sm">Product ID</label>
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-sm font-medium">Select Item from Inventory</h4>
+                        <div className="relative w-64">
+                          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                           <Input
-                            value={newItem.product_id}
-                            onChange={(e) => setNewItem({ ...newItem, product_id: e.target.value })}
-                            placeholder="Product ID"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Product Name</label>
-                          <Input
-                            value={newItem.product_name}
-                            onChange={(e) => setNewItem({ ...newItem, product_name: e.target.value })}
-                            placeholder="Product Name"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Manufacturing ID</label>
-                          <Input
-                            value={newItem.manufacturing_id}
-                            onChange={(e) => setNewItem({ ...newItem, manufacturing_id: e.target.value })}
-                            placeholder="Manufacturing ID"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Manufacturer</label>
-                          <Input
-                            value={newItem.manufacturer}
-                            onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
-                            placeholder="Manufacturer"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Quantity</label>
-                          <Input
-                            type="number"
-                            value={newItem.quantity}
-                            onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) })}
-                            placeholder="Quantity"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Unit Price</label>
-                          <Input
-                            type="number"
-                            value={newItem.unit_price}
-                            onChange={(e) => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) })}
-                            placeholder="Unit Price"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">UOM</label>
-                          <Input
-                            value={newItem.uom}
-                            onChange={(e) => setNewItem({ ...newItem, uom: e.target.value })}
-                            placeholder="UOM"
+                            placeholder="Search items..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
                           />
                         </div>
                       </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setShowAddItem(false)}>
+                      <div className="border rounded-lg bg-white">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Product ID</TableHead>
+                              <TableHead>Name</TableHead>
+                              <TableHead>UOM</TableHead>
+                              <TableHead>Manufacturer</TableHead>
+                              <TableHead>Price</TableHead>
+                              <TableHead className="w-[100px]"></TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredInventoryItems?.map((item: any) => (
+                              <TableRow key={item.id}>
+                                <TableCell>{item.product_id}</TableCell>
+                                <TableCell>{item.product_name}</TableCell>
+                                <TableCell>{item.uom}</TableCell>
+                                <TableCell>{item.manufacturer}</TableCell>
+                                <TableCell>${item.price?.toFixed(2)}</TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleAddInventoryItem(item)}
+                                  >
+                                    Select
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                            {(!filteredInventoryItems || filteredInventoryItems.length === 0) && (
+                              <TableRow>
+                                <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                                  No items found
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                      <div className="flex justify-end mt-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowAddItem(false)}
+                        >
                           Cancel
-                        </Button>
-                        <Button onClick={handleAddNewItem}>
-                          Add Item
                         </Button>
                       </div>
                     </div>
