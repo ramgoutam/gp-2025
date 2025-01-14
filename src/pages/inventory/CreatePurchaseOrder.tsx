@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type PurchaseOrderItem = {
   id: string;
@@ -32,6 +33,7 @@ const CreatePurchaseOrder = () => {
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const currentDate = format(new Date(), "yyyy-MM-dd");
+  const { toast } = useToast();
 
   // Fetch suppliers
   const { data: suppliers } = useQuery({
@@ -104,6 +106,79 @@ const CreatePurchaseOrder = () => {
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedSupplier) {
+      toast({
+        title: "Error",
+        description: "Please select a supplier",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (items.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one item",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Generate PO number (you might want to implement a more sophisticated system)
+      const poNumber = `PO-${Date.now()}`;
+
+      // Insert purchase order
+      const { data: orderData, error: orderError } = await supabase
+        .from("purchase_orders")
+        .insert({
+          po_number: poNumber,
+          supplier: selectedSupplier,
+          order_date: currentDate,
+          status: "draft",
+          total_amount: calculateTotal(),
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Insert purchase order items
+      const { error: itemsError } = await supabase
+        .from("purchase_order_items")
+        .insert(
+          items.map((item) => ({
+            purchase_order_id: orderData.id,
+            item_id: item.item_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            product_id: item.product_id,
+            product_name: item.product_name,
+            uom: item.uom,
+            manufacturing_id: item.manufacturing_id,
+            manufacturer: item.manufacturer,
+          }))
+        );
+
+      if (itemsError) throw itemsError;
+
+      toast({
+        title: "Success",
+        description: "Purchase order created successfully",
+      });
+
+      navigate("/inventory/purchase-orders");
+    } catch (error) {
+      console.error("Error creating purchase order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create purchase order",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -256,7 +331,7 @@ const CreatePurchaseOrder = () => {
           >
             Cancel
           </Button>
-          <Button>
+          <Button onClick={handleSubmit}>
             Create Purchase Order
           </Button>
         </div>
