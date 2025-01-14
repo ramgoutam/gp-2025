@@ -124,11 +124,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       </Table>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] h-[90vh]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Edit Inventory Item</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="h-full pr-4">
+          <ScrollArea className="pr-4">
             <form onSubmit={handleSave} className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
