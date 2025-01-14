@@ -28,7 +28,12 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
         .select(`
           *,
           suppliers (
-            supplier_name
+            supplier_name,
+            contact_person,
+            email,
+            phone,
+            address,
+            notes
           ),
           purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
@@ -57,16 +62,6 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
     enabled: !!orderId,
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'ordered': return 'bg-blue-100 text-blue-800';
-      case 'received': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
@@ -89,27 +84,40 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">Supplier Details</h3>
+                      <div className="space-y-2">
+                        <p><span className="font-medium">Name:</span> {order.suppliers?.supplier_name}</p>
+                        {order.suppliers?.contact_person && (
+                          <p><span className="font-medium">Contact Person:</span> {order.suppliers.contact_person}</p>
+                        )}
+                        {order.suppliers?.email && (
+                          <p><span className="font-medium">Email:</span> {order.suppliers.email}</p>
+                        )}
+                        {order.suppliers?.phone && (
+                          <p><span className="font-medium">Phone:</span> {order.suppliers.phone}</p>
+                        )}
+                        {order.suppliers?.address && (
+                          <p><span className="font-medium">Address:</span> {order.suppliers.address}</p>
+                        )}
+                        {order.suppliers?.notes && (
+                          <p><span className="font-medium">Notes:</span> {order.suppliers.notes}</p>
+                        )}
+                      </div>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
-                      <p className="mt-1">{order.suppliers?.supplier_name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
-                      <p className="mt-1">
-                        {format(new Date(order.order_date), 'MMM dd, yyyy')}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
-                      <p className="mt-1">
-                        {order.expected_delivery_date && 
-                          format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
-                      </p>
+                      <div className="mb-4">
+                        <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
+                        <p className="mt-1">
+                          {format(new Date(order.order_date), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
+                        <p className="mt-1">
+                          {order.expected_delivery_date && 
+                            format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
