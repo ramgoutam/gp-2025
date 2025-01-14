@@ -130,7 +130,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     onAfterPrint: () => {
       console.log('Print completed');
     },
-    content: () => printRef.current
+    contentRef: printRef
   });
 
   const { data: inventoryItems } = useQuery({
