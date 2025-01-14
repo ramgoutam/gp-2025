@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -22,11 +22,62 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<keyof InventoryItem>("product_name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const { toast } = useToast();
+
+  // Get unique categories for filter dropdown
+  const categories = useMemo(() => {
+    if (!items) return [];
+    const uniqueCategories = new Set(items.map(item => item.category).filter(Boolean));
+    return Array.from(uniqueCategories);
+  }, [items]);
+
+  // Filter and sort items
+  const filteredAndSortedItems = useMemo(() => {
+    if (!items) return [];
+    
+    return items
+      .filter(item => {
+        const matchesSearch = (
+          item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
+        return matchesSearch && matchesCategory;
+      })
+      .sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        
+        if (aValue === null || aValue === undefined) return sortDirection === "asc" ? 1 : -1;
+        if (bValue === null || bValue === undefined) return sortDirection === "asc" ? -1 : 1;
+        
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortDirection === "asc" 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+        
+        return sortDirection === "asc" 
+          ? (aValue < bValue ? -1 : 1)
+          : (bValue < aValue ? -1 : 1);
+      });
+  }, [items, searchQuery, sortField, sortDirection, categoryFilter]);
 
   const handleEditClick = (item: InventoryItem) => {
     setEditingItem(item);
@@ -68,7 +119,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       });
       
       setIsDialogOpen(false);
-      onUpdate(); // Refresh the items list
+      onUpdate();
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
@@ -79,25 +130,79 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
-  // ... keep existing code (table rendering)
+  const handleSort = (field: keyof InventoryItem) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
   return (
     <>
+      <div className="mb-4 space-y-4">
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <Input
+              placeholder="Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-sm"
+              icon={<Search className="h-4 w-4" />}
+            />
+          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
-            <TableHead>SKU</TableHead>
-            <TableHead>Product Name</TableHead>
+            <TableHead>
+              <Button variant="ghost" onClick={() => handleSort("sku")}>
+                SKU <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button variant="ghost" onClick={() => handleSort("product_name")}>
+                Product Name <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
             <TableHead>Description</TableHead>
-            <TableHead>UOM</TableHead>
-            <TableHead>Min Stock</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>
+              <Button variant="ghost" onClick={() => handleSort("uom")}>
+                UOM <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button variant="ghost" onClick={() => handleSort("min_stock")}>
+                Min Stock <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button variant="ghost" onClick={() => handleSort("price")}>
+                Price <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items?.map((item) => (
+          {filteredAndSortedItems.map((item) => (
             <TableRow key={item.id} className="hover:bg-gray-50">
               <TableCell>
                 <Package className="h-5 w-5 text-gray-400" />
@@ -120,7 +225,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </TableCell>
             </TableRow>
           ))}
-          {!items?.length && (
+          {!filteredAndSortedItems.length && (
             <TableRow>
               <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                 No items found. Add some items to get started.
@@ -135,115 +240,113 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           <DialogHeader>
             <DialogTitle>Edit Inventory Item</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="pr-4">
-            <form onSubmit={handleSave} className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="product_id">Product ID</Label>
-                  <Input
-                    id="product_id"
-                    value={editingItem?.product_id || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, product_id: e.target.value} : null)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="product_name">Name</Label>
-                  <Input
-                    id="product_name"
-                    value={editingItem?.product_name || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, product_name: e.target.value} : null)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    value={editingItem?.category || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, category: e.target.value} : null)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="uom">UOM</Label>
-                  <Input
-                    id="uom"
-                    value={editingItem?.uom || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, uom: e.target.value} : null)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
-                  <Input
-                    id="manufacturing_id"
-                    value={editingItem?.manufacturing_id || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturing_id: e.target.value} : null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="manufacturer">Manufacturer</Label>
-                  <Input
-                    id="manufacturer"
-                    value={editingItem?.manufacturer || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturer: e.target.value} : null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="order_link">Order Link</Label>
-                  <Input
-                    id="order_link"
-                    value={editingItem?.order_link || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, order_link: e.target.value} : null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="min_stock">Minimum Stock</Label>
-                  <Input
-                    id="min_stock"
-                    type="number"
-                    value={editingItem?.min_stock || 0}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, min_stock: parseInt(e.target.value)} : null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={editingItem?.price || 0}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, price: parseFloat(e.target.value)} : null)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU</Label>
-                  <Input
-                    id="sku"
-                    value={editingItem?.sku || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, sku: e.target.value} : null)}
-                  />
-                </div>
-                <div className="col-span-2 space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={editingItem?.description || ''}
-                    onChange={(e) => setEditingItem(prev => prev ? {...prev, description: e.target.value} : null)}
-                  />
-                </div>
+          <form onSubmit={handleSave} className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="product_id">Product ID</Label>
+                <Input
+                  id="product_id"
+                  value={editingItem?.product_id || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, product_id: e.target.value} : null)}
+                  required
+                />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Save Changes
-                </Button>
+              <div className="space-y-2">
+                <Label htmlFor="product_name">Name</Label>
+                <Input
+                  id="product_name"
+                  value={editingItem?.product_name || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, product_name: e.target.value} : null)}
+                  required
+                />
               </div>
-            </form>
-          </ScrollArea>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={editingItem?.category || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, category: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="uom">UOM</Label>
+                <Input
+                  id="uom"
+                  value={editingItem?.uom || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, uom: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
+                <Input
+                  id="manufacturing_id"
+                  value={editingItem?.manufacturing_id || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturing_id: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturer">Manufacturer</Label>
+                <Input
+                  id="manufacturer"
+                  value={editingItem?.manufacturer || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturer: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order_link">Order Link</Label>
+                <Input
+                  id="order_link"
+                  value={editingItem?.order_link || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, order_link: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="min_stock">Minimum Stock</Label>
+                <Input
+                  id="min_stock"
+                  type="number"
+                  value={editingItem?.min_stock || 0}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, min_stock: parseInt(e.target.value)} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={editingItem?.price || 0}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, price: parseFloat(e.target.value)} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={editingItem?.sku || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, sku: e.target.value} : null)}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={editingItem?.description || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, description: e.target.value} : null)}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                Save Changes
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </>
