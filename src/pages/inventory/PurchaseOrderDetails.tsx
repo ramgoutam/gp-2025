@@ -51,16 +51,6 @@ const PurchaseOrderDetails = () => {
         throw error;
       }
 
-      if (!data) {
-        console.log('No purchase order found for ID:', id);
-        toast({
-          variant: "destructive",
-          title: "Not Found",
-          description: "Purchase order not found",
-        });
-        return null;
-      }
-
       console.log('Purchase order data:', data);
       return data;
     }
@@ -83,7 +73,12 @@ const PurchaseOrderDetails = () => {
       <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <p className="text-gray-500">Purchase order not found</p>
+            <div className="text-center">
+              <p className="text-gray-500 mb-4">Purchase order not found</p>
+              <Button variant="outline" onClick={() => navigate('/inventory/purchase-orders')}>
+                Back to Purchase Orders
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -104,6 +99,9 @@ const PurchaseOrderDetails = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  console.log('Rendering order:', order);
+  console.log('Order items:', order.purchase_order_items);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
