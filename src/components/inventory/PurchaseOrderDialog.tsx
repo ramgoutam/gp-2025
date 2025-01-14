@@ -119,6 +119,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                       <TableRow>
                         <TableHead>Item</TableHead>
                         <TableHead>SKU</TableHead>
+                        <TableHead>Manufacturing ID</TableHead>
+                        <TableHead>Manufacturer</TableHead>
                         <TableHead>Quantity</TableHead>
                         <TableHead>Unit Price</TableHead>
                         <TableHead>Total</TableHead>
@@ -129,6 +131,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                         <TableRow key={item.id}>
                           <TableCell>{item.inventory_items?.product_name}</TableCell>
                           <TableCell>{item.inventory_items?.sku}</TableCell>
+                          <TableCell>{item.manufacturing_id}</TableCell>
+                          <TableCell>{item.manufacturer}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>${item.unit_price}</TableCell>
                           <TableCell>
@@ -137,7 +141,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                         </TableRow>
                       ))}
                       <TableRow>
-                        <TableCell colSpan={4} className="text-right font-medium">
+                        <TableCell colSpan={6} className="text-right font-medium">
                           Total Amount
                         </TableCell>
                         <TableCell className="font-medium">
