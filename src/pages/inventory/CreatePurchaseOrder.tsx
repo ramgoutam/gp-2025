@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,8 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type PurchaseOrderItem = {
   id: string;
@@ -31,6 +40,7 @@ const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [open, setOpen] = useState<{ [key: string]: boolean }>({});
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
   // Fetch suppliers
@@ -176,21 +186,39 @@ const CreatePurchaseOrder = () => {
                   <tr key={item.id} className="border-b">
                     <td className="px-4 py-2">{item.product_id}</td>
                     <td className="px-4 py-2">
-                      <Select
-                        value={item.item_id}
-                        onValueChange={(value) => updateItem(item.id, 'item_id', value)}
-                      >
-                        <SelectTrigger className="bg-white">
-                          <SelectValue placeholder="Select item" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border shadow-lg z-50">
-                          {inventoryItems?.map((invItem) => (
-                            <SelectItem key={invItem.id} value={invItem.id}>
-                              {invItem.product_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={open[item.id]} onOpenChange={(isOpen) => setOpen({ ...open, [item.id]: isOpen })}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open[item.id]}
+                            className="w-full justify-between"
+                          >
+                            {item.product_name || "Select item..."}
+                            <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search items..." />
+                            <CommandEmpty>No items found.</CommandEmpty>
+                            <CommandGroup className="max-h-[300px] overflow-auto">
+                              {inventoryItems?.map((invItem) => (
+                                <CommandItem
+                                  key={invItem.id}
+                                  value={invItem.product_name}
+                                  onSelect={() => {
+                                    updateItem(item.id, 'item_id', invItem.id);
+                                    setOpen({ ...open, [item.id]: false });
+                                  }}
+                                >
+                                  {invItem.product_name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </td>
                     <td className="px-4 py-2">{item.uom}</td>
                     <td className="px-4 py-2">{item.manufacturing_id}</td>
