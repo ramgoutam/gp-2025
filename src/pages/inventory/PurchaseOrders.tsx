@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { FilePlus, Pencil, Trash2 } from "lucide-react";
+import { FilePlus, Eye, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,7 +123,7 @@ const PurchaseOrders = () => {
                         size="sm"
                         onClick={() => setEditOrderId(order.id)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Eye className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
