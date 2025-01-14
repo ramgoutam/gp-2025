@@ -407,7 +407,6 @@ const CreatePurchaseOrder = () => {
           </div>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 };
