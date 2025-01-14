@@ -21,6 +21,10 @@ type PurchaseOrderItem = {
   quantity: number;
   unit_price: number;
   product_name: string;
+  product_id: string;
+  uom: string;
+  manufacturing_id: string;
+  manufacturer: string;
 };
 
 const CreatePurchaseOrder = () => {
@@ -64,6 +68,10 @@ const CreatePurchaseOrder = () => {
       quantity: 1,
       unit_price: 0,
       product_name: "",
+      product_id: "",
+      uom: "",
+      manufacturing_id: "",
+      manufacturer: "",
     };
     setItems([...items, newItem]);
   };
@@ -81,6 +89,10 @@ const CreatePurchaseOrder = () => {
             ...item,
             [field]: value,
             product_name: selectedItem?.product_name || '',
+            product_id: selectedItem?.product_id || '',
+            uom: selectedItem?.uom || '',
+            manufacturing_id: selectedItem?.manufacturing_id || '',
+            manufacturer: selectedItem?.manufacturer || '',
             unit_price: selectedItem?.price || 0
           };
         }
@@ -149,6 +161,10 @@ const CreatePurchaseOrder = () => {
               <thead>
                 <tr className="border-b bg-gray-50">
                   <th className="px-4 py-2 text-left">Item</th>
+                  <th className="px-4 py-2 text-left">Product ID</th>
+                  <th className="px-4 py-2 text-left">UOM</th>
+                  <th className="px-4 py-2 text-left">Manf ID</th>
+                  <th className="px-4 py-2 text-left">Manufacturer</th>
                   <th className="px-4 py-2 text-left">Quantity</th>
                   <th className="px-4 py-2 text-left">Unit Price</th>
                   <th className="px-4 py-2 text-left">Total</th>
@@ -175,6 +191,10 @@ const CreatePurchaseOrder = () => {
                         </SelectContent>
                       </Select>
                     </td>
+                    <td className="px-4 py-2">{item.product_id}</td>
+                    <td className="px-4 py-2">{item.uom}</td>
+                    <td className="px-4 py-2">{item.manufacturing_id}</td>
+                    <td className="px-4 py-2">{item.manufacturer}</td>
                     <td className="px-4 py-2">
                       <Input
                         type="number"
@@ -209,7 +229,7 @@ const CreatePurchaseOrder = () => {
                 ))}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       No items added. Click "Add Item" to start building your purchase order.
                     </td>
                   </tr>
@@ -217,7 +237,7 @@ const CreatePurchaseOrder = () => {
               </tbody>
               <tfoot>
                 <tr className="border-t bg-gray-50 font-medium">
-                  <td colSpan={3} className="px-4 py-2 text-right">
+                  <td colSpan={7} className="px-4 py-2 text-right">
                     Total:
                   </td>
                   <td colSpan={2} className="px-4 py-2">
