@@ -34,9 +34,10 @@ const CreatePurchaseOrder = () => {
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const currentDate = format(new Date(), "yyyy-MM-dd");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch suppliers
-  const { data: suppliers, isLoading: suppliersLoading, error: suppliersError } = useQuery({
+  const { data: suppliers, isLoading: suppliersLoading } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,7 +58,7 @@ const CreatePurchaseOrder = () => {
   });
 
   // Fetch inventory items
-  const { data: inventoryItems, isLoading: itemsLoading, error: itemsError } = useQuery({
+  const { data: inventoryItems, isLoading: itemsLoading } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -124,15 +125,81 @@ const CreatePurchaseOrder = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
   };
 
-  if (suppliersError || itemsError) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600">Error loading data. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
+  const handleSubmit = async () => {
+    if (!selectedSupplier) {
+      toast({
+        title: "Error",
+        description: "Please select a supplier",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (items.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one item",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Generate PO number (you might want to implement a more sophisticated system)
+      const poNumber = `PO-${Date.now()}`;
+
+      // Insert purchase order
+      const { data: orderData, error: orderError } = await supabase
+        .from("purchase_orders")
+        .insert({
+          po_number: poNumber,
+          supplier: selectedSupplier,
+          order_date: currentDate,
+          status: "draft",
+          total_amount: calculateTotal(),
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Insert purchase order items
+      const orderItems = items.map(item => ({
+        purchase_order_id: orderData.id,
+        item_id: item.item_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        product_id: item.product_id,
+        product_name: item.product_name,
+        uom: item.uom,
+        manufacturing_id: item.manufacturing_id,
+        manufacturer: item.manufacturer,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("purchase_order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      toast({
+        title: "Success",
+        description: "Purchase order created successfully",
+      });
+
+      navigate("/inventory/purchase-orders");
+    } catch (error: any) {
+      toast({
+        title: "Error creating purchase order",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -292,7 +359,10 @@ const CreatePurchaseOrder = () => {
           >
             Cancel
           </Button>
-          <Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
             Create Purchase Order
           </Button>
         </div>
