@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +38,8 @@ const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const currentDate = format(new Date(), "yyyy-MM-dd");
   const { toast } = useToast();
 
@@ -63,19 +71,20 @@ const CreatePurchaseOrder = () => {
     },
   });
 
-  const addItem = () => {
+  const addItem = (selectedItem: any) => {
     const newItem: PurchaseOrderItem = {
       id: crypto.randomUUID(),
-      item_id: "",
+      item_id: selectedItem.id,
       quantity: 1,
-      unit_price: 0,
-      product_name: "",
-      product_id: "",
-      uom: "",
-      manufacturing_id: "",
-      manufacturer: "",
+      unit_price: selectedItem.price || 0,
+      product_name: selectedItem.product_name,
+      product_id: selectedItem.product_id || "",
+      uom: selectedItem.uom || "",
+      manufacturing_id: selectedItem.manufacturing_id || "",
+      manufacturer: selectedItem.manufacturer || "",
     };
     setItems([...items, newItem]);
+    setIsItemDialogOpen(false);
   };
 
   const removeItem = (id: string) => {
@@ -85,19 +94,6 @@ const CreatePurchaseOrder = () => {
   const updateItem = (id: string, field: keyof PurchaseOrderItem, value: any) => {
     setItems(items.map(item => {
       if (item.id === id) {
-        if (field === 'item_id' && inventoryItems) {
-          const selectedItem = inventoryItems.find(invItem => invItem.id === value);
-          return {
-            ...item,
-            [field]: value,
-            product_name: selectedItem?.product_name || '',
-            product_id: selectedItem?.product_id || '',
-            uom: selectedItem?.uom || '',
-            manufacturing_id: selectedItem?.manufacturing_id || '',
-            manufacturer: selectedItem?.manufacturer || '',
-            unit_price: selectedItem?.price || 0
-          };
-        }
         return { ...item, [field]: value };
       }
       return item;
@@ -181,6 +177,12 @@ const CreatePurchaseOrder = () => {
     }
   };
 
+  const filteredItems = inventoryItems?.filter(item =>
+    item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.product_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-6">
@@ -225,7 +227,7 @@ const CreatePurchaseOrder = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold">Items</h2>
-            <Button onClick={addItem} variant="outline" size="sm">
+            <Button onClick={() => setIsItemDialogOpen(true)} variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Item
             </Button>
@@ -250,23 +252,7 @@ const CreatePurchaseOrder = () => {
                 {items.map((item) => (
                   <tr key={item.id} className="border-b">
                     <td className="px-4 py-2">{item.product_id}</td>
-                    <td className="px-4 py-2">
-                      <Select
-                        value={item.item_id}
-                        onValueChange={(value) => updateItem(item.id, 'item_id', value)}
-                      >
-                        <SelectTrigger className="bg-white">
-                          <SelectValue placeholder="Select item" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border shadow-lg z-50">
-                          {inventoryItems?.map((invItem) => (
-                            <SelectItem key={invItem.id} value={invItem.id}>
-                              {invItem.product_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
+                    <td className="px-4 py-2">{item.product_name}</td>
                     <td className="px-4 py-2">{item.uom}</td>
                     <td className="px-4 py-2">{item.manufacturing_id}</td>
                     <td className="px-4 py-2">{item.manufacturer}</td>
@@ -336,6 +322,66 @@ const CreatePurchaseOrder = () => {
           </Button>
         </div>
       </div>
+
+      <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Select Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="border rounded-lg">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-gray-50">
+                    <th className="px-4 py-2 text-left">Product ID</th>
+                    <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-left">UOM</th>
+                    <th className="px-4 py-2 text-left">Manufacturer</th>
+                    <th className="px-4 py-2 text-left">Price</th>
+                    <th className="px-4 py-2 text-left w-[100px]"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems?.map((item) => (
+                    <tr key={item.id} className="border-b">
+                      <td className="px-4 py-2">{item.product_id}</td>
+                      <td className="px-4 py-2">{item.product_name}</td>
+                      <td className="px-4 py-2">{item.uom}</td>
+                      <td className="px-4 py-2">{item.manufacturer}</td>
+                      <td className="px-4 py-2">${item.price?.toFixed(2)}</td>
+                      <td className="px-4 py-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addItem(item)}
+                        >
+                          Select
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!filteredItems || filteredItems.length === 0) && (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        No items found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
