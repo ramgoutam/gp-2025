@@ -117,10 +117,10 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
           </div>
         ) : (
           <>
-            <DialogHeader>
-              <div className="flex justify-between items-center mb-4">
-                <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
-                <div className="space-x-2">
+            <DialogHeader className="pt-4">
+              <div className="flex justify-between items-center mb-6">
+                <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
+                <div className="space-x-2 mt-2">
                   {isEditing ? (
                     <>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>
