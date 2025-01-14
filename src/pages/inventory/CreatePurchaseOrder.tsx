@@ -127,12 +127,12 @@ const CreatePurchaseOrder = () => {
       // Generate PO number (you might want to implement a more sophisticated system)
       const poNumber = `PO-${Date.now()}`;
 
-      // Insert purchase order
+      // Insert purchase order with correct supplier_id field
       const { data: orderData, error: orderError } = await supabase
         .from("purchase_orders")
         .insert({
           po_number: poNumber,
-          supplier: selectedSupplier,
+          supplier_id: selectedSupplier,  // Changed from supplier to supplier_id
           order_date: currentDate,
           status: "draft",
           total_amount: calculateTotal(),
