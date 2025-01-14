@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -5,9 +6,11 @@ import { FilePlus } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const { data: purchaseOrders, isLoading } = useQuery({
     queryKey: ["purchase-orders"],
@@ -72,7 +75,7 @@ const PurchaseOrders = () => {
                   <td className="px-4 py-2 text-center">
                     <Button
                       variant="link"
-                      onClick={() => navigate(`/inventory/purchase-orders/${order.id}`)}
+                      onClick={() => setSelectedOrderId(order.id)}
                     >
                       View Details
                     </Button>
@@ -90,6 +93,12 @@ const PurchaseOrders = () => {
           </table>
         )}
       </div>
+
+      <PurchaseOrderDialog
+        orderId={selectedOrderId}
+        open={!!selectedOrderId}
+        onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      />
     </div>
   );
 };
