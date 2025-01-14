@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Pencil, Plus, Trash2, Save, Search } from "lucide-react";
+import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin } from "lucide-react";
 
 interface EditPurchaseOrderDialogProps {
   orderId: string | null;
@@ -248,14 +248,41 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
               <div className="grid grid-cols-1 gap-6 mt-4">
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500 mb-2">Supplier Details</h3>
-                        <div className="space-y-2">
-                          <p><span className="font-medium">Name:</span> {order.suppliers?.supplier_name}</p>
-                          <p><span className="font-medium">Email:</span> {order.suppliers?.email || 'N/A'}</p>
-                          <p><span className="font-medium">Phone:</span> {order.suppliers?.phone || 'N/A'}</p>
-                          <p><span className="font-medium">Address:</span> {order.suppliers?.address || 'N/A'}</p>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Building2 className="h-5 w-5 text-primary-500" />
+                          <h3 className="text-lg font-semibold text-gray-900">Supplier Details</h3>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-2">
+                            <Building2 className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.supplier_name}</p>
+                              <p className="text-xs text-gray-500">Company Name</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Mail className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.email || 'N/A'}</p>
+                              <p className="text-xs text-gray-500">Email Address</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Phone className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.phone || 'N/A'}</p>
+                              <p className="text-xs text-gray-500">Phone Number</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <MapPin className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.address || 'N/A'}</p>
+                              <p className="text-xs text-gray-500">Address</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="space-y-4">
