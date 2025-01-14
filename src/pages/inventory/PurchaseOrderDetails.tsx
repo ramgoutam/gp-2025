@@ -30,9 +30,9 @@ const PurchaseOrderDetails = () => {
         .from('purchase_orders')
         .select(`
           *,
-          purchase_order_items (
+          purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
-            inventory_items (
+            inventory_items!purchase_order_items_item_id_fkey (
               product_name,
               sku
             )
