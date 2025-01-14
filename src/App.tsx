@@ -18,9 +18,7 @@ import Calendar from "@/pages/Calendar";
 import Inventory from "@/pages/Inventory";
 import InventoryItems from "@/pages/inventory/InventoryItems";
 import StockManagement from "@/pages/inventory/StockManagement";
-import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import StockMovements from "@/pages/inventory/StockMovements";
-import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
 import Suppliers from "@/pages/inventory/Suppliers";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -146,22 +144,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <StockManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/purchase-orders"
-                  element={
-                    <ProtectedRoute>
-                      <PurchaseOrders />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/purchase-orders/create"
-                  element={
-                    <ProtectedRoute>
-                      <CreatePurchaseOrder />
                     </ProtectedRoute>
                   }
                 />
