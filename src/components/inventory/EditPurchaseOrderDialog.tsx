@@ -261,16 +261,18 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                               <p className="text-sm font-medium text-gray-900">{order.suppliers?.supplier_name}</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-2">
-                            <Mail className="h-4 w-4 text-gray-500 mt-1" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.email || 'N/A'}</p>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-start gap-2">
+                              <Mail className="h-4 w-4 text-gray-500 mt-1" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{order.suppliers?.email || 'N/A'}</p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <Phone className="h-4 w-4 text-gray-500 mt-1" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{order.suppliers?.phone || 'N/A'}</p>
+                            <div className="flex items-start gap-2">
+                              <Phone className="h-4 w-4 text-gray-500 mt-1" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{order.suppliers?.phone || 'N/A'}</p>
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-start gap-2">
