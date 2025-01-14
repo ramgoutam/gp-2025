@@ -38,6 +38,8 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     if (!editingItem) return;
 
     try {
+      console.log("Updating inventory item:", editingItem);
+      
       const { error } = await supabase
         .from('inventory_items')
         .update({
@@ -55,7 +57,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         })
         .eq('id', editingItem.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating item:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -63,7 +68,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       });
       
       setIsDialogOpen(false);
-      onUpdate();
+      onUpdate(); // Refresh the items list
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
@@ -73,6 +78,8 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       });
     }
   };
+
+  // ... keep existing code (table rendering)
 
   return (
     <>
