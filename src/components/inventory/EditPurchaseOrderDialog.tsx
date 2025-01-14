@@ -23,6 +23,16 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState<any>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [newItem, setNewItem] = useState({
+    product_id: '',
+    product_name: '',
+    manufacturing_id: '',
+    manufacturer: '',
+    quantity: 1,
+    unit_price: 0,
+    uom: ''
+  });
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['purchase-order', orderId],
@@ -154,6 +164,42 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     });
   };
 
+  const handleAddNewItem = () => {
+    if (!newItem.product_id || !newItem.product_name) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all required fields",
+      });
+      return;
+    }
+
+    const newItemWithId = {
+      ...newItem,
+      id: crypto.randomUUID(),
+      purchase_order_id: orderId,
+    };
+
+    const updatedItems = [...editedOrder.purchase_order_items, newItemWithId];
+    setEditedOrder({
+      ...editedOrder,
+      purchase_order_items: updatedItems,
+      total_amount: updatedItems.reduce((sum: number, item: any) => 
+        sum + (item.quantity * item.unit_price), 0)
+    });
+
+    setNewItem({
+      product_id: '',
+      product_name: '',
+      manufacturing_id: '',
+      manufacturer: '',
+      quantity: 1,
+      unit_price: 0,
+      uom: ''
+    });
+    setShowAddItem(false);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'draft': return 'bg-gray-100 text-gray-800';
@@ -177,10 +223,10 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
           </div>
         ) : (
           <>
-            <DialogHeader className="pt-4">
-              <div className="flex justify-between items-center mb-6">
+            <DialogHeader className="pt-6 mb-6">
+              <div className="flex justify-between items-center">
                 <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
-                <div className="space-x-2 mt-2">
+                <div className="space-x-2">
                   {isEditing ? (
                     <>
                       <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -272,6 +318,92 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
 
               <Card>
                 <CardContent className="pt-6">
+                  {isEditing && (
+                    <div className="mb-4 flex justify-end">
+                      <Button
+                        onClick={() => setShowAddItem(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Item
+                      </Button>
+                    </div>
+                  )}
+
+                  {showAddItem && (
+                    <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+                      <h4 className="text-sm font-medium mb-4">Add New Item</h4>
+                      <div className="grid grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <label className="text-sm">Product ID</label>
+                          <Input
+                            value={newItem.product_id}
+                            onChange={(e) => setNewItem({ ...newItem, product_id: e.target.value })}
+                            placeholder="Product ID"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">Product Name</label>
+                          <Input
+                            value={newItem.product_name}
+                            onChange={(e) => setNewItem({ ...newItem, product_name: e.target.value })}
+                            placeholder="Product Name"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">Manufacturing ID</label>
+                          <Input
+                            value={newItem.manufacturing_id}
+                            onChange={(e) => setNewItem({ ...newItem, manufacturing_id: e.target.value })}
+                            placeholder="Manufacturing ID"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">Manufacturer</label>
+                          <Input
+                            value={newItem.manufacturer}
+                            onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
+                            placeholder="Manufacturer"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">Quantity</label>
+                          <Input
+                            type="number"
+                            value={newItem.quantity}
+                            onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) })}
+                            placeholder="Quantity"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">Unit Price</label>
+                          <Input
+                            type="number"
+                            value={newItem.unit_price}
+                            onChange={(e) => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) })}
+                            placeholder="Unit Price"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm">UOM</label>
+                          <Input
+                            value={newItem.uom}
+                            onChange={(e) => setNewItem({ ...newItem, uom: e.target.value })}
+                            placeholder="UOM"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setShowAddItem(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleAddNewItem}>
+                          Add Item
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   <Table>
                     <TableHeader>
                       <TableRow>
