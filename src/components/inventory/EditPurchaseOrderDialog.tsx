@@ -218,7 +218,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
             </div>
           ) : (
             <>
-              <DialogHeader className="pt-6 mb-6">
+              <DialogHeader>
                 <div className="flex justify-between items-center">
                   <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
                   <div className="space-x-2">
@@ -245,16 +245,16 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 </div>
               </DialogHeader>
 
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-4">
                 <Card>
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                        <div className="flex items-center gap-2 mb-4">
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-2 mb-3 p-4 border-b border-gray-100">
                           <Building2 className="h-5 w-5 text-primary-500" />
                           <h3 className="text-lg font-semibold text-gray-900">Supplier Details</h3>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-3 p-4">
                           <div className="flex items-start gap-2">
                             <Building2 className="h-4 w-4 text-gray-500 mt-1" />
                             <div>
@@ -312,7 +312,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 </Card>
 
                 {isEditing && (
-                  <div className="mb-4 flex justify-end">
+                  <div className="flex justify-end">
                     <Button
                       onClick={() => setShowAddItemDialog(true)}
                       className="flex items-center gap-2"
@@ -324,7 +324,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 )}
 
                 <Card>
-                  <CardContent className="pt-6">
+                  <CardContent className="p-4">
                     <Table>
                       <TableHeader>
                         <TableRow>
