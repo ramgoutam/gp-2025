@@ -7,10 +7,12 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
+import { EditSupplierDialog } from "@/components/inventory/EditSupplierDialog";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
 
   const { data: purchaseOrders, isLoading } = useQuery({
     queryKey: ["purchase-orders"],
@@ -20,7 +22,13 @@ const PurchaseOrders = () => {
         .select(`
           *,
           suppliers (
-            supplier_name
+            id,
+            supplier_name,
+            contact_person,
+            email,
+            phone,
+            address,
+            notes
           ),
           purchase_order_items (*)
         `)
@@ -63,7 +71,14 @@ const PurchaseOrders = () => {
               {purchaseOrders?.map((order) => (
                 <tr key={order.id} className="border-b">
                   <td className="px-4 py-2">{order.po_number}</td>
-                  <td className="px-4 py-2">{order.suppliers?.supplier_name}</td>
+                  <td className="px-4 py-2">
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => setSelectedSupplier(order.suppliers)}
+                    >
+                      {order.suppliers?.supplier_name}
+                    </button>
+                  </td>
                   <td className="px-4 py-2">
                     {format(new Date(order.order_date), 'MMM dd, yyyy')}
                   </td>
@@ -101,6 +116,12 @@ const PurchaseOrders = () => {
         orderId={selectedOrderId}
         open={!!selectedOrderId}
         onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      />
+
+      <EditSupplierDialog
+        supplier={selectedSupplier}
+        open={!!selectedSupplier}
+        onOpenChange={(open) => !open && setSelectedSupplier(null)}
       />
     </div>
   );
