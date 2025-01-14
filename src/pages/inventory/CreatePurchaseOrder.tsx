@@ -43,10 +43,9 @@ const CreatePurchaseOrder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [notes, setNotes] = useState("");
-  const currentDate = format(new Date(), "yyyy-MM-dd");
+  const [orderDate, setOrderDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const { toast } = useToast();
 
-  // Fetch suppliers
   const { data: suppliers } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
@@ -136,7 +135,7 @@ const CreatePurchaseOrder = () => {
         .insert({
           po_number: poNumber,
           supplier_id: selectedSupplier,
-          order_date: currentDate,
+          order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
           status: "draft",
@@ -223,8 +222,9 @@ const CreatePurchaseOrder = () => {
             <Input
               type="date"
               id="date"
-              value={currentDate}
-              disabled
+              value={orderDate}
+              onChange={(e) => setOrderDate(e.target.value)}
+              max={format(new Date(), "yyyy-MM-dd")}
             />
           </div>
           <div className="space-y-2">
@@ -234,7 +234,7 @@ const CreatePurchaseOrder = () => {
               id="expectedDeliveryDate"
               value={expectedDeliveryDate}
               onChange={(e) => setExpectedDeliveryDate(e.target.value)}
-              min={currentDate}
+              min={orderDate}
             />
           </div>
           <div className="space-y-2">
@@ -407,6 +407,7 @@ const CreatePurchaseOrder = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
