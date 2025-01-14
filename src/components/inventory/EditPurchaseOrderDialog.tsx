@@ -118,7 +118,17 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    documentTitle: `PO-${editedOrder?.po_number || ""}`,
+    onPrintError: (error) => {
+      console.error('Print failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Print Error",
+        description: "Failed to print purchase order"
+      });
+    },
+    removeAfterPrint: true,
+    reactToPrintRef: printRef
   });
 
   const { data: inventoryItems } = useQuery({
@@ -320,7 +330,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handlePrint}
+                      onClick={() => handlePrint()}
                       className="gap-2"
                     >
                       <Printer className="h-4 w-4" />
