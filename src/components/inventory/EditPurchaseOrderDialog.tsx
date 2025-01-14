@@ -23,7 +23,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState<any>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
-  const [showAddItem, setShowAddItem] = useState(false);
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: inventoryItems } = useQuery({
@@ -190,7 +190,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
       total_amount: updatedItems.reduce((sum: number, item: any) => 
         sum + (item.quantity * item.unit_price), 0)
     });
-    setShowAddItem(false);
+    setShowAddItemDialog(false);
   };
 
   const filteredInventoryItems = inventoryItems?.filter((item: any) =>
@@ -210,301 +210,293 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <p className="text-gray-500">Loading purchase order details...</p>
-          </div>
-        ) : !order ? (
-          <div className="flex items-center justify-center h-32">
-            <p className="text-gray-500">Purchase order not found</p>
-          </div>
-        ) : (
-          <>
-            <DialogHeader className="pt-6 mb-6">
-              <div className="flex justify-between items-center">
-                <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
-                <div className="space-x-2">
-                  {isEditing ? (
-                    <>
-                      <Button variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSave}>
-                        Save Changes
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit Order
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </DialogHeader>
-
-            <div className="grid grid-cols-1 gap-6 mt-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                      {isEditing ? (
-                        <select
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          value={editedOrder.status}
-                          onChange={(e) => setEditedOrder({ ...editedOrder, status: e.target.value })}
-                        >
-                          <option value="draft">Draft</option>
-                          <option value="ordered">Ordered</option>
-                          <option value="received">Received</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      ) : (
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status}
-                        </Badge>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
-                      <p className="mt-1">{order.suppliers?.supplier_name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
-                      <p className="mt-1">
-                        {format(new Date(order.order_date), 'MMM dd, yyyy')}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
-                      {isEditing ? (
-                        <Input
-                          type="date"
-                          value={editedOrder.expected_delivery_date}
-                          onChange={(e) => setEditedOrder({ ...editedOrder, expected_delivery_date: e.target.value })}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <p className="mt-1">
-                          {order.expected_delivery_date && 
-                            format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
-                        </p>
-                      )}
-                    </div>
-                    <div className="col-span-2">
-                      <h3 className="text-sm font-medium text-gray-500">Notes</h3>
-                      {isEditing ? (
-                        <textarea
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          value={editedOrder.notes || ''}
-                          onChange={(e) => setEditedOrder({ ...editedOrder, notes: e.target.value })}
-                          rows={3}
-                        />
-                      ) : (
-                        <p className="mt-1">{order.notes || 'No notes'}</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-6">
-                  {isEditing && (
-                    <div className="mb-4 flex justify-end">
-                      <Button
-                        onClick={() => setShowAddItem(true)}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Item
-                      </Button>
-                    </div>
-                  )}
-
-                  {showAddItem && (
-                    <div className="mb-6 p-4 border rounded-lg bg-gray-50">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-sm font-medium">Select Item from Inventory</h4>
-                        <div className="relative w-64">
-                          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                          <Input
-                            placeholder="Search items..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9"
-                          />
-                        </div>
-                      </div>
-                      <div className="border rounded-lg bg-white">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Product ID</TableHead>
-                              <TableHead>Name</TableHead>
-                              <TableHead>UOM</TableHead>
-                              <TableHead>Manufacturer</TableHead>
-                              <TableHead>Price</TableHead>
-                              <TableHead className="w-[100px]"></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredInventoryItems?.map((item: any) => (
-                              <TableRow key={item.id}>
-                                <TableCell>{item.product_id}</TableCell>
-                                <TableCell>{item.product_name}</TableCell>
-                                <TableCell>{item.uom}</TableCell>
-                                <TableCell>{item.manufacturer}</TableCell>
-                                <TableCell>${item.price?.toFixed(2)}</TableCell>
-                                <TableCell>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleAddInventoryItem(item)}
-                                  >
-                                    Select
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                            {(!filteredInventoryItems || filteredInventoryItems.length === 0) && (
-                              <TableRow>
-                                <TableCell colSpan={6} className="text-center py-4 text-gray-500">
-                                  No items found
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                      <div className="flex justify-end mt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowAddItem(false)}
-                        >
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Loading purchase order details...</p>
+            </div>
+          ) : !order ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Purchase order not found</p>
+            </div>
+          ) : (
+            <>
+              <DialogHeader className="pt-6 mb-6">
+                <div className="flex justify-between items-center">
+                  <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
+                  <div className="space-x-2">
+                    {isEditing ? (
+                      <>
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>
                           Cancel
                         </Button>
+                        <Button onClick={handleSave}>
+                          Save Changes
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        variant="outline"
+                        className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit Order
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="grid grid-cols-1 gap-6 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                        {isEditing ? (
+                          <select
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            value={editedOrder.status}
+                            onChange={(e) => setEditedOrder({ ...editedOrder, status: e.target.value })}
+                          >
+                            <option value="draft">Draft</option>
+                            <option value="ordered">Ordered</option>
+                            <option value="received">Received</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                        ) : (
+                          <Badge className={getStatusColor(order.status)}>
+                            {order.status}
+                          </Badge>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
+                        <p className="mt-1">{order.suppliers?.supplier_name}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
+                        <p className="mt-1">
+                          {format(new Date(order.order_date), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
+                        {isEditing ? (
+                          <Input
+                            type="date"
+                            value={editedOrder.expected_delivery_date}
+                            onChange={(e) => setEditedOrder({ ...editedOrder, expected_delivery_date: e.target.value })}
+                            className="mt-1"
+                          />
+                        ) : (
+                          <p className="mt-1">
+                            {order.expected_delivery_date && 
+                              format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="col-span-2">
+                        <h3 className="text-sm font-medium text-gray-500">Notes</h3>
+                        {isEditing ? (
+                          <textarea
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            value={editedOrder.notes || ''}
+                            onChange={(e) => setEditedOrder({ ...editedOrder, notes: e.target.value })}
+                            rows={3}
+                          />
+                        ) : (
+                          <p className="mt-1">{order.notes || 'No notes'}</p>
+                        )}
                       </div>
                     </div>
-                  )}
+                  </CardContent>
+                </Card>
 
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product ID</TableHead>
-                        <TableHead>Product Name</TableHead>
-                        <TableHead>Manufacturing ID</TableHead>
-                        <TableHead>Manufacturer</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Unit Price</TableHead>
-                        <TableHead>Total</TableHead>
-                        {isEditing && <TableHead>Actions</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {editedOrder.purchase_order_items?.map((item: any) => (
-                        <TableRow key={item.id}>
-                          {editingItem?.id === item.id ? (
-                            <>
-                              <TableCell>{item.product_id}</TableCell>
-                              <TableCell>{item.product_name}</TableCell>
-                              <TableCell>{item.manufacturing_id}</TableCell>
-                              <TableCell>{item.manufacturer}</TableCell>
-                              <TableCell>
-                                <Input
-                                  type="number"
-                                  value={editingItem.quantity}
-                                  onChange={(e) => setEditingItem({
-                                    ...editingItem,
-                                    quantity: parseInt(e.target.value)
-                                  })}
-                                  className="w-20"
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Input
-                                  type="number"
-                                  value={editingItem.unit_price}
-                                  onChange={(e) => setEditingItem({
-                                    ...editingItem,
-                                    unit_price: parseFloat(e.target.value)
-                                  })}
-                                  className="w-24"
-                                />
-                              </TableCell>
-                              <TableCell>
-                                ${(editingItem.quantity * editingItem.unit_price).toFixed(2)}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={handleSaveItem}
-                                >
-                                  <Save className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
-                            </>
-                          ) : (
-                            <>
-                              <TableCell>{item.product_id}</TableCell>
-                              <TableCell>{item.product_name}</TableCell>
-                              <TableCell>{item.manufacturing_id}</TableCell>
-                              <TableCell>{item.manufacturer}</TableCell>
-                              <TableCell>{item.quantity}</TableCell>
-                              <TableCell>${item.unit_price}</TableCell>
-                              <TableCell>
-                                ${(item.quantity * item.unit_price).toFixed(2)}
-                              </TableCell>
-                              {isEditing && (
-                                <TableCell>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleEditItem(item)}
-                                    >
-                                      <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleRemoveItem(item.id)}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              )}
-                            </>
-                          )}
+                <Card>
+                  <CardContent className="pt-6">
+                    {isEditing && (
+                      <div className="mb-4 flex justify-end">
+                        <Button
+                          onClick={() => setShowAddItemDialog(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add Item
+                        </Button>
+                      </div>
+                    )}
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product ID</TableHead>
+                          <TableHead>Product Name</TableHead>
+                          <TableHead>Manufacturing ID</TableHead>
+                          <TableHead>Manufacturer</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Unit Price</TableHead>
+                          <TableHead>Total</TableHead>
+                          {isEditing && <TableHead>Actions</TableHead>}
                         </TableRow>
-                      ))}
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-right font-medium">
-                          Total Amount
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          ${editedOrder.total_amount}
-                        </TableCell>
-                        {isEditing && <TableCell />}
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+                      </TableHeader>
+                      <TableBody>
+                        {editedOrder.purchase_order_items?.map((item: any) => (
+                          <TableRow key={item.id}>
+                            {editingItem?.id === item.id ? (
+                              <>
+                                <TableCell>{item.product_id}</TableCell>
+                                <TableCell>{item.product_name}</TableCell>
+                                <TableCell>{item.manufacturing_id}</TableCell>
+                                <TableCell>{item.manufacturer}</TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    value={editingItem.quantity}
+                                    onChange={(e) => setEditingItem({
+                                      ...editingItem,
+                                      quantity: parseInt(e.target.value)
+                                    })}
+                                    className="w-20"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    value={editingItem.unit_price}
+                                    onChange={(e) => setEditingItem({
+                                      ...editingItem,
+                                      unit_price: parseFloat(e.target.value)
+                                    })}
+                                    className="w-24"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  ${(editingItem.quantity * editingItem.unit_price).toFixed(2)}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleSaveItem}
+                                  >
+                                    <Save className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </>
+                            ) : (
+                              <>
+                                <TableCell>{item.product_id}</TableCell>
+                                <TableCell>{item.product_name}</TableCell>
+                                <TableCell>{item.manufacturing_id}</TableCell>
+                                <TableCell>{item.manufacturer}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell>${item.unit_price}</TableCell>
+                                <TableCell>
+                                  ${(item.quantity * item.unit_price).toFixed(2)}
+                                </TableCell>
+                                {isEditing && (
+                                  <TableCell>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleEditItem(item)}
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleRemoveItem(item.id)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                )}
+                              </>
+                            )}
+                          </TableRow>
+                        ))}
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-right font-medium">
+                            Total Amount
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            ${editedOrder.total_amount}
+                          </TableCell>
+                          {isEditing && <TableCell />}
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Add Item from Inventory</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full mb-4">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>UOM</TableHead>
+                <TableHead>Manufacturer</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead className="w-[100px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredInventoryItems?.map((item: any) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.product_id}</TableCell>
+                  <TableCell>{item.product_name}</TableCell>
+                  <TableCell>{item.uom}</TableCell>
+                  <TableCell>{item.manufacturer}</TableCell>
+                  <TableCell>${item.price?.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddInventoryItem(item)}
+                    >
+                      Select
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {(!filteredInventoryItems || filteredInventoryItems.length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                    No items found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
