@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -49,7 +49,7 @@ const CreatePurchaseOrder = () => {
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
   // Fetch suppliers
-  const { data: suppliers, isLoading: suppliersLoading } = useQuery({
+  const { data: suppliers = [], isLoading: suppliersLoading } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -70,7 +70,7 @@ const CreatePurchaseOrder = () => {
   });
 
   // Fetch inventory items
-  const { data: inventoryItems, isLoading: itemsLoading } = useQuery({
+  const { data: inventoryItems = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -224,7 +224,7 @@ const CreatePurchaseOrder = () => {
                               {item.product_name || "Select item..."}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-[200px] p-0">
+                          <PopoverContent className="w-[200px] p-0" side="bottom">
                             <Command>
                               <CommandInput placeholder="Search items..." className="h-9" />
                               <CommandEmpty>No items found.</CommandEmpty>
