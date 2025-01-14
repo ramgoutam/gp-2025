@@ -141,19 +141,19 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="mb-4 space-y-4">
+      <div className="mb-4 space-y-4 p-4">
         <div className="flex gap-4">
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <Input
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm"
-              icon={<Search className="h-4 w-4" />}
+              className="max-w-sm pl-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
             />
+            <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] transition-all duration-200 hover:border-primary/50">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
             <SelectContent>
@@ -170,31 +170,51 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="bg-gray-50/50">
             <TableHead className="w-12"></TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("sku")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort("sku")}
+                className="hover:text-primary transition-colors duration-200"
+              >
                 SKU <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("product_name")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort("product_name")}
+                className="hover:text-primary transition-colors duration-200"
+              >
                 Product Name <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead>Description</TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("uom")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort("uom")}
+                className="hover:text-primary transition-colors duration-200"
+              >
                 UOM <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("min_stock")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort("min_stock")}
+                className="hover:text-primary transition-colors duration-200"
+              >
                 Min Stock <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("price")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort("price")}
+                className="hover:text-primary transition-colors duration-200"
+              >
                 Price <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
@@ -203,9 +223,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </TableHeader>
         <TableBody>
           {filteredAndSortedItems.map((item) => (
-            <TableRow key={item.id} className="hover:bg-gray-50">
+            <TableRow 
+              key={item.id} 
+              className="hover:bg-gray-50/50 transition-colors duration-200 group"
+            >
               <TableCell>
-                <Package className="h-5 w-5 text-gray-400" />
+                <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
               </TableCell>
               <TableCell className="font-mono text-sm">{item.sku}</TableCell>
               <TableCell className="font-medium">{item.product_name}</TableCell>
@@ -218,6 +241,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   variant="ghost" 
                   size="sm"
                   onClick={() => handleEditClick(item)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:text-primary"
                 >
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
@@ -238,7 +262,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Edit Inventory Item</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">Edit Inventory Item</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
@@ -339,10 +363,18 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(false)}
+                className="hover:bg-gray-50/50 transition-colors duration-200"
+              >
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button 
+                type="submit"
+                className="bg-primary hover:bg-primary/90 transition-colors duration-200"
+              >
                 Save Changes
               </Button>
             </div>
