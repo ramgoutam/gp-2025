@@ -2,19 +2,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { FilePlus } from "lucide-react";
+import { FilePlus, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const { toast } = useToast();
 
-  const { data: purchaseOrders, isLoading } = useQuery({
+  const { data: purchaseOrders, isLoading, refetch } = useQuery({
     queryKey: ["purchase-orders"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -38,6 +40,28 @@ const PurchaseOrders = () => {
       return data;
     },
   });
+
+  const handleDelete = async (orderId: string) => {
+    const { error } = await supabase
+      .from('purchase_orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete purchase order",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Purchase order deleted successfully",
+    });
+    refetch();
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -90,13 +114,30 @@ const PurchaseOrders = () => {
                   <td className="px-4 py-2 text-right">
                     ${order.total_amount?.toFixed(2)}
                   </td>
-                  <td className="px-4 py-2 text-center">
-                    <Button
-                      variant="link"
-                      onClick={() => setSelectedOrderId(order.id)}
-                    >
-                      View Details
-                    </Button>
+                  <td className="px-4 py-2">
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedOrderId(order.id)}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/inventory/purchase-orders/${order.id}/edit`)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(order.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
