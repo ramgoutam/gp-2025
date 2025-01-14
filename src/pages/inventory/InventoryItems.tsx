@@ -21,7 +21,7 @@ const InventoryItems = () => {
     }
   });
 
-  console.log("Inventory items loaded:", items); // Debug log
+  console.log("Inventory items loaded:", items);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -65,7 +65,7 @@ const InventoryItems = () => {
 
         {/* Table Section */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <InventoryTable items={items} />
+          <InventoryTable items={items} onUpdate={refetch} />
         </div>
       </div>
     </div>
