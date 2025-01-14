@@ -160,8 +160,8 @@ const CreatePurchaseOrder = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="px-4 py-2 text-left">Item</th>
                   <th className="px-4 py-2 text-left">Product ID</th>
+                  <th className="px-4 py-2 text-left">Item</th>
                   <th className="px-4 py-2 text-left">UOM</th>
                   <th className="px-4 py-2 text-left">Manf ID</th>
                   <th className="px-4 py-2 text-left">Manufacturer</th>
@@ -174,6 +174,7 @@ const CreatePurchaseOrder = () => {
               <tbody>
                 {items.map((item) => (
                   <tr key={item.id} className="border-b">
+                    <td className="px-4 py-2">{item.product_id}</td>
                     <td className="px-4 py-2">
                       <Select
                         value={item.item_id}
@@ -191,7 +192,6 @@ const CreatePurchaseOrder = () => {
                         </SelectContent>
                       </Select>
                     </td>
-                    <td className="px-4 py-2">{item.product_id}</td>
                     <td className="px-4 py-2">{item.uom}</td>
                     <td className="px-4 py-2">{item.manufacturing_id}</td>
                     <td className="px-4 py-2">{item.manufacturer}</td>
