@@ -112,45 +112,68 @@ const CreatePurchaseOrder = () => {
     const currentDate = new Date();
     const yearMonth = format(currentDate, 'yyMM');
     
-    // Get or create sequence for current month
-    const { data: sequenceData, error: sequenceError } = await supabase
-      .from('po_number_sequences')
-      .upsert(
-        { 
-          year_month: yearMonth,
-          last_sequence: 0 
-        },
-        { 
-          onConflict: 'year_month',
-          ignoreDuplicates: true 
+    console.log("Generating PO number for year-month:", yearMonth);
+    
+    try {
+      // First try to get existing sequence
+      const { data: existingSequence, error: fetchError } = await supabase
+        .from('po_number_sequences')
+        .select('*')
+        .eq('year_month', yearMonth)
+        .maybeSingle();
+
+      console.log("Existing sequence data:", existingSequence);
+
+      if (fetchError) {
+        console.error("Error fetching sequence:", fetchError);
+        throw fetchError;
+      }
+
+      let sequenceData;
+      
+      if (!existingSequence) {
+        // If no sequence exists, create new one
+        const { data: newSequence, error: insertError } = await supabase
+          .from('po_number_sequences')
+          .insert([{ year_month: yearMonth, last_sequence: 1 }])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Error creating new sequence:", insertError);
+          throw insertError;
         }
-      )
-      .select()
-      .single();
 
-    if (sequenceError) {
-      console.error('Error getting sequence:', sequenceError);
-      throw sequenceError;
+        sequenceData = newSequence;
+        console.log("Created new sequence:", sequenceData);
+      } else {
+        // Update existing sequence
+        const { data: updatedSequence, error: updateError } = await supabase
+          .from('po_number_sequences')
+          .update({ last_sequence: (existingSequence.last_sequence || 0) + 1 })
+          .eq('year_month', yearMonth)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error("Error updating sequence:", updateError);
+          throw updateError;
+        }
+
+        sequenceData = updatedSequence;
+        console.log("Updated sequence:", sequenceData);
+      }
+
+      // Format: PO_NYDI_YYMM_XXXX
+      const sequenceNumber = (sequenceData.last_sequence).toString().padStart(4, '0');
+      const poNumber = `PO_NYDI_${yearMonth}_${sequenceNumber}`;
+      console.log("Generated PO number:", poNumber);
+      
+      return poNumber;
+    } catch (error) {
+      console.error("Error in PO number generation:", error);
+      throw error;
     }
-
-    // Increment sequence
-    const { data: updatedSequence, error: updateError } = await supabase
-      .from('po_number_sequences')
-      .update({ 
-        last_sequence: sequenceData.last_sequence + 1 
-      })
-      .eq('year_month', yearMonth)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Error updating sequence:', updateError);
-      throw updateError;
-    }
-
-    // Format: PO_NYDI_YYMM_XXXX
-    const sequenceNumber = (updatedSequence.last_sequence).toString().padStart(4, '0');
-    return `PO_NYDI_${yearMonth}_${sequenceNumber}`;
   };
 
   const handleSubmit = async () => {
