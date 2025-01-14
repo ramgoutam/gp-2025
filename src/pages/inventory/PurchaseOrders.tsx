@@ -19,6 +19,9 @@ const PurchaseOrders = () => {
         .from("purchase_orders")
         .select(`
           *,
+          suppliers (
+            supplier_name
+          ),
           purchase_order_items (*)
         `)
         .order('created_at', { ascending: false });
@@ -60,7 +63,7 @@ const PurchaseOrders = () => {
               {purchaseOrders?.map((order) => (
                 <tr key={order.id} className="border-b">
                   <td className="px-4 py-2">{order.po_number}</td>
-                  <td className="px-4 py-2">{order.supplier}</td>
+                  <td className="px-4 py-2">{order.suppliers?.supplier_name}</td>
                   <td className="px-4 py-2">
                     {format(new Date(order.order_date), 'MMM dd, yyyy')}
                   </td>

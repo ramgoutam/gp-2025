@@ -30,6 +30,9 @@ const PurchaseOrderDetails = () => {
         .from('purchase_orders')
         .select(`
           *,
+          suppliers (
+            supplier_name
+          ),
           purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
             inventory_items!purchase_order_items_item_id_fkey (
@@ -146,7 +149,7 @@ const PurchaseOrderDetails = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
-                  <p className="mt-1">{order.supplier}</p>
+                  <p className="mt-1">{order.suppliers?.supplier_name}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Order Date</h3>

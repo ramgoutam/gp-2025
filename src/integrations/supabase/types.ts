@@ -839,7 +839,7 @@ export type Database = {
           order_date: string
           po_number: string
           status: string
-          supplier: string
+          supplier_id: string
           total_amount: number | null
           updated_at: string
         }
@@ -851,7 +851,7 @@ export type Database = {
           order_date: string
           po_number: string
           status?: string
-          supplier: string
+          supplier_id: string
           total_amount?: number | null
           updated_at?: string
         }
@@ -863,11 +863,19 @@ export type Database = {
           order_date?: string
           po_number?: string
           status?: string
-          supplier?: string
+          supplier_id?: string
           total_amount?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       report_cards: {
         Row: {

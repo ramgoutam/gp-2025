@@ -132,7 +132,7 @@ const CreatePurchaseOrder = () => {
         .from("purchase_orders")
         .insert({
           po_number: poNumber,
-          supplier: selectedSupplier,
+          supplier_id: selectedSupplier,
           order_date: currentDate,
           status: "draft",
           total_amount: calculateTotal(),
