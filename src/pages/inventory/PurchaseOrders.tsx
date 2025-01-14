@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
-import { EditSupplierDialog } from "@/components/inventory/EditSupplierDialog";
+import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
@@ -118,7 +118,7 @@ const PurchaseOrders = () => {
         onOpenChange={(open) => !open && setSelectedOrderId(null)}
       />
 
-      <EditSupplierDialog
+      <ViewSupplierDialog
         supplier={selectedSupplier}
         open={!!selectedSupplier}
         onOpenChange={(open) => !open && setSelectedSupplier(null)}
