@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 
 interface EditPurchaseOrderDialogProps {
   orderId: string | null;
@@ -130,7 +131,12 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)}>
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      variant="outline"
+                      className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
+                      <Pencil className="h-4 w-4" />
                       Edit Order
                     </Button>
                   )}
