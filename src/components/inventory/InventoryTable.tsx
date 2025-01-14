@@ -156,10 +156,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <SelectTrigger className="w-[180px] transition-all duration-200 hover:border-primary/50">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
+            <SelectContent className="bg-white border rounded-md shadow-md z-50">
+              <SelectItem value="all" className="hover:bg-gray-50">All Categories</SelectItem>
               {categories.map((category) => (
-                <SelectItem key={category} value={category}>
+                <SelectItem 
+                  key={category} 
+                  value={category}
+                  className="hover:bg-gray-50"
+                >
                   {category}
                 </SelectItem>
               ))}
