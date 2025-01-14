@@ -121,13 +121,6 @@ const PurchaseOrders = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedOrderId(order.id)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
                         onClick={() => setEditOrderId(order.id)}
                       >
                         <Pencil className="h-4 w-4" />
