@@ -442,7 +442,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
       </Dialog>
 
       <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Item from Inventory</DialogTitle>
           </DialogHeader>
