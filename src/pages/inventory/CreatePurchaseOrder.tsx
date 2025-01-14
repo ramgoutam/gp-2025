@@ -44,7 +44,7 @@ const CreatePurchaseOrder = () => {
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
   // Fetch suppliers
-  const { data: suppliers } = useQuery({
+  const { data: suppliers = [] } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -53,12 +53,12 @@ const CreatePurchaseOrder = () => {
         .order("supplier_name");
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
   // Fetch inventory items
-  const { data: inventoryItems } = useQuery({
+  const { data: inventoryItems = [], isLoading: isLoadingItems } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -67,7 +67,7 @@ const CreatePurchaseOrder = () => {
         .order("product_name");
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -204,20 +204,26 @@ const CreatePurchaseOrder = () => {
                         <PopoverContent className="w-[400px] p-0" align="start">
                           <Command>
                             <CommandInput placeholder="Search items..." />
-                            <CommandEmpty>No items found.</CommandEmpty>
-                            <CommandGroup>
-                              {inventoryItems?.map((invItem) => (
-                                <CommandItem
-                                  key={invItem.id}
-                                  onSelect={() => {
-                                    updateItem(item.id, 'item_id', invItem.id);
-                                    setOpen({ ...open, [item.id]: false });
-                                  }}
-                                >
-                                  {invItem.product_name}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
+                            {isLoadingItems ? (
+                              <div className="py-6 text-center text-sm">Loading items...</div>
+                            ) : (
+                              <>
+                                <CommandEmpty>No items found.</CommandEmpty>
+                                <CommandGroup>
+                                  {inventoryItems.map((invItem) => (
+                                    <CommandItem
+                                      key={invItem.id}
+                                      onSelect={() => {
+                                        updateItem(item.id, 'item_id', invItem.id);
+                                        setOpen({ ...open, [item.id]: false });
+                                      }}
+                                    >
+                                      {invItem.product_name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </>
+                            )}
                           </Command>
                         </PopoverContent>
                       </Popover>
