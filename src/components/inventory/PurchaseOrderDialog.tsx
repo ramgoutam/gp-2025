@@ -117,8 +117,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Product Name</TableHead>
                         <TableHead>Product ID</TableHead>
+                        <TableHead>Product Name</TableHead>
                         <TableHead>Manufacturing ID</TableHead>
                         <TableHead>Manufacturer</TableHead>
                         <TableHead>Quantity</TableHead>
@@ -129,8 +129,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                     <TableBody>
                       {order.purchase_order_items?.map((item) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.product_name}</TableCell>
                           <TableCell>{item.product_id}</TableCell>
+                          <TableCell>{item.product_name}</TableCell>
                           <TableCell>{item.manufacturing_id}</TableCell>
                           <TableCell>{item.manufacturer}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
