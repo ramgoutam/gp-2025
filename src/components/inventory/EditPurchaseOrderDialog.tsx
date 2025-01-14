@@ -8,8 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin } from "lucide-react";
+import { useState, useRef } from "react";
+import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer } from "lucide-react";
+import { useReactToPrint } from "react-to-print";
 
 interface EditPurchaseOrderDialogProps {
   orderId: string | null;
@@ -18,6 +19,95 @@ interface EditPurchaseOrderDialogProps {
   onOrderUpdated: () => void;
 }
 
+const PrintableContent = ({ order }: { order: any }) => {
+  return (
+    <div className="p-8 bg-white">
+      {/* Company Logo and Info */}
+      <div className="flex justify-between mb-8">
+        <div>
+          <img src="/logo.png" alt="Company Logo" className="h-16 mb-4" />
+          <h2 className="text-xl font-bold">NYDI</h2>
+          <p className="text-sm text-gray-600">123 Business Street</p>
+          <p className="text-sm text-gray-600">New York, NY 10001</p>
+          <p className="text-sm text-gray-600">Phone: (555) 123-4567</p>
+          <p className="text-sm text-gray-600">Email: info@nydi.com</p>
+        </div>
+        <div className="text-right">
+          <h1 className="text-2xl font-bold mb-2">Purchase Order</h1>
+          <p className="text-sm text-gray-600">PO #{order.po_number}</p>
+          <p className="text-sm text-gray-600">Date: {format(new Date(order.order_date), 'MMM dd, yyyy')}</p>
+        </div>
+      </div>
+
+      {/* Supplier Info */}
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div>
+          <h3 className="font-bold mb-2">Supplier</h3>
+          <p className="text-sm">{order.suppliers?.supplier_name}</p>
+          <p className="text-sm">{order.suppliers?.address}</p>
+          <p className="text-sm">{order.suppliers?.phone}</p>
+          <p className="text-sm">{order.suppliers?.email}</p>
+        </div>
+        <div>
+          <h3 className="font-bold mb-2">Ship To</h3>
+          <p className="text-sm">NYDI Warehouse</p>
+          <p className="text-sm">456 Shipping Avenue</p>
+          <p className="text-sm">New York, NY 10002</p>
+          <p className="text-sm">Phone: (555) 123-4567</p>
+        </div>
+      </div>
+
+      {/* Order Items */}
+      <Table className="mb-8">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Product ID</TableHead>
+            <TableHead>Product Name</TableHead>
+            <TableHead>Quantity</TableHead>
+            <TableHead>Unit Price</TableHead>
+            <TableHead>Total</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {order.purchase_order_items?.map((item: any) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.product_id}</TableCell>
+              <TableCell>{item.product_name}</TableCell>
+              <TableCell>{item.quantity}</TableCell>
+              <TableCell>${item.unit_price}</TableCell>
+              <TableCell>${(item.quantity * item.unit_price).toFixed(2)}</TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell colSpan={4} className="text-right font-bold">Total Amount:</TableCell>
+            <TableCell className="font-bold">${order.total_amount}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+
+      {/* Terms and Notes */}
+      <div className="mb-8">
+        <h3 className="font-bold mb-2">Notes</h3>
+        <p className="text-sm">{order.notes || 'No additional notes'}</p>
+      </div>
+
+      {/* Signatures */}
+      <div className="grid grid-cols-2 gap-8 mt-16">
+        <div>
+          <div className="border-t border-gray-400 pt-4 w-64">
+            <p className="text-sm">Authorized by</p>
+          </div>
+        </div>
+        <div>
+          <div className="border-t border-gray-400 pt-4 w-64">
+            <p className="text-sm">Date</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }: EditPurchaseOrderDialogProps) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -25,6 +115,11 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showAddItemDialog, setShowAddItemDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
 
   const { data: inventoryItems } = useQuery({
     queryKey: ['inventory-items'],
@@ -222,6 +317,15 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 <div className="flex justify-between items-center">
                   <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
                   <div className="space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrint}
+                      className="gap-2"
+                    >
+                      <Printer className="h-4 w-4" />
+                      Print PO
+                    </Button>
                     {isEditing ? (
                       <>
                         <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -245,6 +349,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 </div>
               </DialogHeader>
 
+              {/* Regular view content */}
               <div className="grid grid-cols-1 gap-4">
                 <Card>
                   <CardContent className="p-4">
@@ -431,11 +536,19 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Hidden printable content */}
+              <div className="hidden">
+                <div ref={printRef}>
+                  <PrintableContent order={order} />
+                </div>
+              </div>
             </>
           )}
         </DialogContent>
       </Dialog>
 
+      {/* Add Item Dialog */}
       <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
         <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
           <DialogHeader>
