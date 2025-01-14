@@ -248,27 +248,29 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                         <h3 className="text-sm font-medium text-gray-500">Supplier</h3>
                         <p className="mt-1">{order.suppliers?.supplier_name}</p>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
-                        <p className="mt-1">
-                          {format(new Date(order.order_date), 'MMM dd, yyyy')}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
-                        {isEditing ? (
-                          <Input
-                            type="date"
-                            value={editedOrder.expected_delivery_date}
-                            onChange={(e) => setEditedOrder({ ...editedOrder, expected_delivery_date: e.target.value })}
-                            className="mt-1"
-                          />
-                        ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
                           <p className="mt-1">
-                            {order.expected_delivery_date && 
-                              format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
+                            {format(new Date(order.order_date), 'MMM dd, yyyy')}
                           </p>
-                        )}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">Expected Delivery</h3>
+                          {isEditing ? (
+                            <Input
+                              type="date"
+                              value={editedOrder.expected_delivery_date}
+                              onChange={(e) => setEditedOrder({ ...editedOrder, expected_delivery_date: e.target.value })}
+                              className="mt-1"
+                            />
+                          ) : (
+                            <p className="mt-1">
+                              {order.expected_delivery_date && 
+                                format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       <div className="col-span-2">
                         <h3 className="text-sm font-medium text-gray-500">Notes</h3>
