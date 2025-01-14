@@ -11,6 +11,26 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: localStorage // Explicitly set storage to localStorage
+    },
+    headers: {
+      'Content-Type': 'application/json',
     },
   }
 );
+
+// Add error logging for debugging
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session);
+});
+
+// Test the connection
+supabase.from('patients').select('count', { count: 'exact', head: true })
+  .then(({ count, error }) => {
+    if (error) {
+      console.error('Supabase connection error:', error);
+    } else {
+      console.log('Supabase connection successful, patient count:', count);
+    }
+  });
