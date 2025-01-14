@@ -7,13 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -39,8 +32,11 @@ const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [selectedSupplierName, setSelectedSupplierName] = useState("");
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+  const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [supplierSearchQuery, setSupplierSearchQuery] = useState("");
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [notes, setNotes] = useState("");
   const [orderDate, setOrderDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -104,6 +100,12 @@ const CreatePurchaseOrder = () => {
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+  };
+
+  const selectSupplier = (supplier: any) => {
+    setSelectedSupplier(supplier.id);
+    setSelectedSupplierName(supplier.supplier_name);
+    setIsSupplierDialogOpen(false);
   };
 
   const handleSubmit = async () => {
@@ -187,6 +189,11 @@ const CreatePurchaseOrder = () => {
     item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredSuppliers = suppliers?.filter(supplier =>
+    supplier.supplier_name.toLowerCase().includes(supplierSearchQuery.toLowerCase()) ||
+    supplier.contact_person?.toLowerCase().includes(supplierSearchQuery.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-6">
@@ -203,19 +210,22 @@ const CreatePurchaseOrder = () => {
       <div className="bg-white rounded-lg shadow p-6 space-y-6">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="supplier">Supplier</Label>
-            <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select supplier" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border shadow-lg">
-                {suppliers?.map((supplier) => (
-                  <SelectItem key={supplier.id} value={supplier.id}>
-                    {supplier.supplier_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Supplier</Label>
+            <div className="flex gap-2">
+              <Input
+                value={selectedSupplierName}
+                placeholder="Select supplier"
+                readOnly
+                onClick={() => setIsSupplierDialogOpen(true)}
+                className="cursor-pointer"
+              />
+              <Button
+                variant="outline"
+                onClick={() => setIsSupplierDialogOpen(true)}
+              >
+                Select
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Order Date</Label>
@@ -348,6 +358,7 @@ const CreatePurchaseOrder = () => {
         </div>
       </div>
 
+      {/* Item Selection Dialog */}
       <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -398,6 +409,65 @@ const CreatePurchaseOrder = () => {
                     <tr>
                       <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                         No items found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Supplier Selection Dialog */}
+      <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select Supplier</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search suppliers..."
+                value={supplierSearchQuery}
+                onChange={(e) => setSupplierSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="border rounded-lg">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-gray-50">
+                    <th className="px-4 py-2 text-left">Supplier Name</th>
+                    <th className="px-4 py-2 text-left">Contact Person</th>
+                    <th className="px-4 py-2 text-left">Email</th>
+                    <th className="px-4 py-2 text-left">Phone</th>
+                    <th className="px-4 py-2 text-left w-[100px]"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSuppliers?.map((supplier) => (
+                    <tr key={supplier.id} className="border-b">
+                      <td className="px-4 py-2">{supplier.supplier_name}</td>
+                      <td className="px-4 py-2">{supplier.contact_person}</td>
+                      <td className="px-4 py-2">{supplier.email}</td>
+                      <td className="px-4 py-2">{supplier.phone}</td>
+                      <td className="px-4 py-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => selectSupplier(supplier)}
+                        >
+                          Select
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!filteredSuppliers || filteredSuppliers.length === 0) && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                        No suppliers found.
                       </td>
                     </tr>
                   )}
