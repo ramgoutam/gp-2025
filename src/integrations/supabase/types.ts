@@ -763,6 +763,30 @@ export type Database = {
         }
         Relationships: []
       }
+      po_number_sequences: {
+        Row: {
+          created_at: string
+          id: string
+          last_sequence: number | null
+          updated_at: string
+          year_month: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_sequence?: number | null
+          updated_at?: string
+          year_month: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_sequence?: number | null
+          updated_at?: string
+          year_month?: string
+        }
+        Relationships: []
+      }
       purchase_order_items: {
         Row: {
           created_at: string

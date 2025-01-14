@@ -108,6 +108,51 @@ const CreatePurchaseOrder = () => {
     setIsSupplierDialogOpen(false);
   };
 
+  const generatePONumber = async () => {
+    const currentDate = new Date();
+    const yearMonth = format(currentDate, 'yyMM');
+    
+    // Get or create sequence for current month
+    const { data: sequenceData, error: sequenceError } = await supabase
+      .from('po_number_sequences')
+      .upsert(
+        { 
+          year_month: yearMonth,
+          last_sequence: 0 
+        },
+        { 
+          onConflict: 'year_month',
+          ignoreDuplicates: true 
+        }
+      )
+      .select()
+      .single();
+
+    if (sequenceError) {
+      console.error('Error getting sequence:', sequenceError);
+      throw sequenceError;
+    }
+
+    // Increment sequence
+    const { data: updatedSequence, error: updateError } = await supabase
+      .from('po_number_sequences')
+      .update({ 
+        last_sequence: sequenceData.last_sequence + 1 
+      })
+      .eq('year_month', yearMonth)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error updating sequence:', updateError);
+      throw updateError;
+    }
+
+    // Format: PO_NYDI_YYMM_XXXX
+    const sequenceNumber = (updatedSequence.last_sequence).toString().padStart(4, '0');
+    return `PO_NYDI_${yearMonth}_${sequenceNumber}`;
+  };
+
   const handleSubmit = async () => {
     if (!selectedSupplier) {
       toast({
@@ -128,8 +173,7 @@ const CreatePurchaseOrder = () => {
     }
 
     try {
-      // Generate PO number (you might want to implement a more sophisticated system)
-      const poNumber = `PO-${Date.now()}`;
+      const poNumber = await generatePONumber();
 
       // Insert purchase order
       const { data: orderData, error: orderError } = await supabase
