@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -33,10 +45,11 @@ const CreatePurchaseOrder = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [openItem, setOpenItem] = useState<string | null>(null);
   const currentDate = format(new Date(), "yyyy-MM-dd");
 
   // Fetch suppliers
-  const { data: suppliers, isLoading: suppliersLoading, error: suppliersError } = useQuery({
+  const { data: suppliers, isLoading: suppliersLoading } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,7 +70,7 @@ const CreatePurchaseOrder = () => {
   });
 
   // Fetch inventory items
-  const { data: inventoryItems, isLoading: itemsLoading, error: itemsError } = useQuery({
+  const { data: inventoryItems, isLoading: itemsLoading } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -123,16 +136,6 @@ const CreatePurchaseOrder = () => {
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
   };
-
-  if (suppliersError || itemsError) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600">Error loading data. Please try again later.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto py-8">
@@ -211,21 +214,37 @@ const CreatePurchaseOrder = () => {
                       {itemsLoading ? (
                         <div className="h-10 bg-gray-100 animate-pulse rounded w-[200px]" />
                       ) : (
-                        <Select
-                          value={item.item_id}
-                          onValueChange={(value) => updateItem(item.id, 'item_id', value)}
-                        >
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Select item" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border shadow-lg">
-                            {inventoryItems?.map((invItem) => (
-                              <SelectItem key={invItem.id} value={invItem.id}>
-                                {invItem.product_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Popover open={openItem === item.id} onOpenChange={(open) => setOpenItem(open ? item.id : null)}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-[200px] justify-between"
+                            >
+                              {item.product_name || "Select item..."}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search items..." className="h-9" />
+                              <CommandEmpty>No items found.</CommandEmpty>
+                              <CommandGroup>
+                                {inventoryItems?.map((invItem) => (
+                                  <CommandItem
+                                    key={invItem.id}
+                                    value={invItem.product_name}
+                                    onSelect={() => {
+                                      updateItem(item.id, 'item_id', invItem.id);
+                                      setOpenItem(null);
+                                    }}
+                                  >
+                                    {invItem.product_name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       )}
                     </td>
                     <td className="px-4 py-2">{item.uom}</td>
