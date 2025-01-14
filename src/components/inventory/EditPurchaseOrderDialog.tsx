@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Plus, Trash2, Save } from "lucide-react";
 
 interface EditPurchaseOrderDialogProps {
   orderId: string | null;
@@ -22,6 +22,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['purchase-order', orderId],
@@ -68,7 +69,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const handleSave = async () => {
     if (!editedOrder) return;
 
-    const { error } = await supabase
+    const { error: orderError } = await supabase
       .from('purchase_orders')
       .update({
         notes: editedOrder.notes,
@@ -77,7 +78,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
       })
       .eq('id', orderId);
 
-    if (error) {
+    if (orderError) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -86,12 +87,71 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
       return;
     }
 
+    // Update items if they were modified
+    if (editedOrder.purchase_order_items) {
+      const { error: itemsError } = await supabase
+        .from('purchase_order_items')
+        .upsert(
+          editedOrder.purchase_order_items.map((item: any) => ({
+            id: item.id,
+            purchase_order_id: orderId,
+            item_id: item.item_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            product_id: item.product_id,
+            product_name: item.product_name,
+            manufacturing_id: item.manufacturing_id,
+            manufacturer: item.manufacturer,
+            uom: item.uom
+          }))
+        );
+
+      if (itemsError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update order items",
+        });
+        return;
+      }
+    }
+
     toast({
       title: "Success",
       description: "Purchase order updated successfully",
     });
     setIsEditing(false);
     onOrderUpdated();
+  };
+
+  const handleEditItem = (item: any) => {
+    setEditingItem({ ...item });
+  };
+
+  const handleSaveItem = () => {
+    if (!editingItem) return;
+
+    const updatedItems = editedOrder.purchase_order_items.map((item: any) =>
+      item.id === editingItem.id ? editingItem : item
+    );
+
+    setEditedOrder({
+      ...editedOrder,
+      purchase_order_items: updatedItems,
+      total_amount: updatedItems.reduce((sum: number, item: any) => 
+        sum + (item.quantity * item.unit_price), 0)
+    });
+    setEditingItem(null);
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    const updatedItems = editedOrder.purchase_order_items.filter((item: any) => item.id !== itemId);
+    setEditedOrder({
+      ...editedOrder,
+      purchase_order_items: updatedItems,
+      total_amount: updatedItems.reduce((sum: number, item: any) => 
+        sum + (item.quantity * item.unit_price), 0)
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -222,20 +282,86 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                         <TableHead>Quantity</TableHead>
                         <TableHead>Unit Price</TableHead>
                         <TableHead>Total</TableHead>
+                        {isEditing && <TableHead>Actions</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {order.purchase_order_items?.map((item: any) => (
+                      {editedOrder.purchase_order_items?.map((item: any) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.product_id}</TableCell>
-                          <TableCell>{item.product_name}</TableCell>
-                          <TableCell>{item.manufacturing_id}</TableCell>
-                          <TableCell>{item.manufacturer}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>${item.unit_price}</TableCell>
-                          <TableCell>
-                            ${(item.quantity * item.unit_price).toFixed(2)}
-                          </TableCell>
+                          {editingItem?.id === item.id ? (
+                            <>
+                              <TableCell>{item.product_id}</TableCell>
+                              <TableCell>{item.product_name}</TableCell>
+                              <TableCell>{item.manufacturing_id}</TableCell>
+                              <TableCell>{item.manufacturer}</TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={editingItem.quantity}
+                                  onChange={(e) => setEditingItem({
+                                    ...editingItem,
+                                    quantity: parseInt(e.target.value)
+                                  })}
+                                  className="w-20"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={editingItem.unit_price}
+                                  onChange={(e) => setEditingItem({
+                                    ...editingItem,
+                                    unit_price: parseFloat(e.target.value)
+                                  })}
+                                  className="w-24"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                ${(editingItem.quantity * editingItem.unit_price).toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleSaveItem}
+                                >
+                                  <Save className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </>
+                          ) : (
+                            <>
+                              <TableCell>{item.product_id}</TableCell>
+                              <TableCell>{item.product_name}</TableCell>
+                              <TableCell>{item.manufacturing_id}</TableCell>
+                              <TableCell>{item.manufacturer}</TableCell>
+                              <TableCell>{item.quantity}</TableCell>
+                              <TableCell>${item.unit_price}</TableCell>
+                              <TableCell>
+                                ${(item.quantity * item.unit_price).toFixed(2)}
+                              </TableCell>
+                              {isEditing && (
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleEditItem(item)}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleRemoveItem(item.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              )}
+                            </>
+                          )}
                         </TableRow>
                       ))}
                       <TableRow>
@@ -243,8 +369,9 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                           Total Amount
                         </TableCell>
                         <TableCell className="font-medium">
-                          ${order.total_amount}
+                          ${editedOrder.total_amount}
                         </TableCell>
+                        {isEditing && <TableCell />}
                       </TableRow>
                     </TableBody>
                   </Table>
