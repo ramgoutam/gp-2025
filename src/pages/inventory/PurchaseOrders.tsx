@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
+import EditPurchaseOrderDialog from "@/components/inventory/EditPurchaseOrderDialog";
 import { useToast } from "@/hooks/use-toast";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [editOrderId, setEditOrderId] = useState<string | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
   const { toast } = useToast();
 
@@ -126,7 +128,7 @@ const PurchaseOrders = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate(`/inventory/purchase-orders/${order.id}/edit`)}
+                        onClick={() => setEditOrderId(order.id)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -157,6 +159,13 @@ const PurchaseOrders = () => {
         orderId={selectedOrderId}
         open={!!selectedOrderId}
         onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      />
+
+      <EditPurchaseOrderDialog
+        orderId={editOrderId}
+        open={!!editOrderId}
+        onOpenChange={(open) => !open && setEditOrderId(null)}
+        onOrderUpdated={refetch}
       />
 
       <ViewSupplierDialog
