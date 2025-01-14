@@ -75,11 +75,11 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
           Add Item
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] h-[90vh]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Add New Item</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-full pr-4">
+        <ScrollArea className="pr-4">
           <form onSubmit={handleAddItem} className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
