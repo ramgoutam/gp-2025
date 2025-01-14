@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 type PurchaseOrderItem = {
   id: string;
@@ -30,14 +29,12 @@ type PurchaseOrderItem = {
 
 const CreatePurchaseOrder = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [items, setItems] = useState<PurchaseOrderItem[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const currentDate = format(new Date(), "yyyy-MM-dd");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch suppliers
-  const { data: suppliers, isLoading: suppliersLoading } = useQuery({
+  const { data: suppliers } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -45,20 +42,13 @@ const CreatePurchaseOrder = () => {
         .select("*")
         .order("supplier_name");
 
-      if (error) {
-        toast({
-          title: "Error fetching suppliers",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
-      return data || [];
+      if (error) throw error;
+      return data;
     },
   });
 
   // Fetch inventory items
-  const { data: inventoryItems, isLoading: itemsLoading } = useQuery({
+  const { data: inventoryItems } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,15 +56,8 @@ const CreatePurchaseOrder = () => {
         .select("*")
         .order("product_name");
 
-      if (error) {
-        toast({
-          title: "Error fetching inventory items",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
-      return data || [];
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -102,18 +85,16 @@ const CreatePurchaseOrder = () => {
       if (item.id === id) {
         if (field === 'item_id' && inventoryItems) {
           const selectedItem = inventoryItems.find(invItem => invItem.id === value);
-          if (selectedItem) {
-            return {
-              ...item,
-              [field]: value,
-              product_name: selectedItem.product_name || '',
-              product_id: selectedItem.product_id || '',
-              uom: selectedItem.uom || '',
-              manufacturing_id: selectedItem.manufacturing_id || '',
-              manufacturer: selectedItem.manufacturer || '',
-              unit_price: selectedItem.price || 0
-            };
-          }
+          return {
+            ...item,
+            [field]: value,
+            product_name: selectedItem?.product_name || '',
+            product_id: selectedItem?.product_id || '',
+            uom: selectedItem?.uom || '',
+            manufacturing_id: selectedItem?.manufacturing_id || '',
+            manufacturer: selectedItem?.manufacturer || '',
+            unit_price: selectedItem?.price || 0
+          };
         }
         return { ...item, [field]: value };
       }
@@ -123,82 +104,6 @@ const CreatePurchaseOrder = () => {
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-  };
-
-  const handleSubmit = async () => {
-    if (!selectedSupplier) {
-      toast({
-        title: "Error",
-        description: "Please select a supplier",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (items.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please add at least one item",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Generate PO number (you might want to implement a more sophisticated system)
-      const poNumber = `PO-${Date.now()}`;
-
-      // Insert purchase order
-      const { data: orderData, error: orderError } = await supabase
-        .from("purchase_orders")
-        .insert({
-          po_number: poNumber,
-          supplier: selectedSupplier,
-          order_date: currentDate,
-          status: "draft",
-          total_amount: calculateTotal(),
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Insert purchase order items
-      const orderItems = items.map(item => ({
-        purchase_order_id: orderData.id,
-        item_id: item.item_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        product_id: item.product_id,
-        product_name: item.product_name,
-        uom: item.uom,
-        manufacturing_id: item.manufacturing_id,
-        manufacturer: item.manufacturer,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("purchase_order_items")
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      toast({
-        title: "Success",
-        description: "Purchase order created successfully",
-      });
-
-      navigate("/inventory/purchase-orders");
-    } catch (error: any) {
-      toast({
-        title: "Error creating purchase order",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   return (
@@ -218,22 +123,18 @@ const CreatePurchaseOrder = () => {
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier</Label>
-            {suppliersLoading ? (
-              <div className="h-10 bg-gray-100 animate-pulse rounded" />
-            ) : (
-              <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Select supplier" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border shadow-lg">
-                  {suppliers?.map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id}>
-                      {supplier.supplier_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Select supplier" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border shadow-lg">
+                {suppliers?.map((supplier) => (
+                  <SelectItem key={supplier.id} value={supplier.id}>
+                    {supplier.supplier_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Order Date</Label>
@@ -275,25 +176,21 @@ const CreatePurchaseOrder = () => {
                   <tr key={item.id} className="border-b">
                     <td className="px-4 py-2">{item.product_id}</td>
                     <td className="px-4 py-2">
-                      {itemsLoading ? (
-                        <div className="h-10 bg-gray-100 animate-pulse rounded w-[200px]" />
-                      ) : (
-                        <Select
-                          value={item.item_id}
-                          onValueChange={(value) => updateItem(item.id, 'item_id', value)}
-                        >
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Select item" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border shadow-lg">
-                            {inventoryItems?.map((invItem) => (
-                              <SelectItem key={invItem.id} value={invItem.id}>
-                                {invItem.product_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+                      <Select
+                        value={item.item_id}
+                        onValueChange={(value) => updateItem(item.id, 'item_id', value)}
+                      >
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select item" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border shadow-lg z-50">
+                          {inventoryItems?.map((invItem) => (
+                            <SelectItem key={invItem.id} value={invItem.id}>
+                              {invItem.product_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-4 py-2">{item.uom}</td>
                     <td className="px-4 py-2">{item.manufacturing_id}</td>
@@ -359,10 +256,7 @@ const CreatePurchaseOrder = () => {
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
+          <Button>
             Create Purchase Order
           </Button>
         </div>
