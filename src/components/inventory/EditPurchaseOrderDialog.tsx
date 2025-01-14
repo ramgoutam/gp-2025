@@ -51,7 +51,12 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         .select(`
           *,
           suppliers (
-            supplier_name
+            supplier_name,
+            contact_person,
+            email,
+            phone,
+            address,
+            notes
           ),
           purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
@@ -248,21 +253,9 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                         <h3 className="text-sm font-medium text-gray-500 mb-2">Supplier Details</h3>
                         <div className="space-y-2">
                           <p><span className="font-medium">Name:</span> {order.suppliers?.supplier_name}</p>
-                          {order.suppliers?.contact_person && (
-                            <p><span className="font-medium">Contact Person:</span> {order.suppliers.contact_person}</p>
-                          )}
-                          {order.suppliers?.email && (
-                            <p><span className="font-medium">Email:</span> {order.suppliers.email}</p>
-                          )}
-                          {order.suppliers?.phone && (
-                            <p><span className="font-medium">Phone:</span> {order.suppliers.phone}</p>
-                          )}
-                          {order.suppliers?.address && (
-                            <p><span className="font-medium">Address:</span> {order.suppliers.address}</p>
-                          )}
-                          {order.suppliers?.notes && (
-                            <p><span className="font-medium">Notes:</span> {order.suppliers.notes}</p>
-                          )}
+                          <p><span className="font-medium">Email:</span> {order.suppliers?.email || 'N/A'}</p>
+                          <p><span className="font-medium">Phone:</span> {order.suppliers?.phone || 'N/A'}</p>
+                          <p><span className="font-medium">Address:</span> {order.suppliers?.address || 'N/A'}</p>
                         </div>
                       </div>
                       <div className="space-y-4">
