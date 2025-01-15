@@ -458,7 +458,7 @@ const CreatePurchaseOrder = () => {
 
       {/* Item Selection Dialog */}
       <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Select Item</DialogTitle>
           </DialogHeader>
@@ -469,10 +469,10 @@ const CreatePurchaseOrder = () => {
                   value={selectedCategory}
                   onValueChange={setSelectedCategory}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border rounded-md shadow-lg min-w-[200px]">
+                  <SelectContent className="bg-white border rounded-lg shadow-lg min-w-[280px] animate-in fade-in-80 zoom-in-95">
                     <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
@@ -492,31 +492,32 @@ const CreatePurchaseOrder = () => {
                 />
               </div>
             </div>
-            <div className="border rounded-lg">
+            <div className="border rounded-lg overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="px-4 py-2 text-left">Product ID</th>
-                    <th className="px-4 py-2 text-left">Name</th>
-                    <th className="px-4 py-2 text-left">UOM</th>
-                    <th className="px-4 py-2 text-left">Manufacturer</th>
-                    <th className="px-4 py-2 text-left">Price</th>
-                    <th className="px-4 py-2 text-left w-[100px]"></th>
+                  <tr className="bg-gray-50 border-b">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Product ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Name</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">UOM</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Manufacturer</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Price</th>
+                    <th className="px-4 py-3 text-left w-[100px]"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredItems?.map((item) => (
-                    <tr key={item.id} className="border-b">
-                      <td className="px-4 py-2">{item.product_id}</td>
-                      <td className="px-4 py-2">{item.product_name}</td>
-                      <td className="px-4 py-2">{item.uom}</td>
-                      <td className="px-4 py-2">{item.manufacturer}</td>
-                      <td className="px-4 py-2">${item.price?.toFixed(2)}</td>
-                      <td className="px-4 py-2">
+                    <tr key={item.id} className="border-b hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-sm">{item.product_id}</td>
+                      <td className="px-4 py-3 text-sm">{item.product_name}</td>
+                      <td className="px-4 py-3 text-sm">{item.uom}</td>
+                      <td className="px-4 py-3 text-sm">{item.manufacturer}</td>
+                      <td className="px-4 py-3 text-sm">${item.price?.toFixed(2)}</td>
+                      <td className="px-4 py-3">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => addItem(item)}
+                          className="w-full"
                         >
                           Select
                         </Button>
