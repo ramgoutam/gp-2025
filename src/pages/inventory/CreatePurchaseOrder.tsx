@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -43,12 +43,33 @@ const CreatePurchaseOrder = () => {
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [supplierSearchQuery, setSupplierSearchQuery] = useState("");
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [notes, setNotes] = useState("");
   const [orderDate, setOrderDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const { toast } = useToast();
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+      }
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          navigate("/login");
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const { data: suppliers } = useQuery({
     queryKey: ["suppliers"],
@@ -251,10 +272,16 @@ const CreatePurchaseOrder = () => {
     }
   };
 
-  const categories = Array.from(new Set(inventoryItems?.map(item => item.category).filter(Boolean) || []));
+  const categories = Array.from(
+    new Set(
+      inventoryItems
+        ?.map((item) => item.category)
+        .filter((category): category is string => !!category) || []
+    )
+  );
 
-  const filteredItems = inventoryItems?.filter(item =>
-    (!selectedCategory || item.category === selectedCategory) &&
+  const filteredItems = inventoryItems?.filter((item) =>
+    (selectedCategory === "all" || item.category === selectedCategory) &&
     (item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.product_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase()))
