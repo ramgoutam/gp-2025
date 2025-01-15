@@ -12,6 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +43,7 @@ const CreatePurchaseOrder = () => {
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [isSupplierDialogOpen, setIsSupplierDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [supplierSearchQuery, setSupplierSearchQuery] = useState("");
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -55,7 +63,6 @@ const CreatePurchaseOrder = () => {
     },
   });
 
-  // Fetch inventory items
   const { data: inventoryItems } = useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
@@ -115,7 +122,6 @@ const CreatePurchaseOrder = () => {
     console.log("Generating PO number for year-month:", yearMonth);
     
     try {
-      // First try to get existing sequence
       const { data: existingSequence, error: fetchError } = await supabase
         .from('po_number_sequences')
         .select('*')
@@ -132,7 +138,6 @@ const CreatePurchaseOrder = () => {
       let sequenceData;
       
       if (!existingSequence) {
-        // If no sequence exists, create new one
         const { data: newSequence, error: insertError } = await supabase
           .from('po_number_sequences')
           .insert([{ year_month: yearMonth, last_sequence: 1 }])
@@ -147,7 +152,6 @@ const CreatePurchaseOrder = () => {
         sequenceData = newSequence;
         console.log("Created new sequence:", sequenceData);
       } else {
-        // Update existing sequence
         const { data: updatedSequence, error: updateError } = await supabase
           .from('po_number_sequences')
           .update({ last_sequence: (existingSequence.last_sequence || 0) + 1 })
@@ -164,7 +168,6 @@ const CreatePurchaseOrder = () => {
         console.log("Updated sequence:", sequenceData);
       }
 
-      // Format: PO_NYDI_YYMM_XXXX
       const sequenceNumber = (sequenceData.last_sequence).toString().padStart(4, '0');
       const poNumber = `PO_NYDI_${yearMonth}_${sequenceNumber}`;
       console.log("Generated PO number:", poNumber);
@@ -198,7 +201,6 @@ const CreatePurchaseOrder = () => {
     try {
       const poNumber = await generatePONumber();
 
-      // Insert purchase order
       const { data: orderData, error: orderError } = await supabase
         .from("purchase_orders")
         .insert({
@@ -215,7 +217,6 @@ const CreatePurchaseOrder = () => {
 
       if (orderError) throw orderError;
 
-      // Insert purchase order items
       const { error: itemsError } = await supabase
         .from("purchase_order_items")
         .insert(
@@ -250,10 +251,13 @@ const CreatePurchaseOrder = () => {
     }
   };
 
+  const categories = Array.from(new Set(inventoryItems?.map(item => item.category).filter(Boolean) || []));
+
   const filteredItems = inventoryItems?.filter(item =>
-    item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (!selectedCategory || item.category === selectedCategory) &&
+    (item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.product_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
+    item.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const filteredSuppliers = suppliers?.filter(supplier =>
@@ -432,14 +436,34 @@ const CreatePurchaseOrder = () => {
             <DialogTitle>Select Item</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex gap-4">
+              <div className="w-1/3">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
             <div className="border rounded-lg">
               <table className="w-full">
