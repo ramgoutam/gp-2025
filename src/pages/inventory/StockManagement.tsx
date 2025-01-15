@@ -23,6 +23,14 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { AddLocationDialog } from "@/components/inventory/AddLocationDialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 type StockWithRelations = {
   id: string;
@@ -51,6 +59,10 @@ const StockManagement = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [sortField, setSortField] = useState<keyof StockWithRelations>("quantity");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [selectedItemId, setSelectedItemId] = useState<string>("");
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [quantity, setQuantity] = useState<number>(0);
+  const [isAddStockOpen, setIsAddStockOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: stock, isLoading, refetch } = useQuery({
@@ -147,6 +159,62 @@ const StockManagement = () => {
     }
   };
 
+  const handleAddStock = async () => {
+    try {
+      if (!selectedItemId || !selectedLocationId || quantity <= 0) {
+        toast({
+          title: "Invalid Input",
+          description: "Please fill in all fields with valid values.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('inventory_stock')
+        .upsert({
+          item_id: selectedItemId,
+          location_id: selectedLocationId,
+          quantity: quantity,
+        }, {
+          onConflict: 'item_id,location_id'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Stock Added",
+        description: "The stock has been successfully added.",
+      });
+
+      setIsAddStockOpen(false);
+      setSelectedItemId("");
+      setSelectedLocationId("");
+      setQuantity(0);
+      refetch();
+    } catch (error) {
+      console.error('Error adding stock:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add stock. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const { data: availableItems } = useQuery({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .order('product_name');
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -159,10 +227,63 @@ const StockManagement = () => {
           </div>
           <div className="flex gap-4">
             <AddLocationDialog onLocationAdded={refetch} />
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Stock
-            </Button>
+            <Dialog open={isAddStockOpen} onOpenChange={setIsAddStockOpen}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Stock
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Stock</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Item</Label>
+                    <Select value={selectedItemId} onValueChange={setSelectedItemId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableItems?.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.product_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Location</Label>
+                    <Select value={selectedLocationId} onValueChange={setSelectedLocationId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations?.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+                  <Button onClick={handleAddStock} className="w-full">
+                    Add Stock
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
