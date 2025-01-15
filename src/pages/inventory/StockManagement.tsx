@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ArrowUpDown } from "lucide-react";
+import { Search, Plus, ArrowUpDown, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -22,10 +21,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { AddLocationDialog } from "@/components/inventory/AddLocationDialog";
+import { Badge } from "@/components/ui/badge";
 
-type StockWithRelations = Database['public']['Tables']['inventory_stock']['Row'] & {
-  inventory_items: Pick<Database['public']['Tables']['inventory_items']['Row'], 'product_name' | 'sku' | 'min_stock'>;
-  inventory_locations: Pick<Database['public']['Tables']['inventory_locations']['Row'], 'name'>;
+type StockWithRelations = {
+  id: string;
+  quantity: number;
+  item_id: string;
+  location_id: string;
+  inventory_items: {
+    product_name: string;
+    sku: string;
+    min_stock: number;
+  };
+  inventory_locations: {
+    name: string;
+  };
+};
+
+type LocationTotals = {
+  [key: string]: {
+    total_items: number;
+    total_quantity: number;
+  };
 };
 
 const StockManagement = () => {
@@ -68,6 +86,16 @@ const StockManagement = () => {
       return data;
     }
   });
+
+  const locationTotals: LocationTotals = stock?.reduce((acc: LocationTotals, item) => {
+    const locationName = item.inventory_locations.name;
+    if (!acc[locationName]) {
+      acc[locationName] = { total_items: 0, total_quantity: 0 };
+    }
+    acc[locationName].total_items += 1;
+    acc[locationName].total_quantity += item.quantity;
+    return acc;
+  }, {}) || {};
 
   const handleSort = (field: keyof StockWithRelations) => {
     if (sortField === field) {
@@ -129,29 +157,34 @@ const StockManagement = () => {
               Track and manage inventory stock levels across different locations
             </p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Stock
-          </Button>
+          <div className="flex gap-4">
+            <AddLocationDialog onLocationAdded={refetch} />
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Stock
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-4 bg-white shadow-sm">
-            <h3 className="font-medium text-sm text-gray-500">Total Items</h3>
-            <p className="text-2xl font-semibold mt-2">{stock?.length || 0}</p>
-          </Card>
-          <Card className="p-4 bg-white shadow-sm">
-            <h3 className="font-medium text-sm text-gray-500">Low Stock Items</h3>
-            <p className="text-2xl font-semibold mt-2 text-yellow-600">
-              {stock?.filter(item => 
-                item.quantity < (item.inventory_items.min_stock || 0)
-              ).length || 0}
-            </p>
-          </Card>
-          <Card className="p-4 bg-white shadow-sm">
-            <h3 className="font-medium text-sm text-gray-500">Locations</h3>
-            <p className="text-2xl font-semibold mt-2">{locations?.length || 0}</p>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(locationTotals).map(([location, totals]) => (
+            <Card key={location} className="p-4 bg-white shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="h-4 w-4 text-gray-500" />
+                <h3 className="font-medium text-gray-900">{location}</h3>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">Total Items</p>
+                  <p className="text-2xl font-semibold">{totals.total_items}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Total Quantity</p>
+                  <p className="text-2xl font-semibold">{totals.total_quantity}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border">
@@ -204,7 +237,12 @@ const StockManagement = () => {
                       {item.inventory_items.sku}
                     </TableCell>
                     <TableCell>{item.inventory_items.product_name}</TableCell>
-                    <TableCell>{item.inventory_locations.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {item.inventory_locations.name}
+                      </Badge>
+                    </TableCell>
                     <TableCell className={
                       item.quantity < (item.inventory_items.min_stock || 0)
                         ? "text-yellow-600 font-medium"
