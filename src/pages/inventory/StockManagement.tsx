@@ -31,7 +31,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";  // Added this import
 
 type StockWithRelations = {
   id: string;
@@ -569,3 +569,4 @@ const StockManagement = () => {
 };
 
 export default StockManagement;
+
