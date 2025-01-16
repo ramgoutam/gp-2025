@@ -12,7 +12,10 @@ export const SignOutButton = () => {
     console.log("Starting sign out process...");
     
     try {
-      // First clear all Supabase-related items from localStorage
+      // Immediately redirect to login to prevent access to protected routes
+      navigate("/login", { replace: true });
+
+      // Clear all Supabase-related items from localStorage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('supabase.')) {
           console.log('Removing localStorage item:', key);
@@ -25,31 +28,14 @@ export const SignOutButton = () => {
       
       if (error) {
         console.error("Supabase sign out error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred during sign out.",
+        });
       }
-
-      console.log("Sign out completed, redirecting to login");
-      
-      // Show success toast
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-      
-      // Always redirect to login page
-      navigate("/login", { replace: true });
-      
     } catch (error) {
       console.error("Error during sign out process:", error);
-      
-      // Show error toast
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An error occurred during sign out.",
-      });
-      
-      // Still redirect to login page
-      navigate("/login", { replace: true });
     }
   };
 
