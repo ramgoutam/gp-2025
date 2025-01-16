@@ -476,14 +476,6 @@ const StockManagement = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleAdjustStock(item.id, item.quantity + 1)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          Adjust
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
                           onClick={() => handleTransferClick(item)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
                         >
