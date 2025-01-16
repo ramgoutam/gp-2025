@@ -10,15 +10,30 @@ export const SignOutButton = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Attempting to sign out...");
+      console.log("Starting sign out process...");
+      
+      // Force clear the session from localStorage
+      window.localStorage.removeItem('supabase.auth.token');
+      
+      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Supabase sign out error:", error);
-        throw error;
+        // Even if there's an error, we'll continue with the local cleanup
+        console.log("Continuing with local cleanup despite error");
       }
       
-      console.log("Sign out successful");
+      // Clear any remaining Supabase items from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      console.log("Local storage cleaned, redirecting to login");
+      
+      // Show success toast
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
@@ -26,13 +41,17 @@ export const SignOutButton = () => {
       
       // Force navigation to login page
       navigate("/login", { replace: true });
+      
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Error during sign out process:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to sign out. Please try again.",
       });
+      
+      // Even if there's an error, attempt to redirect to login
+      navigate("/login", { replace: true });
     }
   };
 
