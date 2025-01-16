@@ -57,7 +57,7 @@ const Login = () => {
       <Card className="w-full max-w-md mx-4 animate-fade-in">
         <CardHeader className="space-y-4 text-center pb-0">
           <img
-            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/logo.png"
+            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
             alt="Company Logo"
             className="h-12 mx-auto mb-2"
           />
