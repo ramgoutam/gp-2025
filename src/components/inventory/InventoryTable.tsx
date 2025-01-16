@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, ArrowLeftRight, AlertTriangle, Info } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, ArrowLeftRight } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -307,25 +307,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
 
     try {
-      console.log("Transferring stock:", {
-        itemId: selectedStockItem.itemId,
-        sourceLocationId: sourceLocationId,
-        targetLocationId,
-        quantity: transferQuantity
-      });
-
-      // First, check if we have enough stock in the source location
-      if (selectedStockItem.quantity < transferQuantity) {
-        toast({
-          title: "Error",
-          description: "Insufficient stock in source location",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Begin the transfer
-      // 1. Reduce stock in source location
+      // Reduce stock in source location
       const { error: sourceError } = await supabase
         .from('inventory_stock')
         .update({ 
@@ -336,7 +318,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       if (sourceError) throw sourceError;
 
-      // 2. Check if target location already has stock of this item
+      // Check if target location already has stock of this item
       const { data: targetStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
@@ -529,73 +511,216 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </TableBody>
       </Table>
 
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">Edit Inventory Item</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSave} className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="product_id">Product ID</Label>
+                <Input
+                  id="product_id"
+                  value={editingItem?.product_id || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, product_id: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="product_name">Name</Label>
+                <Input
+                  id="product_name"
+                  value={editingItem?.product_name || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, product_name: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={editingItem?.category || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, category: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="uom">UOM</Label>
+                <Input
+                  id="uom"
+                  value={editingItem?.uom || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, uom: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
+                <Input
+                  id="manufacturing_id"
+                  value={editingItem?.manufacturing_id || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturing_id: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="manufacturer">Manufacturer</Label>
+                <Input
+                  id="manufacturer"
+                  value={editingItem?.manufacturer || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, manufacturer: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order_link">Order Link</Label>
+                <Input
+                  id="order_link"
+                  value={editingItem?.order_link || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, order_link: e.target.value} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="min_stock">Minimum Stock</Label>
+                <Input
+                  id="min_stock"
+                  type="number"
+                  value={editingItem?.min_stock || 0}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, min_stock: parseInt(e.target.value)} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={editingItem?.price || 0}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, price: parseFloat(e.target.value)} : null)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={editingItem?.sku || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, sku: e.target.value} : null)}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={editingItem?.description || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, description: e.target.value} : null)}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(false)}
+                className="hover:bg-gray-50/50 transition-colors duration-200"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                className="bg-primary hover:bg-primary/90 transition-colors duration-200"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* View Stock Dialog */}
       <Dialog open={isViewStockDialogOpen} onOpenChange={setIsViewStockDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] p-0">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="text-xl flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Stock Levels
-            </DialogTitle>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Stock Levels</DialogTitle>
             <DialogDescription>
-              Current stock levels for <span className="font-medium">{viewingItem?.product_name}</span>
+              Current stock levels for {viewingItem?.product_name} across all locations
             </DialogDescription>
           </DialogHeader>
-          <div className="p-6 pt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
-              {sortedStockLevels.map((stock) => (
-                <div
-                  key={stock.location_id}
-                  className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <h3 className="font-medium text-gray-900">{stock.location_name}</h3>
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-card p-4">
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-4 pb-2 border-b">
+                    <div 
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => handleStockSort('location')}
+                    >
+                      <span className="font-medium group-hover:text-primary transition-colors">Location</span>
+                      <ArrowUpDown className={cn(
+                        "ml-2 h-4 w-4 transition-colors",
+                        stockSortField === 'location' ? "text-primary" : "text-muted-foreground",
+                        "group-hover:text-primary"
+                      )} />
                     </div>
-                    {stock.quantity > 0 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleTransferClick(
-                          viewingItem?.id || '',
-                          stock.location_id,
-                          stock.quantity,
-                          stock.location_name
+                    <div 
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => handleStockSort('quantity')}
+                    >
+                      <span className="font-medium group-hover:text-primary transition-colors">Quantity</span>
+                      <ArrowUpDown className={cn(
+                        "ml-2 h-4 w-4 transition-colors",
+                        stockSortField === 'quantity' ? "text-primary" : "text-muted-foreground",
+                        "group-hover:text-primary"
+                      )} />
+                    </div>
+                    <div className="font-medium">Actions</div>
+                  </div>
+                  {sortedStockLevels.map((stock) => (
+                    <div 
+                      key={stock.location_id}
+                      className="grid grid-cols-3 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
+                    >
+                      <span className="font-medium text-foreground">{stock.location_name}</span>
+                      <span className={cn(
+                        "font-mono",
+                        stock.quantity === 0 ? "text-muted-foreground" : "text-foreground"
+                      )}>
+                        {stock.quantity} units
+                      </span>
+                      <div>
+                        {stock.quantity > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleTransferClick(
+                              viewingItem?.id || '',
+                              stock.location_id,
+                              stock.quantity,
+                              stock.location_name
+                            )}
+                            className="flex items-center gap-2"
+                          >
+                            <ArrowLeftRight className="h-4 w-4" />
+                            Transfer
+                          </Button>
                         )}
-                        className="flex items-center gap-1 text-sm hover:bg-primary/5"
-                      >
-                        <ArrowLeftRight className="h-3 w-3" />
-                        Transfer
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className={cn(
-                      "text-2xl font-semibold",
-                      stock.quantity === 0 ? "text-gray-400" : "text-primary",
-                      stock.quantity < (viewingItem?.min_stock || 0) ? "text-yellow-600" : ""
-                    )}>
-                      {stock.quantity}
-                    </span>
-                    <span className="text-gray-500 text-sm">units</span>
-                  </div>
-                  {stock.quantity < (viewingItem?.min_stock || 0) && stock.quantity > 0 && (
-                    <div className="mt-2 flex items-center gap-1 text-yellow-600 text-sm">
-                      <AlertTriangle className="h-3 w-3" />
-                      Below minimum stock
+                      </div>
                     </div>
-                  )}
-                  {stock.quantity === 0 && (
-                    <div className="mt-2 flex items-center gap-1 text-gray-400 text-sm">
-                      <Info className="h-3 w-3" />
-                      No stock available
+                  ))}
+                  {!sortedStockLevels.length && (
+                    <div className="text-center text-muted-foreground py-4">
+                      No stock found in any location
                     </div>
                   )}
                 </div>
-              ))}
+              </ScrollArea>
             </div>
           </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsViewStockDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -603,10 +728,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ArrowLeftRight className="h-5 w-5 text-primary" />
-              Transfer Stock
-            </DialogTitle>
+            <DialogTitle>Transfer Stock</DialogTitle>
             <DialogDescription>
               Transfer stock from {selectedStockItem?.locationName} to another location
             </DialogDescription>
@@ -614,10 +736,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>From Location</Label>
-              <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
-                <MapPin className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">{selectedStockItem?.locationName}</span>
-              </div>
+              <Input 
+                value={selectedStockItem?.locationName || ''} 
+                disabled 
+                className="bg-gray-50"
+              />
             </div>
             <div className="space-y-2">
               <Label>To Location</Label>
@@ -632,7 +755,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <SelectItem 
                         key={location.location_id} 
                         value={location.location_id}
-                        className="hover:bg-gray-100"
                       >
                         {location.location_name}
                       </SelectItem>
@@ -648,7 +770,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 max={selectedStockItem?.quantity || 0}
                 value={transferQuantity}
                 onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
-                className="focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
@@ -656,14 +777,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Button
               variant="outline"
               onClick={() => setIsTransferDialogOpen(false)}
-              className="hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               onClick={handleTransferStock}
               disabled={!targetLocationId || transferQuantity <= 0 || (selectedStockItem && transferQuantity > selectedStockItem.quantity)}
-              className="bg-primary hover:bg-primary/90"
             >
               Transfer Stock
             </Button>
