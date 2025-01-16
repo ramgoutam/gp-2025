@@ -9,29 +9,25 @@ export const SignOutButton = () => {
   const { toast } = useToast();
 
   const handleSignOut = async () => {
+    console.log("Starting sign out process...");
+    
     try {
-      console.log("Starting sign out process...");
-      
-      // Force clear the session from localStorage
-      window.localStorage.removeItem('supabase.auth.token');
-      
-      // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Supabase sign out error:", error);
-        // Even if there's an error, we'll continue with the local cleanup
-        console.log("Continuing with local cleanup despite error");
-      }
-      
-      // Clear any remaining Supabase items from localStorage
+      // First clear all Supabase-related items from localStorage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('supabase.')) {
+          console.log('Removing localStorage item:', key);
           localStorage.removeItem(key);
         }
       });
 
-      console.log("Local storage cleaned, redirecting to login");
+      // Then attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Supabase sign out error:", error);
+      }
+
+      console.log("Sign out completed, redirecting to login");
       
       // Show success toast
       toast({
@@ -39,18 +35,20 @@ export const SignOutButton = () => {
         description: "You have been successfully signed out.",
       });
       
-      // Force navigation to login page
+      // Always redirect to login page
       navigate("/login", { replace: true });
       
     } catch (error) {
       console.error("Error during sign out process:", error);
+      
+      // Show error toast
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to sign out. Please try again.",
+        description: "An error occurred during sign out.",
       });
       
-      // Even if there's an error, attempt to redirect to login
+      // Still redirect to login page
       navigate("/login", { replace: true });
     }
   };

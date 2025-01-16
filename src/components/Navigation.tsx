@@ -16,13 +16,24 @@ export const Navigation = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (session?.user) {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
+        console.log("Checking admin status for user:", session.user.id);
+        try {
+          const { data: roles, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-        setIsAdmin(roles?.role === 'ADMIN');
+          if (error) {
+            console.error("Error fetching user role:", error);
+            return;
+          }
+
+          console.log("User roles data:", roles);
+          setIsAdmin(roles?.role === 'ADMIN');
+        } catch (error) {
+          console.error("Error in checkAdminStatus:", error);
+        }
       }
     };
 
@@ -32,8 +43,15 @@ export const Navigation = () => {
   // Check authentication on mount and redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Checking authentication status");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Error checking auth status:", error);
+      }
+      
       if (!session && location.pathname !== '/login') {
+        console.log("No session found, redirecting to login");
         navigate('/login');
       }
     };
@@ -44,6 +62,7 @@ export const Navigation = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session);
       if (!session && location.pathname !== '/login') {
+        console.log("Session ended, redirecting to login");
         navigate('/login');
       }
     });
