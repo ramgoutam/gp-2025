@@ -213,14 +213,25 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       if (stockError) throw stockError;
 
-      const formattedStockLevels = stockData?.map(stock => ({
-        location_id: stock.location_id || '',
-        location_name: stock.inventory_locations?.name || 'Unknown Location',
-        quantity: stock.quantity
-      })) || [];
+      // Create a map of all locations with 0 quantity
+      const allLocationStocks = (locationsData || []).map(location => ({
+        location_id: location.id,
+        location_name: location.name,
+        quantity: 0
+      }));
 
-      console.log("Fetched stock levels:", formattedStockLevels);
-      setStockLevels(formattedStockLevels);
+      // Update quantities for locations that have stock
+      stockData?.forEach(stock => {
+        const locationIndex = allLocationStocks.findIndex(
+          loc => loc.location_id === stock.location_id
+        );
+        if (locationIndex !== -1) {
+          allLocationStocks[locationIndex].quantity = stock.quantity;
+        }
+      });
+
+      console.log("Fetched stock levels:", allLocationStocks);
+      setStockLevels(allLocationStocks);
     } catch (error) {
       console.error('Error fetching locations and stock:', error);
       toast({
