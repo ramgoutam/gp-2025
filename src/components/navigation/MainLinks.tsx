@@ -1,97 +1,67 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export const MainLinks = () => {
   const location = useLocation();
-  
-  const mainLinks = [
-    { to: "/", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/patients", label: "Patients", icon: Users },
-  ];
+  const session = useSession();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (session?.user?.id) {
+        const { data: userRole } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        setIsAdmin(userRole?.role === 'ADMIN');
+      }
+    };
+
+    checkAdminRole();
+  }, [session]);
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="flex space-x-4">
-      {mainLinks.map(({ to, label, icon: Icon }) => (
-        <Link
-          key={to}
-          to={to}
-          className={cn(
-            "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-            location.pathname === to
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-100"
-          )}
-        >
-          <Icon className="w-4 h-4" />
-          <span>{label}</span>
-        </Link>
-      ))}
-
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-            (location.pathname === "/marketing" || 
-             location.pathname === "/leads" || 
-             location.pathname === "/consultations")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-100"
-          )}
-        >
-          <Megaphone className="w-4 h-4" />
-          <span>Marketing</span>
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem>
-            <Link 
-              to="/marketing" 
-              className="flex items-center w-full"
-            >
-              <Megaphone className="w-4 h-4 mr-2" />
-              Overview
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link 
-              to="/leads" 
-              className="flex items-center w-full"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Leads
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link 
-              to="/consultations" 
-              className="flex items-center w-full"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Consultations
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       <Link
-        to="/inventory"
-        className={cn(
-          "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-          location.pathname === "/inventory"
-            ? "bg-primary text-white"
-            : "text-gray-600 hover:bg-gray-100"
-        )}
+        to="/"
+        className={`text-sm font-medium transition-colors hover:text-primary ${
+          isActive("/") ? "text-primary" : "text-gray-600"
+        }`}
       >
-        <Package className="w-4 h-4" />
-        <span>Inventory</span>
+        Dashboard
       </Link>
+      <Link
+        to="/patients"
+        className={`text-sm font-medium transition-colors hover:text-primary ${
+          isActive("/patients") ? "text-primary" : "text-gray-600"
+        }`}
+      >
+        Patients
+      </Link>
+      <Link
+        to="/marketing"
+        className={`text-sm font-medium transition-colors hover:text-primary ${
+          isActive("/marketing") ? "text-primary" : "text-gray-600"
+        }`}
+      >
+        Marketing
+      </Link>
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className={`text-sm font-medium transition-colors hover:text-primary ${
+            isActive("/admin") ? "text-primary" : "text-gray-600"
+          }`}
+        >
+          Admin
+        </Link>
+      )}
     </div>
   );
 };
