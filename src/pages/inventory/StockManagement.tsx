@@ -31,7 +31,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";  // Added this import
+import { cn } from "@/lib/utils";
 
 type StockWithRelations = {
   id: string;
@@ -526,10 +526,10 @@ const StockManagement = () => {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select source location" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {locations?.map((location) => (
                     <SelectItem 
                       key={location.id} 
@@ -544,10 +544,10 @@ const StockManagement = () => {
             <div className="space-y-2">
               <Label>To Location</Label>
               <Select value={targetLocationId} onValueChange={setTargetLocationId}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select target location" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {locations?.map((location) => (
                     <SelectItem 
                       key={location.id} 
