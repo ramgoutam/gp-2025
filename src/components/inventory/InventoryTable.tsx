@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
@@ -185,32 +186,58 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [targetLocationId, setTargetLocationId] = useState<string>("");
   const [sourceLocationId, setSourceLocationId] = useState<string>("");
   const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
+  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
 
-  // Fetch locations
-  React.useEffect(() => {
-    const fetchLocations = async () => {
-      const { data, error } = await supabase
+  // Fetch locations and stock levels
+  const fetchLocationsAndStock = async (itemId: string) => {
+    try {
+      // Fetch locations
+      const { data: locationsData, error: locationsError } = await supabase
         .from('inventory_locations')
         .select('id, name')
         .order('name');
       
-      if (error) {
-        console.error('Error fetching locations:', error);
-        return;
-      }
-      
-      setLocations(data || []);
-    };
+      if (locationsError) throw locationsError;
+      setLocations(locationsData || []);
 
-    fetchLocations();
-  }, []);
+      // Fetch stock levels for the item
+      const { data: stockData, error: stockError } = await supabase
+        .from('inventory_stock')
+        .select(`
+          quantity,
+          location_id,
+          inventory_locations (
+            name
+          )
+        `)
+        .eq('item_id', itemId);
 
-  const handleTransferClick = (item: InventoryItem) => {
+      if (stockError) throw stockError;
+
+      const formattedStockLevels = stockData?.map(stock => ({
+        location_id: stock.location_id || '',
+        location_name: stock.inventory_locations?.name || 'Unknown Location',
+        quantity: stock.quantity
+      })) || [];
+
+      setStockLevels(formattedStockLevels);
+    } catch (error) {
+      console.error('Error fetching locations and stock:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch locations and stock levels",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTransferClick = async (item: InventoryItem) => {
     setTransferringItem(item);
     setIsTransferDialogOpen(true);
     setTransferQuantity(0);
     setTargetLocationId("");
     setSourceLocationId("");
+    await fetchLocationsAndStock(item.id);
   };
 
   const handleTransferStock = async () => {
@@ -578,7 +605,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       {/* Transfer Stock Dialog */}
       <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Transfer Stock</DialogTitle>
             <DialogDescription>
@@ -586,48 +613,76 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>From Location</Label>
-              <Select value={sourceLocationId} onValueChange={setSourceLocationId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select source location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map((location) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>To Location</Label>
-              <Select value={targetLocationId} onValueChange={setTargetLocationId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select target location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map((location) => (
-                    <SelectItem 
-                      key={location.id} 
-                      value={location.id}
-                      disabled={location.id === sourceLocationId}
-                    >
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Quantity</Label>
-              <Input
-                type="number"
-                min="1"
-                value={transferQuantity}
-                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
-              />
+            <div className="grid gap-4">
+              <div className="rounded-lg border p-4">
+                <h4 className="font-medium mb-2">Current Stock Levels</h4>
+                <ScrollArea className="h-[200px]">
+                  <div className="space-y-2">
+                    {stockLevels.map((stock) => (
+                      <div 
+                        key={stock.location_id}
+                        className="flex justify-between items-center p-2 rounded hover:bg-gray-50"
+                      >
+                        <span className="font-medium">{stock.location_name}</span>
+                        <span className="text-gray-600">{stock.quantity} units</span>
+                      </div>
+                    ))}
+                    {!stockLevels.length && (
+                      <div className="text-center text-gray-500 py-4">
+                        No stock found in any location
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+              <div className="space-y-2">
+                <Label>From Location</Label>
+                <Select value={sourceLocationId} onValueChange={setSourceLocationId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select source location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((location) => (
+                      <SelectItem 
+                        key={location.id} 
+                        value={location.id}
+                        disabled={!stockLevels.find(s => s.location_id === location.id && s.quantity > 0)}
+                      >
+                        {location.name} ({stockLevels.find(s => s.location_id === location.id)?.quantity || 0} units)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>To Location</Label>
+                <Select value={targetLocationId} onValueChange={setTargetLocationId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select target location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((location) => (
+                      <SelectItem 
+                        key={location.id} 
+                        value={location.id}
+                        disabled={location.id === sourceLocationId}
+                      >
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={stockLevels.find(s => s.location_id === sourceLocationId)?.quantity || 0}
+                  value={transferQuantity}
+                  onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
