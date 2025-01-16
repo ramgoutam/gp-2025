@@ -750,14 +750,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <SelectTrigger>
                   <SelectValue placeholder="Select target location" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border shadow-md">
                   {stockLevels
                     .filter(location => location.location_id !== sourceLocationId)
                     .map((location) => (
                       <SelectItem 
                         key={location.location_id} 
                         value={location.location_id}
-                        className="hover:bg-gray-100"
+                        className="hover:bg-gray-50"
                       >
                         {location.location_name}
                       </SelectItem>
