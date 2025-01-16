@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2, ArrowLeftRight } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -384,8 +384,8 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     onClick={() => handleTransferClick(item)}
                     className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
-                    <ArrowLeftRight className="h-4 w-4 mr-2" />
-                    Transfer
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Stock
                   </Button>
                   <Button 
                     variant="ghost" 
