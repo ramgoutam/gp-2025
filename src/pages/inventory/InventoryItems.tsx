@@ -23,26 +23,6 @@ const InventoryItems = () => {
 
   console.log("Inventory items loaded:", items);
 
-  const handleEdit = (item: any) => {
-    // Implement edit functionality
-    console.log("Edit item:", item);
-  };
-
-  const handleDelete = (item: any) => {
-    // Implement delete functionality
-    console.log("Delete item:", item);
-  };
-
-  const handleView = (item: any) => {
-    // Implement view functionality
-    console.log("View item:", item);
-  };
-
-  const handleTransfer = (item: any) => {
-    // Implement transfer functionality
-    console.log("Transfer item:", item);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -88,13 +68,7 @@ const InventoryItems = () => {
 
         {/* Table Section */}
         <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-          <InventoryTable 
-            data={items || []} 
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onView={handleView}
-            onTransfer={handleTransfer}
-          />
+          <InventoryTable items={items} onUpdate={refetch} />
         </div>
       </div>
     </div>
