@@ -10,12 +10,16 @@ export const SignOutButton = () => {
 
   const handleSignOut = async () => {
     try {
+      // First navigate to login page
+      navigate("/login");
+      
+      // Then sign out from Supabase
       await supabase.auth.signOut();
+      
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
-      navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
       toast({
