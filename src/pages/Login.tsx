@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -55,12 +55,14 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
       <Card className="w-full max-w-md mx-4 animate-fade-in">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-bold text-primary-900">
-            Welcome Back
-          </CardTitle>
+        <CardHeader className="space-y-4 text-center pb-0">
+          <img
+            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/logo.png"
+            alt="Company Logo"
+            className="h-12 mx-auto mb-2"
+          />
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Auth
             supabaseClient={supabase}
             appearance={{ 
