@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
@@ -184,7 +185,20 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [transferringItem, setTransferringItem] = useState<InventoryItem | null>(null);
   const [targetLocationId, setTargetLocationId] = useState("");
   const [transferQuantity, setTransferQuantity] = useState(0);
-  const { toast } = useToast();
+
+  // Fetch locations data
+  const { data: locationData } = useQuery({
+    queryKey: ['inventory-locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_locations')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const handleTransferClick = (item: InventoryItem) => {
     setTransferringItem(item);
@@ -543,7 +557,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <SelectValue placeholder="Select target location" />
                 </SelectTrigger>
                 <SelectContent>
-                  {locations?.map((location) => (
+                  {locationData?.map((location) => (
                     <SelectItem 
                       key={location.id} 
                       value={location.id}
