@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2 } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search, Trash2, ArrowLeftRight } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -179,6 +179,136 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [transferringItem, setTransferringItem] = useState<InventoryItem | null>(null);
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
+  const [targetLocationId, setTargetLocationId] = useState<string>("");
+  const [sourceLocationId, setSourceLocationId] = useState<string>("");
+  const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
+
+  // Fetch locations
+  React.useEffect(() => {
+    const fetchLocations = async () => {
+      const { data, error } = await supabase
+        .from('inventory_locations')
+        .select('id, name')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching locations:', error);
+        return;
+      }
+      
+      setLocations(data || []);
+    };
+
+    fetchLocations();
+  }, []);
+
+  const handleTransferClick = (item: InventoryItem) => {
+    setTransferringItem(item);
+    setIsTransferDialogOpen(true);
+    setTransferQuantity(0);
+    setTargetLocationId("");
+    setSourceLocationId("");
+  };
+
+  const handleTransferStock = async () => {
+    if (!transferringItem || !sourceLocationId || !targetLocationId || transferQuantity <= 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Please fill in all fields with valid values.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log("Transferring stock:", {
+        itemId: transferringItem.id,
+        sourceLocationId,
+        targetLocationId,
+        quantity: transferQuantity
+      });
+
+      // First, check if we have enough stock in the source location
+      const { data: sourceStock } = await supabase
+        .from('inventory_stock')
+        .select('quantity')
+        .eq('item_id', transferringItem.id)
+        .eq('location_id', sourceLocationId)
+        .single();
+
+      if (!sourceStock || sourceStock.quantity < transferQuantity) {
+        toast({
+          title: "Error",
+          description: "Insufficient stock in source location",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Begin the transfer
+      // 1. Reduce stock in source location
+      const { error: sourceError } = await supabase
+        .from('inventory_stock')
+        .update({ 
+          quantity: sourceStock.quantity - transferQuantity 
+        })
+        .eq('item_id', transferringItem.id)
+        .eq('location_id', sourceLocationId);
+
+      if (sourceError) throw sourceError;
+
+      // 2. Increase or create stock in target location
+      const { data: targetStock } = await supabase
+        .from('inventory_stock')
+        .select('quantity')
+        .eq('item_id', transferringItem.id)
+        .eq('location_id', targetLocationId)
+        .maybeSingle();
+
+      if (targetStock) {
+        // Update existing stock
+        const { error: targetError } = await supabase
+          .from('inventory_stock')
+          .update({ 
+            quantity: targetStock.quantity + transferQuantity 
+          })
+          .eq('item_id', transferringItem.id)
+          .eq('location_id', targetLocationId);
+
+        if (targetError) throw targetError;
+      } else {
+        // Create new stock entry
+        const { error: insertError } = await supabase
+          .from('inventory_stock')
+          .insert({
+            item_id: transferringItem.id,
+            location_id: targetLocationId,
+            quantity: transferQuantity
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Stock transferred successfully",
+      });
+      
+      setIsTransferDialogOpen(false);
+      onUpdate();
+    } catch (error) {
+      console.error('Error transferring stock:', error);
+      toast({
+        title: "Error",
+        description: "Failed to transfer stock",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <div className="mb-4 space-y-4 p-4">
@@ -290,6 +420,15 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   >
                     <Pencil className="h-4 w-4 mr-2" />
                     Edit
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleTransferClick(item)}
+                    className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                  >
+                    <ArrowLeftRight className="h-4 w-4 mr-2" />
+                    Transfer
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -434,6 +573,77 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Stock Dialog */}
+      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Transfer Stock</DialogTitle>
+            <DialogDescription>
+              Move stock from one location to another
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>From Location</Label>
+              <Select value={sourceLocationId} onValueChange={setSourceLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>To Location</Label>
+              <Select value={targetLocationId} onValueChange={setTargetLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((location) => (
+                    <SelectItem 
+                      key={location.id} 
+                      value={location.id}
+                      disabled={location.id === sourceLocationId}
+                    >
+                      {location.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Quantity</Label>
+              <Input
+                type="number"
+                min="1"
+                value={transferQuantity}
+                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransferDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransferStock}
+              disabled={!sourceLocationId || !targetLocationId || transferQuantity <= 0}
+            >
+              Transfer Stock
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
