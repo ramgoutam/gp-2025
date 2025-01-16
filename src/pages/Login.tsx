@@ -1,59 +1,23 @@
-import React, { useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthChangeEvent } from "@supabase/supabase-js";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useSession } from "@supabase/auth-helpers-react";
 
-const Login = () => {
+export default function Login() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const session = useSession();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Current session:", session);
-      if (session) {
-        console.log("User already logged in, redirecting to dashboard");
-        navigate("/");
-      }
-      if (error) {
-        console.error("Error checking session:", error);
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "There was a problem checking your login status.",
-        });
-      }
-    };
-    
-    checkUser();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session) => {
-        console.log("Auth state changed:", event, session);
-        if (event === "SIGNED_IN" && session) {
-          console.log("User signed in, redirecting to dashboard");
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-          });
-          navigate("/");
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, toast]);
+    if (session) {
+      navigate("/");
+    }
+  }, [session, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md mx-4 animate-fade-in">
         <CardHeader className="space-y-6 text-center pb-0">
           <div className="flex justify-center items-center py-8">
@@ -67,42 +31,21 @@ const Login = () => {
         <CardContent className="pt-6">
           <Auth
             supabaseClient={supabase}
-            appearance={{ 
+            appearance={{
               theme: ThemeSupa,
-              style: {
-                button: { 
-                  background: 'rgb(79, 107, 255)',
-                  color: 'white',
-                  borderRadius: '8px',
-                  padding: '10px 15px',
-                  height: '42px',
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#4F6BFF',
+                    brandAccent: '#3D54CC',
+                  },
                 },
-                anchor: { 
-                  color: 'rgb(79, 107, 255)',
-                  fontWeight: '500'
-                },
-                input: {
-                  borderRadius: '8px',
-                  padding: '10px 15px',
-                },
-                message: {
-                  borderRadius: '8px',
-                  margin: '8px 0'
-                },
-                container: {
-                  gap: '16px'
-                }
-              }
+              },
             }}
             providers={[]}
-            magicLink={false}
-            showLinks={true}
-            view="sign_in"
           />
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default Login;
+}
