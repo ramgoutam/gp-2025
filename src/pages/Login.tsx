@@ -17,10 +17,10 @@ export default function Login() {
   }, [session, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md mx-4 animate-fade-in">
-        <CardHeader className="space-y-6 text-center pb-0">
-          <div className="flex justify-center items-center py-8">
+    <div className="h-screen w-full overflow-hidden flex items-center justify-center bg-gray-100">
+      <Card className="w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto animate-fade-in">
+        <CardHeader className="space-y-4 text-center pb-0">
+          <div className="flex justify-center items-center py-6">
             <img
               src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
               alt="Company Logo"
@@ -28,7 +28,7 @@ export default function Login() {
             />
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4">
           <Auth
             supabaseClient={supabase}
             appearance={{
