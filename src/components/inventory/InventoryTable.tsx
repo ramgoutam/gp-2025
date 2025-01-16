@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2, Warehouse } from "lucide-react";
+import { Package, Pencil, ArrowUpDown, Search, Trash2, Warehouse, ArrowLeftRight } from "lucide-react";
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
