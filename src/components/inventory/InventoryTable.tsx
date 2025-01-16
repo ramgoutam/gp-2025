@@ -388,28 +388,28 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="mb-4 space-y-4 p-4 animate-fade-in">
-        <div className="flex gap-4">
+      <div className="mb-6 space-y-4 p-4 animate-fade-in bg-white rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
             <Input
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-sm pl-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+              className="w-full pl-10 pr-4 h-11 text-sm transition-all duration-200 border-gray-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg"
             />
-            <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+            <Search className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px] transition-all duration-200 hover:border-primary/50">
+            <SelectTrigger className="w-[200px] h-11 transition-all duration-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
-            <SelectContent className="bg-white border shadow-md">
-              <SelectItem value="all" className="hover:bg-gray-50">All Categories</SelectItem>
+            <SelectContent className="bg-white border shadow-lg rounded-lg">
+              <SelectItem value="all" className="hover:bg-gray-50 cursor-pointer">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem 
                   key={category} 
                   value={category}
-                  className="hover:bg-gray-50"
+                  className="hover:bg-gray-50 cursor-pointer"
                 >
                   {category}
                 </SelectItem>
@@ -419,122 +419,130 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50/50">
-            <TableHead className="w-12"></TableHead>
-            <TableHead>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleSort("sku")}
-                className="hover:text-primary transition-colors duration-200"
-              >
-                SKU <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleSort("product_name")}
-                className="hover:text-primary transition-colors duration-200"
-              >
-                Product Name <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleSort("uom")}
-                className="hover:text-primary transition-colors duration-200"
-              >
-                UOM <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleSort("min_stock")}
-                className="hover:text-primary transition-colors duration-200"
-              >
-                Min Stock <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleSort("price")}
-                className="hover:text-primary transition-colors duration-200"
-              >
-                Price <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredAndSortedItems.map((item) => (
-            <TableRow 
-              key={item.id} 
-              className="hover:bg-gray-50/50 transition-colors duration-200 group"
-            >
-              <TableCell>
-                <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
-              </TableCell>
-              <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-              <TableCell className="font-medium">{item.product_name}</TableCell>
-              <TableCell className="text-gray-600">{item.description}</TableCell>
-              <TableCell>{item.uom}</TableCell>
-              <TableCell>{item.min_stock}</TableCell>
-              <TableCell>${item.price?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell>
-                <div className="flex gap-2 transition-all duration-200">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleEditClick(item)}
-                    className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleViewStock(item)}
-                    className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Stock
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleDeleteClick(item)}
-                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </TableCell>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
+              <TableHead className="w-12"></TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleSort("sku")}
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                >
+                  SKU <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleSort("product_name")}
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                >
+                  Product Name <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="font-medium text-gray-700">Description</TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleSort("uom")}
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                >
+                  UOM <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleSort("min_stock")}
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                >
+                  Min Stock <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => handleSort("price")}
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                >
+                  Price <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-          {!filteredAndSortedItems.length && (
-            <TableRow>
-              <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                No items found. Add some items to get started.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredAndSortedItems.map((item) => (
+              <TableRow 
+                key={item.id} 
+                className="hover:bg-gray-50/50 transition-colors duration-200 group border-gray-100"
+              >
+                <TableCell>
+                  <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+                </TableCell>
+                <TableCell className="font-mono text-sm text-gray-600">{item.sku}</TableCell>
+                <TableCell className="font-medium text-gray-900">{item.product_name}</TableCell>
+                <TableCell className="text-gray-600 max-w-md truncate">{item.description}</TableCell>
+                <TableCell className="text-gray-600">{item.uom}</TableCell>
+                <TableCell className="text-gray-600">{item.min_stock}</TableCell>
+                <TableCell className="text-gray-600">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleEditClick(item)}
+                      className="text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewStock(item)}
+                      className="text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Stock
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDeleteClick(item)}
+                      className="text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {!filteredAndSortedItems.length && (
+              <TableRow>
+                <TableCell colSpan={8} className="h-32 text-center text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <Package className="h-8 w-8 text-gray-400 mb-2" />
+                    No items found. Add some items to get started.
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Edit Product Details</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Pencil className="h-5 w-5 text-primary" />
+              Edit Product Details
+            </DialogTitle>
             <DialogDescription>
               Make changes to the product information here. Click save when you're done.
             </DialogDescription>
@@ -645,10 +653,16 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 type="button"
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
+                className="hover:bg-gray-50"
               >
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button 
+                type="submit"
+                className="bg-primary hover:bg-primary/90"
+              >
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -747,7 +761,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <div className="space-y-2">
               <Label>To Location</Label>
               <Select value={targetLocationId} onValueChange={setTargetLocationId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select target location" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border shadow-md">
@@ -798,9 +812,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!isDeletingItem} onOpenChange={(open) => !open && setIsDeletingItem(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Delete Inventory Item</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete Inventory Item
+            </DialogTitle>
             <DialogDescription>
               Are you sure you want to delete "{isDeletingItem?.product_name}"? This action cannot be undone.
             </DialogDescription>
@@ -809,6 +826,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Button
               variant="outline"
               onClick={() => setIsDeletingItem(null)}
+              className="hover:bg-gray-50"
             >
               Cancel
             </Button>
