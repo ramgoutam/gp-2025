@@ -41,6 +41,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [sortField, setSortField] = useState<keyof InventoryItem>("product_name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [viewingStock, setViewingStock] = useState<InventoryItem | null>(null);
   const { toast } = useToast();
 
   // Get unique categories for filter dropdown
@@ -91,6 +92,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   const handleDeleteClick = (item: InventoryItem) => {
     setIsDeletingItem(item);
+  };
+
+  const handleViewStock = (item: InventoryItem) => {
+    console.log("Viewing stock for item:", item);
+    setViewingStock(item);
   };
 
   const handleConfirmDelete = async () => {
@@ -284,6 +290,15 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <Button 
                     variant="ghost" 
                     size="sm"
+                    onClick={() => handleDeleteClick(item)}
+                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
                     onClick={() => handleEditClick(item)}
                     className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
@@ -298,15 +313,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     View Stock
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleDeleteClick(item)}
-                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
                   </Button>
                 </div>
               </TableCell>
@@ -438,6 +444,30 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               className="bg-destructive hover:bg-destructive/90 transition-colors duration-200"
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Stock View Dialog */}
+      <Dialog open={!!viewingStock} onOpenChange={(open) => !open && setViewingStock(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Stock Details</DialogTitle>
+            <DialogDescription>
+              View stock information for {viewingStock?.product_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Add stock view details here */}
+            <p>Stock details will be implemented here</p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setViewingStock(null)}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
