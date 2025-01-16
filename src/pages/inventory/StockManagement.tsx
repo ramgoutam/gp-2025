@@ -512,11 +512,34 @@ const StockManagement = () => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>From Location</Label>
-              <Input 
-                value={transferringItem?.inventory_locations.name || ''} 
-                disabled 
-                className="bg-gray-50"
-              />
+              <Select 
+                value={transferringItem?.location_id || ''} 
+                onValueChange={(locationId) => {
+                  if (transferringItem) {
+                    setTransferringItem({
+                      ...transferringItem,
+                      location_id: locationId,
+                      inventory_locations: {
+                        name: locations?.find(loc => loc.id === locationId)?.name || ''
+                      }
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations?.map((location) => (
+                    <SelectItem 
+                      key={location.id} 
+                      value={location.id}
+                    >
+                      {location.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>To Location</Label>
@@ -569,4 +592,3 @@ const StockManagement = () => {
 };
 
 export default StockManagement;
-
