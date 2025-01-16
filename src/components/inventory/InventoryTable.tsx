@@ -180,11 +180,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   };
 
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [transferringItem, setTransferringItem] = useState<InventoryItem | null>(null);
-  const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
-  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
-  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
-  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedStock, setSelectedStock] = useState<{
     locationId: string;
     locationName: string;
@@ -207,18 +202,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   });
 
-  const fetchLocationsAndStock = async (itemId: string) => {
+  const handleViewStock = async (item: InventoryItem) => {
     try {
-      console.log("Fetching locations and stock for item:", itemId);
+      console.log("Fetching stock levels for item:", item.id);
       
-      const { data: locationsData, error: locationsError } = await supabase
-        .from('inventory_locations')
-        .select('id, name')
-        .order('name');
-      
-      if (locationsError) throw locationsError;
-      setLocations(locationsData || []);
-
       const { data: stockData, error: stockError } = await supabase
         .from('inventory_stock')
         .select(`
@@ -228,47 +215,38 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             name
           )
         `)
-        .eq('item_id', itemId);
+        .eq('item_id', item.id);
 
       if (stockError) throw stockError;
 
-      const allLocationStocks = (locationsData || []).map(location => ({
-        location_id: location.id,
-        location_name: location.name,
-        quantity: 0
-      }));
-
-      stockData?.forEach(stock => {
-        const locationIndex = allLocationStocks.findIndex(
-          loc => loc.location_id === stock.location_id
-        );
-        if (locationIndex !== -1) {
-          allLocationStocks[locationIndex].quantity = stock.quantity;
-        }
-      });
-
-      console.log("Fetched stock levels:", allLocationStocks);
-      setStockLevels(allLocationStocks);
+      // Find the first stock entry with quantity > 0
+      const firstStock = stockData?.find(stock => stock.quantity > 0);
+      
+      if (firstStock) {
+        setSelectedStock({
+          locationId: firstStock.location_id,
+          locationName: firstStock.inventory_locations.name,
+          quantity: firstStock.quantity,
+          itemId: item.id
+        });
+        setIsTransferDialogOpen(true);
+        setTransferQuantity(0);
+        setTargetLocationId("");
+      } else {
+        toast({
+          title: "No Stock Available",
+          description: "This item has no stock available for transfer.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
-      console.error('Error fetching locations and stock:', error);
+      console.error('Error fetching stock levels:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch locations and stock levels",
+        description: "Failed to fetch stock levels",
         variant: "destructive",
       });
     }
-  };
-
-  const handleTransferClick = (stock: { location_id: string; location_name: string; quantity: number }) => {
-    setSelectedStock({
-      locationId: stock.location_id,
-      locationName: stock.location_name,
-      quantity: stock.quantity,
-      itemId: transferringItem?.id || ''
-    });
-    setTransferQuantity(0);
-    setTargetLocationId("");
-    setIsTransferDialogOpen(true);
   };
 
   const handleTransferSubmit = async () => {
@@ -331,7 +309,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       });
       
       setIsTransferDialogOpen(false);
-      await fetchLocationsAndStock(selectedStock.itemId);
+      onUpdate();
     } catch (error) {
       console.error('Error transferring stock:', error);
       toast({
@@ -339,27 +317,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         description: "Failed to transfer stock",
         variant: "destructive",
       });
-    }
-  };
-
-  const sortedStockLevels = useMemo(() => {
-    return [...stockLevels].sort((a, b) => {
-      const aValue = stockSortField === 'location' ? a.location_name : a.quantity;
-      const bValue = stockSortField === 'location' ? b.location_name : b.quantity;
-      
-      if (stockSortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      }
-      return bValue > aValue ? 1 : -1;
-    });
-  }, [stockLevels, stockSortField, stockSortDirection]);
-
-  const handleStockSort = (field: 'location' | 'quantity') => {
-    if (stockSortField === field) {
-      setStockSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setStockSortField(field);
-      setStockSortDirection('asc');
     }
   };
 
@@ -478,11 +435,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => handleTransferClick(item)}
+                    onClick={() => handleViewStock(item)}
                     className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Stock
+                    <ArrowLeftRight className="h-4 w-4 mr-2" />
+                    Transfer
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -507,6 +464,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </TableBody>
       </Table>
 
+      {/* Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
@@ -685,12 +643,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Button
               variant="outline"
               onClick={() => setIsTransferDialogOpen(false)}
+              className="hover:bg-gray-50/50"
             >
               Cancel
             </Button>
             <Button
               onClick={handleTransferSubmit}
               disabled={!targetLocationId || transferQuantity <= 0 || (selectedStock && transferQuantity > selectedStock.quantity)}
+              className="bg-primary hover:bg-primary/90"
             >
               Transfer Stock
             </Button>
@@ -711,6 +671,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Button
               variant="outline"
               onClick={() => setIsDeletingItem(null)}
+              className="hover:bg-gray-50/50 transition-colors duration-200"
             >
               Cancel
             </Button>
