@@ -13,14 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,9 +20,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface InventoryTableProps {
   data: any[];
   locations: { id: string; name: string }[];
+  onUpdate?: () => void;
 }
 
-export function InventoryTable({ data, locations }: InventoryTableProps) {
+export function InventoryTable({ data = [], locations = [], onUpdate }: InventoryTableProps) {
   const { toast } = useToast();
   const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -78,6 +71,7 @@ export function InventoryTable({ data, locations }: InventoryTableProps) {
       setFromLocation("");
       setToLocation("");
       setQuantity("");
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error transferring stock:", error);
       toast({
@@ -90,22 +84,22 @@ export function InventoryTable({ data, locations }: InventoryTableProps) {
 
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Item Name</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.location_name}</TableCell>
-              <TableCell>{item.quantity}</TableCell>
-              <TableCell>
+            <tr key={item.id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location_name}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <Button
                   variant="outline"
                   size="sm"
@@ -117,14 +111,14 @@ export function InventoryTable({ data, locations }: InventoryTableProps) {
                 >
                   Transfer
                 </Button>
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
 
       <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-white">
           <DialogHeader>
             <DialogTitle>Transfer Stock</DialogTitle>
           </DialogHeader>

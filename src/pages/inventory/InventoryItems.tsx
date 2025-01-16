@@ -13,8 +13,30 @@ const InventoryItems = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('*')
+        .select(`
+          *,
+          inventory_stock (
+            quantity,
+            inventory_locations (
+              id,
+              name
+            )
+          )
+        `)
         .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: locations } = useQuery({
+    queryKey: ['inventory-locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_locations')
+        .select('*')
+        .order('name', { ascending: true });
 
       if (error) throw error;
       return data;
@@ -68,7 +90,11 @@ const InventoryItems = () => {
 
         {/* Table Section */}
         <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-          <InventoryTable items={items} onUpdate={refetch} />
+          <InventoryTable 
+            data={items || []} 
+            locations={locations || []} 
+            onUpdate={refetch} 
+          />
         </div>
       </div>
     </div>
