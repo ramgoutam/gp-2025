@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye } from 'lucide-react';
+import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, ArrowLeftRight, AlertTriangle, Info, MapPin } from 'lucide-react';
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
@@ -40,7 +41,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [sortField, setSortField] = useState<keyof InventoryItem>("product_name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [viewingStock, setViewingStock] = useState<InventoryItem | null>(null);
   const { toast } = useToast();
 
   // Get unique categories for filter dropdown
@@ -84,18 +84,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   }, [items, searchQuery, sortField, sortDirection, categoryFilter]);
 
   const handleEditClick = (item: InventoryItem) => {
-    console.log("Opening edit dialog for item:", item);
     setEditingItem(item);
     setIsDialogOpen(true);
   };
 
   const handleDeleteClick = (item: InventoryItem) => {
     setIsDeletingItem(item);
-  };
-
-  const handleViewStock = (item: InventoryItem) => {
-    console.log("Viewing stock for item:", item);
-    setViewingStock(item);
   };
 
   const handleConfirmDelete = async () => {
@@ -155,7 +149,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         })
         .eq('id', editingItem.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating item:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -180,6 +177,211 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     } else {
       setSortField(field);
       setSortDirection("asc");
+    }
+  };
+
+  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
+  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
+  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
+  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [sourceLocationId, setSourceLocationId] = useState<string>("");
+  const [targetLocationId, setTargetLocationId] = useState<string>("");
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
+  const [selectedStockItem, setSelectedStockItem] = useState<{
+    itemId: string;
+    locationId: string;
+    quantity: number;
+    locationName: string;
+  } | null>(null);
+
+  const fetchStockLevels = async (itemId: string) => {
+    try {
+      console.log("Fetching stock levels for item:", itemId);
+      
+      const { data: locationsData, error: locationsError } = await supabase
+        .from('inventory_locations')
+        .select('id, name')
+        .order('name');
+      
+      if (locationsError) throw locationsError;
+
+      const { data: stockData, error: stockError } = await supabase
+        .from('inventory_stock')
+        .select(`
+          quantity,
+          location_id,
+          inventory_locations (
+            name
+          )
+        `)
+        .eq('item_id', itemId);
+
+      if (stockError) throw stockError;
+
+      const allLocationStocks = (locationsData || []).map(location => ({
+        location_id: location.id,
+        location_name: location.name,
+        quantity: 0
+      }));
+
+      stockData?.forEach(stock => {
+        const locationIndex = allLocationStocks.findIndex(
+          loc => loc.location_id === stock.location_id
+        );
+        if (locationIndex !== -1) {
+          allLocationStocks[locationIndex].quantity = stock.quantity;
+        }
+      });
+
+      console.log("Fetched stock levels:", allLocationStocks);
+      setStockLevels(allLocationStocks);
+    } catch (error) {
+      console.error('Error fetching stock levels:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch stock levels",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleViewStock = async (item: InventoryItem) => {
+    setViewingItem(item);
+    setIsViewStockDialogOpen(true);
+    await fetchStockLevels(item.id);
+  };
+
+  const sortedStockLevels = useMemo(() => {
+    return [...stockLevels].sort((a, b) => {
+      const aValue = stockSortField === 'location' ? a.location_name : a.quantity;
+      const bValue = stockSortField === 'location' ? b.location_name : b.quantity;
+      
+      if (stockSortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      }
+      return bValue > aValue ? 1 : -1;
+    });
+  }, [stockLevels, stockSortField, stockSortDirection]);
+
+  const handleStockSort = (field: 'location' | 'quantity') => {
+    if (stockSortField === field) {
+      setStockSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setStockSortField(field);
+      setStockSortDirection('asc');
+    }
+  };
+
+  const handleTransferClick = (itemId: string, locationId: string, quantity: number, locationName: string) => {
+    setSelectedStockItem({
+      itemId,
+      locationId,
+      quantity,
+      locationName,
+    });
+    setSourceLocationId(locationId);
+    setTransferQuantity(0);
+    setTargetLocationId("");
+    setIsTransferDialogOpen(true);
+  };
+
+  const handleTransferStock = async () => {
+    if (!selectedStockItem || !targetLocationId || transferQuantity <= 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Please fill in all fields with valid values.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (transferQuantity > selectedStockItem.quantity) {
+      toast({
+        title: "Error",
+        description: "Transfer quantity cannot exceed available stock.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log("Transferring stock:", {
+        itemId: selectedStockItem.itemId,
+        sourceLocationId: sourceLocationId,
+        targetLocationId,
+        quantity: transferQuantity
+      });
+
+      // First, check if we have enough stock in the source location
+      if (selectedStockItem.quantity < transferQuantity) {
+        toast({
+          title: "Error",
+          description: "Insufficient stock in source location",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Begin the transfer
+      // 1. Reduce stock in source location
+      const { error: sourceError } = await supabase
+        .from('inventory_stock')
+        .update({ 
+          quantity: selectedStockItem.quantity - transferQuantity 
+        })
+        .eq('item_id', selectedStockItem.itemId)
+        .eq('location_id', sourceLocationId);
+
+      if (sourceError) throw sourceError;
+
+      // 2. Check if target location already has stock of this item
+      const { data: targetStock } = await supabase
+        .from('inventory_stock')
+        .select('quantity')
+        .eq('item_id', selectedStockItem.itemId)
+        .eq('location_id', targetLocationId)
+        .maybeSingle();
+
+      if (targetStock) {
+        // Update existing stock
+        const { error: targetError } = await supabase
+          .from('inventory_stock')
+          .update({ 
+            quantity: targetStock.quantity + transferQuantity 
+          })
+          .eq('item_id', selectedStockItem.itemId)
+          .eq('location_id', targetLocationId);
+
+        if (targetError) throw targetError;
+      } else {
+        // Create new stock entry
+        const { error: insertError } = await supabase
+          .from('inventory_stock')
+          .insert({
+            item_id: selectedStockItem.itemId,
+            location_id: targetLocationId,
+            quantity: transferQuantity
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Stock transferred successfully",
+      });
+      
+      setIsTransferDialogOpen(false);
+      fetchStockLevels(selectedStockItem.itemId);
+    } catch (error) {
+      console.error('Error transferring stock:', error);
+      toast({
+        title: "Error",
+        description: "Failed to transfer stock",
+        variant: "destructive",
+      });
     }
   };
 
@@ -289,15 +491,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => handleDeleteClick(item)}
-                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
                     onClick={() => handleEditClick(item)}
                     className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
@@ -313,6 +506,15 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Eye className="h-4 w-4 mr-2" />
                     View Stock
                   </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleDeleteClick(item)}
+                    className="text-gray-500 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
@@ -327,97 +529,145 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </TableBody>
       </Table>
 
-      {/* Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Product Details</DialogTitle>
+      {/* View Stock Dialog */}
+      <Dialog open={isViewStockDialogOpen} onOpenChange={setIsViewStockDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] p-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Stock Levels
+            </DialogTitle>
             <DialogDescription>
-              Update the product information below
+              Current stock levels for <span className="font-medium">{viewingItem?.product_name}</span>
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSave} className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="product_name">Product Name</Label>
-                <Input
-                  id="product_name"
-                  value={editingItem?.product_name || ''}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, product_name: e.target.value } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  value={editingItem?.sku || ''}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, sku: e.target.value } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={editingItem?.description || ''}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={editingItem?.category || ''}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, category: e.target.value } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="uom">Unit of Measure</Label>
-                <Input
-                  id="uom"
-                  value={editingItem?.uom || ''}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, uom: e.target.value } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="min_stock">Minimum Stock</Label>
-                <Input
-                  id="min_stock"
-                  type="number"
-                  value={editingItem?.min_stock || 0}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, min_stock: parseInt(e.target.value) } : null)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={editingItem?.price || 0}
-                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: parseFloat(e.target.value) } : null)}
-                  className="mt-1"
-                />
+          <div className="p-6 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
+              {sortedStockLevels.map((stock) => (
+                <div
+                  key={stock.location_id}
+                  className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <h3 className="font-medium text-gray-900">{stock.location_name}</h3>
+                    </div>
+                    {stock.quantity > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTransferClick(
+                          viewingItem?.id || '',
+                          stock.location_id,
+                          stock.quantity,
+                          stock.location_name
+                        )}
+                        className="flex items-center gap-1 text-sm hover:bg-primary/5"
+                      >
+                        <ArrowLeftRight className="h-3 w-3" />
+                        Transfer
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className={cn(
+                      "text-2xl font-semibold",
+                      stock.quantity === 0 ? "text-gray-400" : "text-primary",
+                      stock.quantity < (viewingItem?.min_stock || 0) ? "text-yellow-600" : ""
+                    )}>
+                      {stock.quantity}
+                    </span>
+                    <span className="text-gray-500 text-sm">units</span>
+                  </div>
+                  {stock.quantity < (viewingItem?.min_stock || 0) && stock.quantity > 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-yellow-600 text-sm">
+                      <AlertTriangle className="h-3 w-3" />
+                      Below minimum stock
+                    </div>
+                  )}
+                  {stock.quantity === 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-gray-400 text-sm">
+                      <Info className="h-3 w-3" />
+                      No stock available
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Stock Dialog */}
+      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowLeftRight className="h-5 w-5 text-primary" />
+              Transfer Stock
+            </DialogTitle>
+            <DialogDescription>
+              Transfer stock from {selectedStockItem?.locationName} to another location
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>From Location</Label>
+              <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
+                <MapPin className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-600">{selectedStockItem?.locationName}</span>
               </div>
             </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </form>
+            <div className="space-y-2">
+              <Label>To Location</Label>
+              <Select value={targetLocationId} onValueChange={setTargetLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {stockLevels
+                    .filter(location => location.location_id !== sourceLocationId)
+                    .map((location) => (
+                      <SelectItem 
+                        key={location.location_id} 
+                        value={location.location_id}
+                        className="hover:bg-gray-100"
+                      >
+                        {location.location_name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Quantity (Available: {selectedStockItem?.quantity})</Label>
+              <Input
+                type="number"
+                min="1"
+                max={selectedStockItem?.quantity || 0}
+                value={transferQuantity}
+                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+                className="focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransferDialogOpen(false)}
+              className="hover:bg-gray-50"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransferStock}
+              disabled={!targetLocationId || transferQuantity <= 0 || (selectedStockItem && transferQuantity > selectedStockItem.quantity)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Transfer Stock
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -443,30 +693,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               className="bg-destructive hover:bg-destructive/90 transition-colors duration-200"
             >
               Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Stock View Dialog */}
-      <Dialog open={!!viewingStock} onOpenChange={(open) => !open && setViewingStock(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Stock Details</DialogTitle>
-            <DialogDescription>
-              View stock information for {viewingStock?.product_name}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {/* Add stock view details here */}
-            <p>Stock details will be implemented here</p>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setViewingStock(null)}
-            >
-              Close
             </Button>
           </DialogFooter>
         </DialogContent>
