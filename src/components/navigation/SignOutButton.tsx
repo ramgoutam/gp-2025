@@ -9,33 +9,20 @@ export const SignOutButton = () => {
   const { toast } = useToast();
 
   const handleSignOut = async () => {
-    console.log("Starting sign out process...");
-    
     try {
-      // Immediately redirect to login to prevent access to protected routes
-      navigate("/login", { replace: true });
-
-      // Clear all Supabase-related items from localStorage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.')) {
-          console.log('Removing localStorage item:', key);
-          localStorage.removeItem(key);
-        }
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
       });
-
-      // Then attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Supabase sign out error:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "An error occurred during sign out.",
-        });
-      }
+      navigate("/login");
     } catch (error) {
-      console.error("Error during sign out process:", error);
+      console.error("Error signing out:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
     }
   };
 
