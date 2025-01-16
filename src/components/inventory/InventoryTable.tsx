@@ -591,7 +591,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                           size="sm"
                           className="hover:bg-primary/10 hover:text-primary transition-colors"
                         >
-                          <ArrowLeftRight className="h-4 w-4 mr-2" />
+                          <Eye className="h-4 w-4 mr-2" />
                           Transfer
                         </Button>
                       </div>
