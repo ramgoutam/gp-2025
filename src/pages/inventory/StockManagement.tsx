@@ -33,7 +33,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-type StockWithRelations = {
+interface StockWithRelations {
   id: string;
   quantity: number;
   item_id: string;
@@ -46,14 +46,7 @@ type StockWithRelations = {
   inventory_locations: {
     name: string;
   };
-};
-
-type LocationTotals = {
-  [key: string]: {
-    total_items: number;
-    total_quantity: number;
-  };
-};
+}
 
 const StockManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -104,7 +97,20 @@ const StockManagement = () => {
     }
   });
 
-  const locationTotals: LocationTotals = stock?.reduce((acc: LocationTotals, item) => {
+  const { data: availableItems } = useQuery({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .order('product_name');
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const locationTotals = stock?.reduce((acc: Record<string, { total_items: number; total_quantity: number }>, item) => {
     const locationName = item.inventory_locations.name;
     if (!acc[locationName]) {
       acc[locationName] = { total_items: 0, total_quantity: 0 };
@@ -154,7 +160,7 @@ const StockManagement = () => {
       });
 
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating stock:', error);
       toast({
         title: "Error",
@@ -197,7 +203,7 @@ const StockManagement = () => {
       setSelectedLocationId("");
       setQuantity(0);
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding stock:', error);
       toast({
         title: "Error",
@@ -232,7 +238,6 @@ const StockManagement = () => {
         quantity: transferQuantity
       });
 
-      // First, check if we have enough stock in the source location
       if (transferringItem.quantity < transferQuantity) {
         toast({
           title: "Error",
@@ -242,8 +247,6 @@ const StockManagement = () => {
         return;
       }
 
-      // Begin the transfer
-      // 1. Reduce stock in source location
       const { error: sourceError } = await supabase
         .from('inventory_stock')
         .update({ 
@@ -253,7 +256,6 @@ const StockManagement = () => {
 
       if (sourceError) throw sourceError;
 
-      // 2. Check if target location already has stock of this item
       const { data: targetStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
@@ -262,7 +264,6 @@ const StockManagement = () => {
         .maybeSingle();
 
       if (targetStock) {
-        // Update existing stock
         const { error: targetError } = await supabase
           .from('inventory_stock')
           .update({ 
@@ -273,7 +274,6 @@ const StockManagement = () => {
 
         if (targetError) throw targetError;
       } else {
-        // Create new stock entry
         const { error: insertError } = await supabase
           .from('inventory_stock')
           .insert({
@@ -302,19 +302,6 @@ const StockManagement = () => {
     }
   };
 
-  const { data: availableItems } = useQuery({
-    queryKey: ['inventory-items'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .order('product_name');
-
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const getStockQuantity = (itemId: string, locationId: string) => {
     return stock?.find(s => 
       s.item_id === itemId && 
@@ -325,7 +312,6 @@ const StockManagement = () => {
   return (
     <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header section */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Stock Management</h1>
@@ -395,7 +381,6 @@ const StockManagement = () => {
           </div>
         </div>
 
-        {/* Location cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(locationTotals).map(([location, totals]) => (
             <Card key={location} className="p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
@@ -417,7 +402,6 @@ const StockManagement = () => {
           ))}
         </div>
 
-        {/* Table section */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 space-y-4">
             <div className="flex gap-4">
@@ -510,7 +494,6 @@ const StockManagement = () => {
         </div>
       </div>
 
-      {/* Transfer Stock Dialog */}
       <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
