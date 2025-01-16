@@ -40,41 +40,8 @@ export default function Login() {
                 },
               },
             },
-            extend: true,
-            className: {
-              container: 'flex flex-col gap-4',
-              label: 'text-sm font-medium text-gray-700',
-              input: 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-              button: 'w-full bg-primary text-white hover:bg-primary-600',
-              anchor: 'text-primary hover:text-primary-600',
-            },
           }}
           providers={[]}
-          localization={{
-            variables: {
-              sign_in: {
-                email_label: 'Email',
-                password_label: 'Password',
-                button_label: 'Sign in',
-                loading_button_label: 'Signing in...',
-                social_provider_text: 'Sign in with {{provider}}',
-                link_text: 'Already have an account? Sign in',
-              },
-              sign_up: {
-                email_label: 'Email',
-                password_label: 'Password',
-                button_label: 'Sign up',
-                loading_button_label: 'Signing up...',
-                social_provider_text: 'Sign up with {{provider}}',
-                link_text: "Don't have an account? Sign up",
-              },
-            },
-          }}
-          showLinks={true}
-          view="sign_in"
-          additionalData={{
-            rememberMe: true,
-          }}
         />
       </CardContent>
     </Card>
