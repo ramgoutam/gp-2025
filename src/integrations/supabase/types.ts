@@ -1010,20 +1010,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
-      clinic_role:
-        | "ADMIN"
-        | "MANAGER_CLINICAL"
-        | "DOCTOR"
-        | "CLINICAL_STAFF"
-        | "LAB_MANAGER"
-        | "LAB_STAFF"
-        | "FRONT_DESK"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never

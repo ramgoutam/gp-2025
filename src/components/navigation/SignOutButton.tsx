@@ -10,34 +10,18 @@ export const SignOutButton = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log("Starting sign out process");
-      
-      // Navigate first to ensure UI responsiveness
-      navigate("/login");
-      
-      // Then attempt to clear the session
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Error during sign out:", error);
-        // Still show success toast since user is logged out locally
-        toast({
-          title: "Signed out",
-          description: "You have been successfully signed out.",
-        });
-      } else {
-        console.log("Sign out successful");
-        toast({
-          title: "Signed out",
-          description: "You have been successfully signed out.",
-        });
-      }
-    } catch (error) {
-      console.error("Caught error during sign out:", error);
-      // Even if there's an error, we want to ensure the user is redirected
+      await supabase.auth.signOut();
       toast({
         title: "Signed out",
-        description: "You have been signed out.",
+        description: "You have been successfully signed out.",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
       });
     }
   };
