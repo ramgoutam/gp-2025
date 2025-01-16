@@ -354,6 +354,30 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
+  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
+  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const sortedStockLevels = useMemo(() => {
+    return [...stockLevels].sort((a, b) => {
+      const aValue = stockSortField === 'location' ? a.location_name : a.quantity;
+      const bValue = stockSortField === 'location' ? b.location_name : b.quantity;
+      
+      if (stockSortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      }
+      return bValue > aValue ? 1 : -1;
+    });
+  }, [stockLevels, stockSortField, stockSortDirection]);
+
+  const handleStockSort = (field: 'location' | 'quantity') => {
+    if (stockSortField === field) {
+      setStockSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setStockSortField(field);
+      setStockSortDirection('asc');
+    }
+  };
+
   return (
     <>
       <div className="mb-4 space-y-4 p-4">
@@ -636,26 +660,41 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <h4 className="font-medium mb-2">Current Stock Levels</h4>
                 <ScrollArea className="h-[200px]">
                   <div className="space-y-2">
-                    {stockLevels.map((stock) => (
+                    <div className="grid grid-cols-3 gap-4 p-2 border-b">
+                      <div 
+                        className="flex items-center cursor-pointer"
+                        onClick={() => handleStockSort('location')}
+                      >
+                        <span className="font-medium">Location</span>
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </div>
+                      <div 
+                        className="flex items-center cursor-pointer"
+                        onClick={() => handleStockSort('quantity')}
+                      >
+                        <span className="font-medium">Quantity</span>
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </div>
+                      <div className="font-medium">Actions</div>
+                    </div>
+                    {sortedStockLevels.map((stock) => (
                       <div 
                         key={stock.location_id}
-                        className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
+                        className="grid grid-cols-3 gap-4 p-2 rounded hover:bg-gray-50 items-center"
                       >
-                        <div className="flex-1">
-                          <span className="font-medium">{stock.location_name}</span>
-                          <span className="text-gray-600 ml-2">({stock.quantity} units)</span>
-                        </div>
+                        <span className="font-medium">{stock.location_name}</span>
+                        <span className="text-gray-600">{stock.quantity} units</span>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleLocationTransferClick(stock.location_id, stock.location_name)}
-                          className="ml-2"
+                          className="justify-self-end"
                         >
                           Transfer From Here
                         </Button>
                       </div>
                     ))}
-                    {!stockLevels.length && (
+                    {!sortedStockLevels.length && (
                       <div className="text-center text-gray-500 py-4">
                         No stock found in any location
                       </div>
