@@ -10,9 +10,15 @@ export const SignOutButton = () => {
 
   const handleSignOut = async () => {
     try {
+      console.log("Attempting to sign out...");
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
       
+      if (error) {
+        console.error("Supabase sign out error:", error);
+        throw error;
+      }
+      
+      console.log("Sign out successful");
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
