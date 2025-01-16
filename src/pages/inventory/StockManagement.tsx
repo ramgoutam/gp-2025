@@ -40,7 +40,7 @@ const StockManagement = () => {
   const { data: items } = useQuery({
     queryKey: ["items"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("items").select("*");
+      const { data, error } = await supabase.from("inventory_items").select("*");
       if (error) throw error;
       return data;
     },
@@ -49,7 +49,7 @@ const StockManagement = () => {
   const { data: locations } = useQuery({
     queryKey: ["locations"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("locations").select("*");
+      const { data, error } = await supabase.from("inventory_locations").select("*");
       if (error) throw error;
       return data;
     },
@@ -58,7 +58,7 @@ const StockManagement = () => {
   const { data: stock } = useQuery({
     queryKey: ["stock"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("stock").select("*");
+      const { data, error } = await supabase.from("inventory_stock").select("*");
       if (error) throw error;
       return data;
     },
@@ -67,7 +67,7 @@ const StockManagement = () => {
   const getStockQuantity = (itemId: string, locationId: string) => {
     return stock?.find(
       (s) => s.item_id === itemId && s.location_id === locationId
-    )?.quantity;
+    )?.quantity || 0;
   };
 
   const handleTransfer = async () => {
@@ -81,7 +81,7 @@ const StockManagement = () => {
       transferringItem.location_id
     );
 
-    if (!fromLocationQuantity || fromLocationQuantity < transferQuantity) {
+    if (fromLocationQuantity < transferQuantity) {
       toast.error("Insufficient stock in source location");
       return;
     }
@@ -89,7 +89,7 @@ const StockManagement = () => {
     try {
       // Update source location stock
       await supabase
-        .from("stock")
+        .from("inventory_stock")
         .update({
           quantity: fromLocationQuantity - transferQuantity,
         })
@@ -104,9 +104,9 @@ const StockManagement = () => {
         toLocationId
       );
 
-      if (toLocationStock !== undefined) {
+      if (toLocationStock > 0) {
         await supabase
-          .from("stock")
+          .from("inventory_stock")
           .update({
             quantity: toLocationStock + transferQuantity,
           })
@@ -115,7 +115,7 @@ const StockManagement = () => {
             location_id: toLocationId,
           });
       } else {
-        await supabase.from("stock").insert({
+        await supabase.from("inventory_stock").insert({
           item_id: transferringItem.item_id,
           location_id: toLocationId,
           quantity: transferQuantity,
@@ -166,16 +166,17 @@ const StockManagement = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                <SelectContent className="bg-white border border-gray-200 shadow-lg">
                   {locations?.map((location) => (
                     <SelectItem 
                       key={location.id} 
                       value={location.id}
+                      className="flex justify-between items-center"
                     >
                       <div className="flex justify-between items-center w-full">
                         <span>{location.name}</span>
                         <span className="text-gray-500">
-                          Qty: {getStockQuantity(transferringItem?.item_id || "", location.id) || 0}
+                          Qty: {getStockQuantity(transferringItem?.item_id || "", location.id)}
                         </span>
                       </div>
                     </SelectItem>
@@ -187,23 +188,24 @@ const StockManagement = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">To Location</label>
               <Select
-                value={toLocationId || ""}
+                value={toLocationId}
                 onValueChange={setToLocationId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                <SelectContent className="bg-white border border-gray-200 shadow-lg">
                   {locations?.map((location) => (
                     <SelectItem 
                       key={location.id} 
                       value={location.id}
                       disabled={location.id === transferringItem?.location_id}
+                      className="flex justify-between items-center"
                     >
                       <div className="flex justify-between items-center w-full">
                         <span>{location.name}</span>
                         <span className="text-gray-500">
-                          Qty: {getStockQuantity(transferringItem?.item_id || "", location.id) || 0}
+                          Qty: {getStockQuantity(transferringItem?.item_id || "", location.id)}
                         </span>
                       </div>
                     </SelectItem>
@@ -248,11 +250,11 @@ const StockManagement = () => {
           {items?.map((item) => {
             const totalStock = stock
               ?.filter((s) => s.item_id === item.id)
-              .reduce((sum, s) => sum + s.quantity, 0);
+              .reduce((sum, s) => sum + (s.quantity || 0), 0);
 
             return (
               <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.product_name}</TableCell>
                 <TableCell>{totalStock || 0}</TableCell>
                 <TableCell>
                   <Badge
