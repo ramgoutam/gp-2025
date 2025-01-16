@@ -251,6 +251,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     await fetchLocationsAndStock(item.id);
   };
 
+  const handleLocationTransferClick = (fromLocationId: string, locationName: string) => {
+    setSourceLocationId(fromLocationId);
+    console.log("Setting source location:", fromLocationId, locationName);
+  };
+
   const handleTransferStock = async () => {
     if (!transferringItem || !sourceLocationId || !targetLocationId || transferQuantity <= 0) {
       toast({
@@ -634,10 +639,20 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     {stockLevels.map((stock) => (
                       <div 
                         key={stock.location_id}
-                        className="flex justify-between items-center p-2 rounded hover:bg-gray-50"
+                        className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
                       >
-                        <span className="font-medium">{stock.location_name}</span>
-                        <span className="text-gray-600">{stock.quantity} units</span>
+                        <div className="flex-1">
+                          <span className="font-medium">{stock.location_name}</span>
+                          <span className="text-gray-600 ml-2">({stock.quantity} units)</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleLocationTransferClick(stock.location_id, stock.location_name)}
+                          className="ml-2"
+                        >
+                          Transfer From Here
+                        </Button>
                       </div>
                     ))}
                     {!stockLevels.length && (
@@ -647,26 +662,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     )}
                   </div>
                 </ScrollArea>
-              </div>
-              <div className="space-y-2">
-                <Label>From Location</Label>
-                <Select value={sourceLocationId} onValueChange={setSourceLocationId}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select source location" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-md">
-                    {locations.map((location) => (
-                      <SelectItem 
-                        key={location.id} 
-                        value={location.id}
-                        disabled={!stockLevels.find(s => s.location_id === location.id && s.quantity > 0)}
-                        className="hover:bg-gray-50"
-                      >
-                        {location.name} ({stockLevels.find(s => s.location_id === location.id)?.quantity || 0} units)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
               <div className="space-y-2">
                 <Label>To Location</Label>
