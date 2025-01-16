@@ -520,20 +520,17 @@ const StockManagement = () => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>From Location</Label>
-              <Select 
-                value={transferringItem?.location_id || ''} 
-                onValueChange={(locationId) => {
-                  if (transferringItem) {
-                    setTransferringItem({
-                      ...transferringItem,
-                      location_id: locationId,
-                      inventory_locations: {
-                        name: locations?.find(loc => loc.id === locationId)?.name || ''
-                      }
-                    });
-                  }
-                }}
-              >
+              <Select value={transferringItem?.location_id || ''} onValueChange={(locationId) => {
+                if (transferringItem) {
+                  setTransferringItem({
+                    ...transferringItem,
+                    location_id: locationId,
+                    inventory_locations: {
+                      name: locations?.find(loc => loc.id === locationId)?.name || ''
+                    }
+                  });
+                }
+              }}>
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select source location" />
                 </SelectTrigger>
@@ -546,8 +543,8 @@ const StockManagement = () => {
                     >
                       <span>{location.name}</span>
                       {transferringItem && (
-                        <span className="text-sm text-gray-500">
-                          (Stock: {getStockQuantity(transferringItem.item_id, location.id)})
+                        <span className="text-sm text-gray-500 ml-4">
+                          Qty: {getStockQuantity(transferringItem.item_id, location.id)}
                         </span>
                       )}
                     </SelectItem>
@@ -571,8 +568,8 @@ const StockManagement = () => {
                     >
                       <span>{location.name}</span>
                       {transferringItem && (
-                        <span className="text-sm text-gray-500">
-                          (Stock: {getStockQuantity(transferringItem.item_id, location.id)})
+                        <span className="text-sm text-gray-500 ml-4">
+                          Qty: {getStockQuantity(transferringItem.item_id, location.id)}
                         </span>
                       )}
                     </SelectItem>
