@@ -33,121 +33,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-interface TransferDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  fromLocationId: string;
-  itemId: string;
-  currentQuantity: number;
-  locations: Array<{ id: string; name: string }>;
-  onTransfer: (toLocationId: string, quantity: number) => Promise<void>;
-}
-
-const TransferDialog = ({ 
-  isOpen, 
-  onClose, 
-  fromLocationId, 
-  itemId,
-  currentQuantity,
-  locations,
-  onTransfer 
-}: TransferDialogProps) => {
-  const [toLocationId, setToLocationId] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [isTransferring, setIsTransferring] = useState(false);
-  const { toast } = useToast();
-
-  const handleTransfer = async () => {
-    if (!toLocationId) {
-      toast({
-        title: "Error",
-        description: "Please select a destination location",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (quantity <= 0 || quantity > currentQuantity) {
-      toast({
-        title: "Error",
-        description: "Invalid quantity",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsTransferring(true);
-    try {
-      await onTransfer(toLocationId, quantity);
-      onClose();
-      toast({
-        title: "Success",
-        description: "Items transferred successfully",
-      });
-    } catch (error) {
-      console.error('Transfer error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to transfer items",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTransferring(false);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Transfer Items</DialogTitle>
-          <DialogDescription>
-            Transfer items between locations
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>To Location</Label>
-            <Select value={toLocationId} onValueChange={setToLocationId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select destination location" />
-              </SelectTrigger>
-              <SelectContent>
-                {locations
-                  .filter(loc => loc.id !== fromLocationId)
-                  .map(location => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Quantity (max: {currentQuantity})</Label>
-            <Input
-              type="number"
-              min={1}
-              max={currentQuantity}
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button 
-            onClick={handleTransfer} 
-            disabled={isTransferring || !toLocationId || quantity <= 0 || quantity > currentQuantity}
-          >
-            {isTransferring ? "Transferring..." : "Transfer"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -296,10 +181,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   };
 
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [transferringItem, setTransferringItem] = useState<InventoryItem | null>(null);
   const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
   const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
+  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
+  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const fetchLocationsAndStock = async (itemId: string) => {
     try {
@@ -354,62 +240,30 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   };
 
   const handleTransferClick = async (item: InventoryItem) => {
-    setSelectedItemId(item.id);
+    setTransferringItem(item);
     setIsTransferDialogOpen(true);
     await fetchLocationsAndStock(item.id);
   };
 
-  const handleTransfer = async (toLocationId: string, quantity: number) => {
-    if (!selectedLocation || !selectedItemId) return;
-
-    console.log("Transferring items:", {
-      fromLocationId: selectedLocation,
-      toLocationId,
-      itemId: selectedItemId,
-      quantity
+  const sortedStockLevels = useMemo(() => {
+    return [...stockLevels].sort((a, b) => {
+      const aValue = stockSortField === 'location' ? a.location_name : a.quantity;
+      const bValue = stockSortField === 'location' ? b.location_name : b.quantity;
+      
+      if (stockSortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      }
+      return bValue > aValue ? 1 : -1;
     });
+  }, [stockLevels, stockSortField, stockSortDirection]);
 
-    const { error: decrementError } = await supabase
-      .from('inventory_stock')
-      .update({ 
-        quantity: stockLevels.find(s => s.location_id === selectedLocation)!.quantity - quantity 
-      })
-      .eq('location_id', selectedLocation)
-      .eq('item_id', selectedItemId);
-
-    if (decrementError) throw decrementError;
-
-    // Check if destination already has stock record
-    const { data: existingStock } = await supabase
-      .from('inventory_stock')
-      .select('*')
-      .eq('location_id', toLocationId)
-      .eq('item_id', selectedItemId)
-      .single();
-
-    if (existingStock) {
-      const { error: incrementError } = await supabase
-        .from('inventory_stock')
-        .update({ 
-          quantity: existingStock.quantity + quantity 
-        })
-        .eq('location_id', toLocationId)
-        .eq('item_id', selectedItemId);
-
-      if (incrementError) throw incrementError;
+  const handleStockSort = (field: 'location' | 'quantity') => {
+    if (stockSortField === field) {
+      setStockSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
-      const { error: insertError } = await supabase
-        .from('inventory_stock')
-        .insert({
-          location_id: toLocationId,
-          item_id: selectedItemId,
-          quantity: quantity
-        });
-
-      if (insertError) throw insertError;
+      setStockSortField(field);
+      setStockSortDirection('asc');
     }
-
-    await fetchLocationsAndStock(selectedItemId);
   };
 
   return (
@@ -679,17 +533,116 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </DialogContent>
       </Dialog>
 
-      <TransferDialog
-        isOpen={isTransferDialogOpen}
-        onClose={() => setIsTransferDialogOpen(false)}
-        fromLocationId={selectedLocation || ''}
-        itemId={selectedItemId || ''}
-        currentQuantity={
-          stockLevels.find(s => s.location_id === selectedLocation)?.quantity || 0
-        }
-        locations={locations}
-        onTransfer={handleTransfer}
-      />
+      {/* Transfer Stock Dialog */}
+      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Stock Levels</DialogTitle>
+            <DialogDescription>
+              Current stock levels across all locations
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-card p-4">
+              <ScrollArea className="h-[300px]">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 gap-4 pb-2 border-b">
+                    <div 
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => handleStockSort('location')}
+                    >
+                      <span className="font-medium group-hover:text-primary transition-colors">Location</span>
+                      <ArrowUpDown className={cn(
+                        "ml-2 h-4 w-4 transition-colors",
+                        stockSortField === 'location' ? "text-primary" : "text-muted-foreground",
+                        "group-hover:text-primary"
+                      )} />
+                    </div>
+                    <div 
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => handleStockSort('quantity')}
+                    >
+                      <span className="font-medium group-hover:text-primary transition-colors">Quantity</span>
+                      <ArrowUpDown className={cn(
+                        "ml-2 h-4 w-4 transition-colors",
+                        stockSortField === 'quantity' ? "text-primary" : "text-muted-foreground",
+                        "group-hover:text-primary"
+                      )} />
+                    </div>
+                    <div className="flex items-center">
+                      <span className="font-medium">Actions</span>
+                    </div>
+                  </div>
+                  {sortedStockLevels.map((stock) => (
+                    <div 
+                      key={stock.location_id}
+                      className="grid grid-cols-3 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
+                    >
+                      <span className="font-medium text-foreground">{stock.location_name}</span>
+                      <span className={cn(
+                        "font-mono",
+                        stock.quantity === 0 ? "text-muted-foreground" : "text-foreground"
+                      )}>
+                        {stock.quantity} units
+                      </span>
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="hover:bg-primary/10 hover:text-primary transition-colors"
+                        >
+                          <ArrowLeftRight className="h-4 w-4 mr-2" />
+                          Transfer
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {!sortedStockLevels.length && (
+                    <div className="text-center text-muted-foreground py-4">
+                      No stock found in any location
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransferDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!isDeletingItem} onOpenChange={(open) => !open && setIsDeletingItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Inventory Item</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{isDeletingItem?.product_name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeletingItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              className="bg-destructive hover:bg-destructive/90 transition-colors duration-200"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
