@@ -286,25 +286,27 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       if (sourceError) throw sourceError;
 
-      // Check and update target location
-      const { data: targetStock } = await supabase
+      // Check if target location already has stock of this item
+      const { data: existingTargetStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
         .eq('item_id', transferringItem.id)
         .eq('location_id', targetLocationId)
         .maybeSingle();
 
-      if (targetStock) {
+      if (existingTargetStock) {
+        // Update existing stock
         const { error: targetError } = await supabase
           .from('inventory_stock')
           .update({ 
-            quantity: targetStock.quantity + transferQuantity 
+            quantity: existingTargetStock.quantity + transferQuantity 
           })
           .eq('item_id', transferringItem.id)
           .eq('location_id', targetLocationId);
 
         if (targetError) throw targetError;
       } else {
+        // Create new stock entry
         const { error: insertError } = await supabase
           .from('inventory_stock')
           .insert({
