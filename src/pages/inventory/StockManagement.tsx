@@ -11,7 +11,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ArrowUpDown, MapPin } from "lucide-react";
+import { Search, Plus, ArrowUpDown, MapPin, ArrowLeftRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -63,6 +63,10 @@ const StockManagement = () => {
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(0);
   const [isAddStockOpen, setIsAddStockOpen] = useState(false);
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [transferringItem, setTransferringItem] = useState<StockWithRelations | null>(null);
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
+  const [targetLocationId, setTargetLocationId] = useState<string>("");
   const { toast } = useToast();
 
   const { data: stock, isLoading, refetch } = useQuery({
@@ -197,6 +201,101 @@ const StockManagement = () => {
       toast({
         title: "Error",
         description: "Failed to add stock. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTransferClick = (item: StockWithRelations) => {
+    setTransferringItem(item);
+    setIsTransferDialogOpen(true);
+    setTransferQuantity(0);
+    setTargetLocationId("");
+  };
+
+  const handleTransferStock = async () => {
+    if (!transferringItem || !targetLocationId || transferQuantity <= 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Please fill in all fields with valid values.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log("Transferring stock:", {
+        itemId: transferringItem.item_id,
+        sourceLocationId: transferringItem.location_id,
+        targetLocationId,
+        quantity: transferQuantity
+      });
+
+      // First, check if we have enough stock in the source location
+      if (transferringItem.quantity < transferQuantity) {
+        toast({
+          title: "Error",
+          description: "Insufficient stock in source location",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Begin the transfer
+      // 1. Reduce stock in source location
+      const { error: sourceError } = await supabase
+        .from('inventory_stock')
+        .update({ 
+          quantity: transferringItem.quantity - transferQuantity 
+        })
+        .eq('id', transferringItem.id);
+
+      if (sourceError) throw sourceError;
+
+      // 2. Check if target location already has stock of this item
+      const { data: targetStock } = await supabase
+        .from('inventory_stock')
+        .select('quantity')
+        .eq('item_id', transferringItem.item_id)
+        .eq('location_id', targetLocationId)
+        .maybeSingle();
+
+      if (targetStock) {
+        // Update existing stock
+        const { error: targetError } = await supabase
+          .from('inventory_stock')
+          .update({ 
+            quantity: targetStock.quantity + transferQuantity 
+          })
+          .eq('item_id', transferringItem.item_id)
+          .eq('location_id', targetLocationId);
+
+        if (targetError) throw targetError;
+      } else {
+        // Create new stock entry
+        const { error: insertError } = await supabase
+          .from('inventory_stock')
+          .insert({
+            item_id: transferringItem.item_id,
+            location_id: targetLocationId,
+            quantity: transferQuantity
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Stock transferred successfully",
+      });
+      
+      setIsTransferDialogOpen(false);
+      refetch();
+    } catch (error) {
+      console.error('Error transferring stock:', error);
+      toast({
+        title: "Error",
+        description: "Failed to transfer stock",
         variant: "destructive",
       });
     }
@@ -373,14 +472,25 @@ const StockManagement = () => {
                     </TableCell>
                     <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAdjustStock(item.id, item.quantity + 1)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        Adjust
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAdjustStock(item.id, item.quantity + 1)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          Adjust
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTransferClick(item)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
+                        >
+                          <ArrowLeftRight className="h-4 w-4" />
+                          Transfer
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -396,6 +506,68 @@ const StockManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Transfer Stock Dialog */}
+      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Transfer Stock</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>From Location</Label>
+              <Input 
+                value={transferringItem?.inventory_locations.name || ''} 
+                disabled 
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>To Location</Label>
+              <Select value={targetLocationId} onValueChange={setTargetLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations?.map((location) => (
+                    <SelectItem 
+                      key={location.id} 
+                      value={location.id}
+                      disabled={location.id === transferringItem?.location_id}
+                    >
+                      {location.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Quantity</Label>
+              <Input
+                type="number"
+                min="1"
+                max={transferringItem?.quantity || 0}
+                value={transferQuantity}
+                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsTransferDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransferStock}
+              disabled={!targetLocationId || transferQuantity <= 0}
+            >
+              Transfer Stock
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
