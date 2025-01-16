@@ -180,16 +180,15 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
-  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [transferringItem, setTransferringItem] = useState<InventoryItem | null>(null);
-  const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
+  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
   const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
   const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
   const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const fetchLocationsAndStock = async (itemId: string) => {
+  const fetchStockLevels = async (itemId: string) => {
     try {
-      console.log("Fetching locations and stock for item:", itemId);
+      console.log("Fetching stock levels for item:", itemId);
       
       const { data: locationsData, error: locationsError } = await supabase
         .from('inventory_locations')
@@ -197,7 +196,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         .order('name');
       
       if (locationsError) throw locationsError;
-      setLocations(locationsData || []);
 
       const { data: stockData, error: stockError } = await supabase
         .from('inventory_stock')
@@ -230,19 +228,19 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       console.log("Fetched stock levels:", allLocationStocks);
       setStockLevels(allLocationStocks);
     } catch (error) {
-      console.error('Error fetching locations and stock:', error);
+      console.error('Error fetching stock levels:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch locations and stock levels",
+        description: "Failed to fetch stock levels",
         variant: "destructive",
       });
     }
   };
 
-  const handleTransferClick = async (item: InventoryItem) => {
-    setTransferringItem(item);
-    setIsTransferDialogOpen(true);
-    await fetchLocationsAndStock(item.id);
+  const handleViewStock = async (item: InventoryItem) => {
+    setViewingItem(item);
+    setIsViewStockDialogOpen(true);
+    await fetchStockLevels(item.id);
   };
 
   const sortedStockLevels = useMemo(() => {
@@ -381,7 +379,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => handleTransferClick(item)}
+                    onClick={() => handleViewStock(item)}
                     className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
                   >
                     <Eye className="h-4 w-4 mr-2" />
@@ -533,20 +531,20 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </DialogContent>
       </Dialog>
 
-      {/* Transfer Stock Dialog */}
-      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+      {/* View Stock Dialog */}
+      <Dialog open={isViewStockDialogOpen} onOpenChange={setIsViewStockDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Stock Levels</DialogTitle>
             <DialogDescription>
-              Current stock levels across all locations
+              Current stock levels for {viewingItem?.product_name} across all locations
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-lg border bg-card p-4">
               <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
-                  <div className="grid grid-cols-3 gap-4 pb-2 border-b">
+                  <div className="grid grid-cols-2 gap-4 pb-2 border-b">
                     <div 
                       className="flex items-center cursor-pointer group"
                       onClick={() => handleStockSort('location')}
@@ -569,14 +567,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                         "group-hover:text-primary"
                       )} />
                     </div>
-                    <div className="flex items-center">
-                      <span className="font-medium">Actions</span>
-                    </div>
                   </div>
                   {sortedStockLevels.map((stock) => (
                     <div 
                       key={stock.location_id}
-                      className="grid grid-cols-3 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
+                      className="grid grid-cols-2 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
                     >
                       <span className="font-medium text-foreground">{stock.location_name}</span>
                       <span className={cn(
@@ -585,15 +580,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       )}>
                         {stock.quantity} units
                       </span>
-                      <div className="flex justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
-                        >
-                          Transfer
-                        </Button>
-                      </div>
                     </div>
                   ))}
                   {!sortedStockLevels.length && (
@@ -608,7 +594,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsTransferDialogOpen(false)}
+              onClick={() => setIsViewStockDialogOpen(false)}
             >
               Close
             </Button>
