@@ -546,7 +546,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <div className="rounded-lg border bg-card p-4">
               <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-4 pb-2 border-b">
+                  <div className="grid grid-cols-3 gap-4 pb-2 border-b">
                     <div 
                       className="flex items-center cursor-pointer group"
                       onClick={() => handleStockSort('location')}
@@ -569,11 +569,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                         "group-hover:text-primary"
                       )} />
                     </div>
+                    <div className="font-medium text-muted-foreground">
+                      Actions
+                    </div>
                   </div>
                   {sortedStockLevels.map((stock) => (
                     <div 
                       key={stock.location_id}
-                      className="grid grid-cols-2 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
+                      className="grid grid-cols-3 gap-4 p-2 rounded-md hover:bg-accent/50 transition-colors items-center"
                     >
                       <span className="font-medium text-foreground">{stock.location_name}</span>
                       <span className={cn(
@@ -582,6 +585,17 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       )}>
                         {stock.quantity} units
                       </span>
+                      <div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleTransferClick(stock.location_id)}
+                          className="hover:bg-primary/5 hover:text-primary transition-colors"
+                        >
+                          <ArrowLeftRight className="h-4 w-4 mr-2" />
+                          Transfer
+                        </Button>
+                      </div>
                     </div>
                   ))}
                   {!sortedStockLevels.length && (
