@@ -90,10 +90,9 @@ const Login = () => {
                 }
               }
             }}
-            providers={["google", "github"]}
-            redirectTo={`${window.location.origin}/`}
-            magicLink={true}
-            showLinks={true}
+            providers={[]}
+            magicLink={false}
+            showLinks={false}
             view="sign_in"
           />
         </CardContent>
