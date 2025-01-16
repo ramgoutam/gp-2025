@@ -92,7 +92,7 @@ const Login = () => {
             }}
             providers={[]}
             magicLink={false}
-            showLinks={false}
+            showLinks={true}
             view="sign_in"
           />
         </CardContent>
