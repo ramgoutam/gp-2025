@@ -17,19 +17,32 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface InventoryItem {
+  id: string;
+  product_name: string;
+  location_id: string;
+  location_name: string;
+  quantity: number;
+}
+
+interface Location {
+  id: string;
+  name: string;
+}
+
 interface InventoryTableProps {
-  data: any[];
-  locations: { id: string; name: string }[];
+  data: InventoryItem[];
+  locations: Location[];
   onUpdate?: () => void;
 }
 
 export function InventoryTable({ data = [], locations = [], onUpdate }: InventoryTableProps) {
   const { toast } = useToast();
   const [showTransferDialog, setShowTransferDialog] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [fromLocation, setFromLocation] = useState("");
-  const [toLocation, setToLocation] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [fromLocation, setFromLocation] = useState<string>("");
+  const [toLocation, setToLocation] = useState<string>("");
+  const [quantity, setQuantity] = useState<string>("");
 
   const handleTransfer = async () => {
     if (!selectedItem || !fromLocation || !toLocation || !quantity) {
@@ -96,7 +109,7 @@ export function InventoryTable({ data = [], locations = [], onUpdate }: Inventor
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item) => (
             <tr key={item.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.product_name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location_name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

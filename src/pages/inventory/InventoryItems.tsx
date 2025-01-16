@@ -8,25 +8,36 @@ import { Package, Boxes } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const InventoryItems = () => {
-  const { data: items, refetch } = useQuery({
+  const { data: inventoryData, refetch } = useQuery({
     queryKey: ['inventory-items'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('inventory_items')
+        .from('inventory_stock')
         .select(`
-          *,
-          inventory_stock (
-            quantity,
-            inventory_locations (
-              id,
-              name
-            )
+          id,
+          quantity,
+          item_id,
+          location_id,
+          inventory_items (
+            id,
+            product_name
+          ),
+          inventory_locations (
+            id,
+            name
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      return data?.map(item => ({
+        id: item.item_id,
+        product_name: item.inventory_items?.product_name,
+        location_id: item.location_id,
+        location_name: item.inventory_locations?.name,
+        quantity: item.quantity
+      })) || [];
     }
   });
 
@@ -43,7 +54,7 @@ const InventoryItems = () => {
     }
   });
 
-  console.log("Inventory items loaded:", items);
+  console.log("Inventory data loaded:", inventoryData);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -79,7 +90,7 @@ const InventoryItems = () => {
                       Total Items
                     </dt>
                     <dd className="text-lg font-semibold text-primary">
-                      {items?.length || 0}
+                      {inventoryData?.length || 0}
                     </dd>
                   </dl>
                 </div>
@@ -91,7 +102,7 @@ const InventoryItems = () => {
         {/* Table Section */}
         <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
           <InventoryTable 
-            data={items || []} 
+            data={inventoryData || []} 
             locations={locations || []} 
             onUpdate={refetch} 
           />
