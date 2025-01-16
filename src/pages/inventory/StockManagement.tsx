@@ -315,6 +315,14 @@ const StockManagement = () => {
     }
   });
 
+  // Add this helper function to get stock quantity for a specific item and location
+  const getStockQuantity = (itemId: string, locationId: string) => {
+    return stock?.find(s => 
+      s.item_id === itemId && 
+      s.location_id === locationId
+    )?.quantity || 0;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -534,8 +542,14 @@ const StockManagement = () => {
                     <SelectItem 
                       key={location.id} 
                       value={location.id}
+                      className="flex justify-between items-center"
                     >
-                      {location.name}
+                      <span>{location.name}</span>
+                      {transferringItem && (
+                        <span className="text-sm text-gray-500">
+                          (Stock: {getStockQuantity(transferringItem.item_id, location.id)})
+                        </span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -553,8 +567,14 @@ const StockManagement = () => {
                       key={location.id} 
                       value={location.id}
                       disabled={location.id === transferringItem?.location_id}
+                      className="flex justify-between items-center"
                     >
-                      {location.name}
+                      <span>{location.name}</span>
+                      {transferringItem && (
+                        <span className="text-sm text-gray-500">
+                          (Stock: {getStockQuantity(transferringItem.item_id, location.id)})
+                        </span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
