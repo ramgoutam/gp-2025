@@ -57,7 +57,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     location_name: string;
     quantity: number;
   }) => {
-    setSelectedStockTransfer(stock);
+    setSelectedStockTransfer({
+      locationId: stock.location_id,
+      locationName: stock.location_name,
+      quantity: stock.quantity
+    });
     setIsStockTransferDialogOpen(true);
     setTransferQuantity(0);
     setTargetLocationId("");
