@@ -388,7 +388,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="mb-4 space-y-4 p-4">
+      <div className="mb-4 space-y-4 p-4 animate-fade-in">
         <div className="flex gap-4">
           <div className="flex-1 relative">
             <Input
