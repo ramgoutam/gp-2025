@@ -188,10 +188,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
   const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
 
-  // Fetch locations and stock levels
   const fetchLocationsAndStock = async (itemId: string) => {
     try {
-      // Fetch locations
+      console.log("Fetching locations and stock for item:", itemId);
+      
       const { data: locationsData, error: locationsError } = await supabase
         .from('inventory_locations')
         .select('id, name')
@@ -200,7 +200,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       if (locationsError) throw locationsError;
       setLocations(locationsData || []);
 
-      // Fetch stock levels for the item
       const { data: stockData, error: stockError } = await supabase
         .from('inventory_stock')
         .select(`
@@ -220,6 +219,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         quantity: stock.quantity
       })) || [];
 
+      console.log("Fetched stock levels:", formattedStockLevels);
       setStockLevels(formattedStockLevels);
     } catch (error) {
       console.error('Error fetching locations and stock:', error);
@@ -258,7 +258,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         quantity: transferQuantity
       });
 
-      // First, check if we have enough stock in the source location
+      // Check source location stock
       const { data: sourceStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
@@ -275,8 +275,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         return;
       }
 
-      // Begin the transfer
-      // 1. Reduce stock in source location
+      // Update source location
       const { error: sourceError } = await supabase
         .from('inventory_stock')
         .update({ 
@@ -287,7 +286,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       if (sourceError) throw sourceError;
 
-      // 2. Increase or create stock in target location
+      // Check and update target location
       const { data: targetStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
@@ -296,7 +295,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         .maybeSingle();
 
       if (targetStock) {
-        // Update existing stock
         const { error: targetError } = await supabase
           .from('inventory_stock')
           .update({ 
@@ -307,7 +305,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
         if (targetError) throw targetError;
       } else {
-        // Create new stock entry
         const { error: insertError } = await supabase
           .from('inventory_stock')
           .insert({
@@ -614,7 +611,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid gap-4">
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-4 bg-white">
                 <h4 className="font-medium mb-2">Current Stock Levels</h4>
                 <ScrollArea className="h-[200px]">
                   <div className="space-y-2">
@@ -638,15 +635,16 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               <div className="space-y-2">
                 <Label>From Location</Label>
                 <Select value={sourceLocationId} onValueChange={setSourceLocationId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select source location" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     {locations.map((location) => (
                       <SelectItem 
                         key={location.id} 
                         value={location.id}
                         disabled={!stockLevels.find(s => s.location_id === location.id && s.quantity > 0)}
+                        className="hover:bg-gray-100"
                       >
                         {location.name} ({stockLevels.find(s => s.location_id === location.id)?.quantity || 0} units)
                       </SelectItem>
@@ -657,15 +655,16 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               <div className="space-y-2">
                 <Label>To Location</Label>
                 <Select value={targetLocationId} onValueChange={setTargetLocationId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select target location" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     {locations.map((location) => (
                       <SelectItem 
                         key={location.id} 
                         value={location.id}
                         disabled={location.id === sourceLocationId}
+                        className="hover:bg-gray-100"
                       >
                         {location.name}
                       </SelectItem>
@@ -681,6 +680,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   max={stockLevels.find(s => s.location_id === sourceLocationId)?.quantity || 0}
                   value={transferQuantity}
                   onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+                  className="bg-white"
                 />
               </div>
             </div>
