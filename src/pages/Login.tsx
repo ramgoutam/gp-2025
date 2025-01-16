@@ -55,12 +55,14 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
       <Card className="w-full max-w-md mx-4 animate-fade-in">
-        <CardHeader className="space-y-4 text-center pb-0">
-          <img
-            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
-            alt="Company Logo"
-            className="h-12 mx-auto mb-2"
-          />
+        <CardHeader className="space-y-6 text-center pb-0">
+          <div className="flex justify-center items-center py-8">
+            <img
+              src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
+              alt="Company Logo"
+              className="h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-200"
+            />
+          </div>
         </CardHeader>
         <CardContent className="pt-6">
           <Auth
