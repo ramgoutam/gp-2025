@@ -317,6 +317,7 @@ const StockManagement = () => {
   return (
     <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header section */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Stock Management</h1>
@@ -386,9 +387,10 @@ const StockManagement = () => {
           </div>
         </div>
 
+        {/* Location cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(locationTotals).map(([location, totals]) => (
-            <Card key={location} className="p-4 bg-white shadow-sm">
+            <Card key={location} className="p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2 mb-2">
                 <MapPin className="h-4 w-4 text-gray-500" />
                 <h3 className="font-medium text-gray-900">{location}</h3>
@@ -407,6 +409,7 @@ const StockManagement = () => {
           ))}
         </div>
 
+        {/* Table section */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 space-y-4">
             <div className="flex gap-4">
@@ -423,7 +426,7 @@ const StockManagement = () => {
                 <SelectTrigger className="w-[180px] bg-white">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border rounded-lg shadow-lg">
+                <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
                   {locations?.map((location) => (
                     <SelectItem key={location.id} value={location.name}>
@@ -436,7 +439,7 @@ const StockManagement = () => {
 
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/50">
+                <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                   <TableHead className="w-[100px]">SKU</TableHead>
                   <TableHead>Item Name</TableHead>
                   <TableHead>Location</TableHead>
@@ -452,32 +455,32 @@ const StockManagement = () => {
               </TableHeader>
               <TableBody>
                 {filteredStock?.map((item) => (
-                  <TableRow key={item.id} className="group">
+                  <TableRow key={item.id} className="group hover:bg-gray-50/50 transition-colors">
                     <TableCell className="font-mono text-sm">
                       {item.inventory_items.sku}
                     </TableCell>
                     <TableCell>{item.inventory_items.product_name}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">
-                        <MapPin className="h-3 w-3 mr-1" />
+                      <Badge variant="secondary" className="gap-1">
+                        <MapPin className="h-3 w-3" />
                         {item.inventory_locations.name}
                       </Badge>
                     </TableCell>
-                    <TableCell className={
+                    <TableCell className={cn(
                       item.quantity < (item.inventory_items.min_stock || 0)
                         ? "text-yellow-600 font-medium"
                         : ""
-                    }>
+                    )}>
                       {item.quantity}
                     </TableCell>
                     <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleTransferClick(item)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2"
                         >
                           <ArrowLeftRight className="h-4 w-4" />
                           Transfer
