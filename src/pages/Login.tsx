@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -52,32 +53,51 @@ const Login = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">
-            Welcome back
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Please sign in to your account
-          </p>
-        </div>
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ 
-            theme: ThemeSupa,
-            style: {
-              button: { background: 'rgb(59 130 246)', color: 'white' },
-              anchor: { color: 'rgb(59 130 246)' },
-            }
-          }}
-          providers={["google", "github"]}
-          redirectTo={`${window.location.origin}/`}
-          magicLink={true}
-          showLinks={true}
-          view="sign_in"
-        />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+      <Card className="w-full max-w-md mx-4 animate-fade-in">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-2xl font-bold text-primary-900">
+            Welcome Back
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              style: {
+                button: { 
+                  background: 'rgb(79, 107, 255)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  padding: '10px 15px',
+                  height: '42px',
+                },
+                anchor: { 
+                  color: 'rgb(79, 107, 255)',
+                  fontWeight: '500'
+                },
+                input: {
+                  borderRadius: '8px',
+                  padding: '10px 15px',
+                },
+                message: {
+                  borderRadius: '8px',
+                  margin: '8px 0'
+                },
+                container: {
+                  gap: '16px'
+                }
+              }
+            }}
+            providers={["google", "github"]}
+            redirectTo={`${window.location.origin}/`}
+            magicLink={true}
+            showLinks={true}
+            view="sign_in"
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
