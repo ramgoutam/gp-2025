@@ -248,6 +248,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   };
 
   const handleViewStock = async (item: InventoryItem) => {
+    console.log("Viewing stock for item:", item);
     setViewingItem(item);
     setIsViewStockDialogOpen(true);
     await fetchStockLevels(item.id);
