@@ -350,7 +350,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <SelectTrigger className="w-[180px] transition-all duration-200 hover:border-primary/50">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
-            <SelectContent className="bg-white border rounded-md shadow-md z-50">
+            <SelectContent className="bg-white border shadow-md">
               <SelectItem value="all" className="hover:bg-gray-50">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem 
@@ -638,13 +638,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select source location" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
+                  <SelectContent className="bg-white border shadow-md">
                     {locations.map((location) => (
                       <SelectItem 
                         key={location.id} 
                         value={location.id}
                         disabled={!stockLevels.find(s => s.location_id === location.id && s.quantity > 0)}
-                        className="hover:bg-gray-100"
+                        className="hover:bg-gray-50"
                       >
                         {location.name} ({stockLevels.find(s => s.location_id === location.id)?.quantity || 0} units)
                       </SelectItem>
@@ -658,13 +658,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Select target location" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
+                  <SelectContent className="bg-white border shadow-md">
                     {locations.map((location) => (
                       <SelectItem 
                         key={location.id} 
                         value={location.id}
                         disabled={location.id === sourceLocationId}
-                        className="hover:bg-gray-100"
+                        className="hover:bg-gray-50"
                       >
                         {location.name}
                       </SelectItem>
@@ -731,3 +731,4 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     </>
   );
 };
+
