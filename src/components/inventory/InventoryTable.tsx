@@ -11,10 +11,13 @@ type InventoryTableProps = {
   onTransfer: (item: any) => void;
 };
 
-export function InventoryTable({ data, onEdit, onDelete, onView, onTransfer }: InventoryTableProps) {
+export function InventoryTable({ data = [], onEdit, onDelete, onView, onTransfer }: InventoryTableProps) {
   const queryClient = useQueryClient();
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const locations = []; // Assume this is populated with location data
+  const locations = [
+    { id: '1', name: 'Location 1' },
+    { id: '2', name: 'Location 2' }
+  ]; // Default locations or you can fetch them from your backend
 
   return (
     <div>
