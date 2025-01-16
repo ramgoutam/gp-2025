@@ -143,7 +143,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       });
       
       setIsStockTransferDialogOpen(false);
-      await fetchLocationsAndStock(transferringItem.id);
+      setSelectedStockTransfer(null);
+      setTransferQuantity(0);
+      setTargetLocationId("");
+      onUpdate();
     } catch (error) {
       console.error('Error transferring stock:', error);
       toast({
@@ -707,7 +710,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             </Button>
             <Button
               onClick={handleStockTransfer}
-              disabled={!targetLocationId || transferQuantity <= 0}
+              disabled={!targetLocationId || transferQuantity <= 0 || transferQuantity > (selectedStockTransfer?.quantity || 0)}
             >
               Transfer Stock
             </Button>
