@@ -586,6 +586,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                         {stock.quantity} units
                       </span>
                       <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-500 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                        >
+                          Transfer
+                        </Button>
                       </div>
                     </div>
                   ))}
