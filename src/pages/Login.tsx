@@ -1,49 +1,105 @@
+import React, { useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useSession } from "@supabase/auth-helpers-react";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthChangeEvent } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Login() {
+const Login = () => {
   const navigate = useNavigate();
-  const session = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (session) {
-      navigate("/");
-    }
-  }, [session, navigate]);
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Current session:", session);
+      if (session) {
+        console.log("User already logged in, redirecting to dashboard");
+        navigate("/");
+      }
+      if (error) {
+        console.error("Error checking session:", error);
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "There was a problem checking your login status.",
+        });
+      }
+    };
+    
+    checkUser();
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session) => {
+        console.log("Auth state changed:", event, session);
+        if (event === "SIGNED_IN" && session) {
+          console.log("User signed in, redirecting to dashboard");
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
+          navigate("/");
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-20 animate-fade-in">
-      <CardHeader className="space-y-4 text-center pb-0">
-        <div className="flex justify-center items-center py-6">
-          <img
-            src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
-            alt="Company Logo"
-            className="h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-200"
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <Auth
-          supabaseClient={supabase}
-          appearance={{
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#4F6BFF',
-                  brandAccent: '#3D54CC',
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+      <Card className="w-full max-w-md mx-4 animate-fade-in">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-2xl font-bold text-primary-900">
+            Welcome Back
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              style: {
+                button: { 
+                  background: 'rgb(79, 107, 255)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  padding: '10px 15px',
+                  height: '42px',
                 },
-              },
-            },
-          }}
-          providers={[]}
-        />
-      </CardContent>
-    </Card>
+                anchor: { 
+                  color: 'rgb(79, 107, 255)',
+                  fontWeight: '500'
+                },
+                input: {
+                  borderRadius: '8px',
+                  padding: '10px 15px',
+                },
+                message: {
+                  borderRadius: '8px',
+                  margin: '8px 0'
+                },
+                container: {
+                  gap: '16px'
+                }
+              }
+            }}
+            providers={["google", "github"]}
+            redirectTo={`${window.location.origin}/`}
+            magicLink={true}
+            showLinks={true}
+            view="sign_in"
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
-}
+};
+
+export default Login;
