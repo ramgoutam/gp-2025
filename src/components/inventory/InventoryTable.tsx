@@ -323,7 +323,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         description: "Stock transferred successfully",
       });
       
-      setIsTransferDialogOpen(false);
+      // Reset transfer quantity but keep dialog open
+      setTransferQuantity(0);
+      // Refresh stock levels
+      await fetchLocationsAndStock(transferringItem.id);
       onUpdate();
     } catch (error) {
       console.error('Error transferring stock:', error);
@@ -733,4 +736,3 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     </>
   );
 };
-
