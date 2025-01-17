@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserX, Pencil, Trash2, Plus, Key, UserCog } from 'lucide-react';
+import { Shield, UserX, Pencil, Trash2, Plus, Key, UserCog, UserPen } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -67,6 +67,7 @@ const Admin = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [editingUserDetails, setEditingUserDetails] = useState<UserRole | null>(null);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -583,6 +584,14 @@ const Admin = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => setEditingUserDetails(userRole)}
+                        >
+                          <UserPen className="h-4 w-4 mr-2" />
+                          Edit Details
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDeleteUser(userRole.user_id)}
                           className="text-destructive hover:text-destructive"
                         >
@@ -598,6 +607,91 @@ const Admin = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={editingUserDetails !== null} onOpenChange={() => setEditingUserDetails(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User Details</DialogTitle>
+            <DialogDescription>
+              Update the user's personal information.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-first-name">First Name</Label>
+              <Input
+                id="edit-first-name"
+                value={editingUserDetails?.first_name || ''}
+                onChange={(e) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, first_name: e.target.value } : null
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-last-name">Last Name</Label>
+              <Input
+                id="edit-last-name"
+                value={editingUserDetails?.last_name || ''}
+                onChange={(e) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, last_name: e.target.value } : null
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <PhoneInput
+                value={editingUserDetails?.phone || ''}
+                onChange={(value) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, phone: value } : null
+                )}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingUserDetails(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (editingUserDetails) {
+                  try {
+                    const { error } = await supabase
+                      .from('user_roles')
+                      .update({
+                        first_name: editingUserDetails.first_name,
+                        last_name: editingUserDetails.last_name,
+                        phone: editingUserDetails.phone
+                      })
+                      .eq('id', editingUserDetails.id);
+
+                    if (error) throw error;
+
+                    toast({
+                      title: "Success",
+                      description: "User details updated successfully",
+                    });
+                    
+                    setEditingUserDetails(null);
+                    refetch();
+                  } catch (error) {
+                    console.error('Error updating user details:', error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to update user details",
+                      variant: "destructive",
+                    });
+                  }
+                }
+              }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
