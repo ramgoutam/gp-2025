@@ -15,7 +15,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const COUNTRY_CODES = [
+type CountryCode = {
+  value: string;
+  label: string;
+  flag: string;
+};
+
+const COUNTRY_CODES: CountryCode[] = [
   { value: "1", label: "US", flag: "🇺🇸" },
   { value: "44", label: "GB", flag: "🇬🇧" },
   { value: "91", label: "IN", flag: "🇮🇳" },
@@ -31,7 +37,7 @@ const COUNTRY_CODES = [
   { value: "52", label: "MX", flag: "🇲🇽" },
   { value: "61", label: "AU", flag: "🇦🇺" },
   { value: "31", label: "NL", flag: "🇳🇱" },
-] as const;
+];
 
 type PhoneInputProps = {
   value: string;
@@ -40,7 +46,7 @@ type PhoneInputProps = {
 
 export function PhoneInput({ value, onChange }: PhoneInputProps) {
   const [open, setOpen] = React.useState(false);
-  const [selectedCountry, setSelectedCountry] = React.useState(COUNTRY_CODES[0]);
+  const [selectedCountry, setSelectedCountry] = React.useState<CountryCode>(COUNTRY_CODES[0]);
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
   // Format phone number based on country code
