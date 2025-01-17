@@ -6,7 +6,6 @@ const corsHeaders = {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -15,7 +14,6 @@ Deno.serve(async (req) => {
     console.log('Initializing Supabase clients...');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     
-    // Create a Supabase client with the service role key
     const supabaseAdmin = createClient(
       supabaseUrl,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -27,7 +25,6 @@ Deno.serve(async (req) => {
       }
     )
 
-    // Get request body
     const { targetUserId } = await req.json()
     console.log('Target user ID:', targetUserId);
     
@@ -35,13 +32,11 @@ Deno.serve(async (req) => {
       throw new Error('Target user ID is required')
     }
 
-    // Get the auth header to verify the requesting user
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       throw new Error('No authorization header')
     }
 
-    // Create a client with the user's token to verify their role
     const supabaseClient = createClient(
       supabaseUrl,
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -59,31 +54,20 @@ Deno.serve(async (req) => {
       }
     )
 
-    // Verify the requesting user is an admin
     console.log('Verifying admin status...');
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError) {
-      console.error('Error getting user:', userError);
-      throw userError;
-    }
+    if (userError) throw userError;
 
-    if (!user) {
-      throw new Error('No user found');
-    }
+    if (!user) throw new Error('No user found');
 
-    // Get target user details using admin client
     console.log('Getting target user details...');
     const { data: targetUser, error: targetUserError } = await supabaseAdmin.auth.admin.getUserById(targetUserId)
-    if (targetUserError) {
-      console.error('Error getting target user:', targetUserError);
-      throw targetUserError;
-    }
+    if (targetUserError) throw targetUserError;
 
     if (!targetUser?.user?.email) {
       throw new Error('Target user email not found');
     }
 
-    // Verify admin role using client with user token
     console.log('Verifying admin role...');
     const { data: roles, error: rolesError } = await supabaseClient
       .from('user_roles')
@@ -91,16 +75,11 @@ Deno.serve(async (req) => {
       .eq('user_id', user.id)
       .single()
 
-    if (rolesError) {
-      console.error('Error getting roles:', rolesError);
-      throw rolesError;
-    }
-
+    if (rolesError) throw rolesError;
     if (!roles || roles.role !== 'ADMIN') {
       throw new Error('Unauthorized - Admin access required')
     }
 
-    // Generate sign-in link for impersonation using admin client
     console.log('Generating sign-in link...');
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
@@ -115,12 +94,8 @@ Deno.serve(async (req) => {
       }
     })
 
-    if (error) {
-      console.error('Error generating link:', error);
-      throw error;
-    }
+    if (error) throw error;
 
-    // Return both the properties and the raw magic link for debugging
     console.log('Magic link generated successfully');
     return new Response(
       JSON.stringify({ 
