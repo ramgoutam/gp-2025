@@ -16,13 +16,22 @@ const COUNTRY_CODES = [
   { code: "+34", country: "ES", flag: "🇪🇸" },
 ];
 
-interface PhoneInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
-export function PhoneInput({ value, onChange, className, ...props }: PhoneInputProps) {
+export function PhoneInput({ 
+  value, 
+  onChange, 
+  className,
+  placeholder = "Phone number",
+  disabled,
+  ...props 
+}: PhoneInputProps) {
   const [countryCode, setCountryCode] = React.useState("+1");
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
@@ -37,7 +46,7 @@ export function PhoneInput({ value, onChange, className, ...props }: PhoneInputP
         setPhoneNumber(value);
       }
     }
-  }, []);
+  }, [value]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.value.replace(/[^\d]/g, '');
@@ -52,7 +61,11 @@ export function PhoneInput({ value, onChange, className, ...props }: PhoneInputP
 
   return (
     <div className={cn("flex gap-2", className)}>
-      <Select value={countryCode} onValueChange={handleCountryCodeChange}>
+      <Select 
+        value={countryCode} 
+        onValueChange={handleCountryCodeChange}
+        disabled={disabled}
+      >
         <SelectTrigger className="w-[120px]">
           <SelectValue />
         </SelectTrigger>
@@ -72,7 +85,8 @@ export function PhoneInput({ value, onChange, className, ...props }: PhoneInputP
         value={phoneNumber}
         onChange={handlePhoneChange}
         className="flex-1"
-        placeholder="Phone number"
+        placeholder={placeholder}
+        disabled={disabled}
         {...props}
       />
     </div>
