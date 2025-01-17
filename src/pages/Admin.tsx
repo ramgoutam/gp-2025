@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -108,31 +109,21 @@ const Admin = () => {
 
   const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
-      // Create the user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: values.email,
-        password: values.password,
-        email_confirm: true,
-      });
+      const response = await fetch(
+        'https://zqlchnhpfdwmqdpmdntc.supabase.co/functions/v1/create-user',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify(values),
+        }
+      );
 
-      if (authError) {
-        throw authError;
-      }
-
-      if (!authData.user) {
-        throw new Error('No user data returned');
-      }
-
-      // Create the user role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: authData.user.id,
-          role: values.role,
-        });
-
-      if (roleError) {
-        throw roleError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create user');
       }
 
       toast({
@@ -183,6 +174,9 @@ const Admin = () => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Create New User</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for the new user account.
+                  </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
