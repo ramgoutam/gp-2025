@@ -52,6 +52,10 @@ const Admin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<{ userId: string; role: UserRole['role'] } | null>(null);
   const [userEmails, setUserEmails] = useState<Record<string, string>>({});
+  const [changingPasswordFor, setChangingPasswordFor] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -163,10 +167,16 @@ const Admin = () => {
     }
   };
 
-  const [changingPasswordFor, setChangingPasswordFor] = useState<string | null>(null);
-  const [newPassword, setNewPassword] = useState('');
-
   const handlePasswordChange = async (userId: string) => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase.functions.invoke('update-user-password', {
         body: { 
@@ -182,8 +192,10 @@ const Admin = () => {
         description: "Password updated successfully",
       });
       
-      setChangingPasswordFor(null);
+      setIsPasswordDialogOpen(false);
       setNewPassword('');
+      setConfirmPassword('');
+      setChangingPasswordFor(null);
     } catch (error) {
       console.error('Error updating password:', error);
       toast({
@@ -250,6 +262,58 @@ const Admin = () => {
         <Shield className="h-8 w-8 text-muted-foreground" />
       </div>
       
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter the new password for this user.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsPasswordDialogOpen(false);
+                setNewPassword('');
+                setConfirmPassword('');
+                setChangingPasswordFor(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => changingPasswordFor && handlePasswordChange(changingPasswordFor)}
+              disabled={!newPassword || !confirmPassword || newPassword !== confirmPassword}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 lg:col-span-2">
           <div className="flex justify-between items-center mb-4">
@@ -372,83 +436,37 @@ const Admin = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          {changingPasswordFor === userRole.user_id ? (
-                            <>
-                              <Input
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="New password"
-                                className="w-40"
-                              />
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => handlePasswordChange(userRole.user_id)}
-                                disabled={!newPassword}
-                              >
-                                Save
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setChangingPasswordFor(null);
-                                  setNewPassword('');
-                                }}
-                              >
-                                Cancel
-                              </Button>
-                            </>
-                          ) : editingRole?.userId === userRole.user_id ? (
-                            <>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => handleRoleUpdate(userRole.user_id, editingRole.role)}
-                              >
-                                Save
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditingRole(null)}
-                              >
-                                Cancel
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditingRole({ 
-                                  userId: userRole.user_id, 
-                                  role: userRole.role 
-                                })}
-                              >
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit Role
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setChangingPasswordFor(userRole.user_id)}
-                              >
-                                <Key className="h-4 w-4 mr-2" />
-                                Change Password
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteUser(userRole.user_id)}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete User
-                              </Button>
-                            </>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setIsPasswordDialogOpen(true);
+                              setChangingPasswordFor(userRole.user_id);
+                            }}
+                          >
+                            <Key className="h-4 w-4 mr-2" />
+                            Change Password
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingRole({ 
+                              userId: userRole.user_id, 
+                              role: userRole.role 
+                            })}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Role
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteUser(userRole.user_id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
