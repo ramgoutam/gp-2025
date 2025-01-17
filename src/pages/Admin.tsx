@@ -38,41 +38,40 @@ const USER_ROLES = [
   'FRONT_DESK'
 ] as const;
 
+type UserRole = typeof USER_ROLES[number];
+
 const Admin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      const { data: { users }, error } = await supabase.auth.admin.listUsers();
-      if (error) throw error;
-      return users;
-    },
-  });
-
-  const { data: userRoles } = useQuery({
-    queryKey: ['userRoles'],
-    queryFn: async () => {
       const { data, error } = await supabase
         .from('user_roles')
-        .select('*');
+        .select(`
+          user_id,
+          role,
+          auth.users!inner (
+            email,
+            last_sign_in_at
+          )
+        `);
+      
       if (error) throw error;
       return data;
     },
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async ({ email, password, role }: { email: string; password: string; role: string }) => {
-      // Create the user
-      const { data: userData, error: userError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
+    mutationFn: async ({ email, password, role }: { email: string; password: string; role: UserRole }) => {
+      // Create the user using Supabase Edge Function
+      const { data: userData, error: userError } = await supabase.functions.invoke('create-user', {
+        body: { email, password }
       });
 
       if (userError) throw userError;
@@ -81,26 +80,25 @@ const Admin = () => {
       const { error: roleError } = await supabase
         .from('user_roles')
         .insert([
-          { user_id: userData.user.id, role }
+          { user_id: userData.id, role }
         ]);
 
       if (roleError) throw roleError;
 
-      return userData.user;
+      return userData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       setIsOpen(false);
       setEmail('');
       setPassword('');
-      setSelectedRole('');
+      setSelectedRole(undefined);
       toast({
         title: "Success",
         description: "User created successfully",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message,
@@ -121,11 +119,6 @@ const Admin = () => {
     }
 
     createUserMutation.mutate({ email, password, role: selectedRole });
-  };
-
-  const getUserRole = (userId: string) => {
-    const userRole = userRoles?.find(role => role.user_id === userId);
-    return userRole?.role || 'No role assigned';
   };
 
   return (
@@ -177,7 +170,7 @@ const Admin = () => {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="role" className="text-sm font-medium">Role</label>
-                  <Select onValueChange={setSelectedRole} value={selectedRole}>
+                  <Select onValueChange={(value: UserRole) => setSelectedRole(value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
@@ -214,11 +207,11 @@ const Admin = () => {
                   <TableCell colSpan={4} className="text-center">Loading users...</TableCell>
                 </TableRow>
               ) : users?.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{getUserRole(user.id)}</TableCell>
-                  <TableCell>{new Date(user.last_sign_in_at || '').toLocaleDateString()}</TableCell>
-                  <TableCell>{user.banned ? 'Banned' : 'Active'}</TableCell>
+                <TableRow key={user.user_id}>
+                  <TableCell>{user.users.email}</TableCell>
+                  <TableCell>{user.role}</TableCell>
+                  <TableCell>{new Date(user.users.last_sign_in_at || '').toLocaleDateString()}</TableCell>
+                  <TableCell>Active</TableCell>
                 </TableRow>
               ))}
             </TableBody>
