@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
       type: 'magiclink',
       email: targetUser.user.email,
       options: {
-        redirectTo: `${new URL(supabaseUrl).origin}/dashboard`,
+        redirectTo: `${supabaseUrl}/dashboard`,
         data: {
           impersonated: true,
           impersonator: user.id,
