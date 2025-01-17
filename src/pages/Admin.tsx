@@ -318,7 +318,7 @@ const Admin = () => {
                   <TableRow>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -351,8 +351,8 @@ const Admin = () => {
                           userRole.role
                         )}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
                           {editingRole?.userId === userRole.user_id ? (
                             <>
                               <Button
