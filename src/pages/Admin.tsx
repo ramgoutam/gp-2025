@@ -223,15 +223,26 @@ const Admin = () => {
       console.log('Impersonation response:', data);
 
       if (data?.data?.magicLink) {
-        // Show the magic link in a toast for debugging
+        // Create a clickable link dialog
+        const dialog = document.createElement('dialog');
+        dialog.innerHTML = `
+          <div style="padding: 20px;">
+            <h3>Magic Link Generated</h3>
+            <p>Click the link below or copy it to your browser:</p>
+            <a href="${data.data.magicLink}" target="_blank" rel="noopener noreferrer">${data.data.magicLink}</a>
+            <br/><br/>
+            <button onclick="this.closest('dialog').close()">Close</button>
+          </div>
+        `;
+        document.body.appendChild(dialog);
+        dialog.showModal();
+
         toast({
           title: "Magic Link Generated",
-          description: "Check the console for the magic link",
+          description: "A dialog with the magic link has been opened",
         });
-        console.log('Magic Link:', data.data.magicLink);
         
-        // You can still auto-redirect if needed
-        window.location.href = data.data.magicLink;
+        console.log('Magic Link:', data.data.magicLink);
       } else {
         console.error('No magic link received');
         toast({

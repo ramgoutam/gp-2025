@@ -13,9 +13,11 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Initializing Supabase clients...');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    
     // Create a Supabase client with the service role key
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      supabaseUrl,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         auth: {
@@ -41,7 +43,7 @@ Deno.serve(async (req) => {
 
     // Create a client with the user's token to verify their role
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      supabaseUrl,
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         auth: {
@@ -104,7 +106,7 @@ Deno.serve(async (req) => {
       type: 'magiclink',
       email: targetUser.user.email,
       options: {
-        redirectTo: `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}/dashboard`,
+        redirectTo: `${supabaseUrl.replace('.supabase.co', '')}/dashboard`,
         data: {
           impersonated: true,
           impersonator: user.id,
