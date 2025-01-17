@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserX, Pencil, Trash2, Plus } from 'lucide-react';
+import { Shield, UserX, Pencil, Trash2, Plus, Key } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -163,43 +163,32 @@ const Admin = () => {
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
-    try {
-      if (!values.email) {
-        toast({
-          title: "Error",
-          description: "Email is required",
-          variant: "destructive",
-        });
-        return;
-      }
+  const [changingPasswordFor, setChangingPasswordFor] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
-      const { data, error } = await supabase.functions.invoke('create-user', {
+  const handlePasswordChange = async (userId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('update-user-password', {
         body: { 
-          email: values.email,
-          password: values.password,
-          role: values.role,
-          action: 'create'
+          userId,
+          newPassword
         }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "User created successfully",
+        description: "Password updated successfully",
       });
       
-      setIsOpen(false);
-      form.reset();
-      refetch();
+      setChangingPasswordFor(null);
+      setNewPassword('');
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('Error updating password:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create user",
+        description: "Failed to update password",
         variant: "destructive",
       });
     }
@@ -353,7 +342,35 @@ const Admin = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          {editingRole?.userId === userRole.user_id ? (
+                          {changingPasswordFor === userRole.user_id ? (
+                            <>
+                              <Input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="New password"
+                                className="w-40"
+                              />
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handlePasswordChange(userRole.user_id)}
+                                disabled={!newPassword}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setChangingPasswordFor(null);
+                                  setNewPassword('');
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : editingRole?.userId === userRole.user_id ? (
                             <>
                               <Button
                                 variant="default"
@@ -382,6 +399,14 @@ const Admin = () => {
                               >
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Edit Role
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setChangingPasswordFor(userRole.user_id)}
+                              >
+                                <Key className="h-4 w-4 mr-2" />
+                                Change Password
                               </Button>
                               <Button
                                 variant="ghost"
