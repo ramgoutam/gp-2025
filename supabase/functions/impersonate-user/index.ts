@@ -80,15 +80,12 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized - Admin access required')
     }
 
-    const baseUrl = 'https://preview--gp-2025.lovable.app';
-    console.log('Base URL for redirect:', baseUrl);
-
     console.log('Generating sign-in link...');
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: targetUser.user.email,
       options: {
-        redirectTo: `${baseUrl}/dashboard`,
+        redirectTo: 'https://preview--gp-2025.lovable.app',
         data: {
           impersonated: true,
           impersonator: user.id,

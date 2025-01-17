@@ -225,12 +225,6 @@ const Admin = () => {
     try {
       console.log('Starting impersonation for user:', userId);
       
-      // Store current session before impersonation
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (currentSession) {
-        localStorage.setItem('impersonator_session', JSON.stringify(currentSession));
-      }
-
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId: userId }
       });
@@ -248,22 +242,8 @@ const Admin = () => {
           description: "You will be redirected to login as the selected user.",
         });
 
-        // Sign out current user before redirecting
-        await supabase.auth.signOut();
-        
-        // Ensure we're completely signed out before redirecting
-        const { error: signOutError } = await supabase.auth.getSession();
-        if (!signOutError) {
-          console.log('Successfully signed out, redirecting to magic link');
-          window.location.href = data.data.magicLink;
-        } else {
-          console.error('Error checking session after sign out:', signOutError);
-          toast({
-            title: "Error",
-            description: "Failed to complete sign out process",
-            variant: "destructive",
-          });
-        }
+        // Directly redirect to the magic link
+        window.location.href = data.data.magicLink;
       } else {
         console.error('No magic link received');
         toast({
