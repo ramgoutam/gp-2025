@@ -1,65 +1,62 @@
-import React from "react";
-import { Input } from "./input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
-import { cn } from "@/lib/utils";
-
-const COUNTRY_CODES = [
-  { code: "+1", country: "US", flag: "🇺🇸" },
-  { code: "+44", country: "GB", flag: "🇬🇧" },
-  { code: "+91", country: "IN", flag: "🇮🇳" },
-  { code: "+61", country: "AU", flag: "🇦🇺" },
-  { code: "+86", country: "CN", flag: "🇨🇳" },
-  { code: "+81", country: "JP", flag: "🇯🇵" },
-  { code: "+49", country: "DE", flag: "🇩🇪" },
-  { code: "+33", country: "FR", flag: "🇫🇷" },
-  { code: "+39", country: "IT", flag: "🇮🇹" },
-  { code: "+34", country: "ES", flag: "🇪🇸" },
-  { code: "+7", country: "RU", flag: "🇷🇺" },
-  { code: "+55", country: "BR", flag: "🇧🇷" },
-  { code: "+52", country: "MX", flag: "🇲🇽" },
-  { code: "+82", country: "KR", flag: "🇰🇷" },
-  { code: "+971", country: "AE", flag: "🇦🇪" },
-  { code: "+966", country: "SA", flag: "🇸🇦" },
-  { code: "+65", country: "SG", flag: "🇸🇬" },
-  { code: "+27", country: "ZA", flag: "🇿🇦" },
-  { code: "+234", country: "NG", flag: "🇳🇬" },
-  { code: "+20", country: "EG", flag: "🇪🇬" }
-];
+import * as React from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
-  className?: string;
   placeholder?: string;
   disabled?: boolean;
 }
 
-export function PhoneInput({ 
-  value, 
-  onChange, 
-  className,
-  placeholder = "Phone number",
+const COUNTRY_CODES = [
+  { code: "+1", flag: "🇺🇸", country: "United States" },
+  { code: "+44", flag: "🇬🇧", country: "United Kingdom" },
+  { code: "+91", flag: "🇮🇳", country: "India" },
+  { code: "+81", flag: "🇯🇵", country: "Japan" },
+  { code: "+86", flag: "🇨🇳", country: "China" },
+  { code: "+49", flag: "🇩🇪", country: "Germany" },
+  { code: "+33", flag: "🇫🇷", country: "France" },
+  { code: "+39", flag: "🇮🇹", country: "Italy" },
+  { code: "+7", flag: "🇷🇺", country: "Russia" },
+  { code: "+55", flag: "🇧🇷", country: "Brazil" },
+  { code: "+52", flag: "🇲🇽", country: "Mexico" },
+  { code: "+61", flag: "🇦🇺", country: "Australia" },
+  { code: "+64", flag: "🇳🇿", country: "New Zealand" },
+  { code: "+82", flag: "🇰🇷", country: "South Korea" },
+  { code: "+34", flag: "🇪🇸", country: "Spain" },
+];
+
+export function PhoneInput({
+  value,
+  onChange,
+  placeholder,
   disabled,
-  ...props 
 }: PhoneInputProps) {
   const [countryCode, setCountryCode] = React.useState("+1");
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
   React.useEffect(() => {
-    // Initialize from value prop if it exists
+    // Update the phone number when the value prop changes
     if (value) {
-      const code = COUNTRY_CODES.find(c => value.startsWith(c.code));
-      if (code) {
-        setCountryCode(code.code);
-        setPhoneNumber(value.slice(code.code.length));
+      const matchedCode = COUNTRY_CODES.find((cc) => value.startsWith(cc.code));
+      if (matchedCode) {
+        setCountryCode(matchedCode.code);
+        setPhoneNumber(value.slice(matchedCode.code.length));
       } else {
         setPhoneNumber(value);
       }
     }
   }, [value]);
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newNumber = e.target.value.replace(/[^\d]/g, '');
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newNumber = e.target.value;
     setPhoneNumber(newNumber);
     onChange(countryCode + newNumber);
   };
@@ -70,21 +67,25 @@ export function PhoneInput({
   };
 
   return (
-    <div className={cn("flex gap-2", className)}>
-      <Select 
-        value={countryCode} 
+    <div className="flex gap-2">
+      <Select
+        value={countryCode}
         onValueChange={handleCountryCodeChange}
         disabled={disabled}
       >
         <SelectTrigger className="w-[120px]">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
-          {COUNTRY_CODES.map(({ code, country, flag }) => (
-            <SelectItem key={code} value={code}>
+        <SelectContent className="bg-white border shadow-lg">
+          {COUNTRY_CODES.map((country) => (
+            <SelectItem
+              key={country.code}
+              value={country.code}
+              className="hover:bg-gray-100"
+            >
               <span className="flex items-center gap-2">
-                <span>{flag}</span>
-                <span>{code}</span>
+                <span>{country.flag}</span>
+                <span>{country.code}</span>
               </span>
             </SelectItem>
           ))}
@@ -93,11 +94,10 @@ export function PhoneInput({
       <Input
         type="tel"
         value={phoneNumber}
-        onChange={handlePhoneChange}
-        className="flex-1"
+        onChange={handlePhoneNumberChange}
         placeholder={placeholder}
         disabled={disabled}
-        {...props}
+        className="flex-1"
       />
     </div>
   );
