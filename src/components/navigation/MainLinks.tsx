@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ export const MainLinks = () => {
   const mainLinks = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
+    { to: "/admin", label: "Admin", icon: Shield },
   ];
 
   return (
