@@ -10,17 +10,8 @@ export const SignOutButton = () => {
 
   const handleSignOut = async () => {
     try {
-      // First check if we have a session
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Starting sign out process");
       
-      if (!session) {
-        // If no session, just redirect to login
-        console.log("No active session found, redirecting to login");
-        navigate("/login");
-        return;
-      }
-
-      // Proceed with sign out if we have a session
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -28,23 +19,28 @@ export const SignOutButton = () => {
         throw error;
       }
 
+      console.log("Successfully signed out");
+      
+      // Show success toast
       toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
+        title: "Signed out successfully",
+        description: "You have been signed out.",
       });
       
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
+      // Redirect to login page
+      navigate("/login", { replace: true });
       
-      // Show error toast but still redirect to login
+    } catch (error) {
+      console.error("Error in sign out process:", error);
+      
       toast({
         variant: "destructive",
-        title: "Error during sign out",
-        description: "You have been redirected to the login page.",
+        title: "Sign out error",
+        description: "There was an error signing out. Please try again.",
       });
       
-      navigate("/login");
+      // Still redirect to login page for safety
+      navigate("/login", { replace: true });
     }
   };
 
