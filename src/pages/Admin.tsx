@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, UserCheck, UserX } from 'lucide-react';
+import { Shield, UserCheck, UserX, Plus } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -13,6 +13,24 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 type UserRole = {
   id: string;
@@ -22,9 +40,24 @@ type UserRole = {
   updated_at: string;
 };
 
+const createUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum(["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"]),
+});
+
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const form = useForm<z.infer<typeof createUserSchema>>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      role: "CLINICAL_STAFF",
+    },
+  });
 
   const { data: userRoles, isLoading, refetch } = useQuery({
     queryKey: ['userRoles'],
@@ -73,6 +106,53 @@ const Admin = () => {
     refetch();
   };
 
+  const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
+    try {
+      // Create the user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: values.email,
+        password: values.password,
+        email_confirm: true,
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!authData.user) {
+        throw new Error('No user data returned');
+      }
+
+      // Create the user role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: authData.user.id,
+          role: values.role,
+        });
+
+      if (roleError) {
+        throw roleError;
+      }
+
+      toast({
+        title: "Success",
+        description: "User created successfully",
+      });
+      
+      setIsOpen(false);
+      form.reset();
+      refetch();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create user",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredRoles = userRoles?.filter(role => 
     role.user_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -91,8 +171,77 @@ const Admin = () => {
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 lg:col-span-2">
-          <h3 className="font-semibold mb-2">User Management</h3>
-          <p className="text-sm text-muted-foreground mb-4">Manage user roles and permissions</p>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold">User Management</h3>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create User
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New User</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <FormControl>
+                            <select
+                              {...field}
+                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                              <option value="ADMIN">Admin</option>
+                              <option value="MANAGER_CLINICAL">Clinical Manager</option>
+                              <option value="DOCTOR">Doctor</option>
+                              <option value="CLINICAL_STAFF">Clinical Staff</option>
+                              <option value="LAB_MANAGER">Lab Manager</option>
+                              <option value="LAB_STAFF">Lab Staff</option>
+                              <option value="FRONT_DESK">Front Desk</option>
+                            </select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full">Create User</Button>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </div>
           
           <div className="space-y-4">
             <Input
