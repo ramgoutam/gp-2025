@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, UserX, Pencil, Trash2, Plus } from 'lucide-react';
 import {
   Table,
@@ -51,6 +51,7 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<{ userId: string; role: UserRole['role'] } | null>(null);
+  const [userEmails, setUserEmails] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -78,6 +79,25 @@ const Admin = () => {
       return roles as UserRole[];
     },
   });
+
+  useEffect(() => {
+    const fetchUserEmails = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-user-details');
+        if (error) throw error;
+        setUserEmails(data.users);
+      } catch (error) {
+        console.error('Error fetching user emails:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch user emails",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchUserEmails();
+  }, [toast]);
 
   const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
     try {
@@ -186,7 +206,8 @@ const Admin = () => {
   };
 
   const filteredRoles = userRoles?.filter(role => 
-    role.user_id?.toLowerCase().includes(searchQuery.toLowerCase())
+    (role.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const roles: UserRole['role'][] = [
@@ -297,6 +318,7 @@ const Admin = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>User ID</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -304,15 +326,16 @@ const Admin = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center">Loading users...</TableCell>
+                      <TableCell colSpan={4} className="text-center">Loading users...</TableCell>
                     </TableRow>
                   ) : filteredRoles?.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center">No users found</TableCell>
+                      <TableCell colSpan={4} className="text-center">No users found</TableCell>
                     </TableRow>
                   ) : filteredRoles?.map((userRole) => (
                     <TableRow key={userRole.id}>
                       <TableCell>{userRole.user_id}</TableCell>
+                      <TableCell>{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
                       <TableCell>
                         {editingRole?.userId === userRole.user_id ? (
                           <select
