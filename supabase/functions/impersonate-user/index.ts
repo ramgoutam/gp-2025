@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
       type: 'magiclink',
       email: targetUser.user.email,
       options: {
-        redirectTo: `${supabaseUrl}/dashboard`,
+        redirectTo: `${supabaseUrl}`,
         data: {
           impersonated: true,
           impersonator: user.id,
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         data: {
           properties: data.properties,
-          magicLink: data.properties.action_link // This is the actual magic link
+          magicLink: data.properties.action_link
         }
       }),
       { 
