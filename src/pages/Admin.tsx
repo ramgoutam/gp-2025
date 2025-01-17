@@ -50,6 +50,7 @@ const createUserSchema = z.object({
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<{ userId: string; role: UserRole['role'] } | null>(null);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -78,9 +79,7 @@ const Admin = () => {
     },
   });
 
-  const handleRoleToggle = async (userId: string, currentRole: UserRole['role']) => {
-    const newRole = currentRole === 'ADMIN' ? 'CLINICAL_STAFF' : 'ADMIN';
-    
+  const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
     const { error } = await supabase
       .from('user_roles')
       .upsert({ 
@@ -104,6 +103,7 @@ const Admin = () => {
       title: "Success",
       description: `User role updated to ${newRole}`,
     });
+    setEditingRole(null);
     refetch();
   };
 
@@ -160,6 +160,16 @@ const Admin = () => {
   const filteredRoles = userRoles?.filter(role => 
     role.user_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const roles: UserRole['role'][] = [
+    "ADMIN",
+    "MANAGER_CLINICAL",
+    "DOCTOR",
+    "CLINICAL_STAFF",
+    "LAB_MANAGER",
+    "LAB_STAFF",
+    "FRONT_DESK"
+  ];
 
   return (
     <div className="space-y-6">
@@ -230,13 +240,9 @@ const Admin = () => {
                               {...field}
                               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                             >
-                              <option value="ADMIN">Admin</option>
-                              <option value="MANAGER_CLINICAL">Clinical Manager</option>
-                              <option value="DOCTOR">Doctor</option>
-                              <option value="CLINICAL_STAFF">Clinical Staff</option>
-                              <option value="LAB_MANAGER">Lab Manager</option>
-                              <option value="LAB_STAFF">Lab Staff</option>
-                              <option value="FRONT_DESK">Front Desk</option>
+                              {roles.map((role) => (
+                                <option key={role} value={role}>{role}</option>
+                              ))}
                             </select>
                           </FormControl>
                           <FormMessage />
@@ -279,26 +285,67 @@ const Admin = () => {
                   ) : filteredRoles?.map((userRole) => (
                     <TableRow key={userRole.id}>
                       <TableCell>{userRole.user_id}</TableCell>
-                      <TableCell>{userRole.role}</TableCell>
+                      <TableCell>
+                        {editingRole?.userId === userRole.user_id ? (
+                          <select
+                            value={editingRole.role}
+                            onChange={(e) => setEditingRole({ 
+                              userId: userRole.user_id, 
+                              role: e.target.value as UserRole['role'] 
+                            })}
+                            className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                          >
+                            {roles.map((role) => (
+                              <option key={role} value={role}>{role}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          userRole.role
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRoleToggle(userRole.user_id, userRole.role)}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit Role
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteUser(userRole.user_id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
-                          </Button>
+                          {editingRole?.userId === userRole.user_id ? (
+                            <>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleRoleUpdate(userRole.user_id, editingRole.role)}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setEditingRole(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setEditingRole({ 
+                                  userId: userRole.user_id, 
+                                  role: userRole.role 
+                                })}
+                              >
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit Role
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteUser(userRole.user_id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete User
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
