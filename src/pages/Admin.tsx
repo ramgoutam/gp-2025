@@ -46,6 +46,11 @@ type UserRole = {
 const createUserSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, { 
+    message: "Please enter a valid phone number with country code (e.g., +1234567890)" 
+  }),
   role: z.enum(["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"]),
 });
 
@@ -64,6 +69,9 @@ const Admin = () => {
     defaultValues: {
       email: "",
       password: "",
+      firstName: "",
+      lastName: "",
+      phone: "",
       role: "CLINICAL_STAFF",
     },
   });
@@ -223,7 +231,6 @@ const Admin = () => {
       console.log('Impersonation response:', data);
 
       if (data?.data?.magicLink) {
-        // Create a clickable link dialog
         const dialog = document.createElement('dialog');
         dialog.innerHTML = `
           <div style="padding: 20px;">
@@ -281,7 +288,10 @@ const Admin = () => {
         body: { 
           email: values.email,
           password: values.password,
-          role: values.role
+          role: values.role,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phone
         }
       });
 
@@ -391,12 +401,51 @@ const Admin = () => {
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                       control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input {...field} type="email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone (with country code)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="+1234567890" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

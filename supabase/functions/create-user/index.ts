@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { email, password, role, userId, action } = await req.json()
+    const { email, password, role, userId, action, firstName, lastName, phone } = await req.json()
 
     if (action === 'delete' && userId) {
       const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(userId)
@@ -30,37 +30,38 @@ serve(async (req) => {
       )
     }
 
-    if (action === 'create') {
-      if (!email) {
-        throw new Error('Email is required')
-      }
-
-      const { data: userData, error: createError } = await supabaseClient.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true
-      })
-
-      if (createError) throw createError
-
-      if (userData.user) {
-        const { error: roleError } = await supabaseClient
-          .from('user_roles')
-          .insert({
-            user_id: userData.user.id,
-            role
-          })
-
-        if (roleError) throw roleError
-      }
-
-      return new Response(
-        JSON.stringify({ message: 'User created successfully' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    if (!email) {
+      throw new Error('Email is required')
     }
 
-    throw new Error('Invalid action')
+    const { data: userData, error: createError } = await supabaseClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        firstName,
+        lastName,
+        phone
+      }
+    })
+
+    if (createError) throw createError
+
+    if (userData.user) {
+      const { error: roleError } = await supabaseClient
+        .from('user_roles')
+        .insert({
+          user_id: userData.user.id,
+          role
+        })
+
+      if (roleError) throw roleError
+    }
+
+    return new Response(
+      JSON.stringify({ message: 'User created successfully' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
 
   } catch (error) {
     return new Response(

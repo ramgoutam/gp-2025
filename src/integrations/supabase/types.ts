@@ -1038,6 +1038,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      is_valid_phone: {
+        Args: {
+          phone: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       clinic_role:
