@@ -42,6 +42,9 @@ type UserRole = {
   role: "ADMIN" | "MANAGER_CLINICAL" | "DOCTOR" | "CLINICAL_STAFF" | "LAB_MANAGER" | "LAB_STAFF" | "FRONT_DESK";
   created_at: string;
   updated_at: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
 };
 
 const createUserSchema = z.object({
@@ -507,6 +510,8 @@ const Admin = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Email</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Phone</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -514,15 +519,17 @@ const Admin = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">Loading users...</TableCell>
+                    <TableCell colSpan={5} className="text-center">Loading users...</TableCell>
                   </TableRow>
                 ) : filteredRoles?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">No users found</TableCell>
+                    <TableCell colSpan={5} className="text-center">No users found</TableCell>
                   </TableRow>
                 ) : filteredRoles?.map((userRole) => (
                   <TableRow key={userRole.id}>
                     <TableCell>{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
+                    <TableCell>{`${userRole.first_name || ''} ${userRole.last_name || ''}`}</TableCell>
+                    <TableCell>{userRole.phone || 'N/A'}</TableCell>
                     <TableCell>
                       {editingRole?.userId === userRole.user_id ? (
                         <select
