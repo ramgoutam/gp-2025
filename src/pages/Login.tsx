@@ -38,6 +38,24 @@ export default function Login() {
     };
 
     checkSession();
+
+    // Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event);
+      if (event === 'SIGNED_IN' && session) {
+        navigate("/");
+      }
+      if (event === 'SIGNED_OUT') {
+        console.log("User signed out");
+      }
+      if (event === 'USER_UPDATED') {
+        console.log("User updated");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [session, navigate, toast]);
 
   return (
@@ -66,14 +84,6 @@ export default function Login() {
             },
           }}
           providers={[]}
-          onError={(error) => {
-            console.error("Auth error:", error);
-            toast({
-              title: "Authentication Error",
-              description: error.message,
-              variant: "destructive",
-            });
-          }}
         />
       </CardContent>
     </Card>
