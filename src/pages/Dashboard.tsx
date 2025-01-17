@@ -6,6 +6,7 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,9 +15,10 @@ const Dashboard = () => {
   console.log("Rendering Dashboard component");
 
   // Fetch user details including role and name
-  const { data: userDetails } = useQuery({
+  const { data: userDetails, isLoading: isUserLoading } = useQuery({
     queryKey: ['userDetails'],
     queryFn: async () => {
+      console.log('Fetching user details');
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.id) return null;
 
@@ -85,7 +87,6 @@ const Dashboard = () => {
         },
         (payload) => {
           console.log('Received dashboard update:', payload);
-          // Invalidate and refetch all relevant queries
           queryClient.invalidateQueries({ queryKey: ['patientCount'] });
           queryClient.invalidateQueries({ queryKey: ['labScriptCount'] });
           queryClient.invalidateQueries({ queryKey: ['reportCardCount'] });
@@ -99,6 +100,16 @@ const Dashboard = () => {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
+
+  if (isUserLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-[72px] w-full bg-gray-200" />
+        <Skeleton className="h-[200px] w-full bg-gray-200" />
+        <Skeleton className="h-[400px] w-full bg-gray-200" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
