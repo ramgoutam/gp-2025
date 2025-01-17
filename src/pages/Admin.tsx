@@ -236,7 +236,13 @@ const Admin = () => {
       console.log('Impersonation response:', data);
 
       if (data?.data?.magicLink) {
-        // Instead of creating a dialog, directly navigate to the magic link
+        // Store the current user's session before redirecting
+        const currentSession = await supabase.auth.getSession();
+        if (currentSession?.data?.session) {
+          localStorage.setItem('impersonator_session', JSON.stringify(currentSession.data.session));
+        }
+        
+        // Redirect to the magic link
         window.location.href = data.data.magicLink;
         
         toast({
