@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized - Admin access required')
     }
 
-    const baseUrl = req.headers.get('origin') || supabaseUrl;
+    const baseUrl = 'https://preview--gp-2025.lovable.app';
     console.log('Base URL for redirect:', baseUrl);
 
     console.log('Generating sign-in link...');

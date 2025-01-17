@@ -246,13 +246,15 @@ const Admin = () => {
         // Sign out current user before redirecting
         await supabase.auth.signOut();
         
-        // Redirect to the magic link
-        window.location.href = data.data.magicLink;
-        
         toast({
           title: "Impersonation Started",
           description: "You will be redirected to login as the selected user.",
         });
+
+        // Small delay to ensure signOut completes and toast is shown
+        setTimeout(() => {
+          window.location.href = data.data.magicLink;
+        }, 1000);
       } else {
         console.error('No magic link received');
         toast({
