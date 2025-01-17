@@ -109,21 +109,12 @@ const Admin = () => {
 
   const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
-      const response = await fetch(
-        'https://zqlchnhpfdwmqdpmdntc.supabase.co/functions/v1/create-user',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: values
+      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create user');
+      if (error) {
+        throw error;
       }
 
       toast({
