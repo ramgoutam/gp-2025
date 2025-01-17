@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserX, Pencil, Trash2, Plus, Key } from 'lucide-react';
+import { Shield, UserX, Pencil, Trash2, Plus, Key, UserCog } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -203,6 +203,32 @@ const Admin = () => {
       toast({
         title: "Error",
         description: "Failed to update password",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImpersonateUser = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('impersonate-user', {
+        body: { targetUserId: userId }
+      });
+
+      if (error) throw error;
+
+      if (data?.data?.properties?.action_link) {
+        window.location.href = data.data.properties.action_link;
+      }
+
+      toast({
+        title: "Success",
+        description: "Switching user context...",
+      });
+    } catch (error) {
+      console.error('Error impersonating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to impersonate user",
         variant: "destructive",
       });
     }
@@ -438,6 +464,14 @@ const Admin = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleImpersonateUser(userRole.user_id)}
+                          >
+                            <UserCog className="h-4 w-4 mr-2" />
+                            Login as
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
