@@ -225,6 +225,10 @@ const Admin = () => {
     try {
       console.log('Starting impersonation for user:', userId);
       
+      // Clear all existing data before impersonation
+      localStorage.clear();
+      sessionStorage.clear();
+      
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId: userId }
       });
@@ -242,7 +246,10 @@ const Admin = () => {
           description: "You will be redirected to login as the selected user.",
         });
 
-        // Directly redirect to the magic link
+        // Sign out current user first
+        await supabase.auth.signOut();
+        
+        // Redirect to the magic link
         window.location.href = data.data.magicLink;
       } else {
         console.error('No magic link received');
