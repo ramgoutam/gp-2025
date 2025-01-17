@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, UserCheck, UserX, Plus } from 'lucide-react';
+import { Shield, UserX, Pencil, Trash2, Plus } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -103,6 +103,28 @@ const Admin = () => {
     toast({
       title: "Success",
       description: `User role updated to ${newRole}`,
+    });
+    refetch();
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const { error } = await supabase.functions.invoke('create-user', {
+      body: { userId, action: 'delete' }
+    });
+
+    if (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "User deleted successfully",
     });
     refetch();
   };
@@ -259,18 +281,25 @@ const Admin = () => {
                       <TableCell>{userRole.user_id}</TableCell>
                       <TableCell>{userRole.role}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRoleToggle(userRole.user_id, userRole.role)}
-                        >
-                          {userRole.role === 'ADMIN' ? (
-                            <UserX className="h-4 w-4 mr-2" />
-                          ) : (
-                            <UserCheck className="h-4 w-4 mr-2" />
-                          )}
-                          {userRole.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRoleToggle(userRole.user_id, userRole.role)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Role
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteUser(userRole.user_id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
