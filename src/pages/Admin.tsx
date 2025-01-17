@@ -243,18 +243,27 @@ const Admin = () => {
       console.log('Impersonation response:', data);
 
       if (data?.data?.magicLink) {
-        // Sign out current user before redirecting
-        await supabase.auth.signOut();
-        
         toast({
           title: "Impersonation Started",
           description: "You will be redirected to login as the selected user.",
         });
 
-        // Small delay to ensure signOut completes and toast is shown
-        setTimeout(() => {
+        // Sign out current user before redirecting
+        await supabase.auth.signOut();
+        
+        // Ensure we're completely signed out before redirecting
+        const { error: signOutError } = await supabase.auth.getSession();
+        if (!signOutError) {
+          console.log('Successfully signed out, redirecting to magic link');
           window.location.href = data.data.magicLink;
-        }, 1000);
+        } else {
+          console.error('Error checking session after sign out:', signOutError);
+          toast({
+            title: "Error",
+            description: "Failed to complete sign out process",
+            variant: "destructive",
+          });
+        }
       } else {
         console.error('No magic link received');
         toast({
