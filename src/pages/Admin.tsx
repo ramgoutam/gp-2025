@@ -42,8 +42,8 @@ type UserRole = {
 };
 
 const createUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   role: z.enum(["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"]),
 });
 
@@ -80,59 +80,87 @@ const Admin = () => {
   });
 
   const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
-    const { error } = await supabase
-      .from('user_roles')
-      .upsert({ 
-        user_id: userId, 
-        role: newRole 
-      }, {
-        onConflict: 'user_id'
-      });
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
 
-    if (error) {
+      if (error) {
+        console.error('Error updating role:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update user role",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: `User role updated to ${newRole}`,
+      });
+      setEditingRole(null);
+      refetch();
+    } catch (error) {
       console.error('Error updating role:', error);
       toast({
         title: "Error",
         description: "Failed to update user role",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: `User role updated to ${newRole}`,
-    });
-    setEditingRole(null);
-    refetch();
   };
 
   const handleDeleteUser = async (userId: string) => {
-    const { error } = await supabase.functions.invoke('create-user', {
-      body: { userId, action: 'delete' }
-    });
+    try {
+      const { error } = await supabase.functions.invoke('create-user', {
+        body: { userId, action: 'delete' }
+      });
 
-    if (error) {
+      if (error) {
+        console.error('Error deleting user:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete user",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+      refetch();
+    } catch (error) {
       console.error('Error deleting user:', error);
       toast({
         title: "Error",
         description: "Failed to delete user",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: "User deleted successfully",
-    });
-    refetch();
   };
 
   const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
+      if (!values.email) {
+        toast({
+          title: "Error",
+          description: "Email is required",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-user', {
-        body: values
+        body: { 
+          email: values.email,
+          password: values.password,
+          role: values.role,
+          action: 'create'
+        }
       });
 
       if (error) {
