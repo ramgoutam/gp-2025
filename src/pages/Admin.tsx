@@ -14,6 +14,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+type UserRole = {
+  id: string;
+  user_id: string;
+  role: "ADMIN" | "MANAGER_CLINICAL" | "DOCTOR" | "CLINICAL_STAFF" | "LAB_MANAGER" | "LAB_STAFF" | "FRONT_DESK";
+  created_at: string;
+  updated_at: string;
+};
+
 const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
@@ -21,6 +29,7 @@ const Admin = () => {
   const { data: userRoles, isLoading, refetch } = useQuery({
     queryKey: ['userRoles'],
     queryFn: async () => {
+      console.log('Fetching user roles...');
       const { data: roles, error } = await supabase
         .from('user_roles')
         .select('*');
@@ -30,12 +39,12 @@ const Admin = () => {
         throw error;
       }
       
-      return roles;
+      console.log('Fetched roles:', roles);
+      return roles as UserRole[];
     },
   });
 
-  const handleRoleToggle = async (userId: string, currentRole: "ADMIN" | "MANAGER_CLINICAL" | "DOCTOR" | "CLINICAL_STAFF" | "LAB_MANAGER" | "LAB_STAFF" | "FRONT_DESK") => {
-    // For now, we'll just toggle between ADMIN and CLINICAL_STAFF as an example
+  const handleRoleToggle = async (userId: string, currentRole: UserRole['role']) => {
     const newRole = currentRole === 'ADMIN' ? 'CLINICAL_STAFF' : 'ADMIN';
     
     const { error } = await supabase
@@ -107,6 +116,10 @@ const Admin = () => {
                     <TableRow>
                       <TableCell colSpan={3} className="text-center">Loading users...</TableCell>
                     </TableRow>
+                  ) : filteredRoles?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center">No users found</TableCell>
+                    </TableRow>
                   ) : filteredRoles?.map((userRole) => (
                     <TableRow key={userRole.id}>
                       <TableCell>{userRole.user_id}</TableCell>
@@ -115,7 +128,7 @@ const Admin = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRoleToggle(userRole.user_id!, userRole.role)}
+                          onClick={() => handleRoleToggle(userRole.user_id, userRole.role)}
                         >
                           {userRole.role === 'ADMIN' ? (
                             <UserX className="h-4 w-4 mr-2" />
