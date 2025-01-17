@@ -222,12 +222,18 @@ const Admin = () => {
 
       console.log('Impersonation response:', data);
 
-      if (data?.data?.properties?.action_link) {
-        console.log('Redirecting to:', data.data.properties.action_link);
-        // Navigate to the magic link URL directly
-        window.location.href = data.data.properties.action_link;
+      if (data?.data?.magicLink) {
+        // Show the magic link in a toast for debugging
+        toast({
+          title: "Magic Link Generated",
+          description: "Check the console for the magic link",
+        });
+        console.log('Magic Link:', data.data.magicLink);
+        
+        // You can still auto-redirect if needed
+        window.location.href = data.data.magicLink;
       } else {
-        console.error('No action link received');
+        console.error('No magic link received');
         toast({
           title: "Error",
           description: "Failed to generate login link",

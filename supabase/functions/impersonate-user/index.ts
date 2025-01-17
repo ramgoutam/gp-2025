@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Initializing Supabase client...');
+    console.log('Initializing Supabase clients...');
     // Create a Supabase client with the service role key
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -118,9 +118,15 @@ Deno.serve(async (req) => {
       throw error;
     }
 
+    // Return both the properties and the raw magic link for debugging
     console.log('Magic link generated successfully');
     return new Response(
-      JSON.stringify({ data }),
+      JSON.stringify({ 
+        data: {
+          properties: data.properties,
+          magicLink: data.properties.action_link // This is the actual magic link
+        }
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
