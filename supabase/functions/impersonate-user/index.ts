@@ -72,20 +72,21 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized - Admin access required')
     }
 
-    // Extract origin from request URL
-    const origin = new URL(req.url).origin;
+    // Get the request URL and origin
+    const requestUrl = new URL(req.url);
+    const origin = requestUrl.origin;
     console.log('Request origin:', origin);
 
-    console.log('Generating magic link...');
-    // Generate link for impersonation
+    // Generate sign-in link for impersonation
     const { data, error } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: targetUser.user.email,
       options: {
-        redirectTo: origin + '/dashboard',
+        redirectTo: `${origin}/dashboard`,
         data: {
           impersonated: true,
-          impersonator: user.id
+          impersonator: user.id,
+          targetUserId: targetUserId
         }
       }
     })

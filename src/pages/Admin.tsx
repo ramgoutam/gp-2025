@@ -217,13 +217,15 @@ const Admin = () => {
       if (error) throw error;
 
       if (data?.data?.properties?.action_link) {
+        // Navigate to the magic link URL directly
         window.location.href = data.data.properties.action_link;
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to generate login link",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Success",
-        description: "Switching user context...",
-      });
     } catch (error) {
       console.error('Error impersonating user:', error);
       toast({
