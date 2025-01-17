@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { PhoneInput } from "@/components/ui/phone-input";
 
 type UserRole = {
   id: string;
@@ -445,14 +446,9 @@ const Admin = () => {
                         <FormItem>
                           <FormLabel>Phone</FormLabel>
                           <FormControl>
-                            <FormField
-                              id="phone"
-                              label=""
-                              type="tel"
+                            <PhoneInput
                               value={field.value}
                               onChange={field.onChange}
-                              required={true}
-                              autoComplete="tel"
                             />
                           </FormControl>
                           <FormMessage />
