@@ -206,8 +206,7 @@ const Admin = () => {
   };
 
   const filteredRoles = userRoles?.filter(role => 
-    (role.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase()))
+    userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const roles: UserRole['role'][] = [
@@ -317,7 +316,6 @@ const Admin = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User ID</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Actions</TableHead>
@@ -326,15 +324,14 @@ const Admin = () => {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center">Loading users...</TableCell>
+                      <TableCell colSpan={3} className="text-center">Loading users...</TableCell>
                     </TableRow>
                   ) : filteredRoles?.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center">No users found</TableCell>
+                      <TableCell colSpan={3} className="text-center">No users found</TableCell>
                     </TableRow>
                   ) : filteredRoles?.map((userRole) => (
                     <TableRow key={userRole.id}>
-                      <TableCell>{userRole.user_id}</TableCell>
                       <TableCell>{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
                       <TableCell>
                         {editingRole?.userId === userRole.user_id ? (
