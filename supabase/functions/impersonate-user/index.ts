@@ -13,10 +13,12 @@ Deno.serve(async (req) => {
   try {
     console.log('Initializing Supabase clients...');
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     
+    // Create admin client with service role key
     const supabaseAdmin = createClient(
       supabaseUrl,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      supabaseKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -32,6 +34,7 @@ Deno.serve(async (req) => {
       throw new Error('Target user ID is required')
     }
 
+    // Get the current user's session
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       throw new Error('No authorization header')
@@ -54,20 +57,19 @@ Deno.serve(async (req) => {
       }
     )
 
+    // Verify admin status
     console.log('Verifying admin status...');
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
     if (userError) throw userError;
-
     if (!user) throw new Error('No user found');
 
+    // Get target user details
     console.log('Getting target user details...');
-    const { data: targetUser, error: targetUserError } = await supabaseAdmin.auth.admin.getUserById(targetUserId)
+    const { data: targetUserData, error: targetUserError } = await supabaseAdmin.auth.admin.getUserById(targetUserId)
     if (targetUserError) throw targetUserError;
+    if (!targetUserData?.user) throw new Error('Target user not found');
 
-    if (!targetUser?.user?.email) {
-      throw new Error('Target user email not found');
-    }
-
+    // Verify admin role
     console.log('Verifying admin role...');
     const { data: roles, error: rolesError } = await supabaseClient
       .from('user_roles')
@@ -80,13 +82,13 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized - Admin access required')
     }
 
-    // Generate a sign-in link that expires in 5 minutes
-    console.log('Generating sign-in link...');
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    // Create a custom sign-in link
+    console.log('Creating sign-in link...');
+    const { data: signInData, error: signInError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email: targetUser.user.email,
+      email: targetUserData.user.email!,
       options: {
-        redirectTo: `${Deno.env.get('SITE_URL') || 'https://preview--gp-2025.lovable.app'}`,
+        redirectTo: `${Deno.env.get('SITE_URL')}`,
         data: {
           impersonated: true,
           impersonator: user.id,
@@ -95,14 +97,21 @@ Deno.serve(async (req) => {
       }
     })
 
-    if (error) throw error;
+    if (signInError) {
+      console.error('Error generating sign-in link:', signInError);
+      throw signInError;
+    }
 
-    console.log('Magic link generated successfully');
+    if (!signInData?.properties?.action_link) {
+      throw new Error('No action link generated');
+    }
+
+    console.log('Sign-in link generated successfully');
     return new Response(
       JSON.stringify({ 
         data: {
-          properties: data.properties,
-          magicLink: data.properties.action_link
+          properties: signInData.properties,
+          magicLink: signInData.properties.action_link
         }
       }),
       { 
