@@ -235,35 +235,40 @@ const Admin = () => {
 
       if (error) {
         console.error('Impersonation error:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: error.message || "Failed to impersonate user",
+          variant: "destructive",
+        });
+        return;
       }
 
-      console.log('Impersonation response:', data);
-
-      if (data?.data?.magicLink) {
-        toast({
-          title: "Impersonation Started",
-          description: "You will be redirected to login as the selected user.",
-        });
-
-        // Sign out current user first
-        await supabase.auth.signOut();
-        
-        // Redirect to the magic link
-        window.location.href = data.data.magicLink;
-      } else {
+      if (!data?.data?.magicLink) {
         console.error('No magic link received');
         toast({
           title: "Error",
           description: "Failed to generate login link",
           variant: "destructive",
         });
+        return;
       }
+
+      // Sign out current user first
+      await supabase.auth.signOut();
+      
+      toast({
+        title: "Impersonation Started",
+        description: "You will be redirected to login as the selected user.",
+      });
+
+      // Redirect to the magic link
+      window.location.href = data.data.magicLink;
+      
     } catch (error) {
       console.error('Error impersonating user:', error);
       toast({
         title: "Error",
-        description: "Failed to impersonate user",
+        description: error instanceof Error ? error.message : "Failed to impersonate user",
         variant: "destructive",
       });
     }
