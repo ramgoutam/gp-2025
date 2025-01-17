@@ -224,6 +224,13 @@ const Admin = () => {
   const handleImpersonateUser = async (userId: string) => {
     try {
       console.log('Starting impersonation for user:', userId);
+      
+      // Store current session before impersonation
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (currentSession) {
+        localStorage.setItem('impersonator_session', JSON.stringify(currentSession));
+      }
+
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId: userId }
       });
@@ -236,11 +243,8 @@ const Admin = () => {
       console.log('Impersonation response:', data);
 
       if (data?.data?.magicLink) {
-        // Store the current user's session before redirecting
-        const currentSession = await supabase.auth.getSession();
-        if (currentSession?.data?.session) {
-          localStorage.setItem('impersonator_session', JSON.stringify(currentSession.data.session));
-        }
+        // Sign out current user before redirecting
+        await supabase.auth.signOut();
         
         // Redirect to the magic link
         window.location.href = data.data.magicLink;
