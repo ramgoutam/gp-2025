@@ -210,16 +210,24 @@ const Admin = () => {
 
   const handleImpersonateUser = async (userId: string) => {
     try {
+      console.log('Starting impersonation for user:', userId);
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId: userId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Impersonation error:', error);
+        throw error;
+      }
+
+      console.log('Impersonation response:', data);
 
       if (data?.data?.properties?.action_link) {
+        console.log('Redirecting to:', data.data.properties.action_link);
         // Navigate to the magic link URL directly
         window.location.href = data.data.properties.action_link;
       } else {
+        console.error('No action link received');
         toast({
           title: "Error",
           description: "Failed to generate login link",

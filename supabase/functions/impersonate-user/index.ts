@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
     }
 
     // Get target user details
+    console.log('Getting target user details...');
     const { data: targetUser, error: targetUserError } = await supabase.auth.admin.getUserById(targetUserId);
     if (targetUserError) {
       console.error('Error getting target user:', targetUserError);
@@ -57,6 +58,7 @@ Deno.serve(async (req) => {
     }
 
     // Verify admin role
+    console.log('Verifying admin role...');
     const { data: roles, error: rolesError } = await supabase
       .from('user_roles')
       .select('role')
@@ -78,6 +80,7 @@ Deno.serve(async (req) => {
     console.log('Request origin:', origin);
 
     // Generate sign-in link for impersonation
+    console.log('Generating sign-in link...');
     const { data, error } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: targetUser.user.email,
