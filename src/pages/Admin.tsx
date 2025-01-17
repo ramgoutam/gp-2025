@@ -208,6 +208,36 @@ const Admin = () => {
     "FRONT_DESK"
   ];
 
+  const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
+    try {
+      const { error } = await supabase.functions.invoke('create-user', {
+        body: { 
+          email: values.email,
+          password: values.password,
+          role: values.role
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User created successfully",
+      });
+      
+      setIsOpen(false);
+      form.reset();
+      refetch();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create user",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
