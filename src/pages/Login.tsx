@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -42,12 +43,23 @@ export default function Login() {
     // Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event);
+      
       if (event === 'SIGNED_IN' && session) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
         navigate("/");
       }
+      
       if (event === 'SIGNED_OUT') {
         console.log("User signed out");
+        toast({
+          title: "Signed out",
+          description: "You have been signed out successfully.",
+        });
       }
+
       if (event === 'USER_UPDATED') {
         console.log("User updated");
       }
@@ -82,8 +94,23 @@ export default function Login() {
                 },
               },
             },
+            className: {
+              container: 'auth-container',
+              label: 'auth-label',
+              button: 'auth-button',
+              input: 'auth-input',
+            },
           }}
           providers={[]}
+          redirectTo={window.location.origin}
+          onError={(error) => {
+            console.error("Auth error:", error);
+            toast({
+              title: "Authentication Error",
+              description: error.message,
+              variant: "destructive",
+            });
+          }}
         />
       </CardContent>
     </Card>
