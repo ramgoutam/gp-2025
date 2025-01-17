@@ -1,6 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, Megaphone, UserPlus, Calendar, ChevronRight, Package, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession } from "@supabase/auth-helpers-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +13,36 @@ import {
 
 export const MainLinks = () => {
   const location = useLocation();
+  const session = useSession();
+
+  // Fetch user role
+  const { data: userRole } = useQuery({
+    queryKey: ['userRole', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+
+      return data?.role;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  console.log('User role:', userRole);
   
   const mainLinks = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/patients", label: "Patients", icon: Users },
-    { to: "/admin", label: "Admin", icon: Shield },
+    ...(userRole === 'ADMIN' ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
   ];
 
   return (
