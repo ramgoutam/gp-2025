@@ -443,9 +443,17 @@ const Admin = () => {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone (with country code)</FormLabel>
+                          <FormLabel>Phone</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="+1234567890" />
+                            <FormField
+                              id="phone"
+                              label=""
+                              type="tel"
+                              value={field.value}
+                              onChange={field.onChange}
+                              required={true}
+                              autoComplete="tel"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
