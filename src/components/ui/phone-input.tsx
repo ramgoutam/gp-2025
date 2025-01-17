@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CaretSortIcon, CheckIcon } from "lucide-react";
+import { ChevronUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -117,7 +117,7 @@ export function PhoneInput({ value, onChange }: PhoneInputProps) {
           >
             <span className="text-base">{selectedCountry.flag}</span>
             <span className="text-sm">+{selectedCountry.value}</span>
-            <CaretSortIcon className="h-4 w-4 shrink-0 opacity-50" />
+            <ChevronUpDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
@@ -143,7 +143,7 @@ export function PhoneInput({ value, onChange }: PhoneInputProps) {
                   <span className="text-sm">
                     {country.label} (+{country.value})
                   </span>
-                  <CheckIcon
+                  <Check
                     className={cn(
                       "ml-auto h-4 w-4",
                       selectedCountry.value === country.value
