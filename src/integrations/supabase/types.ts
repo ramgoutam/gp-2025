@@ -1005,6 +1005,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1017,6 +1041,14 @@ export type Database = {
     }
     Enums: {
       clinic_role:
+        | "ADMIN"
+        | "MANAGER_CLINICAL"
+        | "DOCTOR"
+        | "CLINICAL_STAFF"
+        | "LAB_MANAGER"
+        | "LAB_STAFF"
+        | "FRONT_DESK"
+      user_role:
         | "ADMIN"
         | "MANAGER_CLINICAL"
         | "DOCTOR"
