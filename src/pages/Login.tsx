@@ -5,16 +5,40 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const navigate = useNavigate();
   const session = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (session) {
-      navigate("/");
-    }
-  }, [session, navigate]);
+    // Check if we have an active session
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          toast({
+            title: "Authentication Error",
+            description: "There was a problem checking your login status.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (currentSession) {
+          console.log("Active session found, redirecting to home");
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Unexpected error during session check:", error);
+      }
+    };
+
+    checkSession();
+  }, [session, navigate, toast]);
 
   return (
     <Card className="w-full max-w-md mx-auto mt-20 animate-fade-in">
@@ -42,6 +66,14 @@ export default function Login() {
             },
           }}
           providers={[]}
+          onError={(error) => {
+            console.error("Auth error:", error);
+            toast({
+              title: "Authentication Error",
+              description: error.message,
+              variant: "destructive",
+            });
+          }}
         />
       </CardContent>
     </Card>
