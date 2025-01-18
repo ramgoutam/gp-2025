@@ -15,7 +15,6 @@ export const MainLinks = () => {
   const location = useLocation();
   const session = useSession();
 
-  // Fetch user role
   const { data: userRole } = useQuery({
     queryKey: ['userRole', session?.user?.id],
     queryFn: async () => {
@@ -45,6 +44,8 @@ export const MainLinks = () => {
     ...(userRole === 'ADMIN' ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
   ];
 
+  const showMarketingMenu = userRole === 'ADMIN' || userRole === 'DOCTOR';
+
   return (
     <div className="flex space-x-4">
       {mainLinks.map(({ to, label, icon: Icon }) => (
@@ -63,51 +64,53 @@ export const MainLinks = () => {
         </Link>
       ))}
 
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-            (location.pathname === "/marketing" || 
-             location.pathname === "/leads" || 
-             location.pathname === "/consultations")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-100"
-          )}
-        >
-          <Megaphone className="w-4 h-4" />
-          <span>Marketing</span>
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem>
-            <Link 
-              to="/marketing" 
-              className="flex items-center w-full"
-            >
-              <Megaphone className="w-4 h-4 mr-2" />
-              Overview
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link 
-              to="/leads" 
-              className="flex items-center w-full"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Leads
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link 
-              to="/consultations" 
-              className="flex items-center w-full"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Consultations
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {showMarketingMenu && (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              (location.pathname === "/marketing" || 
+               location.pathname === "/leads" || 
+               location.pathname === "/consultations")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            )}
+          >
+            <Megaphone className="w-4 h-4" />
+            <span>Marketing</span>
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuItem>
+              <Link 
+                to="/marketing" 
+                className="flex items-center w-full"
+              >
+                <Megaphone className="w-4 h-4 mr-2" />
+                Overview
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link 
+                to="/leads" 
+                className="flex items-center w-full"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Leads
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link 
+                to="/consultations" 
+                className="flex items-center w-full"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Consultations
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       <Link
         to="/inventory"

@@ -25,7 +25,15 @@ import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
 import Admin from "@/pages/Admin";
 
-const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) => {
+const ProtectedRoute = ({ 
+  children, 
+  requiredRole,
+  allowedRoles 
+}: { 
+  children: React.ReactNode; 
+  requiredRole?: string;
+  allowedRoles?: string[];
+}) => {
   const session = useSession();
   console.log("Protected route - session:", session);
 
@@ -74,6 +82,11 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
     return <Navigate to="/" replace />;
   }
 
+  if (allowedRoles && !allowedRoles.includes(userRole || '')) {
+    console.log(`User role ${userRole} not in allowed roles ${allowedRoles}, redirecting to dashboard`);
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -101,7 +114,7 @@ function App() {
                 <Route
                   path="/marketing"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Marketing />
                     </ProtectedRoute>
                   }
@@ -109,7 +122,7 @@ function App() {
                 <Route
                   path="/leads"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Leads />
                     </ProtectedRoute>
                   }
@@ -117,7 +130,7 @@ function App() {
                 <Route
                   path="/consultations"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Consultations />
                     </ProtectedRoute>
                   }
