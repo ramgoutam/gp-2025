@@ -99,6 +99,25 @@ const Admin = () => {
     },
   });
 
+  const { data: currentUserRole } = useQuery({
+    queryKey: ['currentUserRole'],
+    queryFn: async () => {
+      console.log('Fetching current user role...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+      
+      const { data: roles, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error) throw error;
+      console.log('Current user role:', roles?.role);
+      return roles?.role;
+    },
+  });
+
   useEffect(() => {
     const fetchUserEmails = async () => {
       try {
@@ -120,6 +139,17 @@ const Admin = () => {
 
   const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
     try {
+      // Only allow admins to update roles
+      if (currentUserRole !== 'ADMIN') {
+        toast({
+          title: "Error",
+          description: "Only administrators can update user roles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Updating role for user:', userId, 'to:', newRole);
       const { error } = await supabase
         .from('user_roles')
         .update({ role: newRole })
@@ -542,6 +572,7 @@ const Admin = () => {
                             role: e.target.value as UserRole['role'] 
                           })}
                           className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                          disabled={currentUserRole !== 'ADMIN'}
                         >
                           {roles.map((role) => (
                             <option key={role} value={role}>{role}</option>
@@ -572,17 +603,19 @@ const Admin = () => {
                           <Key className="h-4 w-4 mr-2" />
                           Change Password
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingRole({ 
-                            userId: userRole.user_id, 
-                            role: userRole.role 
-                          })}
-                        >
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Edit Role
-                        </Button>
+                        {currentUserRole === 'ADMIN' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingRole({ 
+                              userId: userRole.user_id, 
+                              role: userRole.role 
+                            })}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Role
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -699,4 +732,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
