@@ -5,6 +5,7 @@ import { LabScript } from "@/types/labScript";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
+import { useToast } from "@/hooks/use-toast";
 
 export const ScriptsContent = ({
   onScriptSelect,
@@ -17,56 +18,69 @@ export const ScriptsContent = ({
 }) => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const { data: labScripts = [] } = useQuery({
+  const { data: labScripts = [], isError } = useQuery({
     queryKey: ['labScripts', statusFilter],
     queryFn: async () => {
       console.log("Fetching lab scripts with filter:", statusFilter);
-      let query = supabase
-        .from('lab_scripts')
-        .select(`
-          *,
-          patient:patients(first_name, last_name)
-        `);
+      try {
+        let query = supabase
+          .from('lab_scripts')
+          .select(`
+            *,
+            patient:patients(
+              first_name,
+              last_name
+            )
+          `);
 
-      if (statusFilter === 'incomplete') {
-        // Show scripts that don't have a status of 'completed'
-        query = query.neq('status', 'completed');
-      } else if (statusFilter) {
-        query = query.eq('status', statusFilter);
+        if (statusFilter === 'incomplete') {
+          query = query.neq('status', 'completed');
+        } else if (statusFilter) {
+          query = query.eq('status', statusFilter);
+        }
+
+        const { data: scripts, error } = await query
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching lab scripts:", error);
+          throw error;
+        }
+
+        return scripts.map(script => ({
+          id: script.id,
+          requestNumber: script.request_number,
+          patientId: script.patient_id,
+          patientFirstName: script.patient?.first_name,
+          patientLastName: script.patient?.last_name,
+          doctorName: script.doctor_name,
+          clinicName: script.clinic_name,
+          requestDate: script.request_date,
+          dueDate: script.due_date,
+          status: script.status,
+          upperTreatment: script.upper_treatment,
+          lowerTreatment: script.lower_treatment,
+          upperDesignName: script.upper_design_name,
+          lowerDesignName: script.lower_design_name,
+          applianceType: script.appliance_type,
+          screwType: script.screw_type,
+          vdoOption: script.vdo_option,
+          specificInstructions: script.specific_instructions,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch lab scripts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load lab scripts. Please try again.",
+          variant: "destructive"
+        });
+        return [];
       }
-
-      const { data: scripts, error } = await query.order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching lab scripts:", error);
-        throw error;
-      }
-
-      console.log("Raw database response:", scripts);
-
-      return scripts.map(script => ({
-        id: script.id,
-        requestNumber: script.request_number,
-        patientId: script.patient_id,
-        patientFirstName: script.patient?.first_name,
-        patientLastName: script.patient?.last_name,
-        doctorName: script.doctor_name,
-        clinicName: script.clinic_name,
-        requestDate: script.request_date,
-        dueDate: script.due_date,
-        status: script.status as LabScript["status"],
-        upperTreatment: script.upper_treatment,
-        lowerTreatment: script.lower_treatment,
-        upperDesignName: script.upper_design_name,
-        lowerDesignName: script.lower_design_name,
-        applianceType: script.appliance_type,
-        screwType: script.screw_type,
-        vdoOption: script.vdo_option,
-        specificInstructions: script.specific_instructions,
-      } as LabScript));
     },
-    refetchInterval: 1000
+    refetchInterval: 1000,
+    retry: 2
   });
 
   // Set up real-time subscription
@@ -91,6 +105,14 @@ export const ScriptsContent = ({
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
+
+  if (isError) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">Failed to load lab scripts. Please try refreshing the page.</p>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,11 +1,10 @@
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 
-interface StatusDetailsDialogProps {
+interface StatusDetailsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   scriptId: string;
@@ -13,9 +12,10 @@ interface StatusDetailsDialogProps {
 
 interface StatusDetails {
   status: string;
-  status_changed_at: string;
+  status_changed_at: string | null;
+  status_changed_by: string | null;
   status_notes: string | null;
-  status_changed_by: {
+  user_roles?: {
     first_name: string | null;
     last_name: string | null;
   } | null;
@@ -24,9 +24,9 @@ interface StatusDetails {
 export const StatusDetailsDialog = ({
   open,
   onOpenChange,
-  scriptId,
-}: StatusDetailsDialogProps) => {
-  const { data: statusDetails, isLoading } = useQuery<StatusDetails>({
+  scriptId
+}: StatusDetailsProps) => {
+  const { data: statusDetails } = useQuery<StatusDetails | null>({
     queryKey: ['labScriptStatusDetails', scriptId],
     queryFn: async () => {
       console.log("Fetching status details for script:", scriptId);
@@ -37,7 +37,7 @@ export const StatusDetailsDialog = ({
           status_changed_at,
           status_changed_by,
           status_notes,
-          status_changed_by:user_roles!left(
+          user_roles:user_roles(
             first_name,
             last_name
           )
@@ -52,50 +52,55 @@ export const StatusDetailsDialog = ({
 
       return data;
     },
-    enabled: open,
+    enabled: open && !!scriptId,
+    retry: 1
   });
 
-  const formatDate = (date: string) => {
-    if (!date) return "N/A";
-    return format(new Date(date), "MMM dd, yyyy 'at' h:mm a");
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    try {
+      return format(new Date(dateString), 'MMM dd, yyyy HH:mm:ss');
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return 'Invalid Date';
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Status Details</DialogTitle>
-        </DialogHeader>
-        {isLoading ? (
-          <div className="flex items-center justify-center p-4">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : statusDetails ? (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="font-medium">Current Status</h3>
-              <p className="text-sm">{statusDetails.status}</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-medium">Last Updated</h3>
-              <p className="text-sm">{formatDate(statusDetails.status_changed_at)}</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-medium">Updated By</h3>
-              <p className="text-sm">
-                {statusDetails.status_changed_by?.first_name} {statusDetails.status_changed_by?.last_name}
-              </p>
-            </div>
-            {statusDetails.status_notes && (
-              <div className="space-y-2">
-                <h3 className="font-medium">Notes</h3>
-                <p className="text-sm">{statusDetails.status_notes}</p>
+      <DialogContent className="max-w-2xl">
+        <ScrollArea className="max-h-[80vh]">
+          <div className="p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Status Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Current Status</p>
+                  <p className="font-medium">{statusDetails?.status || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Last Updated</p>
+                  <p className="font-medium">
+                    {formatDate(statusDetails?.status_changed_at)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Updated By</p>
+                  <p className="font-medium">
+                    {statusDetails?.user_roles ? 
+                      `${statusDetails.user_roles.first_name || ''} ${statusDetails.user_roles.last_name || ''}`.trim() || 'N/A'
+                      : 'N/A'
+                    }
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Notes</p>
+                  <p className="font-medium">{statusDetails?.status_notes || 'No notes available'}</p>
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        ) : (
-          <p className="text-center text-sm text-gray-500">No status details available</p>
-        )}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
