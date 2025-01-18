@@ -121,7 +121,7 @@ export const LabScriptsTab = ({
   const handleDeleteClick = async (script: LabScript) => {
     console.log("Delete clicked, script:", script);
     try {
-      // First delete associated manufacturing logs
+      // First delete manufacturing logs
       console.log("Deleting manufacturing logs for script:", script.id);
       const { error: manufacturingLogsError } = await supabase
         .from('manufacturing_logs')
@@ -133,8 +133,8 @@ export const LabScriptsTab = ({
         throw manufacturingLogsError;
       }
 
-      // Then delete associated report cards and their related info
-      console.log("Deleting report cards and related info for script:", script.id);
+      // Then fetch and delete report card and related info
+      console.log("Fetching report card for script:", script.id);
       const { data: reportCard, error: fetchError } = await supabase
         .from('report_cards')
         .select('id, design_info_id, clinical_info_id')
@@ -149,6 +149,7 @@ export const LabScriptsTab = ({
       if (reportCard) {
         // Delete clinical info if exists
         if (reportCard.clinical_info_id) {
+          console.log("Deleting clinical info:", reportCard.clinical_info_id);
           const { error: clinicalInfoError } = await supabase
             .from('clinical_info')
             .delete()
@@ -162,6 +163,7 @@ export const LabScriptsTab = ({
 
         // Delete design info if exists
         if (reportCard.design_info_id) {
+          console.log("Deleting design info:", reportCard.design_info_id);
           const { error: designInfoError } = await supabase
             .from('design_info')
             .delete()
@@ -174,6 +176,7 @@ export const LabScriptsTab = ({
         }
 
         // Delete the report card
+        console.log("Deleting report card:", reportCard.id);
         const { error: reportCardError } = await supabase
           .from('report_cards')
           .delete()
