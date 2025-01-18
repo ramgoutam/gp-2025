@@ -133,9 +133,35 @@ export const LabScriptsTab = ({
         throw manufacturingLogsError;
       }
 
-      // Then delete the lab script
+      // Then delete associated report cards
+      console.log("Deleting report cards for script:", script.id);
+      const { error: reportCardsError } = await supabase
+        .from('report_cards')
+        .delete()
+        .eq('lab_script_id', script.id);
+
+      if (reportCardsError) {
+        console.error("Error deleting report cards:", reportCardsError);
+        throw reportCardsError;
+      }
+
+      // Finally delete the lab script
       console.log("Deleting lab script:", script.id);
+      const { error: labScriptError } = await supabase
+        .from('lab_scripts')
+        .delete()
+        .eq('id', script.id);
+
+      if (labScriptError) {
+        console.error("Error deleting lab script:", labScriptError);
+        throw labScriptError;
+      }
+
       onDeleteLabScript(script);
+      toast({
+        title: "Success",
+        description: "Lab script deleted successfully",
+      });
     } catch (error) {
       console.error("Error in delete process:", error);
       toast({
