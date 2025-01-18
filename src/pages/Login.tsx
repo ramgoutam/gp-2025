@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useToast } from "@/hooks/use-toast";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -104,6 +103,8 @@ export default function Login() {
           }}
           providers={[]}
           redirectTo={window.location.origin}
+          view="sign_in"
+          showLinks={false}
         />
       </CardContent>
     </Card>
