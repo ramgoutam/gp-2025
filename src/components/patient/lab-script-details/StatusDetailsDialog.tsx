@@ -30,27 +30,27 @@ export const StatusDetailsDialog = ({
     queryKey: ['labScriptStatusDetails', scriptId],
     queryFn: async () => {
       console.log("Fetching status details for script:", scriptId);
-      const { data: script, error } = await supabase
+      const { data, error } = await supabase
         .from('lab_scripts')
         .select(`
           status,
           status_changed_at,
           status_changed_by,
           status_notes,
-          status_changed_by:user_roles!inner(
+          status_changed_by:user_roles!left(
             first_name,
             last_name
           )
         `)
         .eq('id', scriptId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching status details:", error);
         throw error;
       }
 
-      return script;
+      return data;
     },
     enabled: open,
   });
