@@ -1,33 +1,35 @@
+import React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-interface StatusDetailsProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  scriptId: string;
-}
+import { Loader2 } from "lucide-react";
+import { LabScriptStatus } from "@/types/labScript";
 
 interface StatusDetails {
-  status: string;
+  status: LabScriptStatus;
   status_changed_at: string | null;
   status_changed_by: string | null;
   status_notes: string | null;
-  user_roles?: {
+  status_changed_by_user?: {
     first_name: string | null;
     last_name: string | null;
   } | null;
 }
 
+interface StatusDetailsDialogProps {
+  scriptId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export const StatusDetailsDialog = ({
+  scriptId,
   open,
   onOpenChange,
-  scriptId
-}: StatusDetailsProps) => {
-  const { data: statusDetails } = useQuery<StatusDetails | null>({
-    queryKey: ['labScriptStatusDetails', scriptId],
+}: StatusDetailsDialogProps) => {
+  const { data: statusDetails, isLoading } = useQuery<StatusDetails>({
+    queryKey: ['statusDetails', scriptId],
     queryFn: async () => {
       console.log("Fetching status details for script:", scriptId);
       const { data, error } = await supabase
@@ -37,7 +39,7 @@ export const StatusDetailsDialog = ({
           status_changed_at,
           status_changed_by,
           status_notes,
-          user_roles:user_roles(
+          status_changed_by_user:user_roles!left(
             first_name,
             last_name
           )
@@ -50,57 +52,63 @@ export const StatusDetailsDialog = ({
         throw error;
       }
 
-      return data;
+      if (!data) {
+        console.log("No status details found for script:", scriptId);
+        return null;
+      }
+
+      console.log("Found status details:", data);
+      return data as StatusDetails;
     },
-    enabled: open && !!scriptId,
-    retry: 1
+    enabled: open && !!scriptId
   });
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    try {
-      return format(new Date(dateString), 'MMM dd, yyyy HH:mm:ss');
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return 'Invalid Date';
-    }
+  const formatDate = (date: string | null) => {
+    if (!date) return "N/A";
+    return format(new Date(date), "MMM dd, yyyy HH:mm:ss");
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <ScrollArea className="max-h-[80vh]">
-          <div className="p-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Status Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Current Status</p>
-                  <p className="font-medium">{statusDetails?.status || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Last Updated</p>
-                  <p className="font-medium">
-                    {formatDate(statusDetails?.status_changed_at)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Updated By</p>
-                  <p className="font-medium">
-                    {statusDetails?.user_roles ? 
-                      `${statusDetails.user_roles.first_name || ''} ${statusDetails.user_roles.last_name || ''}`.trim() || 'N/A'
-                      : 'N/A'
-                    }
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p className="font-medium">{statusDetails?.status_notes || 'No notes available'}</p>
-                </div>
-              </div>
-            </div>
+      <DialogContent className="max-w-md">
+        {isLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin" />
           </div>
-        </ScrollArea>
+        ) : !statusDetails ? (
+          <div className="text-center p-4 text-gray-500">
+            No status details available
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium text-gray-900">Current Status</h3>
+              <p className="text-gray-600">{statusDetails.status}</p>
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Last Updated</h3>
+              <p className="text-gray-600">
+                {formatDate(statusDetails.status_changed_at)}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Updated By</h3>
+              <p className="text-gray-600">
+                {statusDetails.status_changed_by_user ? (
+                  `${statusDetails.status_changed_by_user.first_name || ''} ${statusDetails.status_changed_by_user.last_name || ''}`.trim() || 'N/A'
+                ) : (
+                  'N/A'
+                )}
+              </p>
+            </div>
+            {statusDetails.status_notes && (
+              <div>
+                <h3 className="font-medium text-gray-900">Notes</h3>
+                <p className="text-gray-600">{statusDetails.status_notes}</p>
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

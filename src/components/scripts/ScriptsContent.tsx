@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LabScript } from "@/types/labScript";
+import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export const ScriptsContent = ({
   onScriptSelect,
@@ -17,10 +18,9 @@ export const ScriptsContent = ({
   onScriptDelete: (script: LabScript) => void;
 }) => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: labScripts = [], isError } = useQuery({
+  const { data: labScripts = [], isLoading, error } = useQuery({
     queryKey: ['labScripts', statusFilter],
     queryFn: async () => {
       console.log("Fetching lab scripts with filter:", statusFilter);
@@ -50,24 +50,10 @@ export const ScriptsContent = ({
         }
 
         return scripts.map(script => ({
-          id: script.id,
-          requestNumber: script.request_number,
-          patientId: script.patient_id,
+          ...script,
+          status: script.status as LabScriptStatus,
           patientFirstName: script.patient?.first_name,
           patientLastName: script.patient?.last_name,
-          doctorName: script.doctor_name,
-          clinicName: script.clinic_name,
-          requestDate: script.request_date,
-          dueDate: script.due_date,
-          status: script.status,
-          upperTreatment: script.upper_treatment,
-          lowerTreatment: script.lower_treatment,
-          upperDesignName: script.upper_design_name,
-          lowerDesignName: script.lower_design_name,
-          applianceType: script.appliance_type,
-          screwType: script.screw_type,
-          vdoOption: script.vdo_option,
-          specificInstructions: script.specific_instructions,
         }));
       } catch (error) {
         console.error("Failed to fetch lab scripts:", error);
@@ -79,37 +65,22 @@ export const ScriptsContent = ({
         return [];
       }
     },
-    refetchInterval: 1000,
-    retry: 2
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Set up real-time subscription
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('lab-scripts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'lab_scripts'
-        },
-        (payload) => {
-          console.log("Lab script change detected:", payload);
-          queryClient.invalidateQueries({ queryKey: ['labScripts'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
-  if (isError) {
+  if (error) {
     return (
       <div className="text-center py-8">
         <p className="text-red-600">Failed to load lab scripts. Please try refreshing the page.</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
