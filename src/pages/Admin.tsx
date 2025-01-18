@@ -35,6 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { DeletePatientDialog } from "@/components/patient/header/DeletePatientDialog";
 
 type UserRole = {
   id: string;
@@ -70,6 +71,7 @@ const Admin = () => {
   const [editingUserDetails, setEditingUserDetails] = useState<UserRole | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole['role'] | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -205,6 +207,7 @@ const Admin = () => {
         description: "User deleted successfully",
       });
       refetch();
+      setUserToDelete(null);
     } catch (error) {
       console.error('Error deleting user:', error);
       toast({
@@ -663,15 +666,10 @@ const Admin = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setEditingUserDetails(userRole)}
-                        >
-                          <UserPen className="h-4 w-4 mr-2" />
-                          Edit Details
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteUser(userRole.user_id)}
+                          onClick={() => setUserToDelete({
+                            id: userRole.user_id,
+                            email: userEmails[userRole.user_id] || ''
+                          })}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -771,6 +769,20 @@ const Admin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeletePatientDialog
+        isOpen={!!userToDelete}
+        onOpenChange={(open) => {
+          if (!open) setUserToDelete(null);
+        }}
+        onConfirm={() => {
+          if (userToDelete) {
+            handleDeleteUser(userToDelete.id);
+          }
+        }}
+        isDeleting={false}
+        patientName={userToDelete?.email || ''}
+      />
     </div>
   );
 };
