@@ -28,13 +28,17 @@ export const useLabScriptStatus = () => {
       // Get user role record
       const { data: userRoleData, error: userRoleError } = await supabase
         .from('user_roles')
-        .select('id, role')
+        .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (userRoleError) {
         console.error("Error fetching user role:", userRoleError);
         throw userRoleError;
+      }
+
+      if (!userRoleData) {
+        console.log("No user role found, proceeding without status_changed_by");
       }
 
       console.log("User role data:", userRoleData);
@@ -48,7 +52,7 @@ export const useLabScriptStatus = () => {
       };
 
       console.log("Updating lab script with data:", updateData);
-
+      
       const { data, error } = await supabase
         .from('lab_scripts')
         .update(updateData)
