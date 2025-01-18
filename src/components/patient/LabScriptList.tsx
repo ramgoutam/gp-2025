@@ -6,6 +6,8 @@ import { Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
 import { StatusButtons } from "./lab-script/StatusButtons";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -56,9 +58,28 @@ const formatDate = (dateString: string) => {
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
 
+  // Query to get the current user's role
+  const { data: userRole } = useQuery({
+    queryKey: ['userRole'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      return roleData?.role || null;
+    }
+  });
+
+  const canDelete = userRole === 'ADMIN' || userRole === 'DOCTOR' || userRole === 'MANAGER_CLINIC';
+
   const handleDeleteClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
-    if (onDeleteClick) {
+    if (onDeleteClick && canDelete) {
       onDeleteClick(script);
     }
   };
@@ -79,7 +100,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
           <TableHead>Treatments</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Update Status</TableHead>
-          <TableHead>Actions</TableHead>
+          {canDelete && <TableHead>Actions</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -126,18 +147,20 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
                   <StatusButtons script={script} />
                 </div>
               </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => handleDeleteClick(e, script)}
-                    className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+              {canDelete && (
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteClick(e, script)}
+                      className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           );
         })}
