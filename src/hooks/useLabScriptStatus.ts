@@ -37,10 +37,6 @@ export const useLabScriptStatus = () => {
         throw userRoleError;
       }
 
-      if (!userRoleData) {
-        console.log("No user role found, proceeding without status_changed_by");
-      }
-
       console.log("User role data:", userRoleData);
 
       // Update the lab script
