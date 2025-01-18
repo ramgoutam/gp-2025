@@ -25,38 +25,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const [selectedReason, setSelectedReason] = useState<string>("");
   const { updateStatus, isUpdating } = useLabScriptStatus();
 
-  // Add query to check user role
-  const { data: userRole } = useQuery({
-    queryKey: ['userRole'],
-    queryFn: async () => {
-      console.log("Fetching user role");
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: roles, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user role:", error);
-        return null;
-      }
-
-      console.log("User role:", roles?.role);
-      return roles?.role;
-    }
-  });
-
-  // Check if user has permission to update status
-  const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
-
-  // If user doesn't have permission, don't render anything
-  if (!canUpdateStatus) {
-    return null;
-  }
-
   // Add query to check design info status
   const { data: reportCard } = useQuery({
     queryKey: ['reportCard', script.id],
@@ -113,15 +81,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const status = currentScript?.status || script.status;
 
   const handleComplete = async () => {
-    if (!canUpdateStatus) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to update lab script status",
-        variant: "destructive"
-      });
-      return;
-    }
-
     console.log("Handling complete action for script:", script.id);
     const success = await updateStatus(script, 'completed');
     if (success) {
@@ -131,15 +90,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   };
 
   const handleHoldConfirm = async (reason: string) => {
-    if (!canUpdateStatus) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to update lab script status",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (reason) {
       const success = await updateStatus(script, 'hold', reason);
       if (success) {
@@ -151,15 +101,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   };
 
   const handleStatusChange = async (newStatus: LabScript['status']) => {
-    if (!canUpdateStatus) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to update lab script status",
-        variant: "destructive"
-      });
-      return;
-    }
-
     console.log("Handling status change:", newStatus);
     const success = await updateStatus(script, newStatus);
     if (success) {
@@ -188,10 +129,6 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   const buttonClass = "transition-all duration-300 transform hover:scale-105";
 
   const renderButton = () => {
-    if (!canUpdateStatus) {
-      return null;
-    }
-
     switch (status) {
       case 'pending':
         return (

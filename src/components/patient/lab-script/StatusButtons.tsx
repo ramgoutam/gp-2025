@@ -19,70 +19,25 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const [selectedHoldReason, setSelectedHoldReason] = useState("");
   const buttonClass = "p-2 rounded-full transition-all duration-500 ease-in-out transform hover:scale-110";
 
-  // Add query to check user role
-  const { data: userRole } = useQuery({
-    queryKey: ['userRole'],
-    queryFn: async () => {
-      console.log("Fetching user role");
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: roles, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user role:", error);
-        return null;
-      }
-
-      console.log("User role:", roles?.role);
-      return roles?.role;
-    }
-  });
-
-  // Check if user has permission to update status
-  const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
-
-  // If user doesn't have permission, don't render anything
-  if (!canUpdateStatus) {
-    return null;
-  }
-
+  // Add real-time query for script status with proper type handling
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
     queryFn: async () => {
-      console.log("Fetching status for script:", script.id);
-      try {
-        const { data, error } = await supabase
-          .from('lab_scripts')
-          .select('*')
-          .eq('id', script.id)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from('lab_scripts')
+        .select('*')
+        .eq('id', script.id)
+        .single();
 
-        if (error) {
-          console.error("Error fetching script status:", error);
-          throw error;
-        }
-
-        if (!data) {
-          console.log("No data found for script status:", script.id);
-          return script;
-        }
-
-        return mapDatabaseLabScript(data);
-      } catch (error) {
-        console.error("Unexpected error fetching script status:", error);
-        return script;
-      }
+      if (error) throw error;
+      
+      // Ensure status is a valid LabScriptStatus before mapping
+      const validStatus = data.status as LabScriptStatus;
+      return mapDatabaseLabScript({ ...data, status: validStatus });
     },
-    refetchInterval: 1000,
+    refetchInterval: 1,
     initialData: script,
   });
-
-  const status = currentScript?.status || script.status;
 
   const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScript['status'], holdReason?: string) => {
     e.stopPropagation();
@@ -125,6 +80,8 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
     e.stopPropagation();
     setShowStatusOptions(true);
   };
+
+  const status = currentScript?.status || script.status;
 
   switch (status) {
     case 'pending':
@@ -212,7 +169,7 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
         >
           <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
         </Button>
-    );
+      );
     case 'completed':
       return showStatusOptions ? (
         <div className="flex gap-2 animate-fade-in">
