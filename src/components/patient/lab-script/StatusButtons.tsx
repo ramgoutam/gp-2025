@@ -4,7 +4,7 @@ import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { mapDatabaseLabScript } from "@/types/labScript";
 import { HoldReasonDialog } from "../lab-script-details/HoldReasonDialog";
 import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
@@ -19,6 +19,7 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [selectedHoldReason, setSelectedHoldReason] = useState("");
   const { updateStatus, isUpdating } = useLabScriptStatus();
+  const queryClient = useQueryClient();
   const buttonClass = "p-2 rounded-full transition-all duration-500 ease-in-out transform hover:scale-110";
 
   // Add query to check user role
@@ -48,55 +49,22 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   // Check if user has permission to update status
   const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
 
-  // If user doesn't have permission, don't render anything
-  if (!canUpdateStatus) {
-    return null;
-  }
-
-  const { data: currentScript } = useQuery({
-    queryKey: ['scriptStatus', script.id],
-    queryFn: async () => {
-      console.log("Fetching status for script:", script.id);
-      try {
-        const { data, error } = await supabase
-          .from('lab_scripts')
-          .select('*')
-          .eq('id', script.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("Error fetching script status:", error);
-          throw error;
-        }
-
-        if (!data) {
-          console.log("No data found for script status:", script.id);
-          return script;
-        }
-
-        return mapDatabaseLabScript(data);
-      } catch (error) {
-        console.error("Unexpected error fetching script status:", error);
-        return script;
-      }
-    },
-    refetchInterval: 1000,
-    initialData: script,
-  });
-
-  const status = currentScript?.status || script.status;
-
   const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScriptStatus, holdReason?: string) => {
     e.stopPropagation();
+    if (!canUpdateStatus) {
+      toast({
+        title: "Permission Denied",
+        description: "You don't have permission to update lab script status",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const success = await updateStatus(script, newStatus, holdReason);
       
       if (success) {
-        toast({
-          title: "Status Updated",
-          description: `Script status changed to ${newStatus.replace('_', ' ')}`
-        });
-        
+        queryClient.invalidateQueries({ queryKey: ['scriptStatus'] });
         setShowStatusOptions(false);
         setShowHoldDialog(false);
       }
@@ -110,17 +78,7 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
     }
   };
 
-  const handleHoldConfirm = (reason: string, additionalInfo?: string) => {
-    const holdReason = additionalInfo ? `${reason}: ${additionalInfo}` : reason;
-    handleStatusUpdate(new MouseEvent('click') as any, 'hold', holdReason);
-  };
-
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowStatusOptions(true);
-  };
-
-  switch (status) {
+  switch (script.status) {
     case 'pending':
       return (
         <Button
