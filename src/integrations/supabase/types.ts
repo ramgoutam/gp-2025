@@ -452,6 +452,9 @@ export type Database = {
           shade: string | null
           specific_instructions: string | null
           status: string
+          status_changed_at: string | null
+          status_changed_by: string | null
+          status_notes: string | null
           updated_at: string
           upper_design_name: string | null
           upper_treatment: string | null
@@ -478,6 +481,9 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
@@ -504,6 +510,9 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
