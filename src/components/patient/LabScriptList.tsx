@@ -2,14 +2,12 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Trash2, Info } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { LabScript } from "@/types/labScript";
 import { useNavigate } from "react-router-dom";
 import { StatusButtons } from "./lab-script/StatusButtons";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
-import { StatusDetailsDialog } from "./lab-script-details/StatusDetailsDialog";
 
 interface LabScriptListProps {
   labScripts: LabScript[];
@@ -59,13 +57,11 @@ const formatDate = (dateString: string) => {
 
 export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteClick }: LabScriptListProps) => {
   const navigate = useNavigate();
-  const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
 
   // Query to get the current user's role
   const { data: userRole } = useQuery({
     queryKey: ['userRole'],
     queryFn: async () => {
-      console.log("Fetching user role");
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
@@ -94,108 +90,84 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     navigate(`/patient/${patientId}`);
   };
 
-  const handleDetailsClick = (e: React.MouseEvent, scriptId: string) => {
-    e.stopPropagation();
-    setSelectedScriptId(scriptId);
-  };
-
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Patient Name</TableHead>
-            <TableHead>Appliance Type</TableHead>
-            <TableHead>Request Date</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead>Treatments</TableHead>
-            <TableHead>Status</TableHead>
-            {canUpdateStatus && <TableHead>Update Status</TableHead>}
-            <TableHead>Details</TableHead>
-            {canDelete && <TableHead>Actions</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {labScripts.map((script) => {
-            const treatments = getTreatments(script);
-            const patientName = `${script.patientFirstName || ''} ${script.patientLastName || ''}`.trim() || 'N/A';
-            
-            return (
-              <TableRow 
-                key={script.id}
-                className="hover:bg-gray-50 transition-colors duration-200"
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Patient Name</TableHead>
+          <TableHead>Appliance Type</TableHead>
+          <TableHead>Request Date</TableHead>
+          <TableHead>Due Date</TableHead>
+          <TableHead>Treatments</TableHead>
+          <TableHead>Status</TableHead>
+          {canUpdateStatus && <TableHead>Update Status</TableHead>}
+          {canDelete && <TableHead>Actions</TableHead>}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {labScripts.map((script) => {
+          const treatments = getTreatments(script);
+          const patientName = `${script.patientFirstName || ''} ${script.patientLastName || ''}`.trim() || 'N/A';
+          
+          return (
+            <TableRow 
+              key={script.id}
+              className="hover:bg-gray-50 transition-colors duration-200"
+            >
+              <TableCell 
+                onClick={(e) => handlePatientClick(e, script.id)}
+                className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
               >
-                <TableCell 
-                  onClick={(e) => handlePatientClick(e, script.id)}
-                  className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
-                >
-                  {patientName}
-                </TableCell>
-                <TableCell 
-                  className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
-                  onClick={() => onRowClick(script)}
-                >
-                  {script.applianceType || "N/A"}
-                </TableCell>
-                <TableCell>{formatDate(script.requestDate)}</TableCell>
-                <TableCell>{formatDate(script.dueDate)}</TableCell>
+                {patientName}
+              </TableCell>
+              <TableCell 
+                className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => onRowClick(script)}
+              >
+                {script.applianceType || "N/A"}
+              </TableCell>
+              <TableCell>{formatDate(script.requestDate)}</TableCell>
+              <TableCell>{formatDate(script.dueDate)}</TableCell>
+              <TableCell>
+                <div className="space-y-1">
+                  {treatments.upper.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Upper:</span> {treatments.upper.join(", ")}
+                    </div>
+                  )}
+                  {treatments.lower.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Lower:</span> {treatments.lower.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>{getStatusBadge(script.status)}</TableCell>
+              {canUpdateStatus && (
                 <TableCell>
-                  <div className="space-y-1">
-                    {treatments.upper.length > 0 && (
-                      <div className="text-sm">
-                        <span className="font-medium">Upper:</span> {treatments.upper.join(", ")}
-                      </div>
-                    )}
-                    {treatments.lower.length > 0 && (
-                      <div className="text-sm">
-                        <span className="font-medium">Lower:</span> {treatments.lower.join(", ")}
-                      </div>
-                    )}
+                  <div className="flex items-center justify-start gap-2">
+                    <StatusButtons script={script} />
                   </div>
                 </TableCell>
-                <TableCell>{getStatusBadge(script.status)}</TableCell>
-                {canUpdateStatus && (
-                  <TableCell>
-                    <div className="flex items-center justify-start gap-2">
-                      <StatusButtons script={script} />
-                    </div>
-                  </TableCell>
-                )}
+              )}
+              {canDelete && (
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => handleDetailsClick(e, script.id)}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                  >
-                    <Info className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteClick(e, script)}
+                      className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
-                {canDelete && (
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => handleDeleteClick(e, script)}
-                        className="p-0 h-auto hover:bg-transparent text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                )}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-
-      <StatusDetailsDialog
-        open={!!selectedScriptId}
-        onOpenChange={(open) => !open && setSelectedScriptId(null)}
-        scriptId={selectedScriptId || ''}
-      />
-    </>
+              )}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 };

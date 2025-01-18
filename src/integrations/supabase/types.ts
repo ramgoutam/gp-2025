@@ -452,9 +452,6 @@ export type Database = {
           shade: string | null
           specific_instructions: string | null
           status: string
-          status_changed_at: string | null
-          status_changed_by: string | null
-          status_notes: string | null
           updated_at: string
           upper_design_name: string | null
           upper_treatment: string | null
@@ -481,9 +478,6 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
-          status_changed_at?: string | null
-          status_changed_by?: string | null
-          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
@@ -510,9 +504,6 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
-          status_changed_at?: string | null
-          status_changed_by?: string | null
-          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
@@ -524,13 +515,6 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lab_scripts_status_changed_by_fkey"
-            columns: ["status_changed_by"]
-            isOneToOne: false
-            referencedRelation: "user_roles"
             referencedColumns: ["id"]
           },
         ]

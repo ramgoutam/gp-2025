@@ -6,40 +6,12 @@ import { useToast } from "@/hooks/use-toast";
 import { LabScriptDetails } from "@/components/patient/LabScriptDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { ScriptsContent } from "@/components/scripts/ScriptsContent";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Scripts = () => {
   const [showNewScriptDialog, setShowNewScriptDialog] = useState(false);
   const [selectedScript, setSelectedScript] = useState<LabScript | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Add query for report cards
-  const { data: reportCards } = useQuery({
-    queryKey: ['reportCards'],
-    queryFn: async () => {
-      try {
-        console.log("Fetching report cards");
-        const { data, error } = await supabase
-          .from('report_cards')
-          .select('*');
-
-        if (error) {
-          console.error("Error fetching report cards:", error);
-          throw error;
-        }
-
-        console.log("Retrieved report cards:", data);
-        return data;
-      } catch (error) {
-        console.error("Error in report cards query:", error);
-        return [];
-      }
-    },
-    retry: 3,
-    staleTime: 30000
-  });
 
   const handleNewScriptSubmit = async (formData: LabScript) => {
     try {
@@ -65,9 +37,6 @@ const Scripts = () => {
         .single();
 
       if (error) throw error;
-
-      // Invalidate queries to refetch data
-      queryClient.invalidateQueries({ queryKey: ['reportCards'] });
 
       setShowNewScriptDialog(false);
       toast({

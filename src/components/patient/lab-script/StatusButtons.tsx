@@ -4,10 +4,9 @@ import { LabScript, LabScriptStatus } from "@/types/labScript";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { mapDatabaseLabScript } from "@/types/labScript";
 import { HoldReasonDialog } from "../lab-script-details/HoldReasonDialog";
-import { useLabScriptStatus } from "@/hooks/useLabScriptStatus";
 
 interface StatusButtonsProps {
   script: LabScript;
@@ -18,8 +17,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const [showStatusOptions, setShowStatusOptions] = useState(false);
   const [showHoldDialog, setShowHoldDialog] = useState(false);
   const [selectedHoldReason, setSelectedHoldReason] = useState("");
-  const { updateStatus, isUpdating } = useLabScriptStatus();
-  const queryClient = useQueryClient();
   const buttonClass = "p-2 rounded-full transition-all duration-500 ease-in-out transform hover:scale-110";
 
   // Add query to check user role
@@ -49,25 +46,66 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   // Check if user has permission to update status
   const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
 
-  const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScriptStatus, holdReason?: string) => {
-    e.stopPropagation();
-    if (!canUpdateStatus) {
-      toast({
-        title: "Permission Denied",
-        description: "You don't have permission to update lab script status",
-        variant: "destructive"
-      });
-      return;
-    }
+  // If user doesn't have permission, don't render anything
+  if (!canUpdateStatus) {
+    return null;
+  }
 
-    try {
-      const success = await updateStatus(script, newStatus, holdReason);
-      
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['scriptStatus'] });
-        setShowStatusOptions(false);
-        setShowHoldDialog(false);
+  const { data: currentScript } = useQuery({
+    queryKey: ['scriptStatus', script.id],
+    queryFn: async () => {
+      console.log("Fetching status for script:", script.id);
+      try {
+        const { data, error } = await supabase
+          .from('lab_scripts')
+          .select('*')
+          .eq('id', script.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching script status:", error);
+          throw error;
+        }
+
+        if (!data) {
+          console.log("No data found for script status:", script.id);
+          return script;
+        }
+
+        return mapDatabaseLabScript(data);
+      } catch (error) {
+        console.error("Unexpected error fetching script status:", error);
+        return script;
       }
+    },
+    refetchInterval: 1000,
+    initialData: script,
+  });
+
+  const status = currentScript?.status || script.status;
+
+  const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScript['status'], holdReason?: string) => {
+    e.stopPropagation();
+    try {
+      const updateData: any = { status: newStatus };
+      if (holdReason) {
+        updateData.hold_reason = holdReason;
+      }
+
+      const { error } = await supabase
+        .from('lab_scripts')
+        .update(updateData)
+        .eq('id', script.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: `Script status changed to ${newStatus.replace('_', ' ')}`
+      });
+      
+      setShowStatusOptions(false);
+      setShowHoldDialog(false);
     } catch (error) {
       console.error("Error updating status:", error);
       toast({
@@ -78,7 +116,17 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
     }
   };
 
-  switch (script.status) {
+  const handleHoldConfirm = (reason: string, additionalInfo?: string) => {
+    const holdReason = additionalInfo ? `${reason}: ${additionalInfo}` : reason;
+    handleStatusUpdate(new MouseEvent('click') as any, 'hold', holdReason);
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowStatusOptions(true);
+  };
+
+  switch (status) {
     case 'pending':
       return (
         <Button
@@ -86,7 +134,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
           size="sm"
           onClick={(e) => handleStatusUpdate(e, 'in_progress')}
           className={`${buttonClass} hover:bg-blue-50 text-blue-600 transition-all duration-300 animate-fade-in`}
-          disabled={isUpdating}
         >
           <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
         </Button>
@@ -99,7 +146,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             size="sm"
             onClick={(e) => handleStatusUpdate(e, 'paused')}
             className={`${buttonClass} hover:bg-orange-50 text-orange-600 transition-all duration-300`}
-            disabled={isUpdating}
           >
             <Pause className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
           </Button>
@@ -108,7 +154,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             size="sm"
             onClick={() => setShowHoldDialog(true)}
             className={`${buttonClass} hover:bg-red-50 text-red-600 transition-all duration-300`}
-            disabled={isUpdating}
           >
             <StopCircle className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
           </Button>
@@ -117,7 +162,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             size="sm"
             onClick={(e) => handleStatusUpdate(e, 'completed')}
             className={`${buttonClass} hover:bg-green-50 text-green-600 transition-all duration-300`}
-            disabled={isUpdating}
           >
             <CheckCircle className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
           </Button>
@@ -126,36 +170,18 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             onOpenChange={setShowHoldDialog}
             selectedReason={selectedHoldReason}
             onReasonChange={setSelectedHoldReason}
-            onConfirm={(reason) => {
-              if (reason) {
-                handleStatusUpdate(new MouseEvent('click') as any, 'hold', reason);
-              }
-            }}
+            onConfirm={handleHoldConfirm}
           />
         </div>
       );
     case 'paused':
-    case 'hold':
       return (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => handleStatusUpdate(e, 'in_progress')}
-          className={`${buttonClass} hover:bg-blue-50 text-blue-600 transition-all duration-300 animate-fade-in`}
-          disabled={isUpdating}
-        >
-          <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
-        </Button>
-      );
-    case 'completed':
-      return showStatusOptions ? (
         <div className="flex gap-2 animate-fade-in">
           <Button
             variant="ghost"
             size="sm"
             onClick={(e) => handleStatusUpdate(e, 'in_progress')}
             className={`${buttonClass} hover:bg-blue-50 text-blue-600 transition-all duration-300`}
-            disabled={isUpdating}
           >
             <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
           </Button>
@@ -164,7 +190,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             size="sm"
             onClick={() => setShowHoldDialog(true)}
             className={`${buttonClass} hover:bg-red-50 text-red-600 transition-all duration-300`}
-            disabled={isUpdating}
           >
             <StopCircle className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
           </Button>
@@ -173,20 +198,54 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
             onOpenChange={setShowHoldDialog}
             selectedReason={selectedHoldReason}
             onReasonChange={setSelectedHoldReason}
-            onConfirm={(reason) => {
-              if (reason) {
-                handleStatusUpdate(new MouseEvent('click') as any, 'hold', reason);
-              }
-            }}
+            onConfirm={handleHoldConfirm}
+          />
+        </div>
+      );
+    case 'hold':
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => handleStatusUpdate(e, 'in_progress')}
+          className={`${buttonClass} hover:bg-blue-50 text-blue-600 transition-all duration-300 animate-fade-in`}
+        >
+          <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
+        </Button>
+    );
+    case 'completed':
+      return showStatusOptions ? (
+        <div className="flex gap-2 animate-fade-in">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => handleStatusUpdate(e, 'in_progress')}
+            className={`${buttonClass} hover:bg-blue-50 text-blue-600 transition-all duration-300`}
+          >
+            <Play className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowHoldDialog(true)}
+            className={`${buttonClass} hover:bg-red-50 text-red-600 transition-all duration-300`}
+          >
+            <StopCircle className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
+          </Button>
+          <HoldReasonDialog
+            open={showHoldDialog}
+            onOpenChange={setShowHoldDialog}
+            selectedReason={selectedHoldReason}
+            onReasonChange={setSelectedHoldReason}
+            onConfirm={handleHoldConfirm}
           />
         </div>
       ) : (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setShowStatusOptions(true)}
+          onClick={handleEditClick}
           className={`${buttonClass} hover:bg-blue-50 text-blue-600 group transition-all duration-300 animate-fade-in`}
-          disabled={isUpdating}
         >
           <Edit className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
         </Button>
