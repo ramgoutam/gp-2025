@@ -23,6 +23,9 @@ export const useLabScriptStatus = () => {
         throw new Error("No authenticated user found");
       }
 
+      console.log("Current user:", user.id);
+
+      // Get user role record
       const { data: userRole, error: userRoleError } = await supabase
         .from('user_roles')
         .select('id')
@@ -34,13 +37,17 @@ export const useLabScriptStatus = () => {
         throw userRoleError;
       }
 
-      // Update the lab script with the user's role ID
+      console.log("User role data:", userRole);
+
+      // Update the lab script
       const updateData: any = { 
         status: newStatus,
         status_changed_by: userRole?.id || null,
-        hold_reason: holdReason,
+        hold_reason: holdReason || null,
         status_notes: `Status changed to ${newStatus}${holdReason ? `: ${holdReason}` : ''}`
       };
+
+      console.log("Updating lab script with data:", updateData);
 
       const { data, error } = await supabase
         .from('lab_scripts')
@@ -55,6 +62,11 @@ export const useLabScriptStatus = () => {
       }
 
       console.log("Status updated successfully:", data);
+      toast({
+        title: "Status Updated",
+        description: `Lab script status changed to ${newStatus}`,
+      });
+
       return true;
     } catch (error) {
       console.error("Error updating status:", error);
