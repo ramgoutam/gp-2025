@@ -19,23 +19,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const [selectedHoldReason, setSelectedHoldReason] = useState("");
   const buttonClass = "p-2 rounded-full transition-all duration-500 ease-in-out transform hover:scale-110";
 
-  // Query to get the user who completed the script
-  const { data: completedByUser } = useQuery({
-    queryKey: ['completedByUser', script.id],
-    queryFn: async () => {
-      if (script.status !== 'completed') return null;
-
-      const { data: userRoleData } = await supabase
-        .from('user_roles')
-        .select('first_name, last_name')
-        .eq('user_id', script.completedById)
-        .maybeSingle();
-
-      return userRoleData ? `${userRoleData.first_name} ${userRoleData.last_name}` : 'Unknown User';
-    },
-    enabled: script.status === 'completed'
-  });
-
   // Add real-time query for script status with proper type handling
   const { data: currentScript } = useQuery({
     queryKey: ['scriptStatus', script.id],
@@ -59,14 +42,7 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   const handleStatusUpdate = async (e: React.MouseEvent, newStatus: LabScript['status'], holdReason?: string) => {
     e.stopPropagation();
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No authenticated user');
-
-      const updateData: any = { 
-        status: newStatus,
-        ...(newStatus === 'completed' ? { completed_by_id: user.id } : {})
-      };
-      
+      const updateData: any = { status: newStatus };
       if (holdReason) {
         updateData.hold_reason = holdReason;
       }
@@ -106,14 +82,6 @@ export const StatusButtons = ({ script }: StatusButtonsProps) => {
   };
 
   const status = currentScript?.status || script.status;
-
-  if (status === 'completed' && completedByUser) {
-    return (
-      <div className="text-sm text-gray-600">
-        Completed by {completedByUser}
-      </div>
-    );
-  }
 
   switch (status) {
     case 'pending':
