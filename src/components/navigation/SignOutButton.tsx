@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const SignOutButton = () => {
   const navigate = useNavigate();
@@ -26,8 +26,10 @@ export const SignOutButton = () => {
       console.log("Clearing sessionStorage");
       sessionStorage.clear();
 
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      // Sign out from Supabase with explicit options
+      const { error } = await supabase.auth.signOut({
+        scope: 'global' // This ensures all sessions are invalidated
+      });
       
       if (error) {
         console.error("Error during sign out:", error);

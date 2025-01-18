@@ -31,7 +31,7 @@ export default function Login() {
 
         if (currentSession) {
           console.log("Active session found, redirecting to home");
-          navigate("/");
+          navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Unexpected error during session check:", error);
@@ -42,14 +42,15 @@ export default function Login() {
 
     // Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
+      console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
+        console.log("User signed in, redirecting to home");
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
-        navigate("/");
+        navigate("/", { replace: true });
       }
       
       if (event === 'SIGNED_OUT') {
@@ -60,8 +61,8 @@ export default function Login() {
         });
       }
 
-      if (event === 'USER_UPDATED') {
-        console.log("User updated");
+      if (event === 'TOKEN_REFRESHED') {
+        console.log("Session token refreshed");
       }
     });
 
@@ -74,7 +75,7 @@ export default function Login() {
     <Card className="w-full max-w-md mx-auto mt-20 animate-fade-in">
       <CardHeader className="space-y-4 text-center pb-0">
         <div className="flex justify-center items-center py-6">
-          <img
+          <img 
             src="https://zqlchnhpfdwmqdpmdntc.supabase.co/storage/v1/object/public/Website_images/Logo.png"
             alt="Company Logo"
             className="h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-200"

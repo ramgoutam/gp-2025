@@ -32,22 +32,32 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
   const { data: userRole, isLoading } = useQuery({
     queryKey: ['userRole', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user role:', error);
+      if (!session?.user?.id) {
+        console.log("No user ID found in session");
         return null;
       }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
 
-      return data?.role;
+        if (error) {
+          console.error('Error fetching user role:', error);
+          return null;
+        }
+
+        console.log("User role:", data?.role);
+        return data?.role;
+      } catch (error) {
+        console.error('Unexpected error fetching user role:', error);
+        return null;
+      }
     },
     enabled: !!session?.user?.id,
+    retry: 1,
   });
 
   if (!session) {
@@ -70,7 +80,10 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode;
 function App() {
   return (
     <React.StrictMode>
-      <SessionContextProvider supabaseClient={supabase}>
+      <SessionContextProvider 
+        supabaseClient={supabase}
+        initialSession={null}
+      >
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
