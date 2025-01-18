@@ -11,12 +11,22 @@ interface StatusDetailsDialogProps {
   scriptId: string;
 }
 
+interface StatusDetails {
+  status: string;
+  status_changed_at: string;
+  status_notes: string | null;
+  status_changed_by: {
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+}
+
 export const StatusDetailsDialog = ({
   open,
   onOpenChange,
   scriptId,
 }: StatusDetailsDialogProps) => {
-  const { data: statusDetails, isLoading } = useQuery({
+  const { data: statusDetails, isLoading } = useQuery<StatusDetails>({
     queryKey: ['labScriptStatusDetails', scriptId],
     queryFn: async () => {
       console.log("Fetching status details for script:", scriptId);
