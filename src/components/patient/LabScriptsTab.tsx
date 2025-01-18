@@ -139,9 +139,9 @@ export const LabScriptsTab = ({
         .from('report_cards')
         .select('id, design_info_id, clinical_info_id')
         .eq('lab_script_id', script.id)
-        .single();
+        .maybeSingle();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError) {
         console.error("Error fetching report card:", fetchError);
         throw fetchError;
       }
