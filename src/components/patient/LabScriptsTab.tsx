@@ -118,9 +118,32 @@ export const LabScriptsTab = ({
     setIsEditing(false);
   };
 
-  const handleDeleteClick = (script: LabScript) => {
+  const handleDeleteClick = async (script: LabScript) => {
     console.log("Delete clicked, script:", script);
-    onDeleteLabScript(script);
+    try {
+      // First delete associated manufacturing logs
+      console.log("Deleting manufacturing logs for script:", script.id);
+      const { error: manufacturingLogsError } = await supabase
+        .from('manufacturing_logs')
+        .delete()
+        .eq('lab_script_id', script.id);
+
+      if (manufacturingLogsError) {
+        console.error("Error deleting manufacturing logs:", manufacturingLogsError);
+        throw manufacturingLogsError;
+      }
+
+      // Then delete the lab script
+      console.log("Deleting lab script:", script.id);
+      onDeleteLabScript(script);
+    } catch (error) {
+      console.error("Error in delete process:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete lab script. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleEditClick = (script: LabScript) => {
