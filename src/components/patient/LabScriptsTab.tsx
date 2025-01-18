@@ -133,16 +133,56 @@ export const LabScriptsTab = ({
         throw manufacturingLogsError;
       }
 
-      // Then delete associated report cards
-      console.log("Deleting report cards for script:", script.id);
-      const { error: reportCardsError } = await supabase
+      // Then delete associated report cards and their related info
+      console.log("Deleting report cards and related info for script:", script.id);
+      const { data: reportCard, error: fetchError } = await supabase
         .from('report_cards')
-        .delete()
-        .eq('lab_script_id', script.id);
+        .select('id, design_info_id, clinical_info_id')
+        .eq('lab_script_id', script.id)
+        .single();
 
-      if (reportCardsError) {
-        console.error("Error deleting report cards:", reportCardsError);
-        throw reportCardsError;
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error("Error fetching report card:", fetchError);
+        throw fetchError;
+      }
+
+      if (reportCard) {
+        // Delete clinical info if exists
+        if (reportCard.clinical_info_id) {
+          const { error: clinicalInfoError } = await supabase
+            .from('clinical_info')
+            .delete()
+            .eq('id', reportCard.clinical_info_id);
+
+          if (clinicalInfoError) {
+            console.error("Error deleting clinical info:", clinicalInfoError);
+            throw clinicalInfoError;
+          }
+        }
+
+        // Delete design info if exists
+        if (reportCard.design_info_id) {
+          const { error: designInfoError } = await supabase
+            .from('design_info')
+            .delete()
+            .eq('id', reportCard.design_info_id);
+
+          if (designInfoError) {
+            console.error("Error deleting design info:", designInfoError);
+            throw designInfoError;
+          }
+        }
+
+        // Delete the report card
+        const { error: reportCardError } = await supabase
+          .from('report_cards')
+          .delete()
+          .eq('id', reportCard.id);
+
+        if (reportCardError) {
+          console.error("Error deleting report card:", reportCardError);
+          throw reportCardError;
+        }
       }
 
       // Finally delete the lab script
@@ -160,7 +200,7 @@ export const LabScriptsTab = ({
       onDeleteLabScript(script);
       toast({
         title: "Success",
-        description: "Lab script deleted successfully",
+        description: "Lab script and all related items deleted successfully",
       });
     } catch (error) {
       console.error("Error in delete process:", error);
