@@ -68,6 +68,8 @@ const Admin = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [editingUserDetails, setEditingUserDetails] = useState<UserRole | null>(null);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole['role'] | null>(null);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
@@ -169,6 +171,7 @@ const Admin = () => {
         title: "Success",
         description: `User role updated to ${newRole}`,
       });
+      setIsRoleDialogOpen(false);
       setEditingRole(null);
       refetch();
     } catch (error) {
@@ -416,6 +419,61 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User Role</DialogTitle>
+            <DialogDescription>
+              Change the role for this user. Only administrators can perform this action.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Current Role</Label>
+              <p className="text-sm text-muted-foreground">
+                {editingRole?.role || 'No role selected'}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-role">New Role</Label>
+              <select
+                id="new-role"
+                value={selectedRole || editingRole?.role || ''}
+                onChange={(e) => setSelectedRole(e.target.value as UserRole['role'])}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                disabled={currentUserRole !== 'ADMIN'}
+              >
+                {roles.map((role) => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsRoleDialogOpen(false);
+                setEditingRole(null);
+                setSelectedRole(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editingRole?.userId && selectedRole) {
+                  handleRoleUpdate(editingRole.userId, selectedRole);
+                }
+              }}
+              disabled={!selectedRole || selectedRole === editingRole?.role || currentUserRole !== 'ADMIN'}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">User Management</h3>
@@ -563,25 +621,7 @@ const Admin = () => {
                     <TableCell>{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
                     <TableCell>{`${userRole.first_name || ''} ${userRole.last_name || ''}`}</TableCell>
                     <TableCell>{userRole.phone || 'N/A'}</TableCell>
-                    <TableCell>
-                      {editingRole?.userId === userRole.user_id ? (
-                        <select
-                          value={editingRole.role}
-                          onChange={(e) => setEditingRole({ 
-                            userId: userRole.user_id, 
-                            role: e.target.value as UserRole['role'] 
-                          })}
-                          className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                          disabled={currentUserRole !== 'ADMIN'}
-                        >
-                          {roles.map((role) => (
-                            <option key={role} value={role}>{role}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        userRole.role
-                      )}
-                    </TableCell>
+                    <TableCell>{userRole.role}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -607,10 +647,14 @@ const Admin = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setEditingRole({ 
-                              userId: userRole.user_id, 
-                              role: userRole.role 
-                            })}
+                            onClick={() => {
+                              setEditingRole({
+                                userId: userRole.user_id,
+                                role: userRole.role
+                              });
+                              setSelectedRole(userRole.role);
+                              setIsRoleDialogOpen(true);
+                            }}
                           >
                             <Pencil className="h-4 w-4 mr-2" />
                             Edit Role
