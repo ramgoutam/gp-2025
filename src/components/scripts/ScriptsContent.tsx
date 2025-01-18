@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LabScript, LabScriptStatus } from "@/types/labScript";
+import { LabScript, LabScriptStatus, mapDatabaseLabScript } from "@/types/labScript";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LabScriptList } from "@/components/patient/LabScriptList";
 import { ScriptStatusCards } from "@/components/scripts/ScriptStatusCards";
@@ -49,11 +49,31 @@ export const ScriptsContent = ({
           throw error;
         }
 
+        // Map the database response to our LabScript type
         return scripts.map(script => ({
-          ...script,
-          status: script.status as LabScriptStatus,
+          id: script.id,
+          requestNumber: script.request_number,
+          patientId: script.patient_id,
           patientFirstName: script.patient?.first_name,
           patientLastName: script.patient?.last_name,
+          doctorName: script.doctor_name,
+          clinicName: script.clinic_name,
+          requestDate: script.request_date,
+          dueDate: script.due_date,
+          status: script.status as LabScriptStatus,
+          upperTreatment: script.upper_treatment,
+          lowerTreatment: script.lower_treatment,
+          upperDesignName: script.upper_design_name,
+          lowerDesignName: script.lower_design_name,
+          applianceType: script.appliance_type,
+          screwType: script.screw_type,
+          vdoOption: script.vdo_option,
+          specificInstructions: script.specific_instructions,
+          manufacturingSource: script.manufacturing_source,
+          manufacturingType: script.manufacturing_type,
+          material: script.material,
+          shade: script.shade,
+          holdReason: script.hold_reason
         }));
       } catch (error) {
         console.error("Failed to fetch lab scripts:", error);
