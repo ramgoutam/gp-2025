@@ -52,6 +52,11 @@ export const StatusButton = ({ script, onStatusChange }: StatusButtonProps) => {
   // Check if user has permission to update status
   const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
 
+  // If user doesn't have permission, don't render anything
+  if (!canUpdateStatus) {
+    return null;
+  }
+
   // Add query to check design info status
   const { data: reportCard } = useQuery({
     queryKey: ['reportCard', script.id],
