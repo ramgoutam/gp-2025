@@ -34,6 +34,8 @@ serve(async (req) => {
       throw new Error('Email is required')
     }
 
+    console.log('Creating user with data:', { email, role, firstName, lastName, phone });
+
     const { data: userData, error: createError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
@@ -48,11 +50,22 @@ serve(async (req) => {
     if (createError) throw createError
 
     if (userData.user) {
+      console.log('User created, inserting role data:', { 
+        user_id: userData.user.id, 
+        role,
+        first_name: firstName,
+        last_name: lastName,
+        phone
+      });
+
       const { error: roleError } = await supabaseClient
         .from('user_roles')
         .insert({
           user_id: userData.user.id,
-          role
+          role,
+          first_name: firstName,
+          last_name: lastName,
+          phone
         })
 
       if (roleError) throw roleError
@@ -64,6 +77,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error in create-user function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

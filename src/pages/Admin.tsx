@@ -290,6 +290,7 @@ const Admin = () => {
 
   const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
+      console.log('Creating new user with values:', values);
       const { error } = await supabase.functions.invoke('create-user', {
         body: { 
           email: values.email,
@@ -698,3 +699,4 @@ const Admin = () => {
 };
 
 export default Admin;
+
