@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
-import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer, CheckCircle } from "lucide-react";
+import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
 interface EditPurchaseOrderDialogProps {
@@ -197,32 +197,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     enabled: !!orderId,
   });
 
-  const handleApprove = async () => {
-    if (!editedOrder) return;
-
-    const { error } = await supabase
-      .from('purchase_orders')
-      .update({
-        status: 'approved'
-      })
-      .eq('id', orderId);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to approve purchase order",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Purchase order approved successfully",
-    });
-    onOrderUpdated();
-  };
-
   const handleSave = async () => {
     if (!editedOrder) return;
 
@@ -359,39 +333,35 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 <div className="flex justify-between items-center">
                   <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
                   <div className="space-x-2">
-                    {order.status === 'approved' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePrint()}
+                      className="gap-2"
+                    >
+                      <Printer className="h-4 w-4" />
+                      Print PO
+                    </Button>
+                    {isEditing ? (
+                      <>
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSave}>
+                          Save Changes
+                        </Button>
+                      </>
+                    ) : (
                       <Button
+                        onClick={() => setIsEditing(true)}
                         variant="outline"
-                        size="sm"
-                        onClick={() => handlePrint()}
-                        className="gap-2"
+                        className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
                       >
-                        <Printer className="h-4 w-4" />
-                        Print PO
+                        <Pencil className="h-4 w-4" />
+                        Edit Order
                       </Button>
                     )}
                   </div>
-                </div>
-                <div className="flex justify-end">
-                  {isEditing ? (
-                    <div className="space-x-2">
-                      <Button variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSave}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit Order
-                    </Button>
-                  )}
                 </div>
               </DialogHeader>
 
@@ -582,20 +552,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Add approve button at the bottom */}
-              {order.status !== 'approved' && (
-                <div className="flex justify-end mt-6 border-t pt-4">
-                  <Button
-                    onClick={handleApprove}
-                    className="gap-2"
-                    variant="default"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Approve Purchase Order
-                  </Button>
-                </div>
-              )}
 
               {/* Hidden printable content */}
               <div className="hidden">

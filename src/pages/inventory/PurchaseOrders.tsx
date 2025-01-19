@@ -29,10 +29,9 @@ const PurchaseOrders = () => {
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: purchaseOrders, isLoading, error, refetch } = useQuery({
+  const { data: purchaseOrders, isLoading, refetch } = useQuery({
     queryKey: ["purchase-orders"],
     queryFn: async () => {
-      console.log('Fetching purchase orders...');
       const { data, error } = await supabase
         .from("purchase_orders")
         .select(`
@@ -46,20 +45,11 @@ const PurchaseOrders = () => {
             address,
             notes
           ),
-          purchase_order_items (*),
-          created_by_user:user_roles (
-            first_name,
-            last_name
-          )
+          purchase_order_items (*)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching purchase orders:', error);
-        throw error;
-      }
-
-      console.log('Purchase orders fetched:', data);
+      if (error) throw error;
       return data;
     },
   });
@@ -120,29 +110,6 @@ const PurchaseOrders = () => {
     ).join(' ');
   };
 
-  const formatDateTime = (dateTime: string) => {
-    return format(new Date(dateTime), 'MMM dd, yyyy HH:mm');
-  };
-
-  const getCreatorName = (order: any) => {
-    if (order.created_by_user) {
-      const { first_name, last_name } = order.created_by_user;
-      return `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown';
-    }
-    return 'Unknown';
-  };
-
-  if (error) {
-    console.error('Query error:', error);
-    return (
-      <div className="container mx-auto py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600">Error loading purchase orders: {error.message}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -158,9 +125,7 @@ const PurchaseOrders = () => {
 
       <div className="bg-white rounded-lg shadow">
         {isLoading ? (
-          <div className="p-6 text-center">
-            <p className="text-gray-500">Loading purchase orders...</p>
-          </div>
+          <div className="p-6">Loading...</div>
         ) : (
           <table className="w-full">
             <thead>
@@ -168,8 +133,6 @@ const PurchaseOrders = () => {
                 <th className="px-4 py-2 text-left">PO Number</th>
                 <th className="px-4 py-2 text-left">Supplier</th>
                 <th className="px-4 py-2 text-left">Order Date</th>
-                <th className="px-4 py-2 text-left">Created By</th>
-                <th className="px-4 py-2 text-left">Created At</th>
                 <th className="px-4 py-2 text-left">Status</th>
                 <th className="px-4 py-2 text-right">Total Amount</th>
                 <th className="px-4 py-2 text-center">Actions</th>
@@ -189,12 +152,6 @@ const PurchaseOrders = () => {
                   </td>
                   <td className="px-4 py-2">
                     {format(new Date(order.order_date), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="px-4 py-2">
-                    {getCreatorName(order)}
-                  </td>
-                  <td className="px-4 py-2">
-                    {formatDateTime(order.created_at_local || order.created_at)}
                   </td>
                   <td className="px-4 py-2">
                     <Badge variant={getStatusBadgeVariant(order.status)}>
@@ -224,9 +181,9 @@ const PurchaseOrders = () => {
                   </td>
                 </tr>
               ))}
-              {(!purchaseOrders || purchaseOrders.length === 0) && (
+              {purchaseOrders?.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                     No purchase orders found. Click "Create Purchase Order" to add one.
                   </td>
                 </tr>
@@ -246,7 +203,7 @@ const PurchaseOrders = () => {
         orderId={editOrderId}
         open={!!editOrderId}
         onOpenChange={(open) => !open && setEditOrderId(null)}
-        onOrderUpdated={() => refetch()}
+        onOrderUpdated={refetch}
       />
 
       <ViewSupplierDialog
