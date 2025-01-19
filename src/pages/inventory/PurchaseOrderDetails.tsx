@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FileText, Pencil, CheckCircle } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,9 +20,8 @@ const PurchaseOrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isApproving, setIsApproving] = useState(false);
 
-  const { data: order, isLoading, error, refetch } = useQuery({
+  const { data: order, isLoading, error } = useQuery({
     queryKey: ['purchase-order', id],
     queryFn: async () => {
       console.log('Fetching purchase order details for ID:', id);
@@ -32,12 +31,7 @@ const PurchaseOrderDetails = () => {
         .select(`
           *,
           suppliers (
-            supplier_name,
-            email,
-            phone,
-            address,
-            contact_person,
-            notes
+            supplier_name
           ),
           purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
@@ -60,55 +54,10 @@ const PurchaseOrderDetails = () => {
         throw error;
       }
 
-      console.log("Fetched order data:", data);
+      console.log('Purchase order data:', data);
       return data;
     }
   });
-
-  const handleApprove = async () => {
-    if (!order || isApproving) return;
-
-    setIsApproving(true);
-    try {
-      // Get current user's role ID
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (!userRoles?.id) {
-        throw new Error('User role not found');
-      }
-
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({
-          status: 'approved',
-          approved_by: userRoles.id,
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Purchase order approved successfully",
-      });
-      
-      refetch();
-    } catch (error) {
-      console.error('Error approving purchase order:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to approve purchase order",
-      });
-    } finally {
-      setIsApproving(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -149,12 +98,13 @@ const PurchaseOrderDetails = () => {
         return 'bg-green-100 text-green-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
-      case 'pending_approval':
-        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  console.log('Rendering order:', order);
+  console.log('Order items:', order.purchase_order_items);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -165,49 +115,25 @@ const PurchaseOrderDetails = () => {
               variant="ghost" 
               size="sm"
               onClick={() => navigate('/inventory/purchase-orders')}
-              className="text-gray-500 hover:text-gray-700"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Purchase Order #{order?.po_number}
+                Purchase Order #{order.po_number}
               </h1>
               <p className="mt-1 text-sm text-gray-600">
                 View and manage purchase order details
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Remove the console.log and fix the conditional rendering */}
-            {(order?.status === 'pending_approval' || order?.status === 'draft') && (
-              <Button
-                variant="default"
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                onClick={handleApprove}
-                disabled={isApproving}
-              >
-                <CheckCircle className="h-4 w-4" />
-                {isApproving ? 'Approving...' : 'Approve PO'}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
-              onClick={() => {/* Print functionality */}}
-            >
-              <FileText className="h-4 w-4" />
-              Print PO
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <FileText className="h-4 w-4 mr-2" />
+              Download PDF
             </Button>
-            <Button
-              variant="default"
-              className="flex items-center gap-2"
-              onClick={() => {/* Edit functionality */}}
-            >
-              <Pencil className="h-4 w-4" />
-              Edit Order
-            </Button>
+            <Button>Edit Order</Button>
           </div>
         </div>
 
