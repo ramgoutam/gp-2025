@@ -92,7 +92,7 @@ const PurchaseOrders = () => {
   };
 
   const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'pending_approval':
         return 'warning';
       case 'approved':
@@ -102,6 +102,12 @@ const PurchaseOrders = () => {
       default:
         return 'secondary';
     }
+  };
+
+  const formatStatus = (status: string) => {
+    return status.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   };
 
   return (
@@ -149,7 +155,7 @@ const PurchaseOrders = () => {
                   </td>
                   <td className="px-4 py-2">
                     <Badge variant={getStatusBadgeVariant(order.status)}>
-                      {order.status === 'pending_approval' ? 'Pending Approval' : order.status}
+                      {formatStatus(order.status)}
                     </Badge>
                   </td>
                   <td className="px-4 py-2 text-right">
