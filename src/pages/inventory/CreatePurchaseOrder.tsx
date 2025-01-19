@@ -97,6 +97,33 @@ const CreatePurchaseOrder = () => {
     },
   });
 
+  // Add query to get current user's role ID
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role'],
+    queryFn: async () => {
+      console.log('Fetching user role...');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        console.log('No user session found');
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        throw error;
+      }
+
+      console.log('User role data:', data);
+      return data;
+    },
+  });
+
   const addItem = (selectedItem: any) => {
     const newItem: PurchaseOrderItem = {
       id: crypto.randomUUID(),
@@ -222,6 +249,7 @@ const CreatePurchaseOrder = () => {
     try {
       const poNumber = await generatePONumber();
 
+      // Include created_by in the purchase order creation
       const { data: orderData, error: orderError } = await supabase
         .from("purchase_orders")
         .insert({
@@ -230,8 +258,10 @@ const CreatePurchaseOrder = () => {
           order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
-          status: "pending_approval", // Changed from 'draft' to 'pending_approval'
+          status: "pending_approval",
           total_amount: calculateTotal(),
+          created_by: userRole?.id, // Add the user role ID here
+          created_at_local: new Date().toISOString(),
         })
         .select()
         .single();
