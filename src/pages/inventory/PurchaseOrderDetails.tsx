@@ -172,7 +172,7 @@ const PurchaseOrderDetails = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {order.status === 'pending_approval' && (
+            {(order.status === 'pending_approval' || order.status === 'draft') && (
               <Button
                 variant="default"
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
