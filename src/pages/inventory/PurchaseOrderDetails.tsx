@@ -32,7 +32,12 @@ const PurchaseOrderDetails = () => {
         .select(`
           *,
           suppliers (
-            supplier_name
+            supplier_name,
+            email,
+            phone,
+            address,
+            contact_person,
+            notes
           ),
           purchase_order_items!purchase_order_items_purchase_order_id_fkey (
             *,
@@ -175,7 +180,7 @@ const PurchaseOrderDetails = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {console.log("Current order status:", order?.status)}
+            {/* Remove the console.log and fix the conditional rendering */}
             {(order?.status === 'pending_approval' || order?.status === 'draft') && (
               <Button
                 variant="default"
