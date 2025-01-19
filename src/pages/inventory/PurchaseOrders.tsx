@@ -246,7 +246,7 @@ const PurchaseOrders = () => {
         orderId={editOrderId}
         open={!!editOrderId}
         onOpenChange={(open) => !open && setEditOrderId(null)}
-        onOrderUpdated={refetch}
+        onOrderUpdated={() => refetch()}
       />
 
       <ViewSupplierDialog
