@@ -29,9 +29,10 @@ const PurchaseOrders = () => {
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: purchaseOrders, isLoading, refetch } = useQuery({
+  const { data: purchaseOrders, isLoading, error } = useQuery({
     queryKey: ["purchase-orders"],
     queryFn: async () => {
+      console.log('Fetching purchase orders...');
       const { data, error } = await supabase
         .from("purchase_orders")
         .select(`
@@ -53,7 +54,12 @@ const PurchaseOrders = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching purchase orders:', error);
+        throw error;
+      }
+
+      console.log('Purchase orders fetched:', data);
       return data;
     },
   });
@@ -126,6 +132,17 @@ const PurchaseOrders = () => {
     return 'Unknown';
   };
 
+  if (error) {
+    console.error('Query error:', error);
+    return (
+      <div className="container mx-auto py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600">Error loading purchase orders: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -141,7 +158,9 @@ const PurchaseOrders = () => {
 
       <div className="bg-white rounded-lg shadow">
         {isLoading ? (
-          <div className="p-6">Loading...</div>
+          <div className="p-6 text-center">
+            <p className="text-gray-500">Loading purchase orders...</p>
+          </div>
         ) : (
           <table className="w-full">
             <thead>
@@ -205,7 +224,7 @@ const PurchaseOrders = () => {
                   </td>
                 </tr>
               ))}
-              {purchaseOrders?.length === 0 && (
+              {(!purchaseOrders || purchaseOrders.length === 0) && (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                     No purchase orders found. Click "Create Purchase Order" to add one.
