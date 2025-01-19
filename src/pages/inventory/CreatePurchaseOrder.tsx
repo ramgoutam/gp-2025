@@ -220,6 +220,32 @@ const CreatePurchaseOrder = () => {
     }
 
     try {
+      // Get current user's role ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a purchase order",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Creating purchase order for user:", user.id);
+
+      // Get user role ID
+      const { data: userRole, error: userRoleError } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (userRoleError) {
+        console.error("Error fetching user role:", userRoleError);
+        throw userRoleError;
+      }
+
       const poNumber = await generatePONumber();
 
       const { data: orderData, error: orderError } = await supabase
@@ -230,8 +256,9 @@ const CreatePurchaseOrder = () => {
           order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
-          status: "pending_approval", // Changed from 'draft' to 'pending_approval'
+          status: "pending_approval",
           total_amount: calculateTotal(),
+          created_by: userRole.id, // Add the user role ID here
         })
         .select()
         .single();
