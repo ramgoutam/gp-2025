@@ -29,7 +29,7 @@ const PurchaseOrders = () => {
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: purchaseOrders, isLoading, error } = useQuery({
+  const { data: purchaseOrders, isLoading, error, refetch } = useQuery({
     queryKey: ["purchase-orders"],
     queryFn: async () => {
       console.log('Fetching purchase orders...');
