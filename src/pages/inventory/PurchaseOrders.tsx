@@ -91,6 +91,19 @@ const PurchaseOrders = () => {
     }
   };
 
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'pending_approval':
+        return 'warning';
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
+  };
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -135,8 +148,8 @@ const PurchaseOrders = () => {
                     {format(new Date(order.order_date), 'MMM dd, yyyy')}
                   </td>
                   <td className="px-4 py-2">
-                    <Badge variant={order.status === 'draft' ? 'secondary' : 'success'}>
-                      {order.status}
+                    <Badge variant={getStatusBadgeVariant(order.status)}>
+                      {order.status === 'pending_approval' ? 'Pending Approval' : order.status}
                     </Badge>
                   </td>
                   <td className="px-4 py-2 text-right">
