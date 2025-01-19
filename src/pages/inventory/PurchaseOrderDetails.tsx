@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FileText, Pencil } from "lucide-react";
+import { ArrowLeft, FileText, Pencil, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,8 +20,9 @@ const PurchaseOrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isApproving, setIsApproving] = useState(false);
 
-  const { data: order, isLoading, error } = useQuery({
+  const { data: order, isLoading, error, refetch } = useQuery({
     queryKey: ['purchase-order', id],
     queryFn: async () => {
       console.log('Fetching purchase order details for ID:', id);
@@ -54,10 +55,54 @@ const PurchaseOrderDetails = () => {
         throw error;
       }
 
-      console.log('Purchase order data:', data);
       return data;
     }
   });
+
+  const handleApprove = async () => {
+    if (!order || isApproving) return;
+
+    setIsApproving(true);
+    try {
+      // Get current user's role ID
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (!userRoles?.id) {
+        throw new Error('User role not found');
+      }
+
+      const { error } = await supabase
+        .from('purchase_orders')
+        .update({
+          status: 'approved',
+          approved_by: userRoles.id,
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Purchase order approved successfully",
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error('Error approving purchase order:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve purchase order",
+      });
+    } finally {
+      setIsApproving(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -127,6 +172,17 @@ const PurchaseOrderDetails = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {order.status === 'pending_approval' && (
+              <Button
+                variant="default"
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                onClick={handleApprove}
+                disabled={isApproving}
+              >
+                <CheckCircle className="h-4 w-4" />
+                {isApproving ? 'Approving...' : 'Approve PO'}
+              </Button>
+            )}
             <Button
               variant="outline"
               className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
