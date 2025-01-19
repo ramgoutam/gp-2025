@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +55,7 @@ const PurchaseOrderDetails = () => {
         throw error;
       }
 
+      console.log("Fetched order data:", data);
       return data;
     }
   });
@@ -143,6 +144,8 @@ const PurchaseOrderDetails = () => {
         return 'bg-green-100 text-green-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
+      case 'pending_approval':
+        return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -164,7 +167,7 @@ const PurchaseOrderDetails = () => {
             </Button>
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Purchase Order #{order.po_number}
+                Purchase Order #{order?.po_number}
               </h1>
               <p className="mt-1 text-sm text-gray-600">
                 View and manage purchase order details
@@ -172,7 +175,8 @@ const PurchaseOrderDetails = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {(order.status === 'pending_approval' || order.status === 'draft') && (
+            {console.log("Current order status:", order?.status)}
+            {(order?.status === 'pending_approval' || order?.status === 'draft') && (
               <Button
                 variant="default"
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
