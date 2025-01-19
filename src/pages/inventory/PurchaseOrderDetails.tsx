@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
@@ -103,9 +103,6 @@ const PurchaseOrderDetails = () => {
     }
   };
 
-  console.log('Rendering order:', order);
-  console.log('Order items:', order.purchase_order_items);
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -115,6 +112,7 @@ const PurchaseOrderDetails = () => {
               variant="ghost" 
               size="sm"
               onClick={() => navigate('/inventory/purchase-orders')}
+              className="text-gray-500 hover:text-gray-700"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -128,12 +126,23 @@ const PurchaseOrderDetails = () => {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <FileText className="h-4 w-4 mr-2" />
-              Download PDF
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
+              onClick={() => {/* Print functionality */}}
+            >
+              <FileText className="h-4 w-4" />
+              Print PO
             </Button>
-            <Button>Edit Order</Button>
+            <Button
+              variant="default"
+              className="flex items-center gap-2"
+              onClick={() => {/* Edit functionality */}}
+            >
+              <Pencil className="h-4 w-4" />
+              Edit Order
+            </Button>
           </div>
         </div>
 
