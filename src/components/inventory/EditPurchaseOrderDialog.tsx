@@ -370,28 +370,26 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                         Print PO
                       </Button>
                     )}
+                    {isEditing ? (
+                      <>
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSave}>
+                          Save Changes
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        variant="outline"
+                        className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit Order
+                      </Button>
+                    )}
                   </div>
-                </div>
-                <div className="flex justify-end">
-                  {isEditing ? (
-                    <div className="space-x-2">
-                      <Button variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSave}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit Order
-                    </Button>
-                  )}
                 </div>
               </DialogHeader>
 
