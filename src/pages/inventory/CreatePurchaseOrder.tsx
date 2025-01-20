@@ -221,6 +221,7 @@ const CreatePurchaseOrder = () => {
 
     try {
       const poNumber = await generatePONumber();
+      console.log("Generated PO number:", poNumber);
 
       const { data: orderData, error: orderError } = await supabase
         .from("purchase_orders")
@@ -230,7 +231,7 @@ const CreatePurchaseOrder = () => {
           order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
-          status: "draft",
+          status: "Pending_Approval", // Changed from 'draft' to 'Pending_Approval'
           total_amount: calculateTotal(),
         })
         .select()
