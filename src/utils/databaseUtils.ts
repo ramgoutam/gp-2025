@@ -124,15 +124,6 @@ export const deleteLabScript = async (id: string): Promise<void> => {
 };
 
 export const getPatients = async () => {
-  console.log("Starting patient fetch...");
-  
-  // First check if we have an active session
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    console.error("No active session found when fetching patients");
-    throw new Error("Authentication required");
-  }
-
   const { data, error } = await supabase
     .from('patients')
     .select('*');
@@ -142,7 +133,6 @@ export const getPatients = async () => {
     throw error;
   }
 
-  console.log("Successfully fetched patients:", data?.length);
   return data;
 };
 

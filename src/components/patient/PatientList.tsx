@@ -22,22 +22,6 @@ export const PatientList = () => {
   const [viewMode, setViewMode] = useState<'card' | 'list'>('list');
   const queryClient = useQueryClient();
 
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.error("No active session found");
-        toast({
-          title: "Authentication Error",
-          description: "Please sign in to view patient data",
-          variant: "destructive",
-        });
-      }
-    };
-    checkAuth();
-  }, [toast]);
-
   // Set up real-time subscription
   useEffect(() => {
     console.log('Setting up real-time subscription for patients');
@@ -63,22 +47,18 @@ export const PatientList = () => {
     };
   }, [queryClient]);
 
-  const { data: patients = [], isLoading, error } = useQuery({
+  const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
     queryFn: async () => {
       console.log('Fetching patients data');
-      try {
-        const data = await getPatients();
-        console.log('Fetched patients:', data?.length);
-        return data || [];
-      } catch (error) {
-        console.error('Error fetching patients:', error);
-        throw error;
-      }
+      const data = await getPatients();
+      console.log('Fetched patients:', data.length);
+      return data;
     },
+    refetchInterval: 1,
     meta: {
       onError: (error: Error) => {
-        console.error('Error in patients query:', error);
+        console.error('Error fetching patients:', error);
         toast({
           title: "Error",
           description: "Failed to load patients. Please try again.",
@@ -87,16 +67,6 @@ export const PatientList = () => {
       }
     }
   });
-
-  // Handle error state
-  if (error) {
-    console.error("Error in PatientList:", error);
-    return (
-      <div className="p-4 text-center">
-        <p className="text-red-500">Error loading patients. Please try refreshing the page.</p>
-      </div>
-    );
-  }
 
   const filteredPatients = patients.filter(patient => {
     const searchTerm = searchQuery?.toLowerCase() || '';
