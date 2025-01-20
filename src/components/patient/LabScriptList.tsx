@@ -75,7 +75,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
     }
   });
 
-  const canDelete = userRole === 'ADMIN' || userRole === 'DOCTOR' || userRole === 'MANAGER_CLINIC';
+  const canDelete = userRole === 'ADMIN' || userRole === 'DOCTOR' || userRole === 'MANAGER_CLINICAL';
 
   const handleDeleteClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();

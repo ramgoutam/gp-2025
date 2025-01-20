@@ -452,9 +452,6 @@ export type Database = {
           shade: string | null
           specific_instructions: string | null
           status: string
-          status_changed_at: string | null
-          status_changed_by: string | null
-          status_notes: string | null
           updated_at: string
           upper_design_name: string | null
           upper_treatment: string | null
@@ -481,9 +478,6 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
-          status_changed_at?: string | null
-          status_changed_by?: string | null
-          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
@@ -510,9 +504,6 @@ export type Database = {
           shade?: string | null
           specific_instructions?: string | null
           status?: string
-          status_changed_at?: string | null
-          status_changed_by?: string | null
-          status_notes?: string | null
           updated_at?: string
           upper_design_name?: string | null
           upper_treatment?: string | null
@@ -524,13 +515,6 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lab_scripts_status_changed_by_fkey"
-            columns: ["status_changed_by"]
-            isOneToOne: false
-            referencedRelation: "user_roles"
             referencedColumns: ["id"]
           },
         ]
@@ -872,11 +856,7 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
           created_at: string
-          created_at_local: string | null
-          created_by: string | null
           expected_delivery_date: string | null
           id: string
           notes: string | null
@@ -888,11 +868,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
           created_at?: string
-          created_at_local?: string | null
-          created_by?: string | null
           expected_delivery_date?: string | null
           id?: string
           notes?: string | null
@@ -904,11 +880,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
           created_at?: string
-          created_at_local?: string | null
-          created_by?: string | null
           expected_delivery_date?: string | null
           id?: string
           notes?: string | null
@@ -920,20 +892,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "purchase_orders_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "user_roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchase_orders_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_roles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "purchase_orders_supplier_id_fkey"
             columns: ["supplier_id"]
