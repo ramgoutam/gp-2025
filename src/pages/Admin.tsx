@@ -338,15 +338,7 @@ const Admin = () => {
         }
       });
 
-      if (error) {
-        console.error('Error from create-user function:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to create user",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -360,7 +352,7 @@ const Admin = () => {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create user",
+        description: "Failed to create user",
         variant: "destructive",
       });
     }
@@ -642,16 +634,6 @@ const Admin = () => {
                         >
                           <UserCog className="h-4 w-4 mr-2" />
                           Login as
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditingUserDetails(userRole);
-                          }}
-                        >
-                          <UserPen className="h-4 w-4 mr-2" />
-                          Edit Details
                         </Button>
                         <Button
                           variant="ghost"

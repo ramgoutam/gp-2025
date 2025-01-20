@@ -230,7 +230,7 @@ const CreatePurchaseOrder = () => {
           order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
-          status: "waiting_for_approval", // Changed from 'draft' to 'waiting_for_approval'
+          status: "draft",
           total_amount: calculateTotal(),
         })
         .select()
@@ -258,7 +258,7 @@ const CreatePurchaseOrder = () => {
 
       toast({
         title: "Success",
-        description: "Purchase order created and waiting for approval",
+        description: "Purchase order created successfully",
       });
 
       navigate("/inventory/purchase-orders");
