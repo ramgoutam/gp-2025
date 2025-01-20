@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, CheckCircle2, Files, AlertTriangle, ClipboardCheck } from "lucide-react";
-import { StatusCard } from "../scripts/StatusCard";
+import { StatusCard } from "@/components/scripts/StatusCard";
 
 type ReportStatusCardsProps = {
   onFilterChange: (status: string | null) => void;
