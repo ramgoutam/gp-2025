@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -31,12 +32,21 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ message: 'User deleted successfully' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
       )
     }
 
-    if (!email || !password) {
-      throw new Error('Email and password are required')
+    if (!email || !password || !role) {
+      return new Response(
+        JSON.stringify({ error: 'Email, password and role are required' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      )
     }
 
     console.log('Creating user with email:', email);
@@ -46,15 +56,32 @@ serve(async (req) => {
       email,
       password,
       email_confirm: true,
+      user_metadata: {
+        firstName,
+        lastName,
+        phone
+      }
     })
 
     if (createError) {
       console.error('Error creating user:', createError);
-      throw createError;
+      return new Response(
+        JSON.stringify({ error: createError.message }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      )
     }
 
     if (!userData.user) {
-      throw new Error('User creation failed - no user data returned');
+      return new Response(
+        JSON.stringify({ error: 'User creation failed - no user data returned' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      )
     }
 
     console.log('User created successfully, inserting role data:', { 
@@ -80,14 +107,23 @@ serve(async (req) => {
       console.error('Error inserting user role:', roleError);
       // If role insertion fails, delete the created user
       await supabaseClient.auth.admin.deleteUser(userData.user.id);
-      throw roleError;
+      return new Response(
+        JSON.stringify({ error: roleError.message }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      )
     }
 
     console.log('User role created successfully');
 
     return new Response(
       JSON.stringify({ message: 'User created successfully', user: userData.user }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
+      }
     )
 
   } catch (error) {
@@ -95,8 +131,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
       }
     )
   }
