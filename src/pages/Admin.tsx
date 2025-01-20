@@ -639,6 +639,16 @@ const Admin = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => {
+                            setEditingUserDetails(userRole);
+                          }}
+                        >
+                          <UserPen className="h-4 w-4 mr-2" />
+                          Edit Details
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
                             setIsPasswordDialogOpen(true);
                             setChangingPasswordFor(userRole.user_id);
                           }}
