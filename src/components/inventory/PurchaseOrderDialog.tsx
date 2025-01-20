@@ -80,10 +80,12 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
             <DialogHeader>
               <div className="flex justify-between items-center">
                 <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
-                <Button className="gap-2" variant="outline">
-                  <CheckCircle className="h-4 w-4" />
-                  Approve Order
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    Approve Order
+                  </Button>
+                </div>
               </div>
             </DialogHeader>
 
