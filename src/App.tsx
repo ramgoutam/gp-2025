@@ -4,7 +4,6 @@ import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Toaster } from "@/components/ui/toaster";
-import { useQuery } from "@tanstack/react-query";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import Marketing from "@/pages/Marketing";
@@ -25,69 +24,13 @@ import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
 import Admin from "@/pages/Admin";
 
-const ProtectedRoute = ({ 
-  children, 
-  requiredRole,
-  allowedRoles 
-}: { 
-  children: React.ReactNode; 
-  requiredRole?: string;
-  allowedRoles?: string[];
-}) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
   console.log("Protected route - session:", session);
-
-  const { data: userRole, isLoading } = useQuery({
-    queryKey: ['userRole', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) {
-        console.log("No user ID found in session");
-        return null;
-      }
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching user role:', error);
-          return null;
-        }
-
-        console.log("User role:", data?.role);
-        return data?.role;
-      } catch (error) {
-        console.error('Unexpected error fetching user role:', error);
-        return null;
-      }
-    },
-    enabled: !!session?.user?.id,
-    retry: 1,
-    staleTime: 30000, // Cache the role for 30 seconds
-  });
 
   if (!session) {
     console.log("No session found, redirecting to login");
     return <Navigate to="/login" replace />;
-  }
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  // If a specific role is required and user doesn't have it
-  if (requiredRole && userRole !== requiredRole) {
-    console.log(`User does not have required role ${requiredRole}, redirecting to dashboard`);
-    return <Navigate to="/" replace />;
-  }
-
-  // If allowed roles are specified and user's role isn't in the list
-  if (allowedRoles && !allowedRoles.includes(userRole || '')) {
-    console.log(`User role ${userRole} not in allowed roles ${allowedRoles}, redirecting to dashboard`);
-    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -116,7 +59,7 @@ function App() {
               <Route
                 path="/marketing"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                  <ProtectedRoute>
                     <Marketing />
                   </ProtectedRoute>
                 }
@@ -124,7 +67,7 @@ function App() {
               <Route
                 path="/leads"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                  <ProtectedRoute>
                     <Leads />
                   </ProtectedRoute>
                 }
@@ -132,7 +75,7 @@ function App() {
               <Route
                 path="/consultations"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                  <ProtectedRoute>
                     <Consultations />
                   </ProtectedRoute>
                 }
@@ -244,7 +187,7 @@ function App() {
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute>
                     <Admin />
                   </ProtectedRoute>
                 }
