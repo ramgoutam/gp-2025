@@ -1,26 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
-import { StatusCard } from "@/components/scripts/StatusCard";
+import { Clock, CheckCircle2, Files, AlertTriangle, ClipboardCheck } from "lucide-react";
+import { StatusCard } from "../scripts/StatusCard";
 
-export const ReportStatusCards = () => {
-  const { data: reportCounts = {
+type ReportStatusCardsProps = {
+  onFilterChange: (status: string | null) => void;
+  activeFilter: string | null;
+};
+
+export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatusCardsProps) => {
+  const { data: reportCounts = { 
     designPending: 0,
     designCompleted: 0,
     clinicalPending: 0,
     clinicalCompleted: 0,
-    total: 0
+    total: 0 
   } } = useQuery({
     queryKey: ['reportStatusCounts'],
     queryFn: async () => {
-      console.log('Fetching report status counts for dashboard');
+      console.log('Fetching report status counts');
       
       const { data: reports, error } = await supabase
         .from('report_cards')
         .select(`
           design_info_status,
           clinical_info_status,
-          lab_scripts!inner (
+          lab_script:lab_scripts(
             status
           )
         `);
@@ -32,7 +37,7 @@ export const ReportStatusCards = () => {
 
       const designPending = reports.filter(r => 
         r.design_info_status === 'pending' && 
-        r.lab_scripts?.status === 'completed'
+        r.lab_script?.status === 'completed'
       ).length;
       
       const designCompleted = reports.filter(r => r.design_info_status === 'completed').length;
@@ -50,14 +55,19 @@ export const ReportStatusCards = () => {
     refetchInterval: 1000
   });
 
-  const reportCards = [
+  const handleCardClick = (status: string | null) => {
+    onFilterChange(activeFilter === status ? null : status);
+  };
+
+  const cards = [
     {
       title: "Design Info Pending",
       count: reportCounts.designPending,
       icon: Clock,
       color: "bg-amber-50",
       iconColor: "text-amber-500",
-      progressColor: "bg-gradient-to-r from-amber-400 to-amber-500"
+      progressColor: "bg-gradient-to-r from-amber-400 to-amber-500",
+      status: 'design_pending'
     },
     {
       title: "Design Info Completed",
@@ -65,7 +75,8 @@ export const ReportStatusCards = () => {
       icon: CheckCircle2,
       color: "bg-green-50",
       iconColor: "text-green-500",
-      progressColor: "bg-gradient-to-r from-green-400 to-green-500"
+      progressColor: "bg-gradient-to-r from-green-400 to-green-500",
+      status: 'design_completed'
     },
     {
       title: "Clinical Info Pending",
@@ -73,43 +84,51 @@ export const ReportStatusCards = () => {
       icon: AlertTriangle,
       color: "bg-orange-50",
       iconColor: "text-orange-500",
-      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500"
+      progressColor: "bg-gradient-to-r from-orange-400 to-orange-500",
+      status: 'clinical_pending'
     },
     {
       title: "Clinical Info Completed",
       count: reportCounts.clinicalCompleted,
-      icon: FileText,
-      color: "bg-blue-50",
-      iconColor: "text-blue-500",
-      progressColor: "bg-gradient-to-r from-blue-400 to-blue-500"
+      icon: ClipboardCheck,
+      color: "bg-teal-50",
+      iconColor: "text-teal-500",
+      progressColor: "bg-gradient-to-r from-teal-400 to-teal-500",
+      status: 'clinical_completed'
+    },
+    {
+      title: "All Reports",
+      count: reportCounts.total,
+      icon: Files,
+      color: "bg-purple-50",
+      iconColor: "text-purple-500",
+      progressColor: "bg-gradient-to-r from-purple-400 to-purple-500",
+      status: null
     }
   ];
 
   return (
-    <div className="border rounded-lg p-6 bg-white">
-      <h2 className="text-xl font-semibold mb-4 text-left">Report Cards</h2>
-      <div className="grid grid-cols-4 gap-4 animate-fade-in">
-        {reportCards.map((card, index) => (
-          <div
-            key={card.title}
-            className="animate-fade-in"
-            style={{
-              animationDelay: `${index * 100}ms`
-            }}
-          >
-            <StatusCard
-              title={card.title}
-              count={card.count}
-              icon={card.icon}
-              color={card.color}
-              iconColor={card.iconColor}
-              progressColor={card.progressColor}
-              onClick={() => {}}
-              isActive={false}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 animate-fade-in">
+      {cards.map((card, index) => (
+        <div
+          key={card.title}
+          className="animate-fade-in"
+          style={{
+            animationDelay: `${index * 100}ms`
+          }}
+        >
+          <StatusCard
+            title={card.title}
+            count={card.count}
+            icon={card.icon}
+            color={card.color}
+            iconColor={card.iconColor}
+            progressColor={card.progressColor}
+            onClick={() => handleCardClick(card.status)}
+            isActive={activeFilter === card.status}
+          />
+        </div>
+      ))}
     </div>
   );
 };

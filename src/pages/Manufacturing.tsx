@@ -4,6 +4,7 @@ import { ManufacturingQueue } from "@/components/manufacturing/ManufacturingQueu
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { filterManufacturingScripts } from "@/utils/manufacturingFilters";
+import { LabScript } from "@/types/labScript";
 import { 
   Filter, 
   CircleDot, 
@@ -28,7 +29,7 @@ const Manufacturing = () => {
       inhouseMiyo: 0,
       total: 0
     },
-    scripts: []
+    scripts: [] as LabScript[]
   }} = useManufacturingData();
 
   const filteredScripts = selectedType

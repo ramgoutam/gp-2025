@@ -65,10 +65,10 @@ export const useManufacturingData = () => {
         // Then add the additional properties
         return {
           ...baseScript,
-          patientFirstName: patient?.first_name,
-          patientLastName: patient?.last_name,
-          designInfo: reportCard?.design_info || undefined,
-          clinicalInfo: reportCard?.clinical_info || undefined,
+          patientFirstName: patient?.first_name || '',
+          patientLastName: patient?.last_name || '',
+          designInfo: reportCard?.design_info || null,
+          clinicalInfo: reportCard?.clinical_info || null,
           designInfoStatus: reportCard?.design_info_status || 'pending',
           clinicalInfoStatus: reportCard?.clinical_info_status || 'pending',
         };
