@@ -10,23 +10,12 @@ import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
 import EditPurchaseOrderDialog from "@/components/inventory/EditPurchaseOrderDialog";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
-  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data: purchaseOrders, isLoading, refetch } = useQuery({
@@ -55,40 +44,25 @@ const PurchaseOrders = () => {
   });
 
   const handleDelete = async (orderId: string) => {
-    setOrderToDelete(orderId);
-  };
+    const { error } = await supabase
+      .from('purchase_orders')
+      .delete()
+      .eq('id', orderId);
 
-  const confirmDelete = async () => {
-    if (!orderToDelete) return;
-
-    try {
-      console.log("Deleting purchase order:", orderToDelete);
-      
-      const { error } = await supabase
-        .from('purchase_orders')
-        .delete()
-        .eq('id', orderToDelete);
-
-      if (error) {
-        console.error('Error deleting purchase order:', error);
-        throw error;
-      }
-
-      toast({
-        title: "Success",
-        description: "Purchase order deleted successfully",
-      });
-      
-      setOrderToDelete(null);
-      refetch();
-    } catch (error) {
-      console.error('Error deleting purchase order:', error);
+    if (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to delete purchase order",
       });
+      return;
     }
+
+    toast({
+      title: "Success",
+      description: "Purchase order deleted successfully",
+    });
+    refetch();
   };
 
   return (
@@ -192,23 +166,6 @@ const PurchaseOrders = () => {
         open={!!selectedSupplier}
         onOpenChange={(open) => !open && setSelectedSupplier(null)}
       />
-
-      <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Purchase Order</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this purchase order? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
