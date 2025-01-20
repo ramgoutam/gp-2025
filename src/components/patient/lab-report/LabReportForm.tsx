@@ -96,16 +96,11 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
 
       if (reportCardError) throw reportCardError;
 
-      // Generate UUIDs for design_info and clinical_info
-      const designInfoId = crypto.randomUUID();
-      const clinicalInfoId = crypto.randomUUID();
-
       // Now we can use the report_card_id when saving the state
       await saveReportCardState(labScriptId, {
         isDesignInfoComplete: true,
         isClinicalInfoComplete: true,
         designInfo: {
-          id: designInfoId,
           design_date: formData.designDate,
           appliance_type: formData.applianceType,
           upper_treatment: formData.upperTreatment,
@@ -117,7 +112,6 @@ export const LabReportForm = ({ onSubmit, onCancel, labScriptId, patientData }: 
           report_card_id: reportCard.id
         },
         clinicalInfo: {
-          id: clinicalInfoId,
           insertion_date: formData.insertionDate,
           appliance_fit: formData.applianceFit,
           design_feedback: formData.designFeedback,

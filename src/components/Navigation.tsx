@@ -12,23 +12,8 @@ export const Navigation = () => {
   // Check authentication on mount and redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        console.log("Checking authentication status...");
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Error checking session:", error);
-          throw error;
-        }
-
-        console.log("Session status:", session ? "Authenticated" : "Not authenticated");
-        
-        if (!session && location.pathname !== '/login') {
-          console.log("No session found, redirecting to login");
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error("Authentication check failed:", error);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session && location.pathname !== '/login') {
         navigate('/login');
       }
     };
@@ -39,13 +24,11 @@ export const Navigation = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session);
       if (!session && location.pathname !== '/login') {
-        console.log("Session ended, redirecting to login");
         navigate('/login');
       }
     });
 
     return () => {
-      console.log("Cleaning up auth listener");
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname]);
