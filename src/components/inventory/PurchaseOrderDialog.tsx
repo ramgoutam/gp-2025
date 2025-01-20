@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
 
 interface PurchaseOrderDialogProps {
   orderId: string | null;
@@ -76,7 +78,15 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
+              <div className="flex justify-between items-center">
+                <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
+                {order.status === 'waiting_for_approval' && (
+                  <Button className="gap-2" variant="outline">
+                    <CheckCircle className="h-4 w-4" />
+                    Approve Order
+                  </Button>
+                )}
+              </div>
             </DialogHeader>
 
             <div className="grid grid-cols-1 gap-6 mt-4">
