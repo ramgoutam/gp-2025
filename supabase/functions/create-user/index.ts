@@ -18,11 +18,16 @@ serve(async (req) => {
     )
 
     const { email, password, role, userId, action, firstName, lastName, phone } = await req.json()
+    console.log('Received request with data:', { email, role, firstName, lastName, phone, action });
 
     if (action === 'delete' && userId) {
+      console.log('Deleting user:', userId);
       const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(userId)
       
-      if (deleteError) throw deleteError
+      if (deleteError) {
+        console.error('Error deleting user:', deleteError);
+        throw deleteError;
+      }
 
       return new Response(
         JSON.stringify({ message: 'User deleted successfully' }),
@@ -30,22 +35,17 @@ serve(async (req) => {
       )
     }
 
-    if (!email) {
-      throw new Error('Email is required')
+    if (!email || !password) {
+      throw new Error('Email and password are required')
     }
 
-    console.log('Creating user with data:', { email, role, firstName, lastName, phone });
+    console.log('Creating user with email:', email);
 
     // Create user with metadata
     const { data: userData, error: createError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: {
-        firstName,
-        lastName,
-        phone
-      }
     })
 
     if (createError) {
@@ -53,33 +53,37 @@ serve(async (req) => {
       throw createError;
     }
 
-    if (userData.user) {
-      console.log('User created successfully, inserting role data:', { 
-        user_id: userData.user.id, 
+    if (!userData.user) {
+      throw new Error('User creation failed - no user data returned');
+    }
+
+    console.log('User created successfully, inserting role data:', { 
+      user_id: userData.user.id, 
+      role,
+      first_name: firstName,
+      last_name: lastName,
+      phone
+    });
+
+    // Insert into user_roles table
+    const { error: roleError } = await supabaseClient
+      .from('user_roles')
+      .insert({
+        user_id: userData.user.id,
         role,
         first_name: firstName,
         last_name: lastName,
         phone
-      });
+      })
 
-      // Insert into user_roles table
-      const { error: roleError } = await supabaseClient
-        .from('user_roles')
-        .insert({
-          user_id: userData.user.id,
-          role,
-          first_name: firstName,
-          last_name: lastName,
-          phone
-        })
-
-      if (roleError) {
-        console.error('Error inserting user role:', roleError);
-        // If role insertion fails, delete the created user
-        await supabaseClient.auth.admin.deleteUser(userData.user.id);
-        throw roleError;
-      }
+    if (roleError) {
+      console.error('Error inserting user role:', roleError);
+      // If role insertion fails, delete the created user
+      await supabaseClient.auth.admin.deleteUser(userData.user.id);
+      throw roleError;
     }
+
+    console.log('User role created successfully');
 
     return new Response(
       JSON.stringify({ message: 'User created successfully', user: userData.user }),

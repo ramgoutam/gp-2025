@@ -338,7 +338,15 @@ const Admin = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from create-user function:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create user",
+          variant: "destructive",
+        });
+        return;
+      }
 
       toast({
         title: "Success",
@@ -352,7 +360,7 @@ const Admin = () => {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: "Failed to create user",
+        description: error instanceof Error ? error.message : "Failed to create user",
         variant: "destructive",
       });
     }
