@@ -873,8 +873,6 @@ export type Database = {
       purchase_orders: {
         Row: {
           created_at: string
-          created_at_local: string | null
-          created_by: string | null
           expected_delivery_date: string | null
           id: string
           notes: string | null
@@ -887,8 +885,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_at_local?: string | null
-          created_by?: string | null
           expected_delivery_date?: string | null
           id?: string
           notes?: string | null
@@ -901,8 +897,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_at_local?: string | null
-          created_by?: string | null
           expected_delivery_date?: string | null
           id?: string
           notes?: string | null
@@ -914,13 +908,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "purchase_orders_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_roles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "purchase_orders_supplier_id_fkey"
             columns: ["supplier_id"]
