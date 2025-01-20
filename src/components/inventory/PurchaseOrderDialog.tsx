@@ -6,8 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
 
 interface PurchaseOrderDialogProps {
   orderId: string | null;
@@ -18,7 +16,7 @@ interface PurchaseOrderDialogProps {
 const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialogProps) => {
   const { toast } = useToast();
 
-  const { data: order, isLoading, refetch } = useQuery({
+  const { data: order, isLoading } = useQuery({
     queryKey: ['purchase-order', orderId],
     queryFn: async () => {
       if (!orderId) return null;
@@ -64,42 +62,6 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
     enabled: !!orderId,
   });
 
-  const handleApprove = async () => {
-    if (!orderId) return;
-
-    try {
-      console.log('Approving purchase order:', orderId);
-      
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({ 
-          status: 'Approved',
-          approved_at: new Date().toISOString(),
-          approved_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', orderId);
-
-      if (error) {
-        console.error('Error approving purchase order:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to approve purchase order",
-        });
-        throw error;
-      }
-
-      toast({
-        title: "Success",
-        description: "Purchase order approved successfully",
-      });
-
-      refetch();
-    } catch (error) {
-      console.error('Error in approval process:', error);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
@@ -113,17 +75,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
           </div>
         ) : (
           <>
-            <DialogHeader className="flex flex-row items-center justify-between">
+            <DialogHeader>
               <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
-              {order.status === 'Pending_Approval' && (
-                <Button 
-                  onClick={handleApprove}
-                  className="flex items-center gap-2"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Approve PO
-                </Button>
-              )}
             </DialogHeader>
 
             <div className="grid grid-cols-1 gap-6 mt-4">
