@@ -18,6 +18,15 @@ export const supabase = createClient<Database>(
       headers: {
         'X-Client-Info': 'supabase-js-web'
       }
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
+
+// Add error handling for failed requests
+supabase.handleFailedRequest = (error: any) => {
+  console.error('Supabase request failed:', error);
+  // You can add custom error handling here
+};
