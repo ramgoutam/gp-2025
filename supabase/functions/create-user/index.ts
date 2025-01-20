@@ -89,7 +89,7 @@ serve(async (req) => {
       )
     }
 
-    console.log('User created successfully, inserting role data:', { 
+    console.log('User created successfully, updating role data:', { 
       user_id: userData.user.id, 
       role,
       first_name: firstName,
@@ -97,20 +97,20 @@ serve(async (req) => {
       phone
     });
 
-    // Insert into user_roles table
+    // Update the existing user role instead of inserting a new one
     const { error: roleError } = await supabaseClient
       .from('user_roles')
-      .insert({
-        user_id: userData.user.id,
+      .update({
         role,
         first_name: firstName,
         last_name: lastName,
         phone
       })
+      .eq('user_id', userData.user.id)
 
     if (roleError) {
-      console.error('Error inserting user role:', roleError);
-      // If role insertion fails, delete the created user
+      console.error('Error updating user role:', roleError);
+      // If role update fails, delete the created user
       await supabaseClient.auth.admin.deleteUser(userData.user.id);
       return new Response(
         JSON.stringify({ error: roleError.message }),
@@ -121,7 +121,7 @@ serve(async (req) => {
       )
     }
 
-    console.log('User role created successfully');
+    console.log('User role updated successfully');
 
     return new Response(
       JSON.stringify({ 
