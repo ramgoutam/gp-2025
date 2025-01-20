@@ -37,7 +37,8 @@ export const ReportStatusCards = ({ onFilterChange, activeFilter }: ReportStatus
 
       const designPending = reports.filter(r => 
         r.design_info_status === 'pending' && 
-        r.lab_script?.status === 'completed'
+        r.lab_script && 'status' in r.lab_script && 
+        r.lab_script.status === 'completed'
       ).length;
       
       const designCompleted = reports.filter(r => r.design_info_status === 'completed').length;
