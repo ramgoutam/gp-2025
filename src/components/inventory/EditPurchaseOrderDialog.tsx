@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
-import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer } from "lucide-react";
+import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer, CheckCircle } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
 interface EditPurchaseOrderDialogProps {
@@ -196,6 +196,32 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     },
     enabled: !!orderId,
   });
+
+  const handleApprove = async () => {
+    if (!editedOrder) return;
+
+    const { error } = await supabase
+      .from('purchase_orders')
+      .update({
+        status: 'approved'
+      })
+      .eq('id', orderId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve purchase order",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Purchase order approved successfully",
+    });
+    onOrderUpdated();
+  };
 
   const handleSave = async () => {
     if (!editedOrder) return;
@@ -552,6 +578,20 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Add approve button at the bottom */}
+              {order.status !== 'approved' && (
+                <div className="flex justify-end mt-6 border-t pt-4">
+                  <Button
+                    onClick={handleApprove}
+                    className="gap-2"
+                    variant="default"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    Approve Purchase Order
+                  </Button>
+                </div>
+              )}
 
               {/* Hidden printable content */}
               <div className="hidden">

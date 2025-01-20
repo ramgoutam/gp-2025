@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, FileText } from "lucide-react";
@@ -20,9 +20,8 @@ const PurchaseOrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading, error } = useQuery({
     queryKey: ['purchase-order', id],
     queryFn: async () => {
       console.log('Fetching purchase order details for ID:', id);
@@ -60,39 +59,6 @@ const PurchaseOrderDetails = () => {
     }
   });
 
-  const approvePOMutation = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({ 
-          status: 'approved',
-          approved_at: new Date().toISOString(),
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Purchase order has been approved",
-      });
-      queryClient.invalidateQueries({ queryKey: ['purchase-order', id] });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to approve purchase order",
-      });
-      console.error('Error approving PO:', error);
-    },
-  });
-
-  const handleApprove = () => {
-    approvePOMutation.mutate();
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -126,9 +92,9 @@ const PurchaseOrderDetails = () => {
     switch (status?.toLowerCase()) {
       case 'draft':
         return 'bg-gray-100 text-gray-800';
-      case 'pending_approval':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'approved':
+      case 'ordered':
+        return 'bg-blue-100 text-blue-800';
+      case 'received':
         return 'bg-green-100 text-green-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
@@ -136,6 +102,9 @@ const PurchaseOrderDetails = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  console.log('Rendering order:', order);
+  console.log('Order items:', order.purchase_order_items);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -164,9 +133,7 @@ const PurchaseOrderDetails = () => {
               <FileText className="h-4 w-4 mr-2" />
               Download PDF
             </Button>
-            {order.status !== 'approved' && order.status !== 'cancelled' && (
-              <Button>Edit Order</Button>
-            )}
+            <Button>Edit Order</Button>
           </div>
         </div>
 
@@ -240,19 +207,6 @@ const PurchaseOrderDetails = () => {
             </Card>
           </div>
         </div>
-
-        {/* Approval Button Section */}
-        {order.status === 'pending_approval' && (
-          <div className="flex justify-end mt-6">
-            <Button 
-              onClick={handleApprove}
-              disabled={approvePOMutation.isPending}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {approvePOMutation.isPending ? 'Approving...' : 'Approve PO'}
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -97,6 +97,33 @@ const CreatePurchaseOrder = () => {
     },
   });
 
+  // Add query to get current user's role ID
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role'],
+    queryFn: async () => {
+      console.log('Fetching user role...');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        console.log('No user session found');
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        throw error;
+      }
+
+      console.log('User role data:', data);
+      return data;
+    },
+  });
+
   const addItem = (selectedItem: any) => {
     const newItem: PurchaseOrderItem = {
       id: crypto.randomUUID(),
@@ -220,34 +247,9 @@ const CreatePurchaseOrder = () => {
     }
 
     try {
-      // Get current user's role ID
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to create a purchase order",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("Creating purchase order for user:", user.id);
-
-      // Get user role ID
-      const { data: userRole, error: userRoleError } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (userRoleError) {
-        console.error("Error fetching user role:", userRoleError);
-        throw userRoleError;
-      }
-
       const poNumber = await generatePONumber();
 
+      // Include created_by in the purchase order creation
       const { data: orderData, error: orderError } = await supabase
         .from("purchase_orders")
         .insert({
@@ -258,7 +260,8 @@ const CreatePurchaseOrder = () => {
           notes: notes || null,
           status: "pending_approval",
           total_amount: calculateTotal(),
-          created_by: userRole.id, // Add the user role ID here
+          created_by: userRole?.id, // Add the user role ID here
+          created_at_local: new Date().toISOString(),
         })
         .select()
         .single();
