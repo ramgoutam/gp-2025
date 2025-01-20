@@ -20,7 +20,7 @@ export const ReportStatusCards = () => {
         .select(`
           design_info_status,
           clinical_info_status,
-          lab_script:lab_scripts(
+          lab_scripts!inner (
             status
           )
         `);
@@ -32,7 +32,7 @@ export const ReportStatusCards = () => {
 
       const designPending = reports.filter(r => 
         r.design_info_status === 'pending' && 
-        r.lab_script?.status === 'completed'
+        r.lab_scripts?.status === 'completed'
       ).length;
       
       const designCompleted = reports.filter(r => r.design_info_status === 'completed').length;

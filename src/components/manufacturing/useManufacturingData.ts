@@ -26,7 +26,7 @@ export const useManufacturingData = () => {
           lower_design_name,
           created_at,
           updated_at,
-          patients (
+          patients!inner (
             first_name,
             last_name
           ),
@@ -49,6 +49,9 @@ export const useManufacturingData = () => {
       console.log("Retrieved scripts with completed design info:", scripts);
 
       const mappedScripts = scripts.map(script => {
+        const patient = script.patients;
+        const reportCard = script.report_cards?.[0];
+
         // First map the base lab script data
         const baseScript = mapDatabaseLabScript({
           ...script,
@@ -62,12 +65,12 @@ export const useManufacturingData = () => {
         // Then add the additional properties
         return {
           ...baseScript,
-          patientFirstName: script.patients?.first_name,
-          patientLastName: script.patients?.last_name,
-          designInfo: script.report_cards?.[0]?.design_info,
-          clinicalInfo: script.report_cards?.[0]?.clinical_info,
-          designInfoStatus: script.report_cards?.[0]?.design_info_status || 'pending',
-          clinicalInfoStatus: script.report_cards?.[0]?.clinical_info_status || 'pending',
+          patientFirstName: patient?.first_name,
+          patientLastName: patient?.last_name,
+          designInfo: reportCard?.design_info || undefined,
+          clinicalInfo: reportCard?.clinical_info || undefined,
+          designInfoStatus: reportCard?.design_info_status || 'pending',
+          clinicalInfoStatus: reportCard?.clinical_info_status || 'pending',
         };
       });
 
