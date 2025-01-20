@@ -18,7 +18,7 @@ export interface DesignInfo {
 export interface ClinicalInfo {
   id: string;
   report_card_id: string;
-  insertion_date: string;
+  insertion_date: string | null;
   appliance_fit?: string;
   design_feedback?: string;
   occlusion?: string;
@@ -112,6 +112,7 @@ export interface DatabaseLabScript {
   material?: string;
   shade?: string;
   hold_reason?: string;
+  manufacturing_logs?: ManufacturingLog[];
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -137,6 +138,7 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     material: dbScript.material,
     shade: dbScript.shade,
     holdReason: dbScript.hold_reason,
+    manufacturingLogs: dbScript.manufacturing_logs || []
   };
 };
 
@@ -162,6 +164,6 @@ export const mapLabScriptToDatabase = (script: Partial<LabScript>): Partial<Data
     manufacturing_type: script.manufacturingType,
     material: script.material,
     shade: script.shade,
-    hold_reason: script.holdReason,
+    hold_reason: script.holdReason
   };
 };
