@@ -21,8 +21,7 @@ export const Navigation = () => {
     checkAuth();
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session && location.pathname !== '/login') {
         navigate('/login');
       }

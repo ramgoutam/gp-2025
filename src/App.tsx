@@ -26,10 +26,8 @@ import Admin from "@/pages/Admin";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const session = useSession();
-  console.log("Protected route - session:", session);
 
   if (!session) {
-    console.log("No session found, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
