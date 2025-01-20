@@ -9,12 +9,16 @@ export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check authentication on mount and redirect if needed
+  // Simplified auth check - only redirect if on login page and already authenticated
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session && location.pathname !== '/login') {
-        navigate('/login');
+      console.log("Navigation - checking auth, session:", session);
+      
+      // Only redirect if we're on login page and have a session
+      if (session && location.pathname === '/login') {
+        console.log("Already authenticated, redirecting to home");
+        navigate('/');
       }
     };
 
@@ -24,6 +28,7 @@ export const Navigation = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session);
       if (!session && location.pathname !== '/login') {
+        console.log("Session ended, redirecting to login");
         navigate('/login');
       }
     });
