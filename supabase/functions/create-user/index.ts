@@ -39,9 +39,13 @@ serve(async (req) => {
       )
     }
 
-    if (!email || !password || !role) {
+    // Validate required fields
+    if (!email || !password || !role || !firstName || !lastName || !phone) {
+      console.error('Missing required fields:', { email, role, firstName, lastName, phone });
       return new Response(
-        JSON.stringify({ error: 'Email, password and role are required' }),
+        JSON.stringify({ 
+          error: 'All fields are required: email, password, role, firstName, lastName, phone' 
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400
@@ -75,6 +79,7 @@ serve(async (req) => {
     }
 
     if (!userData.user) {
+      console.error('No user data returned after creation');
       return new Response(
         JSON.stringify({ error: 'User creation failed - no user data returned' }),
         { 
@@ -119,7 +124,10 @@ serve(async (req) => {
     console.log('User role created successfully');
 
     return new Response(
-      JSON.stringify({ message: 'User created successfully', user: userData.user }),
+      JSON.stringify({ 
+        message: 'User created successfully', 
+        user: userData.user 
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
