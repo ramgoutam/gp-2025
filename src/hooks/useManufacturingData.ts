@@ -60,8 +60,8 @@ export const useManufacturingData = () => {
         screwType: script.screw_type,
         vdoOption: script.vdo_option,
         specificInstructions: script.specific_instructions,
-        manufacturingLogs: script.manufacturing_logs
-      })) as LabScript[];
+        manufacturingLogs: script.manufacturing_logs || []
+      } as LabScript));
     },
     refetchInterval: 1000
   });
