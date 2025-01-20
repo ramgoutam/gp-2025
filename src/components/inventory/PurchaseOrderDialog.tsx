@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Printer, PenLine } from "lucide-react";
 
 interface PurchaseOrderDialogProps {
   orderId: string | null;
@@ -80,10 +80,18 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
             <DialogHeader>
               <div className="flex justify-between items-center">
                 <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <Button variant="outline" className="gap-2">
                     <CheckCircle className="h-4 w-4" />
                     Approve Order
+                  </Button>
+                  <Button variant="outline" className="gap-2">
+                    <Printer className="h-4 w-4" />
+                    Print PO
+                  </Button>
+                  <Button variant="outline" className="gap-2">
+                    <PenLine className="h-4 w-4" />
+                    Edit Order
                   </Button>
                 </div>
               </div>
