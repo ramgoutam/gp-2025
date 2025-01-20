@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MainLinks } from "./navigation/MainLinks";
 import { LabMenu } from "./navigation/LabMenu";
 import { SignOutButton } from "./navigation/SignOutButton";
@@ -8,17 +8,32 @@ import { SignOutButton } from "./navigation/SignOutButton";
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Check authentication on mount and redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session && location.pathname !== '/login') {
-        navigate('/login');
+      try {
+        console.log('Checking authentication status...');
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Auth session:', session ? 'exists' : 'none');
+        
+        if (!session && location.pathname !== '/login') {
+          console.log('No session found, redirecting to login');
+          navigate('/login');
+        }
+        
+        setIsCheckingAuth(false);
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        setIsCheckingAuth(false);
       }
     };
 
-    checkAuth();
+    // Add a small delay to allow auth state to initialize
+    const timer = setTimeout(() => {
+      checkAuth();
+    }, 500);
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -29,9 +44,15 @@ export const Navigation = () => {
     });
 
     return () => {
+      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname]);
+
+  // Show loading state while checking auth
+  if (isCheckingAuth) {
+    return null;
+  }
 
   // Hide navigation on login page
   if (location.pathname === "/login") {
