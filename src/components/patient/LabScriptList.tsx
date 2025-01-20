@@ -76,6 +76,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
   });
 
   const canDelete = userRole === 'ADMIN' || userRole === 'DOCTOR' || userRole === 'MANAGER_CLINICAL';
+  const canUpdateStatus = userRole === 'ADMIN' || userRole === 'LAB_MANAGER' || userRole === 'LAB_STAFF';
 
   const handleDeleteClick = (e: React.MouseEvent, script: LabScript) => {
     e.stopPropagation();
@@ -99,7 +100,7 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
           <TableHead>Due Date</TableHead>
           <TableHead>Treatments</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Update Status</TableHead>
+          {canUpdateStatus && <TableHead>Update Status</TableHead>}
           {canDelete && <TableHead>Actions</TableHead>}
         </TableRow>
       </TableHeader>
@@ -142,11 +143,13 @@ export const LabScriptList = ({ labScripts, onRowClick, onEditClick, onDeleteCli
                 </div>
               </TableCell>
               <TableCell>{getStatusBadge(script.status)}</TableCell>
-              <TableCell>
-                <div className="flex items-center justify-start gap-2">
-                  <StatusButtons script={script} />
-                </div>
-              </TableCell>
+              {canUpdateStatus && (
+                <TableCell>
+                  <div className="flex items-center justify-start gap-2">
+                    <StatusButtons script={script} />
+                  </div>
+                </TableCell>
+              )}
               {canDelete && (
                 <TableCell>
                   <div className="flex gap-2">
