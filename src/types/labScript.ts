@@ -1,6 +1,7 @@
 export type LabScriptStatus = "pending" | "processing" | "in_progress" | "paused" | "hold" | "completed";
 
 export interface DesignInfo {
+  id: string;
   report_card_id: string;
   design_date: string;
   implant_library?: string;
@@ -15,6 +16,7 @@ export interface DesignInfo {
 }
 
 export interface ClinicalInfo {
+  id: string;
   report_card_id: string;
   insertion_date: string;
   appliance_fit?: string;
@@ -24,17 +26,6 @@ export interface ClinicalInfo {
   adjustments_made?: string;
   material?: string;
   shade?: string;
-}
-
-export interface ReportCard {
-  id: string;
-  lab_script_id: string;
-  patient_id: string;
-  design_info?: DesignInfo;
-  clinical_info?: ClinicalInfo;
-  design_info_status: string;
-  clinical_info_status: string;
-  status: string;
 }
 
 export interface ManufacturingLog {
@@ -81,21 +72,22 @@ export interface LabScript {
   screwType?: string;
   vdoOption?: string;
   specificInstructions?: string;
-  designInfo?: DesignInfo;
-  clinicalInfo?: ClinicalInfo;
-  reportCard?: ReportCard;
-  fileUploads?: Record<string, File>;
-  treatments?: {
-    upper: string[];
-    lower: string[];
-  };
+  designInfo?: DesignInfo | null;
+  clinicalInfo?: ClinicalInfo | null;
+  designInfoStatus?: string;
+  clinicalInfoStatus?: string;
   manufacturingSource?: string;
   manufacturingType?: string;
   material?: string;
   shade?: string;
-  designInfoStatus?: string;
-  holdReason?: string;
   manufacturingLogs?: ManufacturingLog[];
+  treatments?: {
+    upper: string[];
+    lower: string[];
+  };
+  fileUploads?: Record<string, File>;
+  reportCard?: any;
+  holdReason?: string;
 }
 
 export interface DatabaseLabScript {
@@ -115,14 +107,11 @@ export interface DatabaseLabScript {
   screw_type?: string;
   vdo_option?: string;
   specific_instructions?: string;
-  created_at: string;
-  updated_at: string;
   manufacturing_source?: string;
   manufacturing_type?: string;
   material?: string;
   shade?: string;
   hold_reason?: string;
-  manufacturing_logs?: ManufacturingLog[];
 }
 
 export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => {
@@ -148,11 +137,10 @@ export const mapDatabaseLabScript = (dbScript: DatabaseLabScript): LabScript => 
     material: dbScript.material,
     shade: dbScript.shade,
     holdReason: dbScript.hold_reason,
-    manufacturingLogs: dbScript.manufacturing_logs,
   };
 };
 
-export const mapLabScriptToDatabase = (script: LabScript): Partial<DatabaseLabScript> => {
+export const mapLabScriptToDatabase = (script: Partial<LabScript>): Partial<DatabaseLabScript> => {
   return {
     id: script.id,
     request_number: script.requestNumber,
