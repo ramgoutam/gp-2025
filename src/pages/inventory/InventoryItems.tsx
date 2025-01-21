@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { Package, Search, ListFilter, Check, Plus } from "lucide-react";
+import { Package, Search, ListFilter, Check, Plus, Pencil, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,8 @@ const InventoryItems = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editedCategoryName, setEditedCategoryName] = useState("");
   const { toast } = useToast();
 
   const { data: items = [], refetch } = useQuery({
@@ -103,6 +105,57 @@ const InventoryItems = () => {
     refetch();
   };
 
+  const handleEditCategory = async (oldCategory: string, newName: string) => {
+    if (!newName.trim()) {
+      toast({
+        title: "Error",
+        description: "Category name cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (categories.includes(newName.trim()) && newName.trim() !== oldCategory) {
+      toast({
+        title: "Error",
+        description: "This category already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('inventory_items')
+      .update({ category: newName.trim() })
+      .eq('category', oldCategory);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Category updated successfully",
+    });
+
+    setEditingCategory(null);
+    setEditedCategoryName("");
+    if (selectedCategory === oldCategory) {
+      setSelectedCategory(newName.trim());
+    }
+    refetch();
+  };
+
+  const startEditing = (category: string) => {
+    setEditingCategory(category);
+    setEditedCategoryName(category);
+  };
+
   return (
     <div className="min-h-screen bg-white py-6 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -169,19 +222,65 @@ const InventoryItems = () => {
                 </Button>
               )}
               {categories.map((category) => (
-                <Button
+                <div
                   key={category}
-                  variant="ghost"
-                  className={`w-full justify-start py-2 px-4 h-auto font-normal ${
-                    selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
-                  }`}
-                  onClick={() => handleCategorySelect(category)}
+                  className="flex items-center gap-2"
                 >
-                  {selectedCategory === category && (
-                    <Check className="mr-2 h-4 w-4" />
+                  {editingCategory === category ? (
+                    <div className="flex-1 flex items-center gap-2">
+                      <Input
+                        value={editedCategoryName}
+                        onChange={(e) => setEditedCategoryName(e.target.value)}
+                        className="flex-1"
+                        autoFocus
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleEditCategory(category, editedCategoryName)}
+                      >
+                        <Check className="h-4 w-4 text-green-600" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setEditingCategory(null)}
+                      >
+                        <X className="h-4 w-4 text-red-600" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className={`w-full justify-start py-2 px-4 h-auto font-normal group ${
+                        selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
+                      }`}
+                      onClick={() => handleCategorySelect(category)}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {selectedCategory === category && (
+                            <Check className="h-4 w-4 shrink-0" />
+                          )}
+                          <span className="truncate">{category}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditing(category);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    </Button>
                   )}
-                  {category}
-                </Button>
+                </div>
               ))}
             </div>
           </ScrollArea>
