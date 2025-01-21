@@ -207,23 +207,50 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         throw new Error("No authenticated user found");
       }
 
-      const { data: userRole, error: userRoleError } = await supabase
+      // Check if user has a role, if not create one
+      let { data: userRole, error: userRoleError } = await supabase
         .from('user_roles')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (userRoleError || !userRole) {
+      if (!userRole) {
+        // Create a new user role if one doesn't exist
+        const { data: newUserRole, error: createError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: user.id,
+            role: 'CLINICAL_STAFF',
+            first_name: user.user_metadata?.first_name || null,
+            last_name: user.user_metadata?.last_name || null
+          })
+          .select('id')
+          .single();
+
+        if (createError) {
+          console.error('Error creating user role:', createError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to create user role",
+          });
+          return;
+        }
+
+        userRole = newUserRole;
+      }
+
+      if (userRoleError) {
         console.error('Error fetching user role:', userRoleError);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to approve purchase order - User role not found",
+          description: "Failed to approve purchase order - User role error",
         });
         return;
       }
 
-      const { error } = await supabase
+      const { error: approvalError } = await supabase
         .from('purchase_orders')
         .update({
           status: 'approved',
@@ -232,8 +259,8 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         })
         .eq('id', orderId);
 
-      if (error) {
-        console.error('Error approving purchase order:', error);
+      if (approvalError) {
+        console.error('Error approving purchase order:', approvalError);
         toast({
           variant: "destructive",
           title: "Error",
