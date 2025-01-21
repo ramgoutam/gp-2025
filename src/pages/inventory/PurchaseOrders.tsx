@@ -41,6 +41,7 @@ const PurchaseOrders = () => {
         .select(`
           *,
           suppliers (
+            id,
             supplier_name,
             contact_person,
             email,
