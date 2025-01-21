@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
@@ -156,53 +155,50 @@ const InventoryItems = () => {
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>Select Category</DialogTitle>
+            <DialogTitle className="text-xl">Select Category</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <ScrollArea className="max-h-[60vh] pr-4">
-              <div className="space-y-2">
-                {selectedCategory && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleCategorySelect(null)}
-                  >
-                    Clear Selection
-                  </Button>
-                )}
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant="ghost"
-                    className={`w-full justify-start ${
-                      selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
-                    }`}
-                    onClick={() => handleCategorySelect(category)}
-                  >
-                    {selectedCategory === category && (
-                      <Check className="mr-2 h-4 w-4" />
-                    )}
-                    {category}
-                  </Button>
-                ))}
-              </div>
-            </ScrollArea>
-
-            <div className="flex items-center gap-2 pt-4 border-t">
-              <Input
-                placeholder="New category name..."
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleAddCategory}
-                className="shrink-0"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-1">
+              {selectedCategory && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 py-2 px-4 h-auto font-normal"
+                  onClick={() => handleCategorySelect(null)}
+                >
+                  Clear Selection
+                </Button>
+              )}
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant="ghost"
+                  className={`w-full justify-start py-2 px-4 h-auto font-normal ${
+                    selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
+                  }`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {selectedCategory === category && (
+                    <Check className="mr-2 h-4 w-4" />
+                  )}
+                  {category}
+                </Button>
+              ))}
             </div>
+          </ScrollArea>
+          <div className="flex items-center gap-2 pt-4 border-t mt-4">
+            <Input
+              placeholder="New category name..."
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleAddCategory}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
