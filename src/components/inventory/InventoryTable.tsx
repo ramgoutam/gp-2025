@@ -42,22 +42,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const { toast } = useToast();
-  const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
-  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
-  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
-  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [sourceLocationId, setSourceLocationId] = useState<string>("");
-  const [targetLocationId, setTargetLocationId] = useState<string>("");
-  const [transferQuantity, setTransferQuantity] = useState<number>(0);
-  const [selectedStockItem, setSelectedStockItem] = useState<{
-    itemId: string;
-    locationId: string;
-    quantity: number;
-    locationName: string;
-  } | null>(null);
 
   // Get unique categories for filter dropdown
   const categories = useMemo(() => {
@@ -198,10 +182,21 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
-  const handleViewDetails = (item: InventoryItem) => {
-    setViewingItem(item);
-    setIsViewDialogOpen(true);
-  };
+  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
+  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
+  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
+  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [sourceLocationId, setSourceLocationId] = useState<string>("");
+  const [targetLocationId, setTargetLocationId] = useState<string>("");
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
+  const [selectedStockItem, setSelectedStockItem] = useState<{
+    itemId: string;
+    locationId: string;
+    quantity: number;
+    locationName: string;
+  } | null>(null);
 
   const fetchStockLevels = async (itemId: string) => {
     try {
@@ -462,18 +457,8 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <TableCell>
                   <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
                 </TableCell>
-                <TableCell 
-                  className="font-mono text-sm text-gray-600 cursor-pointer hover:text-primary transition-colors duration-200"
-                  onClick={() => handleViewDetails(item)}
-                >
-                  {item.sku}
-                </TableCell>
-                <TableCell 
-                  className="font-medium text-gray-900 cursor-pointer hover:text-primary transition-colors duration-200"
-                  onClick={() => handleViewDetails(item)}
-                >
-                  {item.product_name}
-                </TableCell>
+                <TableCell className="font-mono text-sm text-gray-600">{item.sku}</TableCell>
+                <TableCell className="font-medium text-gray-900">{item.product_name}</TableCell>
                 <TableCell className="text-gray-600 max-w-md truncate">{item.description}</TableCell>
                 <TableCell className="text-gray-600">{item.uom}</TableCell>
                 <TableCell className="text-gray-600">{item.min_stock}</TableCell>
@@ -524,83 +509,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           </TableBody>
         </Table>
       </div>
-
-      {/* View Details Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Package className="h-5 w-5 text-primary" />
-              Product Details
-            </DialogTitle>
-            <DialogDescription>
-              Detailed information about {viewingItem?.product_name}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-gray-500">Product Name</Label>
-                <div className="font-medium">{viewingItem?.product_name}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">SKU</Label>
-                <div className="font-mono">{viewingItem?.sku}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Category</Label>
-                <div>{viewingItem?.category || 'N/A'}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Unit of Measure</Label>
-                <div>{viewingItem?.uom}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Price</Label>
-                <div>${viewingItem?.price?.toFixed(2) || '0.00'}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Minimum Stock</Label>
-                <div>{viewingItem?.min_stock || 0}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Manufacturer</Label>
-                <div>{viewingItem?.manufacturer || 'N/A'}</div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-500">Manufacturing ID</Label>
-                <div>{viewingItem?.manufacturing_id || 'N/A'}</div>
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label className="text-gray-500">Description</Label>
-                <div className="text-gray-600">{viewingItem?.description || 'No description available'}</div>
-              </div>
-              {viewingItem?.order_link && (
-                <div className="col-span-2 space-y-2">
-                  <Label className="text-gray-500">Order Link</Label>
-                  <a 
-                    href={viewingItem.order_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    {viewingItem.order_link}
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsViewDialogOpen(false)}
-              className="hover:bg-gray-50"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
