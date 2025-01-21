@@ -4,19 +4,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { Package, Search, ListFilter } from "lucide-react";
+import { Package, Search, ListFilter, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
 
   const { data: items = [], refetch } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
@@ -43,8 +45,8 @@ const InventoryItems = () => {
     }
   });
 
-  // Get unique categories from items
-  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean)));
+  // Get unique categories from items and sort them alphabetically
+  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
 
   console.log("Inventory items loaded:", items);
 
@@ -54,6 +56,7 @@ const InventoryItems = () => {
 
   const handleCategorySelect = (category: string | null) => {
     setSelectedCategory(category);
+    setShowCategoryDialog(false);
   };
 
   return (
@@ -84,36 +87,15 @@ const InventoryItems = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="default"
-                  className={`text-gray-700 border-gray-200 hover:bg-gray-50 ${selectedCategory ? 'bg-primary/5' : ''}`}
-                >
-                  <ListFilter className="h-4 w-4 mr-2" />
-                  {selectedCategory || "Categories"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {selectedCategory && (
-                  <DropdownMenuItem 
-                    onClick={() => handleCategorySelect(null)}
-                    className="text-red-600"
-                  >
-                    Clear Filter
-                  </DropdownMenuItem>
-                )}
-                {categories.map((category) => (
-                  <DropdownMenuItem
-                    key={category}
-                    onClick={() => handleCategorySelect(category)}
-                  >
-                    {category}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button 
+              variant="outline" 
+              size="default"
+              onClick={() => setShowCategoryDialog(true)}
+              className={`text-gray-700 border-gray-200 hover:bg-gray-50 ${selectedCategory ? 'bg-primary/5' : ''}`}
+            >
+              <ListFilter className="h-4 w-4 mr-2" />
+              {selectedCategory || "Categories"}
+            </Button>
             <AddItemDialog onSuccess={refetch} />
             <BulkUploadButton onSuccess={refetch} />
           </div>
@@ -124,6 +106,43 @@ const InventoryItems = () => {
           <InventoryTable items={items} onUpdate={refetch} />
         </div>
       </div>
+
+      {/* Categories Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Category</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh]">
+            <div className="space-y-2 p-2">
+              {selectedCategory && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleCategorySelect(null)}
+                >
+                  Clear Selection
+                </Button>
+              )}
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant="ghost"
+                  className={`w-full justify-start ${
+                    selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
+                  }`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {selectedCategory === category && (
+                    <Check className="mr-2 h-4 w-4" />
+                  )}
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
