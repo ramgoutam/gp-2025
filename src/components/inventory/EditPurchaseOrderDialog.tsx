@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer, CheckCircle } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
@@ -175,6 +176,14 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
               product_name,
               sku
             )
+          ),
+          created_by_user:user_roles!purchase_orders_created_by_fkey (
+            first_name,
+            last_name
+          ),
+          approved_by_user:user_roles!purchase_orders_approved_by_fkey (
+            first_name,
+            last_name
           )
         `)
         .eq('id', orderId)
@@ -201,13 +210,11 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     if (!orderId) return;
 
     try {
-      // First get the user's role ID
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error("No authenticated user found");
       }
 
-      // Check if user has a role, if not create one
       let { data: userRole, error: userRoleError } = await supabase
         .from('user_roles')
         .select('id')
@@ -215,7 +222,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         .maybeSingle();
 
       if (!userRole) {
-        // Create a new user role if one doesn't exist
         const { data: newUserRole, error: createError } = await supabase
           .from('user_roles')
           .insert({
@@ -646,6 +652,40 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                         </TableRow>
                       </TableBody>
                     </Table>
+                    
+                    {/* Add created by and approved by information */}
+                    <div className="mt-6 grid grid-cols-2 gap-4 text-sm border-t pt-4">
+                      <div>
+                        <p className="text-gray-500">Created By</p>
+                        <p className="font-medium">
+                          {order.created_by_user ? 
+                            `${order.created_by_user.first_name} ${order.created_by_user.last_name}` : 
+                            'N/A'
+                          }
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {order.created_at_local ? 
+                            format(new Date(order.created_at_local), 'MMM dd, yyyy HH:mm') : 
+                            'N/A'
+                          }
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Approved By</p>
+                        <p className="font-medium">
+                          {order.approved_by_user ? 
+                            `${order.approved_by_user.first_name} ${order.approved_by_user.last_name}` : 
+                            'Not approved yet'
+                          }
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {order.approved_at ? 
+                            format(new Date(order.approved_at), 'MMM dd, yyyy HH:mm') : 
+                            'N/A'
+                          }
+                        </p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
