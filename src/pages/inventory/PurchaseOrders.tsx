@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { FilePlus, Eye, Trash2, CheckCircle } from "lucide-react";
+import { FilePlus, Eye, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
 import EditPurchaseOrderDialog from "@/components/inventory/EditPurchaseOrderDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -29,92 +27,53 @@ import {
 
 const PurchaseOrders = () => {
   const navigate = useNavigate();
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [editOrderId, setEditOrderId] = useState<string | null>(null);
-  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
-  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const { toast } = useToast();
+  const [selectedSupplierId, setSelectedSupplierId] = React.useState<string | null>(null);
+  const [editOrderId, setEditOrderId] = React.useState<string | null>(null);
+  const [orderToDelete, setOrderToDelete] = React.useState<string | null>(null);
 
-  const { data: purchaseOrders, isLoading, refetch } = useQuery({
-    queryKey: ["purchase-orders"],
+  const { data: orders, isLoading, refetch } = useQuery({
+    queryKey: ['purchase-orders'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("purchase_orders")
+        .from('purchase_orders')
         .select(`
           *,
           suppliers (
-            id,
-            supplier_name,
-            contact_person,
-            email,
-            phone,
-            address,
-            notes
-          ),
-          purchase_order_items (*)
+            supplier_name
+          )
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching purchase orders:', error);
+        throw error;
+      }
+
       return data;
     },
   });
 
-  const handleDelete = async (orderId: string) => {
+  const handleDelete = (orderId: string) => {
     setOrderToDelete(orderId);
-  };
-
-  const handleApprove = async (orderId: string) => {
-    try {
-      const { error } = await supabase
-        .from('purchase_orders')
-        .update({ 
-          status: 'approved',
-          approved_by: await supabase.auth.getUser().then(res => res.data.user?.id),
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Purchase order has been approved",
-      });
-      
-      refetch();
-    } catch (error) {
-      console.error('Error approving purchase order:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to approve purchase order",
-      });
-    }
   };
 
   const confirmDelete = async () => {
     if (!orderToDelete) return;
 
     try {
-      console.log("Deleting purchase order:", orderToDelete);
-      
       const { error } = await supabase
         .from('purchase_orders')
         .delete()
         .eq('id', orderToDelete);
 
-      if (error) {
-        console.error('Error deleting purchase order:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: "Purchase order deleted successfully",
       });
       
-      setOrderToDelete(null);
       refetch();
     } catch (error) {
       console.error('Error deleting purchase order:', error);
@@ -123,45 +82,54 @@ const PurchaseOrders = () => {
         title: "Error",
         description: "Failed to delete purchase order",
       });
+    } finally {
+      setOrderToDelete(null);
     }
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Purchase Orders</h1>
-        <Button
-          onClick={() => navigate("/inventory/purchase-orders/create")}
-          className="flex items-center gap-2"
-        >
-          <FilePlus className="h-4 w-4" />
+        <Button onClick={() => navigate('/inventory/purchase-orders/create')}>
+          <FilePlus className="h-4 w-4 mr-2" />
           Create Purchase Order
         </Button>
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        {isLoading ? (
-          <div className="p-6">Loading...</div>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-gray-50">
-                <th className="px-4 py-2 text-left">PO Number</th>
-                <th className="px-4 py-2 text-left">Supplier</th>
-                <th className="px-4 py-2 text-left">Order Date</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-right">Total Amount</th>
-                <th className="px-4 py-2 text-center">Actions</th>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="px-4 py-2 text-left">PO Number</th>
+              <th className="px-4 py-2 text-left">Supplier</th>
+              <th className="px-4 py-2 text-left">Order Date</th>
+              <th className="px-4 py-2 text-left">Expected Delivery</th>
+              <th className="px-4 py-2 text-left">Status</th>
+              <th className="px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4">
+                  Loading purchase orders...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {purchaseOrders?.map((order) => (
+            ) : orders?.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4">
+                  No purchase orders found
+                </td>
+              </tr>
+            ) : (
+              orders?.map((order) => (
                 <tr key={order.id} className="border-b">
                   <td className="px-4 py-2">{order.po_number}</td>
                   <td className="px-4 py-2">
                     <button
+                      onClick={() => setSelectedSupplierId(order.supplier_id)}
                       className="text-blue-600 hover:underline"
-                      onClick={() => setSelectedSupplier(order.suppliers)}
                     >
                       {order.suppliers?.supplier_name}
                     </button>
@@ -170,12 +138,21 @@ const PurchaseOrders = () => {
                     {format(new Date(order.order_date), 'MMM dd, yyyy')}
                   </td>
                   <td className="px-4 py-2">
-                    <Badge variant={order.status === 'draft' ? 'secondary' : 'success'}>
+                    {order.expected_delivery_date &&
+                      format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}
+                  </td>
+                  <td className="px-4 py-2">
+                    <Badge
+                      variant={
+                        order.status === 'approved'
+                          ? 'success'
+                          : order.status === 'draft'
+                          ? 'secondary'
+                          : 'default'
+                      }
+                    >
                       {order.status}
                     </Badge>
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    ${order.total_amount?.toFixed(2)}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex items-center justify-center gap-2">
@@ -195,23 +172,6 @@ const PurchaseOrders = () => {
                           </TooltipContent>
                         </Tooltip>
 
-                        {order.status !== 'approved' && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleApprove(order.id)}
-                              >
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Approve Order</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -230,51 +190,35 @@ const PurchaseOrders = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
-              {purchaseOrders?.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                    No purchase orders found. Click "Create Purchase Order" to add one.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
-      <PurchaseOrderDialog
-        orderId={selectedOrderId}
-        open={!!selectedOrderId}
-        onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      <ViewSupplierDialog
+        supplierId={selectedSupplierId}
+        open={!!selectedSupplierId}
+        onOpenChange={(open) => !open && setSelectedSupplierId(null)}
       />
 
       <EditPurchaseOrderDialog
         orderId={editOrderId}
         open={!!editOrderId}
         onOpenChange={(open) => !open && setEditOrderId(null)}
-        onOrderUpdated={refetch}
-      />
-
-      <ViewSupplierDialog
-        supplier={selectedSupplier}
-        open={!!selectedSupplier}
-        onOpenChange={(open) => !open && setSelectedSupplier(null)}
       />
 
       <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Purchase Order</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this purchase order? This action cannot be undone.
+              This action cannot be undone. This will permanently delete the purchase order.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -7,6 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Printer, PenLine, CheckCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PurchaseOrderDialogProps {
   orderId: string | null;
@@ -17,7 +23,7 @@ interface PurchaseOrderDialogProps {
 const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialogProps) => {
   const { toast } = useToast();
 
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading, refetch } = useQuery({
     queryKey: ['purchase-order', orderId],
     queryFn: async () => {
       if (!orderId) return null;
@@ -82,6 +88,8 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
         title: "Success",
         description: "Purchase order has been approved",
       });
+      
+      refetch();
     } catch (error) {
       console.error('Error approving purchase order:', error);
       toast({
@@ -109,20 +117,43 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
               <div className="flex justify-between items-center">
                 <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
                 <div className="flex items-center gap-2">
-                  {order.status !== 'approved' && (
-                    <Button onClick={handleApprove} className="gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      Approve Order
-                    </Button>
-                  )}
-                  <Button variant="outline" className="gap-2">
-                    <Printer className="h-4 w-4" />
-                    Print PO
-                  </Button>
-                  <Button variant="outline" className="gap-2">
-                    <PenLine className="h-4 w-4" />
-                    Edit Order
-                  </Button>
+                  <TooltipProvider>
+                    {order.status !== 'approved' && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button onClick={handleApprove} className="gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            Approve Order
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Approve Purchase Order</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <Printer className="h-4 w-4" />
+                          Print PO
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Print Purchase Order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <PenLine className="h-4 w-4" />
+                          Edit Order
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit Purchase Order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </DialogHeader>
