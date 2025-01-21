@@ -467,30 +467,30 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   <div className="flex justify-end gap-2">
                     <Button 
                       variant="ghost" 
-                      size="sm"
+                      size="icon"
                       onClick={() => handleEditClick(item)}
-                      className="text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                      className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                      title="Edit Item"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
-                      size="sm"
+                      size="icon"
                       onClick={() => handleViewStock(item)}
-                      className="text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                      className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                      title="View Stock"
                     >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Stock
+                      <Eye className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
-                      size="sm"
+                      size="icon"
                       onClick={() => handleDeleteClick(item)}
-                      className="text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                      className="h-8 w-8 text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                      title="Delete Item"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
