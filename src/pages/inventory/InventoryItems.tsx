@@ -220,18 +220,30 @@ const InventoryItems = () => {
 
           {/* Category Search and Add New Category */}
           <div className="space-y-4">
-            <div className="relative">
-              <Input
-                type="search"
-                placeholder="Search categories..."
-                value={categorySearchQuery}
-                onChange={(e) => setCategorySearchQuery(e.target.value)}
-                className="w-full pl-10"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Input
+                  type="search"
+                  placeholder="Search categories..."
+                  value={categorySearchQuery}
+                  onChange={(e) => setCategorySearchQuery(e.target.value)}
+                  className="w-full pl-10"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+              {!showAddCategory && (
+                <Button
+                  onClick={() => setShowAddCategory(true)}
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Category
+                </Button>
+              )}
             </div>
 
-            {showAddCategory ? (
+            {showAddCategory && (
               <div className="flex items-center gap-2">
                 <Input
                   placeholder="New category name..."
@@ -263,14 +275,6 @@ const InventoryItems = () => {
                   <X className="h-4 w-4 text-red-600" />
                 </Button>
               </div>
-            ) : (
-              <Button
-                onClick={() => setShowAddCategory(true)}
-                className="bg-primary hover:bg-primary/90 w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Category
-              </Button>
             )}
           </div>
 
