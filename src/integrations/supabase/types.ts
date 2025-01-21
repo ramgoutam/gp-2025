@@ -288,6 +288,7 @@ export type Database = {
           price: number | null
           product_id: string | null
           product_name: string
+          qty_per_uom: number | null
           sku: string | null
           uom: string
           updated_at: string
@@ -304,6 +305,7 @@ export type Database = {
           price?: number | null
           product_id?: string | null
           product_name: string
+          qty_per_uom?: number | null
           sku?: string | null
           uom: string
           updated_at?: string
@@ -320,6 +322,7 @@ export type Database = {
           price?: number | null
           product_id?: string | null
           product_name?: string
+          qty_per_uom?: number | null
           sku?: string | null
           uom?: string
           updated_at?: string

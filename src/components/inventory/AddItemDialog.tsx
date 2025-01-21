@@ -24,6 +24,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     manufacturer: "",
     order_link: "",
     price: 0,
+    qty_per_uom: 1,
   });
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -54,6 +55,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
         manufacturer: "",
         order_link: "",
         price: 0,
+        qty_per_uom: 1,
       });
     } catch (error) {
       console.error('Error adding item:', error);
@@ -115,6 +117,17 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
                   id="uom"
                   value={newItem.uom}
                   onChange={(e) => setNewItem({ ...newItem, uom: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="qty_per_uom">Quantity per UOM</Label>
+                <Input
+                  id="qty_per_uom"
+                  type="number"
+                  min="1"
+                  value={newItem.qty_per_uom}
+                  onChange={(e) => setNewItem({ ...newItem, qty_per_uom: parseInt(e.target.value) })}
                   required
                 />
               </div>

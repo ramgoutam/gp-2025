@@ -13,6 +13,7 @@ export type InventoryItem = {
   manufacturer: string | null;
   order_link: string | null;
   price: number | null;
+  qty_per_uom: number;
 };
 
 export type InventoryLocation = {
