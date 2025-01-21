@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, ArrowLeftRight, AlertTriangle, Info, MapPin } from 'lucide-react';
-import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
   DialogContent,
@@ -389,7 +388,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-primary/5 hover:bg-primary/5 transition-colors duration-200">
@@ -464,7 +463,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <TableCell className="text-gray-600">{item.min_stock}</TableCell>
                 <TableCell className="text-gray-600">${item.price?.toFixed(2) || '0.00'}</TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="flex justify-end gap-2">
                     <Button 
                       variant="ghost" 
                       size="sm"
