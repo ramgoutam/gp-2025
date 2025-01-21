@@ -178,12 +178,16 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
             )
           ),
           created_by_user:user_roles!purchase_orders_created_by_fkey (
+            id,
             first_name,
-            last_name
+            last_name,
+            user_id
           ),
           approved_by_user:user_roles!purchase_orders_approved_by_fkey (
+            id,
             first_name,
-            last_name
+            last_name,
+            user_id
           )
         `)
         .eq('id', orderId)
