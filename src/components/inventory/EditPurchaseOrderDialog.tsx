@@ -429,27 +429,27 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 <div className="flex justify-between items-center">
                   <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
                   <div className="space-x-2">
-                    {order.status === 'approved' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePrint()}
-                        className="gap-2"
-                      >
-                        <Printer className="h-4 w-4" />
-                        Print PO
-                      </Button>
-                    )}
-                    {order.status !== 'approved' && (
-                      <Button
-                        onClick={handleApprove}
-                        variant="outline"
-                        className="gap-2 bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        Approve PO
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={order.status === 'approved' ? handlePrint : handleApprove}
+                      className={order.status === 'approved' 
+                        ? "gap-2" 
+                        : "gap-2 bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
+                      }
+                    >
+                      {order.status === 'approved' ? (
+                        <>
+                          <Printer className="h-4 w-4" />
+                          Print PO
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4" />
+                          Approve PO
+                        </>
+                      )}
+                    </Button>
                     {isEditing ? (
                       <>
                         <Button variant="outline" onClick={() => setIsEditing(false)}>
