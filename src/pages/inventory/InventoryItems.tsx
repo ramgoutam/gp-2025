@@ -1,28 +1,60 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { Package, Search, ListFilter } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const InventoryItems = () => {
-  const { data: items, refetch } = useQuery({
-    queryKey: ['inventory-items'],
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const { data: items = [], refetch } = useQuery({
+    queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
-      const { data, error } = await supabase
+      console.log("Fetching inventory items with filters:", { searchQuery, selectedCategory });
+      
+      let query = supabase
         .from('inventory_items')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (searchQuery) {
+        query = query.or(`product_name.ilike.%${searchQuery}%,sku.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      if (selectedCategory) {
+        query = query.eq('category', selectedCategory);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data;
     }
   });
 
+  // Get unique categories from items
+  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean)));
+
   console.log("Inventory items loaded:", items);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleCategorySelect = (category: string | null) => {
+    setSelectedCategory(category);
+  };
 
   return (
     <div className="min-h-screen bg-white py-6 px-4 sm:px-6 lg:px-8 animate-fade-in">
@@ -44,20 +76,44 @@ const InventoryItems = () => {
               type="search"
               placeholder="Search inventory items..."
               className="w-full pl-10 border-gray-200"
+              value={searchQuery}
+              onChange={handleSearch}
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="default"
-              className="text-gray-700 border-gray-200 hover:bg-gray-50"
-            >
-              <ListFilter className="h-4 w-4 mr-2" />
-              Categories
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="default"
+                  className={`text-gray-700 border-gray-200 hover:bg-gray-50 ${selectedCategory ? 'bg-primary/5' : ''}`}
+                >
+                  <ListFilter className="h-4 w-4 mr-2" />
+                  {selectedCategory || "Categories"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {selectedCategory && (
+                  <DropdownMenuItem 
+                    onClick={() => handleCategorySelect(null)}
+                    className="text-red-600"
+                  >
+                    Clear Filter
+                  </DropdownMenuItem>
+                )}
+                {categories.map((category) => (
+                  <DropdownMenuItem
+                    key={category}
+                    onClick={() => handleCategorySelect(category)}
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <AddItemDialog onSuccess={refetch} />
             <BulkUploadButton onSuccess={refetch} />
           </div>
