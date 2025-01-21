@@ -213,7 +213,7 @@ const InventoryItems = () => {
 
       {/* Categories Dialog */}
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-3xl h-[80vh]">
           <DialogHeader>
             <DialogTitle className="text-xl">Select Category</DialogTitle>
           </DialogHeader>
@@ -278,7 +278,7 @@ const InventoryItems = () => {
             )}
           </div>
 
-          <ScrollArea className="max-h-[60vh] mt-4">
+          <ScrollArea className="flex-1 mt-4">
             <div className="space-y-1">
               {selectedCategory && (
                 <Button
