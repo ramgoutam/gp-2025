@@ -389,10 +389,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
         <Table>
           <TableHeader>
-            <TableRow className="bg-primary/5 hover:bg-primary/5 transition-colors duration-200">
+            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
               <TableHead className="w-12"></TableHead>
               <TableHead>
                 <Button 
@@ -452,7 +452,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             {filteredAndSortedItems.map((item) => (
               <TableRow 
                 key={item.id} 
-                className="hover:bg-primary/5 transition-all duration-200 group border-gray-100 animate-fade-in"
+                className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
               >
                 <TableCell>
                   <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
