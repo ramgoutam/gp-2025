@@ -124,17 +124,15 @@ const PrintableContent = ({ order }: { order: any }) => {
         </div>
       </div>
 
-      {/* Signatures */}
-      <div className="grid grid-cols-2 gap-8 mt-16">
-        <div>
-          <div className="border-t border-gray-400 pt-4 w-64">
-            <p className="text-sm">Authorized by</p>
-          </div>
-        </div>
-        <div>
-          <div className="border-t border-gray-400 pt-4 w-64">
-            <p className="text-sm">Date</p>
-          </div>
+      {/* Approval Date */}
+      <div className="mt-16">
+        <div className="border-t border-gray-400 pt-4 w-64">
+          <p className="text-sm">
+            {order.approved_at ? 
+              `Approved on ${format(new Date(order.approved_at), 'MMM dd, yyyy')}` : 
+              'Not approved yet'
+            }
+          </p>
         </div>
       </div>
     </div>
