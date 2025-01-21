@@ -44,6 +44,20 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const { toast } = useToast();
   const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
+  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
+  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
+  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [sourceLocationId, setSourceLocationId] = useState<string>("");
+  const [targetLocationId, setTargetLocationId] = useState<string>("");
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
+  const [selectedStockItem, setSelectedStockItem] = useState<{
+    itemId: string;
+    locationId: string;
+    quantity: number;
+    locationName: string;
+  } | null>(null);
 
   // Get unique categories for filter dropdown
   const categories = useMemo(() => {
@@ -188,22 +202,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     setViewingItem(item);
     setIsViewDialogOpen(true);
   };
-
-  const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
-  const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
-  const [stockLevels, setStockLevels] = useState<Array<{ location_id: string; location_name: string; quantity: number }>>([]);
-  const [stockSortField, setStockSortField] = useState<'location' | 'quantity'>('location');
-  const [stockSortDirection, setStockSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [sourceLocationId, setSourceLocationId] = useState<string>("");
-  const [targetLocationId, setTargetLocationId] = useState<string>("");
-  const [transferQuantity, setTransferQuantity] = useState<number>(0);
-  const [selectedStockItem, setSelectedStockItem] = useState<{
-    itemId: string;
-    locationId: string;
-    quantity: number;
-    locationName: string;
-  } | null>(null);
 
   const fetchStockLevels = async (itemId: string) => {
     try {
