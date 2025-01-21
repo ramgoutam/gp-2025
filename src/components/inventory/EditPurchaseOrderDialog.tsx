@@ -200,29 +200,61 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   const handleApprove = async () => {
     if (!orderId) return;
 
-    const { error } = await supabase
-      .from('purchase_orders')
-      .update({
-        status: 'approved',
-        approved_by: (await supabase.auth.getUser()).data.user?.id,
-        approved_at: new Date().toISOString()
-      })
-      .eq('id', orderId);
+    try {
+      // First get the user's role ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
 
-    if (error) {
+      const { data: userRole, error: userRoleError } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (userRoleError || !userRole) {
+        console.error('Error fetching user role:', userRoleError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to approve purchase order - User role not found",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('purchase_orders')
+        .update({
+          status: 'approved',
+          approved_by: userRole.id,
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (error) {
+        console.error('Error approving purchase order:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to approve purchase order",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Purchase order approved successfully",
+      });
+      onOrderUpdated();
+    } catch (error) {
+      console.error('Error in approval process:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to approve purchase order",
+        description: "An unexpected error occurred while approving the purchase order",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: "Purchase order approved successfully",
-    });
-    onOrderUpdated();
   };
 
   const handleSave = async () => {
