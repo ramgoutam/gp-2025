@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [categorySearchQuery, setCategorySearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
@@ -52,6 +53,11 @@ const InventoryItems = () => {
 
   // Get unique categories from items and sort them alphabetically
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
+
+  // Filter categories based on search
+  const filteredCategories = categories.filter(category => 
+    category.toLowerCase().includes(categorySearchQuery.toLowerCase())
+  );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -210,7 +216,38 @@ const InventoryItems = () => {
           <DialogHeader>
             <DialogTitle className="text-xl">Select Category</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh] pr-4">
+
+          {/* Category Search and Add New Category */}
+          <div className="space-y-4">
+            <div className="relative">
+              <Input
+                type="search"
+                placeholder="Search categories..."
+                value={categorySearchQuery}
+                onChange={(e) => setCategorySearchQuery(e.target.value)}
+                className="w-full pl-10"
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="New category name..."
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleAddCategory}
+                className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Category
+              </Button>
+            </div>
+          </div>
+
+          <ScrollArea className="max-h-[60vh] mt-4">
             <div className="space-y-1">
               {selectedCategory && (
                 <Button
@@ -221,7 +258,7 @@ const InventoryItems = () => {
                   Clear Selection
                 </Button>
               )}
-              {categories.map((category) => (
+              {filteredCategories.map((category) => (
                 <div
                   key={category}
                   className="flex items-center gap-2"
@@ -254,7 +291,7 @@ const InventoryItems = () => {
                   ) : (
                     <Button
                       variant="ghost"
-                      className={`w-full justify-between py-2 px-4 h-auto font-normal group ${
+                      className={`w-full justify-between py-2 px-4 h-auto font-normal ${
                         selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
                       }`}
                       onClick={() => handleCategorySelect(category)}
@@ -282,21 +319,6 @@ const InventoryItems = () => {
               ))}
             </div>
           </ScrollArea>
-          <div className="flex items-center gap-2 pt-4 border-t mt-4">
-            <Input
-              placeholder="New category name..."
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              onClick={handleAddCategory}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Category
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
