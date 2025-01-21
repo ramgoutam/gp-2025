@@ -263,12 +263,12 @@ const InventoryItems = () => {
                         {selectedCategory === category && (
                           <Check className="h-4 w-4 shrink-0" />
                         )}
-                        <span className="truncate text-left">{category}</span>
+                        <span className="whitespace-normal break-words text-left pr-2">{category}</span>
                       </div>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+                        className="h-8 w-8 p-0 ml-2 shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           startEditing(category);
