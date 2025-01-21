@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { FilePlus, Eye, Trash2 } from "lucide-react";
+import { FilePlus, Eye, Trash2, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,12 @@ import PurchaseOrderDialog from "@/components/inventory/PurchaseOrderDialog";
 import { ViewSupplierDialog } from "@/components/inventory/ViewSupplierDialog";
 import EditPurchaseOrderDialog from "@/components/inventory/EditPurchaseOrderDialog";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +62,35 @@ const PurchaseOrders = () => {
 
   const handleDelete = async (orderId: string) => {
     setOrderToDelete(orderId);
+  };
+
+  const handleApprove = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('purchase_orders')
+        .update({ 
+          status: 'approved',
+          approved_by: await supabase.auth.getUser().then(res => res.data.user?.id),
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Purchase order has been approved",
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error('Error approving purchase order:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve purchase order",
+      });
+    }
   };
 
   const confirmDelete = async () => {
@@ -144,20 +179,54 @@ const PurchaseOrders = () => {
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex items-center justify-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditOrderId(order.id)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(order.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditOrderId(order.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Order</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {order.status !== 'approved' && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleApprove(order.id)}
+                              >
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Approve Order</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(order.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Delete Order</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </td>
                 </tr>
