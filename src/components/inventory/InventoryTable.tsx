@@ -389,37 +389,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="mb-6 space-y-4 p-4 animate-fade-in bg-white rounded-lg shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Input
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 h-11 text-sm transition-all duration-200 border-gray-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg"
-            />
-            <Search className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
-          </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[200px] h-11 transition-all duration-200 hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border shadow-lg rounded-lg">
-              <SelectItem value="all" className="hover:bg-gray-50 cursor-pointer">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem 
-                  key={category} 
-                  value={category}
-                  className="hover:bg-gray-50 cursor-pointer"
-                >
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <Table>
           <TableHeader>
