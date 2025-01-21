@@ -128,7 +128,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
             <p className="text-gray-500">Purchase order not found</p>
           </div>
         ) : (
-          <>
+          <div className="space-y-4">
             <DialogHeader>
               <div className="flex justify-between items-center">
                 <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
@@ -174,13 +174,13 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
               </div>
             </DialogHeader>
 
-            <div className="grid grid-cols-1 gap-6 mt-4">
+            <div className="grid grid-cols-1 gap-4">
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="p-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Supplier Details</h3>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <p><span className="font-medium">Name:</span> {order.suppliers?.supplier_name}</p>
                         {order.suppliers?.contact_person && (
                           <p><span className="font-medium">Contact Person:</span> {order.suppliers.contact_person}</p>
@@ -200,7 +200,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                       </div>
                     </div>
                     <div>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <h3 className="text-sm font-medium text-gray-500">Order Date</h3>
                         <p className="mt-1">
                           {format(new Date(order.order_date), 'MMM dd, yyyy')}
@@ -219,7 +219,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
               </Card>
 
               <Card>
-                <CardContent className="pt-6">
+                <CardContent className="p-4">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -259,7 +259,7 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
                 </CardContent>
               </Card>
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>
