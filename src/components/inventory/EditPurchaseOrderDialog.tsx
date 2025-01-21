@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
-import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer } from "lucide-react";
+import { Pencil, Plus, Trash2, Save, Search, Building2, Mail, Phone, MapPin, Printer, CheckCircle } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 
 interface EditPurchaseOrderDialogProps {
@@ -197,6 +197,34 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     enabled: !!orderId,
   });
 
+  const handleApprove = async () => {
+    if (!orderId) return;
+
+    const { error } = await supabase
+      .from('purchase_orders')
+      .update({
+        status: 'approved',
+        approved_by: (await supabase.auth.getUser()).data.user?.id,
+        approved_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve purchase order",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Purchase order approved successfully",
+    });
+    onOrderUpdated();
+  };
+
   const handleSave = async () => {
     if (!editedOrder) return;
 
@@ -218,7 +246,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
       return;
     }
 
-    // Update items if they were modified
     if (editedOrder.purchase_order_items) {
       const { error: itemsError } = await supabase
         .from('purchase_order_items')
@@ -342,6 +369,16 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                       <Printer className="h-4 w-4" />
                       Print PO
                     </Button>
+                    {order.status !== 'approved' && (
+                      <Button
+                        onClick={handleApprove}
+                        variant="outline"
+                        className="gap-2 bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        Approve PO
+                      </Button>
+                    )}
                     {isEditing ? (
                       <>
                         <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -365,7 +402,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 </div>
               </DialogHeader>
 
-              {/* Regular view content */}
               <div className="grid grid-cols-1 gap-4">
                 <Card>
                   <CardContent className="p-4">
@@ -553,7 +589,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 </Card>
               </div>
 
-              {/* Hidden printable content */}
               <div className="hidden">
                 <div ref={printRef}>
                   <PrintableContent order={order} />
@@ -564,7 +599,6 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
         </DialogContent>
       </Dialog>
 
-      {/* Add Item Dialog */}
       <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
         <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
           <DialogHeader>
