@@ -220,6 +220,22 @@ const CreatePurchaseOrder = () => {
     }
 
     try {
+      // Get the user's role ID first
+      const { data: userRoles, error: userRolesError } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (userRolesError) {
+        console.error("Error fetching user role:", userRolesError);
+        throw userRolesError;
+      }
+
+      if (!userRoles?.id) {
+        throw new Error("User role not found");
+      }
+
       const poNumber = await generatePONumber();
 
       const { data: orderData, error: orderError } = await supabase
@@ -230,8 +246,10 @@ const CreatePurchaseOrder = () => {
           order_date: orderDate,
           expected_delivery_date: expectedDeliveryDate || null,
           notes: notes || null,
-          status: "waiting_for_approval", // Changed from 'draft' to 'waiting_for_approval'
+          status: "waiting_for_approval",
           total_amount: calculateTotal(),
+          created_by: userRoles.id,
+          created_at_local: new Date().toISOString(),
         })
         .select()
         .single();

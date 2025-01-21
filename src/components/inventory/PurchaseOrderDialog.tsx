@@ -73,11 +73,27 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
     if (!orderId) return;
 
     try {
+      // Get the user's role ID first
+      const { data: userRoles, error: userRolesError } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (userRolesError) {
+        console.error("Error fetching user role:", userRolesError);
+        throw userRolesError;
+      }
+
+      if (!userRoles?.id) {
+        throw new Error("User role not found");
+      }
+
       const { error } = await supabase
         .from('purchase_orders')
         .update({ 
           status: 'approved',
-          approved_by: await supabase.auth.getUser().then(res => res.data.user?.id),
+          approved_by: userRoles.id,
           approved_at: new Date().toISOString()
         })
         .eq('id', orderId);
