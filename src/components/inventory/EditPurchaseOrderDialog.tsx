@@ -444,7 +444,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
+        <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[400px] overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
               <p className="text-gray-500">Loading purchase order details...</p>
