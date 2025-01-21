@@ -1,13 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Printer, PenLine } from "lucide-react";
+import { Printer, PenLine, CheckCircle } from "lucide-react";
 
 interface PurchaseOrderDialogProps {
   orderId: string | null;
@@ -64,6 +63,35 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
     enabled: !!orderId,
   });
 
+  const handleApprove = async () => {
+    if (!orderId) return;
+
+    try {
+      const { error } = await supabase
+        .from('purchase_orders')
+        .update({ 
+          status: 'approved',
+          approved_by: await supabase.auth.getUser().then(res => res.data.user?.id),
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Purchase order has been approved",
+      });
+    } catch (error) {
+      console.error('Error approving purchase order:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve purchase order",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] w-[1200px] max-h-[85vh] h-[800px] overflow-y-auto">
@@ -81,10 +109,12 @@ const PurchaseOrderDialog = ({ orderId, open, onOpenChange }: PurchaseOrderDialo
               <div className="flex justify-between items-center">
                 <DialogTitle>Purchase Order #{order.po_number}</DialogTitle>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" className="gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    Approve Order
-                  </Button>
+                  {order.status !== 'approved' && (
+                    <Button onClick={handleApprove} className="gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Approve Order
+                    </Button>
+                  )}
                   <Button variant="outline" className="gap-2">
                     <Printer className="h-4 w-4" />
                     Print PO
