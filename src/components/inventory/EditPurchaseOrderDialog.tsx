@@ -419,15 +419,17 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                 <div className="flex justify-between items-center">
                   <DialogTitle className="text-xl">Purchase Order #{order.po_number}</DialogTitle>
                   <div className="space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePrint()}
-                      className="gap-2"
-                    >
-                      <Printer className="h-4 w-4" />
-                      Print PO
-                    </Button>
+                    {order.status === 'approved' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePrint()}
+                        className="gap-2"
+                      >
+                        <Printer className="h-4 w-4" />
+                        Print PO
+                      </Button>
+                    )}
                     {order.status !== 'approved' && (
                       <Button
                         onClick={handleApprove}
