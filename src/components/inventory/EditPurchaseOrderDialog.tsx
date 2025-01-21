@@ -96,6 +96,34 @@ const PrintableContent = ({ order }: { order: any }) => {
         <p className="text-sm">{order.notes || 'No additional notes'}</p>
       </div>
 
+      {/* Created and Approved Information */}
+      <div className="mb-8 text-sm text-gray-600">
+        <div className="mb-2">
+          <span className="font-semibold">Created By: </span>
+          {order.created_by_user ? 
+            `${order.created_by_user.first_name} ${order.created_by_user.last_name}` : 
+            'N/A'
+          }
+          {order.created_at_local && (
+            <span className="ml-2">
+              on {format(new Date(order.created_at_local), 'MMM dd, yyyy HH:mm')}
+            </span>
+          )}
+        </div>
+        <div>
+          <span className="font-semibold">Approved By: </span>
+          {order.approved_by_user ? 
+            `${order.approved_by_user.first_name} ${order.approved_by_user.last_name}` : 
+            'Not approved yet'
+          }
+          {order.approved_at && (
+            <span className="ml-2">
+              on {format(new Date(order.approved_at), 'MMM dd, yyyy HH:mm')}
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Signatures */}
       <div className="grid grid-cols-2 gap-8 mt-16">
         <div>
