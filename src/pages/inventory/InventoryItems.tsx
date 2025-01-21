@@ -22,6 +22,7 @@ const InventoryItems = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [showAddCategory, setShowAddCategory] = useState(false);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editedCategoryName, setEditedCategoryName] = useState("");
   const { toast } = useToast();
@@ -230,21 +231,47 @@ const InventoryItems = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="New category name..."
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="flex-1"
-              />
+            {showAddCategory ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="New category name..."
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    handleAddCategory();
+                    setShowAddCategory(false);
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <Check className="h-4 w-4 text-green-600" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setNewCategory("");
+                    setShowAddCategory(false);
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4 text-red-600" />
+                </Button>
+              </div>
+            ) : (
               <Button
-                onClick={handleAddCategory}
-                className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+                onClick={() => setShowAddCategory(true)}
+                className="bg-primary hover:bg-primary/90 w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Category
+                Add New Category
               </Button>
-            </div>
+            )}
           </div>
 
           <ScrollArea className="max-h-[60vh] mt-4">
