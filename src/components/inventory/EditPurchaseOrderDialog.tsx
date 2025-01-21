@@ -138,6 +138,10 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
     contentRef: printRef
   });
 
+  const handlePrintClick = () => {
+    handlePrint();
+  };
+
   const { data: inventoryItems } = useQuery({
     queryKey: ['inventory-items'],
     queryFn: async () => {
@@ -432,7 +436,7 @@ const EditPurchaseOrderDialog = ({ orderId, open, onOpenChange, onOrderUpdated }
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={order.status === 'approved' ? handlePrint : handleApprove}
+                      onClick={order.status === 'approved' ? handlePrintClick : handleApprove}
                       className={order.status === 'approved' 
                         ? "gap-2" 
                         : "gap-2 bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
