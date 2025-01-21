@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserX, Pencil, Trash2, Plus, Key, UserCog, UserPen } from 'lucide-react';
+import { Shield, UserX, Pencil, Key, UserCog, UserPen } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -367,7 +367,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">Admin Dashboard</h2>
@@ -377,7 +377,8 @@ const Admin = () => {
         </div>
         <Shield className="h-8 w-8 text-muted-foreground" />
       </div>
-      
+
+      {/* Password Change Dialog */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -430,6 +431,7 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Role Edit Dialog */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -485,163 +487,183 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold">User Management</h3>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new user account.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="email" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone</FormLabel>
-                        <FormControl>
-                          <PhoneInput
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="password" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <FormControl>
-                          <select
-                            {...field}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                          >
-                            {roles.map((role) => (
-                              <option key={role} value={role}>{role}</option>
-                            ))}
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full">Create User</Button>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        
-        <div className="space-y-4">
-          <Input
-            placeholder="Search users..."
-            className="w-full"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="flex flex-col space-y-4 p-6">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-lg">User Management</h3>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="default" className="bg-primary hover:bg-primary/90">
+                  <UserCog className="h-4 w-4 mr-2" />
+                  Create User
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New User</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for the new user account.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <PhoneInput
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <FormControl>
+                            <select
+                              {...field}
+                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                              {roles.map((role) => (
+                                <option key={role} value={role}>{role}</option>
+                              ))}
+                            </select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full">Create User</Button>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </div>
           
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Input
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-3 pr-10"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
+                <TableHead className="font-semibold">Email</TableHead>
+                <TableHead className="font-semibold">Name</TableHead>
+                <TableHead className="font-semibold">Phone</TableHead>
+                <TableHead className="font-semibold">Role</TableHead>
+                <TableHead className="text-right font-semibold">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
                 <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      <span className="ml-2">Loading users...</span>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">Loading users...</TableCell>
-                  </TableRow>
-                ) : filteredRoles?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">No users found</TableCell>
-                  </TableRow>
-                ) : filteredRoles?.map((userRole) => (
-                  <TableRow key={userRole.id}>
-                    <TableCell>{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
+              ) : filteredRoles?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                    No users found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredRoles?.map((userRole) => (
+                  <TableRow 
+                    key={userRole.id}
+                    className="transition-colors hover:bg-muted/50"
+                  >
+                    <TableCell className="font-medium">{userEmails[userRole.user_id] || 'Loading...'}</TableCell>
                     <TableCell>{`${userRole.first_name || ''} ${userRole.last_name || ''}`}</TableCell>
                     <TableCell>{userRole.phone || 'N/A'}</TableCell>
-                    <TableCell>{userRole.role}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-primary/10 text-primary">
+                        {userRole.role}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleImpersonateUser(userRole.user_id)}
+                          className="hover:bg-primary/10"
                         >
-                          <UserCog className="h-4 w-4 mr-2" />
-                          Login as
+                          <UserCog className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -649,9 +671,9 @@ const Admin = () => {
                           onClick={() => {
                             setEditingUserDetails(userRole);
                           }}
+                          className="hover:bg-primary/10"
                         >
-                          <UserPen className="h-4 w-4 mr-2" />
-                          Edit Details
+                          <UserPen className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -660,9 +682,9 @@ const Admin = () => {
                             setIsPasswordDialogOpen(true);
                             setChangingPasswordFor(userRole.user_id);
                           }}
+                          className="hover:bg-primary/10"
                         >
-                          <Key className="h-4 w-4 mr-2" />
-                          Change Password
+                          <Key className="h-4 w-4" />
                         </Button>
                         {currentUserRole === 'ADMIN' && (
                           <Button
@@ -676,9 +698,9 @@ const Admin = () => {
                               setSelectedRole(userRole.role);
                               setIsRoleDialogOpen(true);
                             }}
+                            className="hover:bg-primary/10"
                           >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit Role
+                            <Pencil className="h-4 w-4" />
                           </Button>
                         )}
                         <Button
@@ -688,21 +710,21 @@ const Admin = () => {
                             id: userRole.user_id,
                             email: userEmails[userRole.user_id] || ''
                           })}
-                          className="text-destructive hover:text-destructive"
+                          className="hover:bg-destructive/10 text-destructive"
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete User
+                          <UserX className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
+      {/* User Details Edit Dialog */}
       <Dialog open={editingUserDetails !== null} onOpenChange={() => setEditingUserDetails(null)}>
         <DialogContent>
           <DialogHeader>
@@ -788,6 +810,7 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Delete User Dialog */}
       <DeletePatientDialog
         isOpen={!!userToDelete}
         onOpenChange={(open) => {
