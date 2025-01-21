@@ -392,24 +392,26 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
+            <TableRow className="bg-primary/5 hover:bg-primary/5 transition-colors duration-200">
               <TableHead className="w-12"></TableHead>
               <TableHead>
                 <Button 
                   variant="ghost" 
                   onClick={() => handleSort("sku")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                 >
-                  SKU <ArrowUpDown className="ml-2 h-4 w-4" />
+                  SKU 
+                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </TableHead>
               <TableHead>
                 <Button 
                   variant="ghost" 
                   onClick={() => handleSort("product_name")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                 >
-                  Product Name <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Product Name 
+                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </TableHead>
               <TableHead className="font-medium text-gray-700">Description</TableHead>
@@ -417,27 +419,30 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <Button 
                   variant="ghost" 
                   onClick={() => handleSort("uom")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                 >
-                  UOM <ArrowUpDown className="ml-2 h-4 w-4" />
+                  UOM 
+                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </TableHead>
               <TableHead>
                 <Button 
                   variant="ghost" 
                   onClick={() => handleSort("min_stock")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                 >
-                  Min Stock <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Min Stock 
+                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </TableHead>
               <TableHead>
                 <Button 
                   variant="ghost" 
                   onClick={() => handleSort("price")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4"
+                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                 >
-                  Price <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Price 
+                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -447,7 +452,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             {filteredAndSortedItems.map((item) => (
               <TableRow 
                 key={item.id} 
-                className="hover:bg-gray-50/50 transition-colors duration-200 group border-gray-100"
+                className="hover:bg-primary/5 transition-all duration-200 group border-gray-100 animate-fade-in"
               >
                 <TableCell>
                   <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
@@ -459,7 +464,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 <TableCell className="text-gray-600">{item.min_stock}</TableCell>
                 <TableCell className="text-gray-600">${item.price?.toFixed(2) || '0.00'}</TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Button 
                       variant="ghost" 
                       size="sm"
@@ -493,8 +498,8 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             ))}
             {!filteredAndSortedItems.length && (
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center text-gray-500 animate-fade-in">
                     <Package className="h-8 w-8 text-gray-400 mb-2" />
                     No items found. Add some items to get started.
                   </div>

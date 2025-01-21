@@ -169,7 +169,7 @@ const InventoryItems = () => {
         {/* Top Row with Stats, Search, and Actions */}
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 border shadow-sm">
           {/* Stats Card */}
-          <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg">
+          <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
             <Package className="h-5 w-5 text-primary" />
             <div>
               <p className="text-sm font-medium text-gray-500">Total Items</p>
@@ -182,7 +182,7 @@ const InventoryItems = () => {
             <Input
               type="search"
               placeholder="Search inventory items..."
-              className="w-full pl-10 border-gray-200"
+              className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200"
               value={searchQuery}
               onChange={handleSearch}
             />
@@ -195,7 +195,7 @@ const InventoryItems = () => {
               variant="outline" 
               size="default"
               onClick={() => setShowCategoryDialog(true)}
-              className={`text-gray-700 border-gray-200 hover:bg-gray-50 ${selectedCategory ? 'bg-primary/5' : ''}`}
+              className={`text-gray-700 border-gray-200 hover:bg-gray-50 transition-all duration-200 ${selectedCategory ? 'bg-primary/5' : ''}`}
             >
               <ListFilter className="h-4 w-4 mr-2" />
               {selectedCategory || "Categories"}
@@ -227,7 +227,7 @@ const InventoryItems = () => {
                   placeholder="Search categories..."
                   value={categorySearchQuery}
                   onChange={(e) => setCategorySearchQuery(e.target.value)}
-                  className="w-full pl-10"
+                  className="w-full pl-10 focus:ring-primary/20 transition-all duration-200"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
@@ -235,7 +235,7 @@ const InventoryItems = () => {
                 <Button
                   onClick={() => setShowAddCategory(true)}
                   size="sm"
-                  className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+                  className="bg-primary hover:bg-primary/90 transition-all duration-200"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Category
@@ -244,12 +244,12 @@ const InventoryItems = () => {
             </div>
 
             {showAddCategory && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 animate-fade-in">
                 <Input
                   placeholder="New category name..."
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 focus:ring-primary/20 transition-all duration-200"
                   autoFocus
                 />
                 <Button
@@ -259,7 +259,7 @@ const InventoryItems = () => {
                     handleAddCategory();
                     setShowAddCategory(false);
                   }}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 hover:bg-primary/5 transition-colors duration-200"
                 >
                   <Check className="h-4 w-4 text-green-600" />
                 </Button>
@@ -270,7 +270,7 @@ const InventoryItems = () => {
                     setNewCategory("");
                     setShowAddCategory(false);
                   }}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 hover:bg-destructive/5 transition-colors duration-200"
                 >
                   <X className="h-4 w-4 text-red-600" />
                 </Button>
@@ -283,7 +283,7 @@ const InventoryItems = () => {
               {selectedCategory && (
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 py-2 px-4 h-auto font-normal"
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors duration-200 py-2 px-4 h-auto font-normal"
                   onClick={() => handleCategorySelect(null)}
                 >
                   Clear Selection
@@ -292,20 +292,20 @@ const InventoryItems = () => {
               {filteredCategories.map((category) => (
                 <div
                   key={category}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 animate-fade-in"
                 >
                   {editingCategory === category ? (
                     <div className="flex-1 flex items-center gap-2 p-2">
                       <Input
                         value={editedCategoryName}
                         onChange={(e) => setEditedCategoryName(e.target.value)}
-                        className="flex-1"
+                        className="flex-1 focus:ring-primary/20 transition-all duration-200"
                         autoFocus
                       />
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 hover:bg-primary/5 transition-colors duration-200"
                         onClick={() => handleEditCategory(category, editedCategoryName)}
                       >
                         <Check className="h-4 w-4 text-green-600" />
@@ -313,7 +313,7 @@ const InventoryItems = () => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 hover:bg-destructive/5 transition-colors duration-200"
                         onClick={() => setEditingCategory(null)}
                       >
                         <X className="h-4 w-4 text-red-600" />
@@ -322,7 +322,7 @@ const InventoryItems = () => {
                   ) : (
                     <Button
                       variant="ghost"
-                      className={`w-full justify-between py-2 px-4 h-auto font-normal ${
+                      className={`w-full justify-between py-2 px-4 h-auto font-normal transition-colors duration-200 ${
                         selectedCategory === category ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
                       }`}
                       onClick={() => handleCategorySelect(category)}
@@ -336,7 +336,7 @@ const InventoryItems = () => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 ml-2 shrink-0"
+                        className="h-8 w-8 p-0 ml-2 shrink-0 hover:bg-primary/5 transition-colors duration-200"
                         onClick={(e) => {
                           e.stopPropagation();
                           startEditing(category);
