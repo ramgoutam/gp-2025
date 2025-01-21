@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -28,9 +29,9 @@ import {
 const PurchaseOrders = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedSupplierId, setSelectedSupplierId] = React.useState<string | null>(null);
-  const [editOrderId, setEditOrderId] = React.useState<string | null>(null);
-  const [orderToDelete, setOrderToDelete] = React.useState<string | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<{ id: string; supplier_name: string; contact_person: string | null; email: string | null; phone: string | null; address: string | null; notes: string | null; } | null>(null);
+  const [editOrderId, setEditOrderId] = useState<string | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ['purchase-orders'],
@@ -40,7 +41,12 @@ const PurchaseOrders = () => {
         .select(`
           *,
           suppliers (
-            supplier_name
+            supplier_name,
+            contact_person,
+            email,
+            phone,
+            address,
+            notes
           )
         `)
         .order('created_at', { ascending: false });
@@ -87,6 +93,10 @@ const PurchaseOrders = () => {
     }
   };
 
+  const handleOrderUpdated = () => {
+    refetch();
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -128,7 +138,7 @@ const PurchaseOrders = () => {
                   <td className="px-4 py-2">{order.po_number}</td>
                   <td className="px-4 py-2">
                     <button
-                      onClick={() => setSelectedSupplierId(order.supplier_id)}
+                      onClick={() => setSelectedSupplier(order.suppliers)}
                       className="text-blue-600 hover:underline"
                     >
                       {order.suppliers?.supplier_name}
@@ -197,15 +207,16 @@ const PurchaseOrders = () => {
       </div>
 
       <ViewSupplierDialog
-        supplierId={selectedSupplierId}
-        open={!!selectedSupplierId}
-        onOpenChange={(open) => !open && setSelectedSupplierId(null)}
+        supplier={selectedSupplier}
+        open={!!selectedSupplier}
+        onOpenChange={(open) => !open && setSelectedSupplier(null)}
       />
 
       <EditPurchaseOrderDialog
         orderId={editOrderId}
         open={!!editOrderId}
         onOpenChange={(open) => !open && setEditOrderId(null)}
+        onOrderUpdated={handleOrderUpdated}
       />
 
       <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
