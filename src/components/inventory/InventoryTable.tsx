@@ -147,6 +147,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           order_link: editingItem.order_link,
           product_id: editingItem.product_id,
           manufacturing_id: editingItem.manufacturing_id,
+          qty_per_uom: editingItem.qty_per_uom,
         })
         .eq('id', editingItem.id);
 
@@ -626,6 +627,17 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       id="manufacturer"
                       value={editingItem?.manufacturer || ""}
                       onChange={(e) => setEditingItem(prev => prev ? { ...prev, manufacturer: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="qty_per_uom">Quantity per UOM</Label>
+                    <Input
+                      id="qty_per_uom"
+                      type="number"
+                      min="1"
+                      value={editingItem?.qty_per_uom || 1}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, qty_per_uom: parseInt(e.target.value) } : null)}
+                      required
                     />
                   </div>
                   <div className="space-y-2 col-span-2">

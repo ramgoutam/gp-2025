@@ -31,6 +31,8 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      console.log("Adding new inventory item:", newItem);
+      
       const { error } = await supabase
         .from('inventory_items')
         .insert(newItem);
