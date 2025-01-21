@@ -36,6 +36,12 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { DeletePatientDialog } from "@/components/patient/header/DeletePatientDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type UserRole = {
   id: string;
@@ -657,63 +663,104 @@ const Admin = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleImpersonateUser(userRole.user_id)}
-                          className="hover:bg-primary/10"
-                        >
-                          <UserCog className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditingUserDetails(userRole);
-                          }}
-                          className="hover:bg-primary/10"
-                        >
-                          <UserPen className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setIsPasswordDialogOpen(true);
-                            setChangingPasswordFor(userRole.user_id);
-                          }}
-                          className="hover:bg-primary/10"
-                        >
-                          <Key className="h-4 w-4" />
-                        </Button>
-                        {currentUserRole === 'ADMIN' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingRole({
-                                userId: userRole.user_id,
-                                role: userRole.role
-                              });
-                              setSelectedRole(userRole.role);
-                              setIsRoleDialogOpen(true);
-                            }}
-                            className="hover:bg-primary/10"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setUserToDelete({
-                            id: userRole.user_id,
-                            email: userEmails[userRole.user_id] || ''
-                          })}
-                          className="hover:bg-destructive/10 text-destructive"
-                        >
-                          <UserX className="h-4 w-4" />
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleImpersonateUser(userRole.user_id)}
+                                className="hover:bg-primary/10"
+                              >
+                                <UserCog className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Impersonate User</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingUserDetails(userRole);
+                                }}
+                                className="hover:bg-primary/10"
+                              >
+                                <UserPen className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit User Details</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setIsPasswordDialogOpen(true);
+                                  setChangingPasswordFor(userRole.user_id);
+                                }}
+                                className="hover:bg-primary/10"
+                              >
+                                <Key className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Change Password</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          {currentUserRole === 'ADMIN' && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingRole({
+                                      userId: userRole.user_id,
+                                      role: userRole.role
+                                    });
+                                    setSelectedRole(userRole.role);
+                                    setIsRoleDialogOpen(true);
+                                  }}
+                                  className="hover:bg-primary/10"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Edit Role</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setUserToDelete({
+                                  id: userRole.user_id,
+                                  email: userEmails[userRole.user_id] || ''
+                                })}
+                                className="hover:bg-destructive/10 text-destructive"
+                              >
+                                <UserX className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete User</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -829,3 +876,4 @@ const Admin = () => {
 };
 
 export default Admin;
+
