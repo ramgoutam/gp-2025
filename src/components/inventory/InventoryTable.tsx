@@ -322,12 +322,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           <div className="sticky top-0 z-20 bg-white border-b border-gray-100">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
+                <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 transition-colors duration-200">
                   <TableHead className="w-[180px]">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
-                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       SKU 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -337,7 +337,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
-                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Product Name 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -350,7 +350,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
-                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       UOM 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -360,7 +360,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
-                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Min Stock 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -370,7 +370,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
-                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Price 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -391,12 +391,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     key={item.id} 
                     className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
                   >
-                    <TableCell className="w-[180px] font-mono text-sm text-gray-600 px-4">{item.sku}</TableCell>
+                    <TableCell className="w-[180px] font-mono text-sm text-gray-700 px-4">{item.sku}</TableCell>
                     <TableCell className="w-[250px] font-medium text-gray-900 px-4">{item.product_name}</TableCell>
-                    <TableCell className="w-[400px] text-gray-600 truncate px-4">{item.description}</TableCell>
-                    <TableCell className="w-[100px] text-gray-600 px-4">{item.uom}</TableCell>
-                    <TableCell className="w-[100px] text-gray-600 px-4">{item.min_stock}</TableCell>
-                    <TableCell className="w-[100px] text-gray-600 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="w-[400px] text-gray-700 truncate px-4">{item.description}</TableCell>
+                    <TableCell className="w-[100px] text-gray-700 px-4">{item.uom}</TableCell>
+                    <TableCell className="w-[100px] text-gray-700 px-4">{item.min_stock}</TableCell>
+                    <TableCell className="w-[100px] text-gray-700 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
                     <TableCell className="w-[100px]">
                       <div className="flex justify-end gap-2 px-4">
                         <Button 
