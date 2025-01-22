@@ -101,7 +101,6 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
 
           if (uploadError) {
             console.error('Error uploading profile image:', uploadError);
-            // Continue with patient creation even if image upload fails
           } else {
             const { data: { publicUrl } } = supabase.storage
               .from('profile-images')
@@ -110,13 +109,12 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
           }
         } catch (uploadError) {
           console.error('Error handling profile image:', uploadError);
-          // Continue with patient creation even if image handling fails
         }
       }
 
       const address = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
 
-      // Prepare patient data for insertion
+      // Prepare patient data
       const patientData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -130,27 +128,41 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
         ...(profileImageUrl && { profile_image_url: profileImageUrl }),
       };
 
-      // If we're updating an existing patient
+      let result;
+      
+      // If we have an initialData.id, we're updating an existing patient
       if (initialData?.id) {
-        const { error: updateError } = await supabase
+        console.log("Updating existing patient:", initialData.id);
+        const { data, error } = await supabase
           .from('patients')
           .update(patientData)
-          .eq('id', initialData.id);
+          .eq('id', initialData.id)
+          .select()
+          .single();
 
-        if (updateError) throw updateError;
+        if (error) throw error;
+        result = data;
       } else {
-        // If we're creating a new patient
-        const { error: insertError } = await supabase
+        // Creating a new patient
+        console.log("Creating new patient");
+        const { data, error } = await supabase
           .from('patients')
-          .insert([patientData]);
+          .insert([patientData])
+          .select()
+          .single();
 
-        if (insertError) throw insertError;
+        if (error) throw error;
+        result = data;
       }
 
       toast({
         title: "Success",
-        description: `Patient ${initialData ? "updated" : "created"} successfully`,
+        description: `Patient ${initialData?.id ? "updated" : "created"} successfully`,
       });
+
+      if (onSubmit) {
+        await onSubmit(result);
+      }
 
       // Navigate to the patients page after successful submission
       navigate('/patients');
