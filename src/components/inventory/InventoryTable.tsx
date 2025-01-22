@@ -1,3 +1,4 @@
+<lov-code>
 import React, { useState, useMemo } from "react";
 import {
   Table,
@@ -323,7 +324,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 transition-colors duration-200">
-                  <TableHead className="w-48 font-mono text-sm text-gray-600 p-0">
+                  <TableHead className="w-[180px] font-mono text-sm text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
@@ -333,7 +334,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-64 font-medium text-gray-900 p-0">
+                  <TableHead className="w-[250px] font-medium text-gray-900 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
@@ -343,10 +344,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-96 text-gray-600 truncate px-4">
+                  <TableHead className="w-[300px] text-gray-600 truncate px-4">
                     <span>Description</span>
                   </TableHead>
-                  <TableHead className="w-32 text-gray-600 p-0">
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
@@ -356,7 +357,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-32 text-gray-600 p-0">
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
@@ -366,7 +367,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-32 text-gray-600 p-0">
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
@@ -376,7 +377,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-32 text-right px-4 text-gray-600">Actions</TableHead>
+                  <TableHead className="w-[120px] text-right px-4 text-gray-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -391,13 +392,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     key={item.id} 
                     className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
                   >
-                    <TableCell className="w-48 font-mono text-sm text-gray-700 px-4">{item.sku}</TableCell>
-                    <TableCell className="w-64 font-medium text-gray-900 px-4">{item.product_name}</TableCell>
-                    <TableCell className="w-96 text-gray-700 truncate px-4">{item.description}</TableCell>
-                    <TableCell className="w-32 text-gray-700 px-4">{item.uom}</TableCell>
-                    <TableCell className="w-32 text-gray-700 px-4">{item.min_stock}</TableCell>
-                    <TableCell className="w-32 text-gray-700 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="w-32">
+                    <TableCell className="w-[180px] font-mono text-sm text-gray-700 px-4">{item.sku}</TableCell>
+                    <TableCell className="w-[250px] font-medium text-gray-900 px-4">{item.product_name}</TableCell>
+                    <TableCell className="w-[300px] text-gray-700 truncate px-4">{item.description}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">{item.uom}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">{item.min_stock}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="w-[120px]">
                       <div className="flex justify-end gap-2 px-4">
                         <Button 
                           variant="ghost" 
@@ -701,68 +702,4 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Quantity (Available: {selectedStockItem?.quantity})</Label>
-              <Input
-                type="number"
-                min="1"
-                max={selectedStockItem?.quantity || 0}
-                value={transferQuantity}
-                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
-                className="focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsTransferDialogOpen(false)}
-              className="hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleTransferStock}
-              disabled={!targetLocationId || transferQuantity <= 0 || (selectedStockItem && transferQuantity > selectedStockItem.quantity)}
-              className="bg-primary hover:bg-primary/90"
-            >
-              Transfer Stock
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!isDeletingItem} onOpenChange={(open) => !open && setIsDeletingItem(null)}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Inventory Item
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{isDeletingItem?.product_name}"? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeletingItem(null)}
-              className="hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              className="bg-destructive hover:bg-destructive/90 transition-colors duration-200"
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
-export default InventoryTable;
+              <Label>Quantity (Available: {selectedStockItem?.quantity
