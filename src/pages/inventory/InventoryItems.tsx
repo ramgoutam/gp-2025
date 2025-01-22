@@ -167,7 +167,7 @@ const InventoryItems = () => {
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
       <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0 pb-6">
         {/* Top Row with Stats, Search, and Actions */}
-        <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-6 border shadow-sm mb-6 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-6 flex-shrink-0">
           {/* Stats Card */}
           <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
             <Package className="h-5 w-5 text-primary" />
