@@ -54,8 +54,6 @@ type UserRole = {
   phone?: string;
 };
 
-const roles = ["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"] as const;
-
 const createUserSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -64,7 +62,7 @@ const createUserSchema = z.object({
   phone: z.string().regex(/^\+[1-9]\d{1,14}$/, { 
     message: "Please enter a valid phone number with country code (e.g., +1234567890)" 
   }),
-  role: z.enum(roles),
+  role: z.enum(["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"]),
 });
 
 const Admin = () => {
@@ -81,7 +79,6 @@ const Admin = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole['role'] | null>(null);
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
   const { toast } = useToast();
-
   const form = useForm<z.infer<typeof createUserSchema>>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -100,8 +97,7 @@ const Admin = () => {
       console.log('Fetching user roles...');
       const { data: roles, error } = await supabase
         .from('user_roles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
       
       if (error) {
         console.error('Error fetching roles:', error);
@@ -111,9 +107,6 @@ const Admin = () => {
       console.log('Fetched roles:', roles);
       return roles as UserRole[];
     },
-    staleTime: 30000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false
   });
 
   const { data: currentUserRole } = useQuery({
@@ -127,22 +120,18 @@ const Admin = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       console.log('Current user role:', roles?.role);
       return roles?.role;
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
   });
 
   useEffect(() => {
     const fetchUserEmails = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-user-details', {
-          body: { cache: true }
-        });
+        const { data, error } = await supabase.functions.invoke('get-user-details');
         if (error) throw error;
         setUserEmails(data.users);
       } catch (error) {
@@ -158,6 +147,83 @@ const Admin = () => {
     fetchUserEmails();
   }, [toast]);
 
+  const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
+    try {
+      // Only allow admins to update roles
+      if (currentUserRole !== 'ADMIN') {
+        toast({
+          title: "Error",
+          description: "Only administrators can update user roles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Updating role for user:', userId, 'to:', newRole);
+      const { error } = await supabase
+        .from('user_roles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error updating role:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update user role",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: `User role updated to ${newRole}`,
+      });
+      setIsRoleDialogOpen(false);
+      setEditingRole(null);
+      refetch();
+    } catch (error) {
+      console.error('Error updating role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user role",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('create-user', {
+        body: { userId, action: 'delete' }
+      });
+
+      if (error) {
+        console.error('Error deleting user:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete user",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+      refetch();
+      setUserToDelete(null);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePasswordChange = async (userId: string) => {
     if (newPassword !== confirmPassword) {
       toast({
@@ -170,7 +236,10 @@ const Admin = () => {
 
     try {
       const { error } = await supabase.functions.invoke('update-user-password', {
-        body: { userId, newPassword }
+        body: { 
+          userId,
+          newPassword
+        }
       });
 
       if (error) throw error;
@@ -179,7 +248,7 @@ const Admin = () => {
         title: "Success",
         description: "Password updated successfully",
       });
-
+      
       setIsPasswordDialogOpen(false);
       setNewPassword('');
       setConfirmPassword('');
@@ -194,103 +263,102 @@ const Admin = () => {
     }
   };
 
-  const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
-    try {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Role updated successfully",
-      });
-
-      setIsRoleDialogOpen(false);
-      setEditingRole(null);
-      setSelectedRole(null);
-      refetch();
-    } catch (error) {
-      console.error('Error updating role:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update role",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleImpersonateUser = async (userId: string) => {
     try {
+      console.log('Starting impersonation for user:', userId);
+      
+      // Clear all existing data before impersonation
+      localStorage.clear();
+      sessionStorage.clear();
+      
       const { data, error } = await supabase.functions.invoke('impersonate-user', {
         body: { targetUserId: userId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Impersonation error:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to impersonate user",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      window.open(data.magicLink, '_blank');
+      if (!data?.data?.magicLink) {
+        console.error('No magic link received');
+        toast({
+          title: "Error",
+          description: "Failed to generate login link",
+          variant: "destructive",
+        });
+        return;
+      }
 
+      // Sign out current user first
+      await supabase.auth.signOut();
+      
       toast({
-        title: "Success",
-        description: "Impersonation link generated",
+        title: "Impersonation Started",
+        description: "You will be redirected to login as the selected user.",
       });
+
+      // Redirect to the magic link
+      window.location.href = data.data.magicLink;
+      
     } catch (error) {
-      console.error('Error generating impersonation link:', error);
+      console.error('Error impersonating user:', error);
       toast({
         title: "Error",
-        description: "Failed to generate impersonation link",
+        description: error instanceof Error ? error.message : "Failed to impersonate user",
         variant: "destructive",
       });
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const filteredRoles = userRoles?.filter(role => 
+    userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const roles: UserRole['role'][] = [
+    "ADMIN",
+    "MANAGER_CLINICAL",
+    "DOCTOR",
+    "CLINICAL_STAFF",
+    "LAB_MANAGER",
+    "LAB_STAFF",
+    "FRONT_DESK"
+  ];
+
+  const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
-      const { error } = await supabase.functions.invoke('delete-user', {
-        body: { userId }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-      });
-
-      setUserToDelete(null);
-      refetch();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete user",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const onSubmit = async (data: z.infer<typeof createUserSchema>) => {
-    try {
+      console.log('Creating new user with values:', values);
       const { error } = await supabase.functions.invoke('create-user', {
         body: { 
-          email: data.email,
-          password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone,
-          role: data.role
+          email: values.email,
+          password: values.password,
+          role: values.role,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phone
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from create-user function:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create user",
+          variant: "destructive",
+        });
+        return;
+      }
 
       toast({
         title: "Success",
         description: "User created successfully",
       });
-
+      
       setIsOpen(false);
       form.reset();
       refetch();
@@ -298,18 +366,11 @@ const Admin = () => {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: "Failed to create user",
+        description: error instanceof Error ? error.message : "Failed to create user",
         variant: "destructive",
       });
     }
   };
-
-  const filteredRoles = userRoles?.filter(role => {
-    const email = userEmails[role.user_id]?.toLowerCase() || '';
-    const name = `${role.first_name || ''} ${role.last_name || ''}`.toLowerCase();
-    const searchTerm = searchQuery.toLowerCase();
-    return email.includes(searchTerm) || name.includes(searchTerm);
-  }) || [];
 
   return (
     <div className="space-y-6 p-6">
@@ -323,6 +384,7 @@ const Admin = () => {
         <Shield className="h-8 w-8 text-muted-foreground" />
       </div>
 
+      {/* Password Change Dialog */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -375,6 +437,7 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Role Edit Dialog */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -571,21 +634,21 @@ const Admin = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24">
-                    <div className="flex items-center justify-center space-x-4">
-                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                      <span className="text-muted-foreground">Loading users...</span>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      <span className="ml-2">Loading users...</span>
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredRoles.length === 0 ? (
+              ) : filteredRoles?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     No users found
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredRoles.map((userRole) => (
+                filteredRoles?.map((userRole) => (
                   <TableRow 
                     key={userRole.id}
                     className="transition-colors hover:bg-muted/50"
@@ -708,6 +771,93 @@ const Admin = () => {
         </div>
       </div>
 
+      {/* User Details Edit Dialog */}
+      <Dialog open={editingUserDetails !== null} onOpenChange={() => setEditingUserDetails(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User Details</DialogTitle>
+            <DialogDescription>
+              Update the user's personal information.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-first-name">First Name</Label>
+              <Input
+                id="edit-first-name"
+                value={editingUserDetails?.first_name || ''}
+                onChange={(e) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, first_name: e.target.value } : null
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-last-name">Last Name</Label>
+              <Input
+                id="edit-last-name"
+                value={editingUserDetails?.last_name || ''}
+                onChange={(e) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, last_name: e.target.value } : null
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <PhoneInput
+                value={editingUserDetails?.phone || ''}
+                onChange={(value) => setEditingUserDetails(prev => 
+                  prev ? { ...prev, phone: value } : null
+                )}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingUserDetails(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (editingUserDetails) {
+                  try {
+                    const { error } = await supabase
+                      .from('user_roles')
+                      .update({
+                        first_name: editingUserDetails.first_name,
+                        last_name: editingUserDetails.last_name,
+                        phone: editingUserDetails.phone
+                      })
+                      .eq('id', editingUserDetails.id);
+
+                    if (error) throw error;
+
+                    toast({
+                      title: "Success",
+                      description: "User details updated successfully",
+                    });
+                    
+                    setEditingUserDetails(null);
+                    refetch();
+                  } catch (error) {
+                    console.error('Error updating user details:', error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to update user details",
+                      variant: "destructive",
+                    });
+                  }
+                }
+              }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Dialog */}
       <DeletePatientDialog
         isOpen={!!userToDelete}
         onOpenChange={(open) => {
@@ -726,3 +876,4 @@ const Admin = () => {
 };
 
 export default Admin;
+
