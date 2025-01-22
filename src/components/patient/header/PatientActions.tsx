@@ -31,13 +31,18 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
   const parseAddress = (address?: string) => {
     if (!address) return { street: '', city: '', state: '', zipCode: '' };
     
-    const parts = address.split(',').map(part => part.trim());
-    return {
-      street: parts[0] || '',
-      city: parts[1] || '',
-      state: parts[2] || '',
-      zipCode: parts[3] || ''
-    };
+    try {
+      const parts = address.split(',').map(part => part.trim());
+      return {
+        street: parts[0] || '',
+        city: parts[1] || '',
+        state: parts[2] || '',
+        zipCode: parts[3] || ''
+      };
+    } catch (error) {
+      console.error("Error parsing address:", error);
+      return { street: '', city: '', state: '', zipCode: '' };
+    }
   };
 
   const addressParts = parseAddress(patientData?.address);

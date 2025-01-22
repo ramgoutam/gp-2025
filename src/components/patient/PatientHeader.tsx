@@ -32,7 +32,6 @@ export const PatientHeader = ({
   const handleEditPatient = async (updatedData: any) => {
     setIsUpdating(true);
     try {
-      // Combine address fields into a single string
       const fullAddress = `${updatedData.street}, ${updatedData.city}, ${updatedData.state} ${updatedData.zipCode}`;
       
       const { data, error } = await supabase
@@ -109,14 +108,28 @@ export const PatientHeader = ({
     }
   };
 
+  // Format patient data for the actions component
+  const formattedPatientData = {
+    id: patientData.id,
+    firstName: patientData.first_name,
+    lastName: patientData.last_name,
+    email: patientData.email,
+    phone: patientData.phone,
+    emergencyContactName: patientData.emergency_contact_name,
+    emergencyPhone: patientData.emergency_phone,
+    dob: patientData.dob,
+    sex: patientData.sex,
+    address: patientData.address,
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border border-gray-100">
         <div className="flex items-center gap-6">
           <div className="transform transition-transform duration-300 hover:scale-105">
             <PatientAvatar 
-              firstName={patientData.firstName} 
-              lastName={patientData.lastName}
+              firstName={patientData.first_name} 
+              lastName={patientData.last_name}
               avatar={patientData.avatar}
             />
           </div>
@@ -124,12 +137,12 @@ export const PatientHeader = ({
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold text-primary">
-                {patientData.firstName} {patientData.lastName}
+                {patientData.first_name} {patientData.last_name}
               </h1>
               <PatientActions 
                 onEdit={() => setShowEditDialog(true)}
                 onDelete={() => setShowDeleteDialog(true)}
-                patientData={patientData}
+                patientData={formattedPatientData}
               />
             </div>
             <p className="text-sm text-gray-500">{patientData.email}</p>
@@ -164,8 +177,8 @@ export const PatientHeader = ({
           ) : (
             <PatientForm
               initialData={{
-                firstName: patientData.firstName,
-                lastName: patientData.lastName,
+                firstName: patientData.first_name,
+                lastName: patientData.last_name,
                 email: patientData.email,
                 phone: patientData.phone,
                 emergencyContactName: patientData.emergency_contact_name || "",
@@ -189,7 +202,7 @@ export const PatientHeader = ({
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDeletePatient}
         isDeleting={isDeleting}
-        patientName={`${patientData.firstName} ${patientData.lastName}`}
+        patientName={`${patientData.first_name} ${patientData.last_name}`}
       />
     </div>
   );
