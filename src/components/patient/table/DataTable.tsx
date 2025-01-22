@@ -1,11 +1,13 @@
+"use client";
+
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  useReactTable,
   getPaginationRowModel,
-  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
+import { TablePagination } from "./TablePagination";
 import {
   Table,
   TableBody,
@@ -14,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TablePagination } from "./TablePagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -30,16 +31,15 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
-    <div>
-      <div className="rounded-md border">
+    <div className="flex flex-col h-full">
+      <div className="flex-grow overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -85,7 +85,9 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <TablePagination table={table} />
+      <div className="mt-auto py-4">
+        <TablePagination table={table} />
+      </div>
     </div>
   );
 }
