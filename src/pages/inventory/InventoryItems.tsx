@@ -165,60 +165,51 @@ const InventoryItems = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
-      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0 pb-6">
-        {/* Top Row with Stats, Search, and Actions */}
-        <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-6 flex-shrink-0">
-          {/* Stats Card */}
-          <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
-            <Package className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Items</p>
-              <p className="text-lg font-semibold text-primary">{items?.length || 0}</p>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="relative flex-1">
-            <Input
-              type="search"
-              placeholder="Search inventory items..."
-              className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="default"
-              onClick={() => setShowCategoryDialog(true)}
-              className={`text-gray-700 border-gray-200 hover:bg-gray-50 transition-all duration-200 ${selectedCategory ? 'bg-primary/5' : ''}`}
-            >
-              <ListFilter className="h-4 w-4 mr-2" />
-              {selectedCategory || "Categories"}
-            </Button>
-            <AddItemDialog onSuccess={refetch} />
-            <BulkUploadButton onSuccess={refetch} />
+      <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-6 flex-shrink-0">
+        <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
+          <Package className="h-5 w-5 text-primary" />
+          <div>
+            <p className="text-sm font-medium text-gray-500">Total Items</p>
+            <p className="text-lg font-semibold text-primary">{items?.length || 0}</p>
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border">
-          <InventoryTable items={items} onUpdate={refetch} />
+        <div className="relative flex-1">
+          <Input
+            type="search"
+            placeholder="Search inventory items..."
+            className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="default"
+            onClick={() => setShowCategoryDialog(true)}
+            className={`text-gray-700 border-gray-200 hover:bg-gray-50 transition-all duration-200 ${selectedCategory ? 'bg-primary/5' : ''}`}
+          >
+            <ListFilter className="h-4 w-4 mr-2" />
+            {selectedCategory || "Categories"}
+          </Button>
+          <AddItemDialog onSuccess={refetch} />
+          <BulkUploadButton onSuccess={refetch} />
         </div>
       </div>
 
-      {/* Categories Dialog */}
+      <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border">
+        <InventoryTable items={items} onUpdate={refetch} />
+      </div>
+
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
         <DialogContent className="sm:max-w-3xl h-[80vh]">
           <DialogHeader>
             <DialogTitle className="text-xl">Select Category</DialogTitle>
           </DialogHeader>
 
-          {/* Category Search and Add New Category */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
