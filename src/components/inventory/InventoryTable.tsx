@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -327,7 +327,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
-                      className="hover:text-primary font-medium transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       SKU 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -337,20 +337,20 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
-                      className="hover:text-primary font-medium transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Product Name 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
                   <TableHead className="w-[25%]">
-                    <span className="font-medium text-gray-700 px-4">Description</span>
+                    <span className="font-bold text-gray-700 px-4">Description</span>
                   </TableHead>
                   <TableHead className="w-[10%]">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
-                      className="hover:text-primary font-medium transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       UOM 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -360,7 +360,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
-                      className="hover:text-primary font-medium transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Min Stock 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -370,13 +370,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
-                      className="hover:text-primary font-medium transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-bold transition-colors duration-200 group text-left w-full justify-start px-4"
                     >
                       Price 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[10%] text-right px-4">Actions</TableHead>
+                  <TableHead className="w-[10%] text-right px-4 font-bold text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -403,7 +403,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                           variant="ghost" 
                           size="icon"
                           onClick={() => handleEditClick(item)}
-                          className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                          className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
                           title="Edit Item"
                         >
                           <Pencil className="h-4 w-4" />
@@ -412,7 +412,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                           variant="ghost" 
                           size="icon"
                           onClick={() => handleViewStock(item)}
-                          className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                          className="h-8 w-8 text-purple-500 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200"
                           title="View Stock"
                         >
                           <Eye className="h-4 w-4" />
@@ -421,7 +421,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                           variant="ghost" 
                           size="icon"
                           onClick={() => handleDeleteClick(item)}
-                          className="h-8 w-8 text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
                           title="Delete Item"
                         >
                           <Trash2 className="h-4 w-4" />
