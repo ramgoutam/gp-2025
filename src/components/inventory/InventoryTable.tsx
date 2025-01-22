@@ -39,6 +39,12 @@ interface StockLevel {
   quantity: number;
 }
 
+interface SelectedStockItem {
+  locationId: string;
+  locationName: string;
+  quantity: number;
+}
+
 export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | null, onUpdate: () => void }) => {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -50,7 +56,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   const [isViewStockDialogOpen, setIsViewStockDialogOpen] = useState(false);
   const [viewingItem, setViewingItem] = useState<InventoryItem | null>(null);
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
-  const [selectedStockItem, setSelectedStockItem] = useState<{ locationId: string; locationName: string; quantity: number } | null>(null);
+  const [selectedStockItem, setSelectedStockItem] = useState<SelectedStockItem | null>(null);
   const [targetLocationId, setTargetLocationId] = useState("");
   const [transferQuantity, setTransferQuantity] = useState(0);
   const [stockLevels, setStockLevels] = useState<StockLevel[]>([]);
