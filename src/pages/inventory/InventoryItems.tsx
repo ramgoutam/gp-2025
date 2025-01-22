@@ -197,7 +197,7 @@ const InventoryItems = () => {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border">
+      <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border h-[calc(100vh-12rem)] pb-4">
         <InventoryTable items={items} onUpdate={refetch} />
       </div>
 
