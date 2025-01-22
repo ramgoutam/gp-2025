@@ -323,60 +323,60 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 transition-colors duration-200">
-                  <TableHead className="w-[180px]">
+                  <TableHead className="w-[180px] font-mono text-sm text-gray-600 px-4">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
-                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-mono text-sm text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
                     >
                       SKU 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[250px]">
+                  <TableHead className="w-[250px] font-medium text-gray-900 px-4">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
-                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary font-medium text-gray-900 transition-colors duration-200 group text-left w-full justify-start"
                     >
                       Product Name 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[400px]">
-                    <span className="font-bold text-gray-700 px-4">Description</span>
+                  <TableHead className="w-[400px] text-gray-600 truncate px-4">
+                    <span>Description</span>
                   </TableHead>
-                  <TableHead className="w-[100px]">
+                  <TableHead className="w-[100px] text-gray-600 px-4">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
-                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
                     >
                       UOM 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[100px]">
+                  <TableHead className="w-[100px] text-gray-600 px-4">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
-                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
                     >
                       Min Stock 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[100px]">
+                  <TableHead className="w-[100px] text-gray-600 px-4">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
-                      className="hover:text-primary font-bold text-gray-700 transition-colors duration-200 group text-left w-full justify-start px-4"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
                     >
                       Price 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[100px] text-right px-4 font-bold text-gray-700">Actions</TableHead>
+                  <TableHead className="w-[100px] text-right px-4 text-gray-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
