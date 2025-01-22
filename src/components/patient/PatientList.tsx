@@ -185,12 +185,14 @@ export const PatientList = () => {
   );
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="h-[calc(100vh-4rem)] p-4 space-y-6 overflow-hidden flex flex-col">
       <div className="flex justify-between items-center mb-6 px-4">
         <PatientSearch />
         {renderViewToggle()}
       </div>
-      {viewMode === 'card' ? renderCardView() : renderListView()}
+      <div className="flex-1 overflow-auto">
+        {viewMode === 'card' ? renderCardView() : renderListView()}
+      </div>
     </div>
   );
 };
