@@ -109,7 +109,7 @@ export const PatientHeader = ({
   };
 
   // Format patient data for the actions component
-  const formattedPatientData = {
+  const formattedPatientData = patientData ? {
     id: patientData.id,
     firstName: patientData.first_name,
     lastName: patientData.last_name,
@@ -120,7 +120,11 @@ export const PatientHeader = ({
     dob: patientData.dob,
     sex: patientData.sex,
     address: patientData.address,
-  };
+  } : null;
+
+  if (!patientData || !formattedPatientData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -47,22 +47,8 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
 
   const addressParts = parseAddress(patientData?.address);
 
-  // Format the patient data for the form
-  const formattedPatientData = {
-    id: patientData.id,
-    firstName: patientData.firstName,
-    lastName: patientData.lastName,
-    email: patientData.email,
-    phone: patientData.phone,
-    emergencyContactName: patientData.emergencyContactName || '',
-    emergencyPhone: patientData.emergencyPhone || '',
-    dob: patientData.dob,
-    sex: patientData.sex,
-    ...addressParts
-  };
-
   const handleEditClick = () => {
-    console.log("Opening edit dialog with data:", formattedPatientData);
+    console.log("Opening edit dialog with data:", patientData);
     setShowEditDialog(true);
   };
 
@@ -70,7 +56,6 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
     try {
       console.log("Handling edit submit with data:", updatedData);
       
-      // Combine address fields into a single string
       const fullAddress = `${updatedData.street}, ${updatedData.city}, ${updatedData.state} ${updatedData.zipCode}`;
       
       const { error } = await supabase
@@ -135,7 +120,10 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
           <PatientForm
             onSubmit={handleEditSubmit}
             onClose={() => setShowEditDialog(false)}
-            initialData={formattedPatientData}
+            initialData={{
+              ...patientData,
+              ...addressParts
+            }}
           />
         </DialogContent>
       </Dialog>
