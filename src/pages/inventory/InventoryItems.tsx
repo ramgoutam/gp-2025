@@ -52,10 +52,8 @@ const InventoryItems = () => {
     }
   });
 
-  // Get unique categories from items and sort them alphabetically
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
 
-  // Filter categories based on search
   const filteredCategories = categories.filter(category => 
     category.toLowerCase().includes(categorySearchQuery.toLowerCase())
   );
@@ -88,7 +86,6 @@ const InventoryItems = () => {
       return;
     }
 
-    // Add the new category to an existing item to make it appear in the list
     const { error } = await supabase
       .from('inventory_items')
       .update({ category: newCategory.trim() })
@@ -165,7 +162,7 @@ const InventoryItems = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
-      <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-6 flex-shrink-0">
+      <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-6 flex-shrink-0 mt-4">
         <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
           <Package className="h-5 w-5 text-primary" />
           <div>
