@@ -308,13 +308,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
-                  <TableHead className="w-[180px] font-medium text-gray-600">SKU</TableHead>
-                  <TableHead className="w-[250px] font-medium text-gray-900">Product Name</TableHead>
+                  <TableHead className="w-[40px] font-medium text-gray-600"></TableHead>
+                  <TableHead className="w-[250px] font-medium text-gray-600">SKU</TableHead>
+                  <TableHead className="w-[300px] font-medium text-gray-600">Product Name</TableHead>
                   <TableHead className="w-[300px] font-medium text-gray-600">Description</TableHead>
-                  <TableHead className="w-[120px] font-medium text-gray-600">UOM</TableHead>
-                  <TableHead className="w-[120px] font-medium text-gray-600">Min Stock</TableHead>
-                  <TableHead className="w-[120px] font-medium text-gray-600">Price</TableHead>
-                  <TableHead className="w-[120px] text-right font-medium text-gray-600">Actions</TableHead>
+                  <TableHead className="w-[200px] font-medium text-gray-600">UOM</TableHead>
+                  <TableHead className="w-[150px] font-medium text-gray-600">Min Stock</TableHead>
+                  <TableHead className="w-[150px] text-right font-medium text-gray-600">Price</TableHead>
+                  <TableHead className="w-[100px] text-right font-medium text-gray-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
