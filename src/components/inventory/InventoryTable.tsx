@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, MapPin, ArrowLeftRight, AlertTriangle, Info } from 'lucide-react';
+import { Package, Pencil, Search, Trash2, Eye, MapPin, ArrowLeftRight, AlertTriangle, Info } from 'lucide-react';
 import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
@@ -300,8 +300,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     }
   };
 
-  // Sort functionality removed
-
   return (
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 pb-8">
@@ -309,36 +307,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           <div className="sticky top-0 z-20 bg-white border-b border-gray-100">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 transition-colors duration-200">
-                  <TableHead className="w-[180px] font-mono text-sm text-gray-600 p-0">
-                    <span className="hover:text-primary font-mono text-sm text-gray-600 px-4 py-2">
-                      SKU
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-[250px] font-medium text-gray-900 p-0">
-                    <span className="hover:text-primary font-medium text-gray-900 px-4 py-2">
-                      Product Name
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-[300px] text-gray-600 truncate px-4">
-                    <span>Description</span>
-                  </TableHead>
-                  <TableHead className="w-[120px] text-gray-600 p-0">
-                    <span className="hover:text-primary text-gray-600 px-4 py-2">
-                      UOM
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-[120px] text-gray-600 p-0">
-                    <span className="hover:text-primary text-gray-600 px-4 py-2">
-                      Min Stock
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-[120px] text-gray-600 p-0">
-                    <span className="hover:text-primary text-gray-600 px-4 py-2">
-                      Price
-                    </span>
-                  </TableHead>
-                  <TableHead className="w-[120px] text-right px-4 text-gray-600">Actions</TableHead>
+                <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
+                  <TableHead className="w-[180px] font-medium text-gray-600">SKU</TableHead>
+                  <TableHead className="w-[250px] font-medium text-gray-900">Product Name</TableHead>
+                  <TableHead className="w-[300px] font-medium text-gray-600">Description</TableHead>
+                  <TableHead className="w-[120px] font-medium text-gray-600">UOM</TableHead>
+                  <TableHead className="w-[120px] font-medium text-gray-600">Min Stock</TableHead>
+                  <TableHead className="w-[120px] font-medium text-gray-600">Price</TableHead>
+                  <TableHead className="w-[120px] text-right font-medium text-gray-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
