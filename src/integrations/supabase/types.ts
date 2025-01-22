@@ -806,6 +806,42 @@ export type Database = {
         }
         Relationships: []
       }
+      post_surgery_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          item_name: string
+          notes: string | null
+          quantity: number
+          status: string | null
+          surgery_date: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          item_name: string
+          notes?: string | null
+          quantity?: number
+          status?: string | null
+          surgery_date: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          item_name?: string
+          notes?: string | null
+          quantity?: number
+          status?: string | null
+          surgery_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       purchase_order_items: {
         Row: {
           created_at: string
