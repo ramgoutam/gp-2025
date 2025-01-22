@@ -389,7 +389,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 pb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 pb-8">
         <div className="relative">
           {/* Sticky Header */}
           <div className="sticky top-0 z-20 bg-white border-b border-gray-100">
