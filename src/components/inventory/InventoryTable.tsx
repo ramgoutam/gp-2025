@@ -417,11 +417,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     </Button>
                   </TableHead>
                   <TableHead className="font-medium text-gray-700">Description</TableHead>
-                  <TableHead>
+                  <TableHead className="text-left">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
-                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group text-left w-full justify-start"
                     >
                       UOM 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
