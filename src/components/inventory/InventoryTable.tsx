@@ -1,4 +1,3 @@
-<lov-code>
 import React, { useState, useMemo } from "react";
 import {
   Table,
@@ -67,14 +66,12 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     return [...stockLevels].sort((a, b) => a.location_name.localeCompare(b.location_name));
   }, [stockLevels]);
 
-  // Get unique categories for filter dropdown
   const categories = useMemo(() => {
     if (!items) return [];
     const uniqueCategories = new Set(items.map(item => item.category).filter(Boolean));
     return Array.from(uniqueCategories);
   }, [items]);
 
-  // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     if (!items) return [];
     
@@ -163,7 +160,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     if (!selectedStockItem || !targetLocationId || !viewingItem) return;
 
     try {
-      // First reduce stock in source location
       const { error: sourceError } = await supabase
         .from('inventory_stock')
         .update({ 
@@ -174,7 +170,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
 
       if (sourceError) throw sourceError;
 
-      // Then add or update stock in target location
       const { data: existingStock } = await supabase
         .from('inventory_stock')
         .select('quantity')
@@ -209,7 +204,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         description: "Stock transferred successfully",
       });
 
-      // Refresh stock levels
       handleViewStock(viewingItem);
       setIsTransferDialogOpen(false);
     } catch (error) {
@@ -319,7 +313,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 pb-8">
         <div className="relative">
-          {/* Sticky Header */}
           <div className="sticky top-0 z-20 bg-white border-b border-gray-100">
             <Table>
               <TableHeader>
@@ -383,7 +376,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             </Table>
           </div>
 
-          {/* Scrollable Content */}
           <div className="max-h-[calc(100vh-16rem)] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full">
             <Table>
               <TableBody>
@@ -447,7 +439,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </div>
       </div>
 
-      {/* Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -591,7 +582,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </DialogContent>
       </Dialog>
 
-      {/* View Stock Dialog */}
       <Dialog open={isViewStockDialogOpen} onOpenChange={setIsViewStockDialogOpen}>
         <DialogContent className="sm:max-w-[700px] p-0">
           <DialogHeader className="p-6 pb-2">
@@ -660,7 +650,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
         </DialogContent>
       </Dialog>
 
-      {/* Transfer Stock Dialog */}
       <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -702,4 +691,57 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Quantity (Available: {selectedStockItem?.quantity
+              <Label>Quantity (Available: {selectedStockItem?.quantity})</Label>
+              <Input
+                type="number"
+                min="1"
+                max={selectedStockItem?.quantity || 0}
+                value={transferQuantity}
+                onChange={(e) => setTransferQuantity(parseInt(e.target.value))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsTransferDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransferStock}
+              disabled={!targetLocationId || transferQuantity <= 0 || transferQuantity > (selectedStockItem?.quantity || 0)}
+            >
+              Transfer Stock
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!isDeletingItem} onOpenChange={(open) => !open && setIsDeletingItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Item</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this item? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeletingItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
