@@ -455,7 +455,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           </div>
 
           {/* Scrollable Content */}
-          <div className="max-h-[calc(100vh-16rem)] overflow-auto">
+          <div className="max-h-[calc(100vh-16rem)] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full">
             <Table>
               <TableBody>
                 {filteredAndSortedItems.map((item) => (
