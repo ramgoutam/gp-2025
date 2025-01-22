@@ -390,124 +390,135 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
   return (
     <>
       <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
-              <TableHead className="w-12"></TableHead>
-              <TableHead>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleSort("sku")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
-                >
-                  SKU 
-                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleSort("product_name")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
-                >
-                  Product Name 
-                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                </Button>
-              </TableHead>
-              <TableHead className="font-medium text-gray-700">Description</TableHead>
-              <TableHead>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleSort("uom")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
-                >
-                  UOM 
-                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleSort("min_stock")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
-                >
-                  Min Stock 
-                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleSort("price")}
-                  className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
-                >
-                  Price 
-                  <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                </Button>
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredAndSortedItems.map((item) => (
-              <TableRow 
-                key={item.id} 
-                className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
-              >
-                <TableCell>
-                  <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
-                </TableCell>
-                <TableCell className="font-mono text-sm text-gray-600">{item.sku}</TableCell>
-                <TableCell className="font-medium text-gray-900">{item.product_name}</TableCell>
-                <TableCell className="text-gray-600 max-w-md truncate">{item.description}</TableCell>
-                <TableCell className="text-gray-600">{item.uom}</TableCell>
-                <TableCell className="text-gray-600">{item.min_stock}</TableCell>
-                <TableCell className="text-gray-600">${item.price?.toFixed(2) || '0.00'}</TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
+        <div className="relative">
+          {/* Sticky Header */}
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-100">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>
                     <Button 
                       variant="ghost" 
-                      size="icon"
-                      onClick={() => handleEditClick(item)}
-                      className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
-                      title="Edit Item"
+                      onClick={() => handleSort("sku")}
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                     >
-                      <Pencil className="h-4 w-4" />
+                      SKU 
+                      <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
+                  </TableHead>
+                  <TableHead>
                     <Button 
                       variant="ghost" 
-                      size="icon"
-                      onClick={() => handleViewStock(item)}
-                      className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
-                      title="View Stock"
+                      onClick={() => handleSort("product_name")}
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                     >
-                      <Eye className="h-4 w-4" />
+                      Product Name 
+                      <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
+                  </TableHead>
+                  <TableHead className="font-medium text-gray-700">Description</TableHead>
+                  <TableHead>
                     <Button 
                       variant="ghost" 
-                      size="icon"
-                      onClick={() => handleDeleteClick(item)}
-                      className="h-8 w-8 text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
-                      title="Delete Item"
+                      onClick={() => handleSort("uom")}
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      UOM 
+                      <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!filteredAndSortedItems.length && (
-              <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center">
-                  <div className="flex flex-col items-center justify-center text-gray-500 animate-fade-in">
-                    <Package className="h-8 w-8 text-gray-400 mb-2" />
-                    No items found. Add some items to get started.
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                  </TableHead>
+                  <TableHead>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => handleSort("min_stock")}
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
+                    >
+                      Min Stock 
+                      <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => handleSort("price")}
+                      className="hover:text-primary font-medium transition-colors duration-200 -ml-4 group"
+                    >
+                      Price 
+                      <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+            </Table>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="overflow-auto">
+            <Table>
+              <TableBody>
+                {filteredAndSortedItems.map((item) => (
+                  <TableRow 
+                    key={item.id} 
+                    className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
+                  >
+                    <TableCell>
+                      <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+                    </TableCell>
+                    <TableCell className="font-mono text-sm text-gray-600">{item.sku}</TableCell>
+                    <TableCell className="font-medium text-gray-900">{item.product_name}</TableCell>
+                    <TableCell className="text-gray-600 max-w-md truncate">{item.description}</TableCell>
+                    <TableCell className="text-gray-600">{item.uom}</TableCell>
+                    <TableCell className="text-gray-600">{item.min_stock}</TableCell>
+                    <TableCell className="text-gray-600">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEditClick(item)}
+                          className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                          title="Edit Item"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleViewStock(item)}
+                          className="h-8 w-8 text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors duration-200"
+                          title="View Stock"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDeleteClick(item)}
+                          className="h-8 w-8 text-gray-600 hover:text-destructive hover:bg-destructive/5 transition-colors duration-200"
+                          title="Delete Item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!filteredAndSortedItems.length && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-32 text-center">
+                      <div className="flex flex-col items-center justify-center text-gray-500 animate-fade-in">
+                        <Package className="h-8 w-8 text-gray-400 mb-2" />
+                        No items found. Add some items to get started.
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
 
       {/* Edit Dialog */}
