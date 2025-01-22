@@ -230,7 +230,6 @@ const Admin = () => {
 
       if (error) throw error;
 
-      // Open the magic link in a new tab
       window.open(data.magicLink, '_blank');
 
       toast({
