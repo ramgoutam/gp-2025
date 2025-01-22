@@ -179,7 +179,7 @@ export const PatientList = () => {
   );
 
   const renderListView = () => (
-    <div className="bg-background rounded-md border">
+    <div className="bg-background rounded-md border h-[calc(100vh-13rem)] pb-4">
       <DataTable columns={columns} data={filteredPatients} />
     </div>
   );
