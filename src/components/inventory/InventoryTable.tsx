@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Package, Pencil, ArrowUpDown, Search, Trash2, Eye, ArrowLeftRight, AlertTriangle, Info, MapPin } from 'lucide-react';
-import type { InventoryItem } from "@/types/database/inventory";
 import {
   Dialog,
   DialogContent,
@@ -396,7 +395,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
-                  <TableHead className="w-12"></TableHead>
                   <TableHead>
                     <Button 
                       variant="ghost" 
@@ -463,9 +461,6 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     key={item.id} 
                     className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
                   >
-                    <TableCell>
-                      <Package className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200" />
-                    </TableCell>
                     <TableCell className="font-mono text-sm text-gray-600">{item.sku}</TableCell>
                     <TableCell className="font-medium text-gray-900">{item.product_name}</TableCell>
                     <TableCell className="text-gray-600 max-w-md truncate">{item.description}</TableCell>
@@ -507,7 +502,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                 ))}
                 {!filteredAndSortedItems.length && (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-32 text-center">
+                    <TableCell colSpan={7} className="h-32 text-center">
                       <div className="flex flex-col items-center justify-center text-gray-500 animate-fade-in">
                         <Package className="h-8 w-8 text-gray-400 mb-2" />
                         No items found. Add some items to get started.
