@@ -84,7 +84,14 @@ export const columns: ColumnDef<Patient>[] = [
       const hasLowerTreatment = Boolean(row.original.lower_treatment);
       
       return (
-        <Badge variant={hasUpperTreatment || hasLowerTreatment ? "default" : "secondary"}>
+        <Badge 
+          variant={hasUpperTreatment || hasLowerTreatment ? "default" : "secondary"}
+          className={`px-4 py-1 rounded-md ${
+            hasUpperTreatment || hasLowerTreatment 
+              ? "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20" 
+              : "bg-muted text-muted-foreground hover:bg-muted/80 border border-muted-foreground/20"
+          }`}
+        >
           {hasUpperTreatment || hasLowerTreatment ? "Active" : "Not Started"}
         </Badge>
       );
