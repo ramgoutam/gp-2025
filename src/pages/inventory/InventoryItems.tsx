@@ -164,8 +164,8 @@ const InventoryItems = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
-      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0 py-6">
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
+      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0">
         {/* Top Row with Stats, Search, and Actions */}
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 border shadow-sm mb-6 flex-shrink-0">
           {/* Stats Card */}
@@ -205,7 +205,7 @@ const InventoryItems = () => {
           </div>
         </div>
 
-        {/* Table Section - Now with flex-1 and overflow handling */}
+        {/* Table Section */}
         <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border">
           <ScrollArea className="h-full rounded-lg">
             <InventoryTable items={items} onUpdate={refetch} />
