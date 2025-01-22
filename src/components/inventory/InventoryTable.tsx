@@ -327,7 +327,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
-                      className="hover:text-primary font-mono text-sm text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
+                      className="hover:text-primary font-mono text-sm text-gray-600 transition-colors duration-200 group text-left w-full justify-start p-0"
                     >
                       SKU 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -337,7 +337,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
-                      className="hover:text-primary font-medium text-gray-900 transition-colors duration-200 group text-left w-full justify-start"
+                      className="hover:text-primary font-medium text-gray-900 transition-colors duration-200 group text-left w-full justify-start p-0"
                     >
                       Product Name 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -350,7 +350,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
-                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start p-0"
                     >
                       UOM 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -360,7 +360,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
-                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start p-0"
                     >
                       Min Stock 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -370,7 +370,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
-                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start"
+                      className="hover:text-primary text-gray-600 transition-colors duration-200 group text-left w-full justify-start p-0"
                     >
                       Price 
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
