@@ -70,10 +70,10 @@ export const columns: ColumnDef<Patient>[] = [
     cell: ({ row }) => row.getValue("email"),
   },
   {
-    id: "location",
-    header: "Location",
+    id: "phone",
+    header: "Phone",
     cell: ({ row }) => (
-      <div>{row.original.address || "Not specified"}</div>
+      <div>{row.original.phone || "Not specified"}</div>
     ),
   },
   {
