@@ -109,12 +109,6 @@ export const PatientHeader = ({
     }
   };
 
-  // Split the address string into components for the form
-  const addressParts = patientData.address ? patientData.address.split(',') : ['', '', ''];
-  const [street = '', cityStateZip = ''] = addressParts;
-  const [city = '', stateZip = ''] = (cityStateZip || '').trim().split(',');
-  const [state = '', zipCode = ''] = (stateZip || '').trim().split(' ');
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border border-gray-100">
@@ -135,6 +129,7 @@ export const PatientHeader = ({
               <PatientActions 
                 onEdit={() => setShowEditDialog(true)}
                 onDelete={() => setShowDeleteDialog(true)}
+                patientData={patientData}
               />
             </div>
             <p className="text-sm text-gray-500">{patientData.email}</p>
@@ -177,10 +172,10 @@ export const PatientHeader = ({
                 emergencyPhone: patientData.emergency_phone || "",
                 sex: patientData.sex,
                 dob: patientData.dob,
-                street: street.trim(),
-                city: city.trim(),
-                state: state.trim(),
-                zipCode: zipCode.trim(),
+                street: patientData.street || "",
+                city: patientData.city || "",
+                state: patientData.state || "",
+                zipCode: patientData.zipCode || "",
               }}
               onSubmit={handleEditPatient}
               onClose={() => setShowEditDialog(false)}

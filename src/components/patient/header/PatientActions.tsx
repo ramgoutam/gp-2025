@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/PatientForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface PatientActionsProps {
   onEdit: () => void;
@@ -40,7 +40,7 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
     };
   };
 
-  const addressParts = parseAddress(patientData.address);
+  const addressParts = parseAddress(patientData?.address);
 
   // Format the patient data for the form
   const formattedPatientData = {
@@ -65,18 +65,20 @@ export const PatientActions = ({ onEdit, onDelete, patientData }: PatientActions
     try {
       console.log("Handling edit submit with data:", updatedData);
       
-      // Update the patient in the database
+      // Combine address fields into a single string
+      const fullAddress = `${updatedData.street}, ${updatedData.city}, ${updatedData.state} ${updatedData.zipCode}`;
+      
       const { error } = await supabase
         .from('patients')
         .update({
-          first_name: updatedData.first_name,
-          last_name: updatedData.last_name,
+          first_name: updatedData.firstName,
+          last_name: updatedData.lastName,
           email: updatedData.email,
           phone: updatedData.phone,
-          emergency_contact_name: updatedData.emergency_contact_name,
-          emergency_phone: updatedData.emergency_phone,
+          emergency_contact_name: updatedData.emergencyContactName,
+          emergency_phone: updatedData.emergencyPhone,
           dob: updatedData.dob,
-          address: updatedData.address,
+          address: fullAddress,
           sex: updatedData.sex,
         })
         .eq('id', patientData.id);
