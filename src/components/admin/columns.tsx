@@ -10,8 +10,20 @@ export const columns: ColumnDef<UserRole>[] = [
     header: "First Name",
     cell: ({ row }) => {
       return (
-        <div className="font-medium">
-          {row.original.first_name || "Not specified"}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-primary font-medium">
+              {(row.original.first_name?.[0] || "").toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <div className="font-medium text-gray-900">
+              {row.original.first_name || "Not specified"}
+            </div>
+            <div className="text-sm text-gray-500">
+              @{row.original.first_name?.toLowerCase() || "user"}
+            </div>
+          </div>
         </div>
       );
     },
@@ -21,7 +33,7 @@ export const columns: ColumnDef<UserRole>[] = [
     header: "Last Name",
     cell: ({ row }) => {
       return (
-        <div className="font-medium">
+        <div className="font-medium text-gray-900">
           {row.original.last_name || "Not specified"}
         </div>
       );
@@ -32,7 +44,7 @@ export const columns: ColumnDef<UserRole>[] = [
     header: "Phone",
     cell: ({ row }) => {
       return (
-        <div className="font-medium">
+        <div className="font-medium text-gray-600">
           {row.original.phone || "Not specified"}
         </div>
       );
@@ -45,7 +57,7 @@ export const columns: ColumnDef<UserRole>[] = [
       return (
         <Badge 
           variant="outline" 
-          className="px-4 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+          className="px-4 py-1 rounded-md bg-primary/5 text-primary hover:bg-primary/10 border border-primary/20 font-medium"
         >
           {row.original.role}
         </Badge>
@@ -60,7 +72,7 @@ export const columns: ColumnDef<UserRole>[] = [
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 lg:px-3 hover:bg-primary/10 hover:text-primary border-primary/20"
+            className="h-8 px-2 lg:px-3 hover:bg-primary/5 hover:text-primary border-primary/20"
           >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
@@ -68,7 +80,7 @@ export const columns: ColumnDef<UserRole>[] = [
           <Button
             variant="outline"
             size="sm"
-            className="h-8 px-2 lg:px-3 hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+            className="h-8 px-2 lg:px-3 hover:bg-destructive/5 hover:text-destructive border-destructive/20"
           >
             <Trash className="h-4 w-4" />
             <span className="sr-only">Delete</span>
