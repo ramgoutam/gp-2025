@@ -100,7 +100,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
-            <main className="container mx-auto py-8 px-4">
+            <main className="container mx-auto px-4 h-screen overflow-hidden">
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route
