@@ -185,7 +185,7 @@ export const PatientList = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-6">
       <div className="flex justify-between items-center mb-6">
         <PatientSearch />
         {renderViewToggle()}
