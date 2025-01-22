@@ -391,13 +391,13 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     key={item.id} 
                     className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
                   >
-                    <TableCell className="font-mono text-sm text-gray-600 px-4">{item.sku}</TableCell>
-                    <TableCell className="font-medium text-gray-900 px-4">{item.product_name}</TableCell>
-                    <TableCell className="text-gray-600 max-w-md truncate px-4">{item.description}</TableCell>
-                    <TableCell className="text-gray-600 px-4">{item.uom}</TableCell>
-                    <TableCell className="text-gray-600 px-4">{item.min_stock}</TableCell>
-                    <TableCell className="text-gray-600 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="pr-4">
+                    <TableCell className="w-[12%] font-mono text-sm text-gray-600 px-4">{item.sku}</TableCell>
+                    <TableCell className="w-[20%] font-medium text-gray-900 px-4">{item.product_name}</TableCell>
+                    <TableCell className="w-[28%] text-gray-600 max-w-md truncate px-4">{item.description}</TableCell>
+                    <TableCell className="w-[10%] text-gray-600 px-4">{item.uom}</TableCell>
+                    <TableCell className="w-[12%] text-gray-600 px-4">{item.min_stock}</TableCell>
+                    <TableCell className="w-[10%] text-gray-600 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="w-[8%] pr-4">
                       <div className="flex justify-end gap-2">
                         <Button 
                           variant="ghost" 
