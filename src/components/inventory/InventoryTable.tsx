@@ -392,7 +392,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
       <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
         <div className="relative">
           {/* Sticky Header */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-100">
+          <div className="sticky top-0 z-20 bg-white border-b border-gray-100">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 transition-colors duration-200">
@@ -455,7 +455,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
           </div>
 
           {/* Scrollable Content */}
-          <div className="overflow-auto">
+          <div className="max-h-[calc(100vh-16rem)] overflow-auto">
             <Table>
               <TableBody>
                 {filteredAndSortedItems.map((item) => (
