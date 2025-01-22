@@ -79,17 +79,6 @@ const Admin = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole['role'] | null>(null);
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof createUserSchema>>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-      phone: "",
-      role: "CLINICAL_STAFF",
-    },
-  });
 
   const { data: userRoles, isLoading, refetch } = useQuery({
     queryKey: ['userRoles'],
@@ -97,7 +86,8 @@ const Admin = () => {
       console.log('Fetching user roles...');
       const { data: roles, error } = await supabase
         .from('user_roles')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching roles:', error);
@@ -107,6 +97,9 @@ const Admin = () => {
       console.log('Fetched roles:', roles);
       return roles as UserRole[];
     },
+    staleTime: 30000,
+    cacheTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   const { data: currentUserRole } = useQuery({
@@ -120,18 +113,22 @@ const Admin = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       console.log('Current user role:', roles?.role);
       return roles?.role;
     },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000
   });
 
   useEffect(() => {
     const fetchUserEmails = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-user-details');
+        const { data, error } = await supabase.functions.invoke('get-user-details', {
+          body: { cache: true }
+        });
         if (error) throw error;
         setUserEmails(data.users);
       } catch (error) {
@@ -147,188 +144,9 @@ const Admin = () => {
     fetchUserEmails();
   }, [toast]);
 
-  const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
-    try {
-      // Only allow admins to update roles
-      if (currentUserRole !== 'ADMIN') {
-        toast({
-          title: "Error",
-          description: "Only administrators can update user roles",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Updating role for user:', userId, 'to:', newRole);
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error updating role:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update user role",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: `User role updated to ${newRole}`,
-      });
-      setIsRoleDialogOpen(false);
-      setEditingRole(null);
-      refetch();
-    } catch (error) {
-      console.error('Error updating role:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update user role",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      const { error } = await supabase.functions.invoke('create-user', {
-        body: { userId, action: 'delete' }
-      });
-
-      if (error) {
-        console.error('Error deleting user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to delete user",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-      });
-      refetch();
-      setUserToDelete(null);
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete user",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePasswordChange = async (userId: string) => {
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase.functions.invoke('update-user-password', {
-        body: { 
-          userId,
-          newPassword
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Password updated successfully",
-      });
-      
-      setIsPasswordDialogOpen(false);
-      setNewPassword('');
-      setConfirmPassword('');
-      setChangingPasswordFor(null);
-    } catch (error) {
-      console.error('Error updating password:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update password",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleImpersonateUser = async (userId: string) => {
-    try {
-      console.log('Starting impersonation for user:', userId);
-      
-      // Clear all existing data before impersonation
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      const { data, error } = await supabase.functions.invoke('impersonate-user', {
-        body: { targetUserId: userId }
-      });
-
-      if (error) {
-        console.error('Impersonation error:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to impersonate user",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!data?.data?.magicLink) {
-        console.error('No magic link received');
-        toast({
-          title: "Error",
-          description: "Failed to generate login link",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Sign out current user first
-      await supabase.auth.signOut();
-      
-      toast({
-        title: "Impersonation Started",
-        description: "You will be redirected to login as the selected user.",
-      });
-
-      // Redirect to the magic link
-      window.location.href = data.data.magicLink;
-      
-    } catch (error) {
-      console.error('Error impersonating user:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to impersonate user",
-        variant: "destructive",
-      });
-    }
-  };
-
   const filteredRoles = userRoles?.filter(role => 
     userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const roles: UserRole['role'][] = [
-    "ADMIN",
-    "MANAGER_CLINICAL",
-    "DOCTOR",
-    "CLINICAL_STAFF",
-    "LAB_MANAGER",
-    "LAB_STAFF",
-    "FRONT_DESK"
-  ];
+  ) || [];
 
   const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
@@ -384,7 +202,6 @@ const Admin = () => {
         <Shield className="h-8 w-8 text-muted-foreground" />
       </div>
 
-      {/* Password Change Dialog */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -437,7 +254,6 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Role Edit Dialog */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -634,21 +450,21 @@ const Admin = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                      <span className="ml-2">Loading users...</span>
+                  <TableCell colSpan={5} className="h-24">
+                    <div className="flex items-center justify-center space-x-4">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span className="text-muted-foreground">Loading users...</span>
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredRoles?.length === 0 ? (
+              ) : filteredRoles.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                     No users found
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredRoles?.map((userRole) => (
+                filteredRoles.map((userRole) => (
                   <TableRow 
                     key={userRole.id}
                     className="transition-colors hover:bg-muted/50"
@@ -771,93 +587,6 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* User Details Edit Dialog */}
-      <Dialog open={editingUserDetails !== null} onOpenChange={() => setEditingUserDetails(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User Details</DialogTitle>
-            <DialogDescription>
-              Update the user's personal information.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-first-name">First Name</Label>
-              <Input
-                id="edit-first-name"
-                value={editingUserDetails?.first_name || ''}
-                onChange={(e) => setEditingUserDetails(prev => 
-                  prev ? { ...prev, first_name: e.target.value } : null
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-last-name">Last Name</Label>
-              <Input
-                id="edit-last-name"
-                value={editingUserDetails?.last_name || ''}
-                onChange={(e) => setEditingUserDetails(prev => 
-                  prev ? { ...prev, last_name: e.target.value } : null
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone</Label>
-              <PhoneInput
-                value={editingUserDetails?.phone || ''}
-                onChange={(value) => setEditingUserDetails(prev => 
-                  prev ? { ...prev, phone: value } : null
-                )}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditingUserDetails(null)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={async () => {
-                if (editingUserDetails) {
-                  try {
-                    const { error } = await supabase
-                      .from('user_roles')
-                      .update({
-                        first_name: editingUserDetails.first_name,
-                        last_name: editingUserDetails.last_name,
-                        phone: editingUserDetails.phone
-                      })
-                      .eq('id', editingUserDetails.id);
-
-                    if (error) throw error;
-
-                    toast({
-                      title: "Success",
-                      description: "User details updated successfully",
-                    });
-                    
-                    setEditingUserDetails(null);
-                    refetch();
-                  } catch (error) {
-                    console.error('Error updating user details:', error);
-                    toast({
-                      title: "Error",
-                      description: "Failed to update user details",
-                      variant: "destructive",
-                    });
-                  }
-                }
-              }}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete User Dialog */}
       <DeletePatientDialog
         isOpen={!!userToDelete}
         onOpenChange={(open) => {
@@ -876,4 +605,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
