@@ -343,10 +343,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[300px]">
+                  <TableHead className="w-[400px]">
                     <span className="font-bold text-gray-700 px-4">Description</span>
                   </TableHead>
-                  <TableHead className="w-[120px]">
+                  <TableHead className="w-[100px]">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
@@ -356,7 +356,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px]">
+                  <TableHead className="w-[100px]">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
@@ -366,7 +366,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px]">
+                  <TableHead className="w-[100px]">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
@@ -376,7 +376,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px] text-right px-4 font-bold text-gray-700">Actions</TableHead>
+                  <TableHead className="w-[100px] text-right px-4 font-bold text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -393,11 +393,11 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                   >
                     <TableCell className="w-[180px] font-mono text-sm text-gray-600 px-4">{item.sku}</TableCell>
                     <TableCell className="w-[250px] font-medium text-gray-900 px-4">{item.product_name}</TableCell>
-                    <TableCell className="w-[300px] text-gray-600 truncate px-4">{item.description}</TableCell>
-                    <TableCell className="w-[120px] text-gray-600 px-4">{item.uom}</TableCell>
-                    <TableCell className="w-[120px] text-gray-600 px-4">{item.min_stock}</TableCell>
-                    <TableCell className="w-[120px] text-gray-600 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="w-[120px]">
+                    <TableCell className="w-[400px] text-gray-600 truncate px-4">{item.description}</TableCell>
+                    <TableCell className="w-[100px] text-gray-600 px-4">{item.uom}</TableCell>
+                    <TableCell className="w-[100px] text-gray-600 px-4">{item.min_stock}</TableCell>
+                    <TableCell className="w-[100px] text-gray-600 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="w-[100px]">
                       <div className="flex justify-end gap-2 px-4">
                         <Button 
                           variant="ghost" 
