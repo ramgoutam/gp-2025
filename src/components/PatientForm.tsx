@@ -79,6 +79,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log("Form submission started with data:", { formData, initialData });
 
     try {
       // Validate required fields
@@ -140,8 +141,12 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error updating patient:", error);
+          throw error;
+        }
         result = data;
+        console.log("Patient updated successfully:", result);
       } else {
         // Creating a new patient
         console.log("Creating new patient");
@@ -151,8 +156,12 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error creating patient:", error);
+          throw error;
+        }
         result = data;
+        console.log("New patient created successfully:", result);
       }
 
       toast({
@@ -211,7 +220,7 @@ export const PatientForm = ({ onSubmit, onClose, initialData }: PatientFormProps
             </Button>
           )}
           <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : initialData ? "Update Patient" : "Create Patient"}
+            {isSubmitting ? "Saving..." : initialData?.id ? "Update Patient" : "Create Patient"}
           </Button>
         </div>
       </div>
