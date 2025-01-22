@@ -272,6 +272,46 @@ const Admin = () => {
     }
   };
 
+  const onSubmit = async (data: z.infer<typeof createUserSchema>) => {
+    try {
+      const { error } = await supabase.functions.invoke('create-user', {
+        body: { 
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          role: data.role
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User created successfully",
+      });
+
+      setIsOpen(false);
+      form.reset();
+      refetch();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredRoles = userRoles?.filter(role => {
+    const email = userEmails[role.user_id]?.toLowerCase() || '';
+    const name = `${role.first_name || ''} ${role.last_name || ''}`.toLowerCase();
+    const searchTerm = searchQuery.toLowerCase();
+    return email.includes(searchTerm) || name.includes(searchTerm);
+  }) || [];
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
