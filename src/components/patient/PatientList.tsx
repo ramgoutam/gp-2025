@@ -179,14 +179,14 @@ export const PatientList = () => {
   );
 
   const renderListView = () => (
-    <div className="bg-background rounded-md border h-[calc(100vh-13rem)] pb-8">
+    <div className="bg-background rounded-md border h-[calc(100vh-13rem)] px-4 pb-4">
       <DataTable columns={columns} data={filteredPatients} />
     </div>
   );
 
   return (
     <div className="p-4 space-y-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 px-4">
         <PatientSearch />
         {renderViewToggle()}
       </div>
