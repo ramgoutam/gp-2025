@@ -24,18 +24,34 @@ export const columns: ColumnDef<Patient>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="flex items-center gap-3">
-        <PatientAvatar 
-          firstName={row.original.first_name} 
-          lastName={row.original.last_name}
-        />
-        <div>
-          <div className="font-medium">{row.getValue("fullName")}</div>
-          <span className="mt-0.5 text-xs text-muted-foreground">@{row.original.first_name.toLowerCase()}{row.original.last_name.toLowerCase()}</span>
+    cell: ({ row }) => {
+      const calculateAge = (dob: string) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        return age;
+      };
+
+      return (
+        <div className="flex items-center gap-3">
+          <PatientAvatar 
+            firstName={row.original.first_name} 
+            lastName={row.original.last_name}
+          />
+          <div>
+            <div className="font-medium">{row.getValue("fullName")}</div>
+            <span className="mt-0.5 text-xs text-muted-foreground">
+              {row.original.sex} | {calculateAge(row.original.dob)} years
+            </span>
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
   },
   {
     accessorKey: "email",
