@@ -54,6 +54,8 @@ type UserRole = {
   phone?: string;
 };
 
+const roles = ["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"] as const;
+
 const createUserSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -62,7 +64,7 @@ const createUserSchema = z.object({
   phone: z.string().regex(/^\+[1-9]\d{1,14}$/, { 
     message: "Please enter a valid phone number with country code (e.g., +1234567890)" 
   }),
-  role: z.enum(["ADMIN", "MANAGER_CLINICAL", "DOCTOR", "CLINICAL_STAFF", "LAB_MANAGER", "LAB_STAFF", "FRONT_DESK"]),
+  role: z.enum(roles),
 });
 
 const Admin = () => {
@@ -79,6 +81,18 @@ const Admin = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole['role'] | null>(null);
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
   const { toast } = useToast();
+
+  const form = useForm<z.infer<typeof createUserSchema>>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      phone: "",
+      role: "CLINICAL_STAFF",
+    },
+  });
 
   const { data: userRoles, isLoading, refetch } = useQuery({
     queryKey: ['userRoles'],
@@ -98,7 +112,7 @@ const Admin = () => {
       return roles as UserRole[];
     },
     staleTime: 30000,
-    cacheTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false
   });
 
@@ -120,7 +134,7 @@ const Admin = () => {
       return roles?.role;
     },
     staleTime: 5 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000
+    gcTime: 30 * 60 * 1000
   });
 
   useEffect(() => {
@@ -144,47 +158,115 @@ const Admin = () => {
     fetchUserEmails();
   }, [toast]);
 
-  const filteredRoles = userRoles?.filter(role => 
-    userEmails[role.user_id]?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const handlePasswordChange = async (userId: string) => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const onSubmit = async (values: z.infer<typeof createUserSchema>) => {
     try {
-      console.log('Creating new user with values:', values);
-      const { error } = await supabase.functions.invoke('create-user', {
-        body: { 
-          email: values.email,
-          password: values.password,
-          role: values.role,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          phone: values.phone
-        }
+      const { error } = await supabase.functions.invoke('update-user-password', {
+        body: { userId, newPassword }
       });
 
-      if (error) {
-        console.error('Error from create-user function:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to create user",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "User created successfully",
+        description: "Password updated successfully",
       });
-      
-      setIsOpen(false);
-      form.reset();
-      refetch();
+
+      setIsPasswordDialogOpen(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setChangingPasswordFor(null);
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('Error updating password:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create user",
+        description: "Failed to update password",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRoleUpdate = async (userId: string, newRole: UserRole['role']) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Role updated successfully",
+      });
+
+      setIsRoleDialogOpen(false);
+      setEditingRole(null);
+      setSelectedRole(null);
+      refetch();
+    } catch (error) {
+      console.error('Error updating role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update role",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImpersonateUser = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('impersonate-user', {
+        body: { targetUserId: userId }
+      });
+
+      if (error) throw error;
+
+      // Open the magic link in a new tab
+      window.open(data.magicLink, '_blank');
+
+      toast({
+        title: "Success",
+        description: "Impersonation link generated",
+      });
+    } catch (error) {
+      console.error('Error generating impersonation link:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate impersonation link",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+
+      setUserToDelete(null);
+      refetch();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
         variant: "destructive",
       });
     }
