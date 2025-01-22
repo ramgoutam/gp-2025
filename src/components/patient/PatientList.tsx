@@ -110,7 +110,7 @@ export const PatientList = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredPatients.length > 0 ? (
         filteredPatients.map((patient) => (
-          <Card key={patient.id} className="p-4 hover:shadow-md transition-shadow">
+          <Card key={patient.id} className="p-4 hover:shadow-md transition-shadow bg-background">
             <div className="flex items-center space-x-4">
               <PatientAvatar
                 firstName={patient.first_name}
@@ -128,7 +128,7 @@ export const PatientList = () => {
                   )}
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-3">
+                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mb-3">
                   <div className="flex items-center space-x-1">
                     {patient.upper_treatment && (
                       <span className="truncate">
@@ -148,7 +148,7 @@ export const PatientList = () => {
                 <div className="flex items-center justify-between">
                   <Badge 
                     variant={patient.upper_treatment || patient.lower_treatment ? "default" : "secondary"}
-                    className={patient.upper_treatment || patient.lower_treatment ? "bg-green-500 hover:bg-green-600" : ""}
+                    className={patient.upper_treatment || patient.lower_treatment ? "bg-primary hover:bg-primary/90" : ""}
                   >
                     {patient.upper_treatment || patient.lower_treatment ? "In Treatment" : "Not Started"}
                   </Badge>
@@ -160,11 +160,7 @@ export const PatientList = () => {
                       firstName: patient.first_name,
                       lastName: patient.last_name,
                     }}}
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium 
-                      ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 
-                      focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none 
-                      disabled:opacity-50 border border-input bg-background hover:bg-accent 
-                      hover:text-accent-foreground h-8 px-3 py-2"
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 py-2"
                   >
                     <User className="h-4 w-4 mr-2" />
                     View
@@ -176,14 +172,14 @@ export const PatientList = () => {
         ))
       ) : (
         <div className="col-span-full text-center py-8">
-          <p className="text-gray-500">No patients found.</p>
+          <p className="text-muted-foreground">No patients found.</p>
         </div>
       )}
     </div>
   );
 
   const renderListView = () => (
-    <div className="rounded-md border">
+    <div className="bg-background rounded-md border">
       <DataTable columns={columns} data={filteredPatients} />
     </div>
   );
