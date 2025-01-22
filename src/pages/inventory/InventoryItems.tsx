@@ -207,9 +207,7 @@ const InventoryItems = () => {
 
         {/* Table Section */}
         <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm border">
-          <ScrollArea className="h-full rounded-lg">
-            <InventoryTable items={items} onUpdate={refetch} />
-          </ScrollArea>
+          <InventoryTable items={items} onUpdate={refetch} />
         </div>
       </div>
 
