@@ -165,7 +165,7 @@ const InventoryItems = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-white px-4 sm:px-6 lg:px-8 animate-fade-in overflow-hidden">
-      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0">
+      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0 pb-6">
         {/* Top Row with Stats, Search, and Actions */}
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 border shadow-sm mb-6 flex-shrink-0">
           {/* Stats Card */}
