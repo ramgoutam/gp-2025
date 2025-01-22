@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package2, Warehouse, ClipboardList, TrendingUp, Users } from "lucide-react";
+import { Package2, Warehouse, ClipboardList, TrendingUp, Users, FileSpreadsheet } from "lucide-react";
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -36,6 +36,12 @@ const Inventory = () => {
       description: "Manage your suppliers",
       icon: Users,
       path: "/inventory/suppliers"
+    },
+    {
+      title: "Post-Surgery Inventory Tracking Sheet",
+      description: "Track and manage post-surgery inventory items",
+      icon: FileSpreadsheet,
+      path: "/inventory/post-surgery-tracking"
     }
   ];
 
