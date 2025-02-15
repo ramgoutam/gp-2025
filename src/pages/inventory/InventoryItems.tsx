@@ -60,41 +60,26 @@ const columns: ColumnDef<InventoryItem>[] = [
     header: "Product Name",
     accessorKey: "product_name",
     cell: ({ row }) => <div className="truncate font-medium">{row.getValue("product_name")}</div>,
-    size: 200,
-    minSize: 150,
-    maxSize: 400,
   },
   {
     id: "sku",
     header: "SKU",
     accessorKey: "sku",
-    size: 120,
-    minSize: 80,
-    maxSize: 200,
   },
   {
     id: "category",
     header: "Category",
     accessorKey: "category",
-    size: 150,
-    minSize: 100,
-    maxSize: 300,
   },
   {
     id: "manufacturer",
     header: "Manufacturer",
     accessorKey: "manufacturer",
-    size: 150,
-    minSize: 100,
-    maxSize: 300,
   },
   {
     id: "quantity",
     header: "Quantity",
     accessorKey: "quantity",
-    size: 100,
-    minSize: 80,
-    maxSize: 150,
   },
   {
     id: "price",
@@ -105,9 +90,6 @@ const columns: ColumnDef<InventoryItem>[] = [
       const formatted = price ? `$${parseFloat(price as string).toFixed(2)}` : '$0.00';
       return formatted;
     },
-    size: 120,
-    minSize: 80,
-    maxSize: 200,
   }
 ];
 
@@ -121,7 +103,7 @@ const InventoryItems = () => {
     columns.map((column) => column.id as string)
   );
 
-  const { data: items = [], refetch } = useQuery({
+  const { data: items = [] } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
       console.log("Fetching inventory items with filters:", {
@@ -158,7 +140,6 @@ const InventoryItems = () => {
     },
     onColumnOrderChange: setColumnOrder,
     enableSortingRemoval: false,
-    columnResizeMode: "onChange",
   });
 
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
@@ -226,8 +207,8 @@ const InventoryItems = () => {
             <ListFilter className="h-4 w-4 mr-2" />
             {selectedCategory || "Categories"}
           </Button>
-          <AddItemDialog onSuccess={() => refetch()} />
-          <BulkUploadButton onSuccess={() => refetch()} />
+          <AddItemDialog onSuccess={() => table.resetOptions()} />
+          <BulkUploadButton onSuccess={() => table.resetOptions()} />
         </div>
       </div>
 
@@ -239,54 +220,44 @@ const InventoryItems = () => {
           onDragEnd={handleDragEnd}
           sensors={sensors}
         >
-          <div className="relative overflow-auto">
-            <Table className="bg-background" style={{ width: table.getCenterTotalSize() }}>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/50">
-                    <SortableContext 
-                      items={columnOrder} 
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {headerGroup.headers.map((header) => (
-                        <DraggableTableHeader key={header.id} header={header} />
-                      ))}
-                    </SortableContext>
+          <Table className="bg-background">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/50">
+                  <SortableContext 
+                    items={columnOrder} 
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <DraggableTableHeader key={header.id} header={header} />
+                    ))}
+                  </SortableContext>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="py-3">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell 
-                          key={cell.id} 
-                          className="py-3"
-                          style={{ 
-                            width: cell.column.getSize(),
-                            minWidth: cell.column.columnDef.minSize,
-                            maxWidth: cell.column.columnDef.maxSize,
-                          }}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell 
-                      colSpan={columns.length} 
-                      className="h-24 text-center"
-                    >
-                      No items found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell 
+                    colSpan={columns.length} 
+                    className="h-24 text-center"
+                  >
+                    No items found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </DndContext>
       </Card>
 
@@ -336,6 +307,8 @@ const InventoryItems = () => {
   );
 };
 
+export default InventoryItems;
+
 const DraggableTableHeader = ({ header }: { header: any }) => {
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: header.column.id,
@@ -348,15 +321,13 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
     transition,
     whiteSpace: "nowrap",
     width: header.column.getSize(),
-    minWidth: header.column.columnDef.minSize,
-    maxWidth: header.column.columnDef.maxSize,
     zIndex: isDragging ? 1 : 0,
   };
 
   return (
     <TableHead
       ref={setNodeRef}
-      className="relative h-10 border-t before:absolute before:inset-y-0 before:start-0 before:w-px before:bg-border first:before:bg-transparent group"
+      className="relative h-10 border-t before:absolute before:inset-y-0 before:start-0 before:w-px before:bg-border first:before:bg-transparent"
       style={style}
       aria-sort={
         header.column.getIsSorted() === "asc"
@@ -421,15 +392,6 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
           )}
         </Button>
       </div>
-      <div
-        onMouseDown={header.getResizeHandler()}
-        onTouchStart={header.getResizeHandler()}
-        className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none bg-primary/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
-          header.column.getIsResizing() ? 'opacity-100' : ''
-        }`}
-      />
     </TableHead>
   );
 };
-
-export default InventoryItems;
