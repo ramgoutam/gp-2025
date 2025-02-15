@@ -53,6 +53,18 @@ const InventoryItems = () => {
     }
   });
 
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_locations')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const { data: stockData = [] } = useQuery({
     queryKey: ['inventory-stock', viewingItem?.id],
     enabled: !!viewingItem,
@@ -70,10 +82,21 @@ const InventoryItems = () => {
 
       if (error) throw error;
       
-      return data.map(stock => ({
-        location_id: stock.location_id,
-        location_name: stock.inventory_locations.name,
-        quantity: stock.quantity
+      // Create a map of location_id to stock data
+      const stockMap = new Map(data.map(stock => [
+        stock.location_id,
+        {
+          location_id: stock.location_id,
+          location_name: stock.inventory_locations.name,
+          quantity: stock.quantity
+        }
+      ]));
+
+      // Return stock data for all locations, using 0 for locations without stock
+      return locations.map(location => ({
+        location_id: location.id,
+        location_name: location.name,
+        quantity: (stockMap.get(location.id)?.quantity || 0)
       }));
     }
   });
