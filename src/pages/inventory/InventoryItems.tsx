@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,14 +132,13 @@ const InventoryItems = () => {
                         key={column} 
                         className="bg-slate-100"
                         style={{
-                          width: column === 'product_name' ? '250px' : 
-                                 column === 'sku' ? '180px' :
-                                 column === 'actions' ? '120px' :
-                                 '200px',
-                          minWidth: column === 'product_name' ? '250px' : 
-                                   column === 'sku' ? '180px' :
-                                   column === 'actions' ? '120px' :
-                                   '200px'
+                          width: column === 'product_name' ? '25%' : 
+                                 column === 'sku' ? '15%' :
+                                 column === 'category' ? '12%' :
+                                 column === 'manufacturer' ? '15%' :
+                                 column === 'quantity' ? '10%' :
+                                 column === 'price' ? '10%' :
+                                 column === 'actions' ? '13%' : '14.28%'
                         }}
                       >
                         {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -159,18 +157,17 @@ const InventoryItems = () => {
                         <TableCell 
                           key={column}
                           style={{
-                            width: column === 'product_name' ? '250px' : 
-                                   column === 'sku' ? '180px' :
-                                   column === 'actions' ? '120px' :
-                                   '200px',
-                            minWidth: column === 'product_name' ? '250px' : 
-                                     column === 'sku' ? '180px' :
-                                     column === 'actions' ? '120px' :
-                                     '200px'
+                            width: column === 'product_name' ? '25%' : 
+                                   column === 'sku' ? '15%' :
+                                   column === 'category' ? '12%' :
+                                   column === 'manufacturer' ? '15%' :
+                                   column === 'quantity' ? '10%' :
+                                   column === 'price' ? '10%' :
+                                   column === 'actions' ? '13%' : '14.28%'
                           }}
                         >
                           {column === 'product_name' ? (
-                            <span className="font-medium">{item.product_name}</span>
+                            <span className="font-medium truncate block">{item.product_name}</span>
                           ) : column === 'actions' ? (
                             <div className="flex items-center gap-2">
                               <Button variant="outline" size="icon">
@@ -183,7 +180,7 @@ const InventoryItems = () => {
                           ) : column === 'price' ? (
                             `$${item[column]?.toFixed(2) || '0.00'}`
                           ) : (
-                            item[column] || 'N/A'
+                            <span className="truncate block">{item[column] || 'N/A'}</span>
                           )}
                         </TableCell>
                       ))}
