@@ -284,9 +284,7 @@ const StockManagement = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Stock Management</h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Track and manage inventory stock levels across different locations
-            </p>
+            
           </div>
           <div className="flex gap-4">
             <AddLocationDialog onLocationAdded={refetch} />
@@ -399,7 +397,7 @@ const StockManagement = () => {
                     <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end">
-                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-[#000a00]/0 text-slate-800">
                           <ArrowLeftRight className="h-4 w-4" />
                           Transfer
                         </Button>
