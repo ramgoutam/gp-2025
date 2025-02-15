@@ -114,7 +114,7 @@ const Dashboard = () => {
   }
   return <div className="space-y-6">
       {userDetails && <div className="p-4 shadow-sm py-[29px] my-[16px] mx-[5px] bg-indigo-200 hover:bg-indigo-100 rounded-2xl">
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-2xl text-gray-900 font-bold px-[6px]">
             Welcome{' '}
             {userDetails.role === 'DOCTOR' ? 'Dr.' : ''}{' '}
             {`${userDetails.first_name || ''} ${userDetails.last_name || ''}`}
