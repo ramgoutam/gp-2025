@@ -62,7 +62,7 @@ export const SignOutButton = () => {
       });
     }
   };
-  return <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-[#ff0000] mx-[16px] bg-red-200 hover:bg-red-100 rounded-full">
+  return <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-[#ff0000]">
       <LogOut className="w-4 h-4 mr-2" />
       Sign Out
     </Button>;
