@@ -110,7 +110,7 @@ const InventoryItems = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                {selectedColumns.map(column => <TableHead key={column} className="my-0 mx-0 px-[39px] py-[5px]">
+                {selectedColumns.map(column => <TableHead key={column} className="bg-slate-300 hover:bg-slate-200 px-[17px] py-[17px] my-0 mx-[2px]">
                     {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </TableHead>)}
               </TableRow>
