@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import {
   Table,
@@ -318,7 +317,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 transition-colors duration-200">
-                  <TableHead className="w-[180px] font-mono text-sm text-gray-600">
+                  <TableHead className="w-[180px] font-mono text-sm text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("sku")}
@@ -328,7 +327,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[250px] font-medium text-gray-900">
+                  <TableHead className="w-[250px] font-medium text-gray-900 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("product_name")}
@@ -338,8 +337,10 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[300px] text-gray-600 truncate">Description</TableHead>
-                  <TableHead className="w-[120px] text-gray-600">
+                  <TableHead className="w-[300px] text-gray-600 truncate px-4">
+                    <span>Description</span>
+                  </TableHead>
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("uom")}
@@ -349,7 +350,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px] text-gray-600">
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("min_stock")}
@@ -359,7 +360,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px] text-gray-600">
+                  <TableHead className="w-[120px] text-gray-600 p-0">
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort("price")}
@@ -369,7 +370,7 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                       <ArrowUpDown className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                     </Button>
                   </TableHead>
-                  <TableHead className="w-[120px] text-right text-gray-600">Actions</TableHead>
+                  <TableHead className="w-[120px] text-right px-4 text-gray-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -383,14 +384,14 @@ export const InventoryTable = ({ items, onUpdate }: { items: InventoryItem[] | n
                     key={item.id} 
                     className="hover:bg-gray-50/50 transition-all duration-200 group border-gray-100 animate-fade-in"
                   >
-                    <TableCell className="w-[180px] font-mono text-sm text-gray-700">{item.sku}</TableCell>
-                    <TableCell className="w-[250px] font-medium text-gray-900">{item.product_name}</TableCell>
-                    <TableCell className="w-[300px] text-gray-700 truncate">{item.description}</TableCell>
-                    <TableCell className="w-[120px] text-gray-700">{item.uom}</TableCell>
-                    <TableCell className="w-[120px] text-gray-700">{item.min_stock}</TableCell>
-                    <TableCell className="w-[120px] text-gray-700">${item.price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="w-[180px] font-mono text-sm text-gray-700 px-4">{item.sku}</TableCell>
+                    <TableCell className="w-[250px] font-medium text-gray-900 px-4">{item.product_name}</TableCell>
+                    <TableCell className="w-[300px] text-gray-700 truncate px-4">{item.description}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">{item.uom}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">{item.min_stock}</TableCell>
+                    <TableCell className="w-[120px] text-gray-700 px-4">${item.price?.toFixed(2) || '0.00'}</TableCell>
                     <TableCell className="w-[120px]">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-2 px-4">
                         <Button 
                           variant="ghost" 
                           size="icon"
