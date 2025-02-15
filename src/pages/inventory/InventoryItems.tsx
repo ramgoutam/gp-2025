@@ -1,4 +1,3 @@
-
 import { useState, useId } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,7 +102,7 @@ const InventoryItems = () => {
     columns.map((column) => column.id as string)
   );
 
-  const { data: items = [] } = useQuery({
+  const { data: items = [], refetch } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
       console.log("Fetching inventory items with filters:", {
@@ -207,8 +206,8 @@ const InventoryItems = () => {
             <ListFilter className="h-4 w-4 mr-2" />
             {selectedCategory || "Categories"}
           </Button>
-          <AddItemDialog onSuccess={() => table.resetOptions()} />
-          <BulkUploadButton onSuccess={() => table.resetOptions()} />
+          <AddItemDialog onSuccess={() => refetch()} />
+          <BulkUploadButton onSuccess={() => refetch()} />
         </div>
       </div>
 
@@ -307,8 +306,6 @@ const InventoryItems = () => {
   );
 };
 
-export default InventoryItems;
-
 const DraggableTableHeader = ({ header }: { header: any }) => {
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: header.column.id,
@@ -395,3 +392,5 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
     </TableHead>
   );
 };
+
+export default InventoryItems;
