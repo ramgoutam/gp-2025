@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,48 +22,45 @@ const InventoryItems = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState(initialColumns);
-  const {
-    toast
-  } = useToast();
-  const {
-    data: items = [],
-    refetch
-  } = useQuery({
+  const { toast } = useToast();
+  
+  const { data: items = [], refetch } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
-      console.log("Fetching inventory items with filters:", {
-        searchQuery,
-        selectedCategory
-      });
-      let query = supabase.from('inventory_items').select('*').order('created_at', {
-        ascending: false
-      });
+      console.log("Fetching inventory items with filters:", { searchQuery, selectedCategory });
+      let query = supabase.from('inventory_items').select('*').order('created_at', { ascending: false });
       if (searchQuery) {
         query = query.or(`product_name.ilike.%${searchQuery}%,sku.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
       }
       if (selectedCategory) {
         query = query.eq('category', selectedCategory);
       }
-      const {
-        data,
-        error
-      } = await query;
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     }
   });
+
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
-  const filteredCategories = categories.filter(category => category.toLowerCase().includes(categorySearchQuery.toLowerCase()));
+  const filteredCategories = categories.filter(category => 
+    category.toLowerCase().includes(categorySearchQuery.toLowerCase())
+  );
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
   const handleColumnToggle = (column: string) => {
-    setSelectedColumns(prev => prev.includes(column) ? prev.filter(col => col !== column) : [...prev, column]);
+    setSelectedColumns(prev => 
+      prev.includes(column) ? prev.filter(col => col !== column) : [...prev, column]
+    );
   };
+
   const handleCategorySelect = (category: string | null) => {
     setSelectedCategory(category);
     setShowCategoryDialog(false);
   };
+
   return (
     <div className="h-[calc(100vh-80px)] pb-6 space-y-4">
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-4 flex-shrink-0 mt-4">
@@ -75,12 +73,23 @@ const InventoryItems = () => {
         </div>
 
         <div className="relative flex-1">
-          <Input type="search" placeholder="Search inventory items..." className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200" value={searchQuery} onChange={handleSearch} />
+          <Input 
+            type="search" 
+            placeholder="Search inventory items..." 
+            className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200" 
+            value={searchQuery} 
+            onChange={handleSearch} 
+          />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="default" onClick={() => setShowCategoryDialog(true)} className={`text-gray-700 border-gray-200 hover:bg-gray-50 transition-all duration-200 ${selectedCategory ? 'bg-primary/5' : ''}`}>
+          <Button 
+            variant="outline" 
+            size="default" 
+            onClick={() => setShowCategoryDialog(true)} 
+            className={`text-gray-700 border-gray-200 hover:bg-gray-50 transition-all duration-200 ${selectedCategory ? 'bg-primary/5' : ''}`}
+          >
             <ListFilter className="h-4 w-4 mr-2" />
             {selectedCategory || "Categories"}
           </Button>
@@ -89,12 +98,9 @@ const InventoryItems = () => {
         </div>
       </div>
 
-      <Card className="mx-0 h-[calc(100%-120px)] overflow-hidden">
+      <Card className="mx-0 h-[calc(100%-120px)]">
         <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[8px] mx-[10px] rounded-lg">
-          <div>
-            
-            
-          </div>
+          <div></div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -117,44 +123,48 @@ const InventoryItems = () => {
           </DropdownMenu>
         </CardHeader>
         <CardContent className="px-[8px] relative h-[calc(100%-60px)]">
-          <div className="overflow-auto h-full">
+          <div className="relative h-full overflow-hidden border rounded-md">
             <Table>
-              <TableHeader className="sticky top-0 z-10">
+              <TableHeader className="sticky top-0 bg-white z-10">
                 <TableRow>
                   {selectedColumns.map(column => (
-                    <TableHead key={column} className="bg-slate-100 rounded">
+                    <TableHead key={column} className="bg-slate-100">
                       {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {items.map(item => (
-                  <TableRow key={item.id}>
-                    {selectedColumns.map(column => (
-                      <TableCell key={column}>
-                        {column === 'product_name' ? (
-                          <span className="font-medium">{item.product_name}</span>
-                        ) : column === 'actions' ? (
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="icon">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : column === 'price' ? (
-                          `$${item[column]?.toFixed(2) || '0.00'}`
-                        ) : (
-                          item[column] || 'N/A'
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
             </Table>
+            <div className="overflow-auto h-[calc(100%-40px)]">
+              <Table>
+                <TableBody>
+                  {items.map(item => (
+                    <TableRow key={item.id}>
+                      {selectedColumns.map(column => (
+                        <TableCell key={column}>
+                          {column === 'product_name' ? (
+                            <span className="font-medium">{item.product_name}</span>
+                          ) : column === 'actions' ? (
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="icon">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="outline" size="icon">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : column === 'price' ? (
+                            `$${item[column]?.toFixed(2) || '0.00'}`
+                          ) : (
+                            item[column] || 'N/A'
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -166,16 +176,35 @@ const InventoryItems = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
-              <Input type="search" placeholder="Search categories..." value={categorySearchQuery} onChange={e => setCategorySearchQuery(e.target.value)} className="w-full pl-10" />
+              <Input 
+                type="search" 
+                placeholder="Search categories..." 
+                value={categorySearchQuery} 
+                onChange={e => setCategorySearchQuery(e.target.value)} 
+                className="w-full pl-10" 
+              />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
             <ScrollArea className="h-[300px]">
-              {selectedCategory && <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleCategorySelect(null)}>
+              {selectedCategory && (
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
+                  onClick={() => handleCategorySelect(null)}
+                >
                   Clear Selection
-                </Button>}
-              {filteredCategories.map(category => <Button key={category} variant="ghost" className={`w-full justify-start ${selectedCategory === category ? 'bg-primary/10 text-primary' : ''}`} onClick={() => handleCategorySelect(category)}>
+                </Button>
+              )}
+              {filteredCategories.map(category => (
+                <Button 
+                  key={category} 
+                  variant="ghost" 
+                  className={`w-full justify-start ${selectedCategory === category ? 'bg-primary/10 text-primary' : ''}`} 
+                  onClick={() => handleCategorySelect(category)}
+                >
                   {category}
-                </Button>)}
+                </Button>
+              ))}
             </ScrollArea>
           </div>
         </DialogContent>
