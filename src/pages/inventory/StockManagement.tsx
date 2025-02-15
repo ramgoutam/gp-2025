@@ -356,7 +356,7 @@ const StockManagement = () => {
                 <SelectTrigger className="w-[180px] bg-white">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
-                <SelectContent className="bg-white/[0.31]">
+                <SelectContent className="bg-white">
                   <SelectItem value="all">All Locations</SelectItem>
                   {locations?.map(location => <SelectItem key={location.id} value={location.name}>
                       {location.name}
