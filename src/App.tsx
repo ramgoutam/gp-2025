@@ -24,39 +24,36 @@ import Suppliers from "@/pages/inventory/Suppliers";
 import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
 import Admin from "@/pages/Admin";
-
-const ProtectedRoute = ({ 
-  children, 
+const ProtectedRoute = ({
+  children,
   requiredRole,
-  allowedRoles 
-}: { 
-  children: React.ReactNode; 
+  allowedRoles
+}: {
+  children: React.ReactNode;
   requiredRole?: string;
   allowedRoles?: string[];
 }) => {
   const session = useSession();
   console.log("Protected route - session:", session);
-
-  const { data: userRole, isLoading } = useQuery({
+  const {
+    data: userRole,
+    isLoading
+  } = useQuery({
     queryKey: ['userRole', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) {
         console.log("No user ID found in session");
         return null;
       }
-      
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-
+        const {
+          data,
+          error
+        } = await supabase.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
         if (error) {
           console.error('Error fetching user role:', error);
           return null;
         }
-
         console.log("User role:", data?.role);
         return data?.role;
       } catch (error) {
@@ -65,196 +62,94 @@ const ProtectedRoute = ({
       }
     },
     enabled: !!session?.user?.id,
-    retry: 1,
+    retry: 1
   });
-
   if (!session) {
     console.log("No session found, redirecting to login");
     return <Navigate to="/login" replace />;
   }
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
   if (requiredRole && userRole !== requiredRole) {
     console.log(`User does not have required role ${requiredRole}, redirecting to dashboard`);
     return <Navigate to="/" replace />;
   }
-
   if (allowedRoles && !allowedRoles.includes(userRole || '')) {
     console.log(`User role ${userRole} not in allowed roles ${allowedRoles}, redirecting to dashboard`);
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
-
 function App() {
-  return (
-    <React.StrictMode>
-      <SessionContextProvider 
-        supabaseClient={supabase}
-        initialSession={null}
-      >
+  return <React.StrictMode>
+      <SessionContextProvider supabaseClient={supabase} initialSession={null}>
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
-            <main className="container mx-auto px-4 h-[calc(100vh-4rem)] overflow-hidden">
+            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-[30px]">
               <Routes>
                 <Route path="/login" element={<Login />} />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
+                <Route path="/" element={<ProtectedRoute>
                       <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/marketing"
-                  element={
-                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                    </ProtectedRoute>} />
+                <Route path="/marketing" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Marketing />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/leads"
-                  element={
-                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                    </ProtectedRoute>} />
+                <Route path="/leads" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Leads />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/consultations"
-                  element={
-                    <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                    </ProtectedRoute>} />
+                <Route path="/consultations" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
                       <Consultations />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/calendar"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute>
                       <Calendar />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/patients"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/patients" element={<ProtectedRoute>
                       <Index />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/patient/:id"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/patient/:id" element={<ProtectedRoute>
                       <PatientProfile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/scripts"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/scripts" element={<ProtectedRoute>
                       <Scripts />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/reports"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute>
                       <Reports />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/manufacturing"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/manufacturing" element={<ProtectedRoute>
                       <Manufacturing />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory" element={<ProtectedRoute>
                       <Inventory />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/items"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/items" element={<ProtectedRoute>
                       <InventoryItems />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/stock"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/stock" element={<ProtectedRoute>
                       <StockManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/movements"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/movements" element={<ProtectedRoute>
                       <StockMovements />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/suppliers"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/suppliers" element={<ProtectedRoute>
                       <Suppliers />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/purchase-orders"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/purchase-orders" element={<ProtectedRoute>
                       <PurchaseOrders />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/inventory/purchase-orders/create"
-                  element={
-                    <ProtectedRoute>
+                    </ProtectedRoute>} />
+                <Route path="/inventory/purchase-orders/create" element={<ProtectedRoute>
                       <CreatePurchaseOrder />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
+                    </ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN">
                       <Admin />
-                    </ProtectedRoute>
-                  }
-                />
+                    </ProtectedRoute>} />
               </Routes>
             </main>
           </div>
           <Toaster />
         </Router>
       </SessionContextProvider>
-    </React.StrictMode>
-  );
+    </React.StrictMode>;
 }
-
 export default App;
