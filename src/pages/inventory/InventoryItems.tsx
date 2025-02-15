@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
-import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, AlertTriangle, Info, Pencil, Trash2, Plus } from "lucide-react";
+import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, AlertTriangle, Info, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -550,8 +551,8 @@ const InventoryItems = () => {
 
       {/* Edit Item Dialog */}
       <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-        <DialogContent className="sm:max-w-[700px]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[700px] p-0 max-h-[90vh] flex flex-col">
+          <DialogHeader className="p-6 pb-2">
             <DialogTitle className="flex items-center gap-2 text-xl">
               <Pencil className="h-5 w-5 text-primary" />
               Edit Product Details
@@ -560,9 +561,10 @@ const InventoryItems = () => {
               Make changes to the product information here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleEdit}>
-            <ScrollArea className="max-h-[600px]">
-              <div className="grid gap-4 py-4 px-1">
+
+          <form onSubmit={handleEdit} className="flex flex-col flex-1">
+            <ScrollArea className="flex-1 p-6 pt-2">
+              <div className="grid gap-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="product_id">Product ID</Label>
@@ -673,7 +675,8 @@ const InventoryItems = () => {
                 </div>
               </div>
             </ScrollArea>
-            <DialogFooter className="mt-6">
+            
+            <div className="flex justify-end gap-2 p-6 pt-4 border-t">
               <Button
                 type="button"
                 variant="outline"
@@ -684,7 +687,7 @@ const InventoryItems = () => {
               <Button type="submit">
                 Save Changes
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
