@@ -100,7 +100,7 @@ const InventoryItems = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px] my-0 mx-px px-0 py-0 bg-white">
-              {initialColumns.map(column => <DropdownMenuCheckboxItem key={column} checked={selectedColumns.includes(column)} onCheckedChange={() => handleColumnToggle(column)} className="rounded px-[30px] my-[9px] py-[2px] mx-[7px] bg-slate-50 hover:bg-slate-30">
+              {initialColumns.map(column => <DropdownMenuCheckboxItem key={column} checked={selectedColumns.includes(column)} onCheckedChange={() => handleColumnToggle(column)} className="rounded px-[30px] my-[9px] py-[2px] mx-[7px] hover:bg-slate-50 bg-white">
                   {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                 </DropdownMenuCheckboxItem>)}
             </DropdownMenuContent>
