@@ -1,3 +1,4 @@
+
 import { useState, useId } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -264,8 +265,8 @@ const InventoryItems = () => {
                           className="py-3"
                           style={{ 
                             width: cell.column.getSize(),
-                            minWidth: cell.column.getMinSize(),
-                            maxWidth: cell.column.getMaxSize(),
+                            minWidth: cell.column.columnDef.minSize,
+                            maxWidth: cell.column.columnDef.maxSize,
                           }}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -347,8 +348,8 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
     transition,
     whiteSpace: "nowrap",
     width: header.column.getSize(),
-    minWidth: header.column.getMinSize(),
-    maxWidth: header.column.getMaxSize(),
+    minWidth: header.column.columnDef.minSize,
+    maxWidth: header.column.columnDef.maxSize,
     zIndex: isDragging ? 1 : 0,
   };
 
