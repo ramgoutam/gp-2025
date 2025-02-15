@@ -102,7 +102,7 @@ const InventoryItems = () => {
     columns.map((column) => column.id as string)
   );
 
-  const { data: items = [] } = useQuery({
+  const { data: items = [], refetch } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
       console.log("Fetching inventory items with filters:", {
@@ -139,7 +139,7 @@ const InventoryItems = () => {
     },
     onColumnOrderChange: setColumnOrder,
     enableSortingRemoval: false,
-    columnResizeMode: "onChange", // Add this line for resize support
+    columnResizeMode: "onChange",
   });
 
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
@@ -207,8 +207,8 @@ const InventoryItems = () => {
             <ListFilter className="h-4 w-4 mr-2" />
             {selectedCategory || "Categories"}
           </Button>
-          <AddItemDialog onSuccess={() => table.resetOptions()} />
-          <BulkUploadButton onSuccess={() => table.resetOptions()} />
+          <AddItemDialog onSuccess={() => refetch()} />
+          <BulkUploadButton onSuccess={() => refetch()} />
         </div>
       </div>
 
