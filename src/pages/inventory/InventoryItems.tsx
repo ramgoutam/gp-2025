@@ -1,4 +1,3 @@
-
 import { useState, useId } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -140,6 +139,7 @@ const InventoryItems = () => {
     },
     onColumnOrderChange: setColumnOrder,
     enableSortingRemoval: false,
+    columnResizeMode: "onChange", // Add this line for resize support
   });
 
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
@@ -220,44 +220,50 @@ const InventoryItems = () => {
           onDragEnd={handleDragEnd}
           sensors={sensors}
         >
-          <Table className="bg-background">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/50">
-                  <SortableContext 
-                    items={columnOrder} 
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <DraggableTableHeader key={header.id} header={header} />
-                    ))}
-                  </SortableContext>
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
+          <div className="relative">
+            <Table className="bg-background" style={{ width: table.getCenterTotalSize() }}>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/50">
+                    <SortableContext 
+                      items={columnOrder} 
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {headerGroup.headers.map((header) => (
+                        <DraggableTableHeader key={header.id} header={header} />
+                      ))}
+                    </SortableContext>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell 
-                    colSpan={columns.length} 
-                    className="h-24 text-center"
-                  >
-                    No items found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell 
+                          key={cell.id} 
+                          className="py-3"
+                          style={{ width: cell.column.getSize() }}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell 
+                      colSpan={columns.length} 
+                      className="h-24 text-center"
+                    >
+                      No items found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </DndContext>
       </Card>
 
@@ -307,8 +313,6 @@ const InventoryItems = () => {
   );
 };
 
-export default InventoryItems;
-
 const DraggableTableHeader = ({ header }: { header: any }) => {
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: header.column.id,
@@ -327,7 +331,7 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
   return (
     <TableHead
       ref={setNodeRef}
-      className="relative h-10 border-t before:absolute before:inset-y-0 before:start-0 before:w-px before:bg-border first:before:bg-transparent"
+      className="relative h-10 border-t before:absolute before:inset-y-0 before:start-0 before:w-px before:bg-border first:before:bg-transparent group"
       style={style}
       aria-sort={
         header.column.getIsSorted() === "asc"
@@ -392,6 +396,15 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
           )}
         </Button>
       </div>
+      <div
+        onMouseDown={header.getResizeHandler()}
+        onTouchStart={header.getResizeHandler()}
+        className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none bg-primary/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
+          header.column.getIsResizing() ? 'opacity-100' : ''
+        }`}
+      />
     </TableHead>
   );
 };
+
+export default InventoryItems;
