@@ -242,7 +242,7 @@ const InventoryItems = () => {
         </div>
 
         <div className="relative flex-1">
-          <Input type="search" placeholder="Search inventory items..." className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200" value={searchQuery} onChange={handleSearch} />
+          <Input type="search" placeholder="Search inventory items..." value={searchQuery} onChange={handleSearch} className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200 mx-0 py-0 px-[240px] rounded-full" />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
 
