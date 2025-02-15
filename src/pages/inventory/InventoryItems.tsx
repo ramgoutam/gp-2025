@@ -150,7 +150,7 @@ const InventoryItems = () => {
                 </TableHeader>
               </Table>
             </div>
-            <div className="overflow-auto h-[calc(100%-40px)]">
+            <div className="overflow-auto h-[calc(100%-40px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 transition-colors">
               <Table>
                 <TableBody>
                   {items.map(item => (
