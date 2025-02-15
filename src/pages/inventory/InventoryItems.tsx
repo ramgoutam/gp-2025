@@ -87,8 +87,8 @@ const InventoryItems = () => {
         </div>
       </div>
 
-      <Card className="mx-0 h-[calc(100%-120px)] overflow-auto">
-        <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[8px] mx-[10px] rounded-lg">
+      <Card className="mx-0 h-[calc(100%-120px)] overflow-auto relative">
+        <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[8px] mx-[10px] rounded-lg sticky top-0 z-10 bg-white">
           <div>
             
             
@@ -109,11 +109,13 @@ const InventoryItems = () => {
         </CardHeader>
         <CardContent className="px-[8px]">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-[52px] bg-white z-10">
               <TableRow>
-                {selectedColumns.map(column => <TableHead key={column} className="bg-slate-100 rounded">
+                {selectedColumns.map(column => 
+                  <TableHead key={column} className="bg-slate-100 rounded">
                     {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </TableHead>)}
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
