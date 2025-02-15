@@ -279,7 +279,7 @@ const StockManagement = () => {
     return stock?.find(s => s.item_id === itemId && s.location_id === locationId)?.quantity || 0;
   };
   return <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl space-y-8 mx-0 py-0 px-0 my-0">
         {/* Header section */}
         <div className="flex justify-between items-center">
           <div>
