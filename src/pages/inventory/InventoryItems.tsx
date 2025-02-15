@@ -86,7 +86,7 @@ const InventoryItems = () => {
         </div>
       </div>
 
-      <Card>
+      <Card className="mx-0">
         <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[4px] mx-[26px]">
           <div>
             
@@ -106,7 +106,7 @@ const InventoryItems = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-[8px]">
           <Table>
             <TableHeader>
               <TableRow>
