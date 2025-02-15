@@ -103,7 +103,7 @@ const InventoryItems = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="px-[8px] relative h-[calc(100%-60px)] mx-0 my-[3px]">
+        <CardContent className="px-[8px] relative h-[calc(100%-60px)] mx-0 my-[25px]">
           <div className="relative h-full overflow-hidden border rounded-md">
             <div className="w-full">
               <Table>
