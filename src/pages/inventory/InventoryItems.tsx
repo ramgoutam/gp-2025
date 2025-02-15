@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
-import { Package, Search, ListFilter, Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import { Package, Search, ListFilter, Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,9 +12,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
-
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categorySearchQuery, setCategorySearchQuery] = useState("");
@@ -63,8 +61,7 @@ const InventoryItems = () => {
     setSelectedCategory(category);
     setShowCategoryDialog(false);
   };
-  return (
-    <div className="h-[calc(100vh-80px)] pb-6 space-y-4">
+  return <div className="h-[calc(100vh-80px)] pb-6 space-y-4">
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-4 flex-shrink-0 mt-4">
         <div className="flex items-center gap-3 min-w-[200px] py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10 px-[11px] mx-0">
           <Package className="h-5 w-5 text-primary" />
@@ -93,6 +90,7 @@ const InventoryItems = () => {
         <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[8px] mx-[10px] rounded-lg sticky top-0 z-10 bg-white">
           <div>
             
+            
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -102,53 +100,34 @@ const InventoryItems = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px] my-0 mx-px px-0 py-0 bg-white">
-              {initialColumns.map(column => 
-                <DropdownMenuCheckboxItem 
-                  key={column} 
-                  checked={selectedColumns.includes(column)} 
-                  onCheckedChange={() => handleColumnToggle(column)}
-                  className="rounded mx-[7px] hover:bg-slate-50 bg-white px-[34px] py-[3px] my-[2px]"
-                >
+              {initialColumns.map(column => <DropdownMenuCheckboxItem key={column} checked={selectedColumns.includes(column)} onCheckedChange={() => handleColumnToggle(column)} className="rounded mx-[7px] hover:bg-slate-50 bg-white px-[34px] py-[3px] my-[2px]">
                   {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                </DropdownMenuCheckboxItem>
-              )}
+                </DropdownMenuCheckboxItem>)}
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
         <CardContent className="px-[8px]">
-          <Table>
-            <TableHeader className="sticky top-[52px] z-10">
+          <Table className="py-0 my-[54px]">
+            <TableHeader className="sticky top-[52px] bg-white z-10">
               <TableRow>
-                {selectedColumns.map(column => 
-                  <TableHead key={column} className="bg-slate-100 rounded">
+                {selectedColumns.map(column => <TableHead key={column} className="bg-slate-100 rounded my-0 py-0 px-[11px]">
                     {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </TableHead>
-                )}
+                  </TableHead>)}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map(item => 
-                <TableRow key={item.id}>
-                  {selectedColumns.map(column => 
-                    <TableCell key={column}>
-                      {column === 'product_name' ? 
-                        <span className="font-medium">{item.product_name}</span> 
-                      : column === 'actions' ? 
-                        <div className="flex items-center gap-2">
+              {items.map(item => <TableRow key={item.id}>
+                  {selectedColumns.map(column => <TableCell key={column}>
+                      {column === 'product_name' ? <span className="font-medium">{item.product_name}</span> : column === 'actions' ? <div className="flex items-center gap-2">
                           <Button variant="outline" size="icon">
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="outline" size="icon">
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                        </div>
-                      : column === 'price' ? 
-                        `$${item[column]?.toFixed(2) || '0.00'}` 
-                      : item[column] || 'N/A'}
-                    </TableCell>
-                  )}
-                </TableRow>
-              )}
+                        </div> : column === 'price' ? `$${item[column]?.toFixed(2) || '0.00'}` : item[column] || 'N/A'}
+                    </TableCell>)}
+                </TableRow>)}
             </TableBody>
           </Table>
         </CardContent>
@@ -175,8 +154,6 @@ const InventoryItems = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default InventoryItems;
