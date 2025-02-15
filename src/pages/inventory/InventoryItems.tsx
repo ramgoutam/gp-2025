@@ -124,24 +124,51 @@ const InventoryItems = () => {
         </CardHeader>
         <CardContent className="px-[8px] relative h-[calc(100%-60px)]">
           <div className="relative h-full overflow-hidden border rounded-md">
-            <Table>
-              <TableHeader className="sticky top-0 bg-white z-10">
-                <TableRow>
-                  {selectedColumns.map(column => (
-                    <TableHead key={column} className="bg-slate-100">
-                      {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-            </Table>
+            <div className="w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {selectedColumns.map(column => (
+                      <TableHead 
+                        key={column} 
+                        className="bg-slate-100"
+                        style={{
+                          width: column === 'product_name' ? '250px' : 
+                                 column === 'sku' ? '180px' :
+                                 column === 'actions' ? '120px' :
+                                 '200px',
+                          minWidth: column === 'product_name' ? '250px' : 
+                                   column === 'sku' ? '180px' :
+                                   column === 'actions' ? '120px' :
+                                   '200px'
+                        }}
+                      >
+                        {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+              </Table>
+            </div>
             <div className="overflow-auto h-[calc(100%-40px)]">
               <Table>
                 <TableBody>
                   {items.map(item => (
                     <TableRow key={item.id}>
                       {selectedColumns.map(column => (
-                        <TableCell key={column}>
+                        <TableCell 
+                          key={column}
+                          style={{
+                            width: column === 'product_name' ? '250px' : 
+                                   column === 'sku' ? '180px' :
+                                   column === 'actions' ? '120px' :
+                                   '200px',
+                            minWidth: column === 'product_name' ? '250px' : 
+                                     column === 'sku' ? '180px' :
+                                     column === 'actions' ? '120px' :
+                                     '200px'
+                          }}
+                        >
                           {column === 'product_name' ? (
                             <span className="font-medium">{item.product_name}</span>
                           ) : column === 'actions' ? (
