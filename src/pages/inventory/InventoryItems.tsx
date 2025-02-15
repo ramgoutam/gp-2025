@@ -10,12 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
 
@@ -110,7 +110,20 @@ const InventoryItems = () => {
     try {
       const { error } = await supabase
         .from('inventory_items')
-        .update(editingItem)
+        .update({
+          product_name: editingItem.product_name,
+          description: editingItem.description,
+          sku: editingItem.sku,
+          uom: editingItem.uom,
+          min_stock: editingItem.min_stock,
+          product_id: editingItem.product_id,
+          category: editingItem.category,
+          manufacturing_id: editingItem.manufacturing_id,
+          manufacturer: editingItem.manufacturer,
+          order_link: editingItem.order_link,
+          price: editingItem.price,
+          qty_per_uom: editingItem.qty_per_uom
+        })
         .eq('id', editingItem.id);
 
       if (error) throw error;
@@ -537,75 +550,145 @@ const InventoryItems = () => {
 
       {/* Edit Item Dialog */}
       <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Pencil className="h-5 w-5 text-primary" />
+              Edit Product Details
+            </DialogTitle>
+            <DialogDescription>
+              Make changes to the product information here. Click save when you're done.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEdit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="product_name">Product Name</Label>
-                <Input
-                  id="product_name"
-                  value={editingItem?.product_name || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, product_name: e.target.value })}
-                  required
-                />
+            <ScrollArea className="max-h-[600px]">
+              <div className="grid gap-4 py-4 px-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="product_id">Product ID</Label>
+                    <Input
+                      id="product_id"
+                      value={editingItem?.product_id || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, product_id: e.target.value } : null)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="product_name">Product Name</Label>
+                    <Input
+                      id="product_name"
+                      value={editingItem?.product_name || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, product_name: e.target.value } : null)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sku">SKU</Label>
+                    <Input
+                      id="sku"
+                      value={editingItem?.sku || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, sku: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Input
+                      id="category"
+                      value={editingItem?.category || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, category: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="uom">Unit of Measure</Label>
+                    <Input
+                      id="uom"
+                      value={editingItem?.uom || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, uom: e.target.value } : null)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="qty_per_uom">Quantity per UOM</Label>
+                    <Input
+                      id="qty_per_uom"
+                      type="number"
+                      min="1"
+                      value={editingItem?.qty_per_uom || 1}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, qty_per_uom: parseInt(e.target.value) } : null)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="min_stock">Minimum Stock</Label>
+                    <Input
+                      id="min_stock"
+                      type="number"
+                      value={editingItem?.min_stock || 0}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, min_stock: parseInt(e.target.value) } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={editingItem?.price || 0}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: parseFloat(e.target.value) } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
+                    <Input
+                      id="manufacturing_id"
+                      value={editingItem?.manufacturing_id || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, manufacturing_id: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="manufacturer">Manufacturer</Label>
+                    <Input
+                      id="manufacturer"
+                      value={editingItem?.manufacturer || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, manufacturer: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="order_link">Order Link</Label>
+                    <Input
+                      id="order_link"
+                      value={editingItem?.order_link || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, order_link: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={editingItem?.description || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, description: e.target.value } : null)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  value={editingItem?.sku || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, sku: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={editingItem?.category || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="manufacturer">Manufacturer</Label>
-                <Input
-                  id="manufacturer"
-                  value={editingItem?.manufacturer || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, manufacturer: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={editingItem?.price || 0}
-                  onChange={(e) => setEditingItem({ ...editingItem, price: parseFloat(e.target.value) })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={editingItem?.description || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
+            </ScrollArea>
+            <DialogFooter className="mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingItem(null)}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
