@@ -87,7 +87,7 @@ const InventoryItems = () => {
       </div>
 
       <Card className="mx-0">
-        <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[4px] mx-[26px]">
+        <CardHeader className="flex flex-row items-center justify-between my-0 px-0 py-[8px] mx-[10px] rounded-lg">
           <div>
             
             
