@@ -47,13 +47,13 @@ const Inventory = () => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map(module => <Card key={module.path} className="hover:shadow-lg transition-shadow cursor-pointer bg-white" onClick={() => navigate(module.path)}>
               <CardHeader className="space-y-0 pb-2 rounded-none px-[19px] py-[6px]">
-                <CardTitle className="text-lg font-medium flex items-center gap-2">
+                <CardTitle className="font-medium flex items-center gap-2 px-0 text-base">
                   <module.icon className="h-5 w-5 text-primary" />
                   {module.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">{module.description}</p>
+                <p className="text-sm text-gray-600 px-0">{module.description}</p>
               </CardContent>
             </Card>)}
         </div>
