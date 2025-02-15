@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
-import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, AlertTriangle, Info, Pencil, Trash2, Plus } from "lucide-react";
+import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, AlertTriangle, Info, Pencil, Trash2, Plus, Mic, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,8 @@ import { useToast } from "@/hooks/use-toast";
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [categorySearchQuery, setCategorySearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
@@ -231,6 +233,79 @@ const InventoryItems = () => {
       });
     }
   };
+
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const audioChunks: Blob[] = [];
+
+      setIsRecording(true);
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        await handleVoiceInput(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+        setIsRecording(false);
+      }, 5000); // Stop recording after 5 seconds
+
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      toast({
+        title: "Error",
+        description: "Could not access microphone. Please check your permissions.",
+        variant: "destructive"
+      });
+      setIsRecording(false);
+    }
+  };
+
+  const handleVoiceInput = async (audioBlob: Blob) => {
+    try {
+      setIsProcessing(true);
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        const { data, error } = await supabase.functions.invoke('voice-to-text', {
+          body: { audio: base64Audio }
+        });
+
+        if (error) throw error;
+
+        if (data.text) {
+          setSearchQuery(data.text);
+          toast({
+            title: "Voice input received",
+            description: `Searching for: "${data.text}"`,
+          });
+        }
+        
+        setIsProcessing(false);
+      };
+    } catch (error) {
+      console.error('Error processing voice input:', error);
+      toast({
+        title: "Error",
+        description: "Could not process voice input. Please try again.",
+        variant: "destructive"
+      });
+      setIsProcessing(false);
+    }
+  };
+
   return <div className="h-[calc(100vh-80px)] pb-6 space-y-4 my-px py-0">
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-4 flex-shrink-0 mt-4">
         <div className="flex items-center gap-3 min-w-[200px] py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10 px-[11px] mx-0">
@@ -242,8 +317,31 @@ const InventoryItems = () => {
         </div>
 
         <div className="relative flex-1">
-          <Input type="search" placeholder="Search inventory items..." value={searchQuery} onChange={handleSearch} className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200 mx-0 py-0 px-[240px] rounded-full" />
+          <Input 
+            type="search" 
+            placeholder="Search inventory items..." 
+            value={searchQuery} 
+            onChange={handleSearch} 
+            className="w-full pl-10 border-gray-200 focus:ring-primary/20 transition-all duration-200 mx-0 py-0 px-[240px] rounded-full" 
+          />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "absolute right-2 top-1/2 -translate-y-1/2",
+              isRecording && "text-red-500 animate-pulse",
+              isProcessing && "cursor-not-allowed"
+            )}
+            onClick={startVoiceRecording}
+            disabled={isRecording || isProcessing}
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Mic className={cn("h-4 w-4", isRecording && "text-red-500")} />
+            )}
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
