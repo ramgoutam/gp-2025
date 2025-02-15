@@ -63,7 +63,7 @@ const InventoryItems = () => {
   };
   return <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-4 flex-shrink-0 mt-4">
-        <div className="flex items-center gap-3 min-w-[200px] px-4 py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10">
+        <div className="flex items-center gap-3 min-w-[200px] py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10 px-[11px] mx-0">
           <Package className="h-5 w-5 text-primary" />
           <div>
             <p className="text-sm font-medium text-gray-500">Total Items</p>
@@ -110,7 +110,7 @@ const InventoryItems = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                {selectedColumns.map(column => <TableHead key={column} className="bg-slate-300 hover:bg-slate-200">
+                {selectedColumns.map(column => <TableHead key={column} className="bg-slate-100 rounded">
                     {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </TableHead>)}
               </TableRow>
