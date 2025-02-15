@@ -59,26 +59,41 @@ const columns: ColumnDef<InventoryItem>[] = [
     header: "Product Name",
     accessorKey: "product_name",
     cell: ({ row }) => <div className="truncate font-medium">{row.getValue("product_name")}</div>,
+    size: 200,
+    minSize: 150,
+    maxSize: 400,
   },
   {
     id: "sku",
     header: "SKU",
     accessorKey: "sku",
+    size: 120,
+    minSize: 80,
+    maxSize: 200,
   },
   {
     id: "category",
     header: "Category",
     accessorKey: "category",
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
   },
   {
     id: "manufacturer",
     header: "Manufacturer",
     accessorKey: "manufacturer",
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
   },
   {
     id: "quantity",
     header: "Quantity",
     accessorKey: "quantity",
+    size: 100,
+    minSize: 80,
+    maxSize: 150,
   },
   {
     id: "price",
@@ -89,6 +104,9 @@ const columns: ColumnDef<InventoryItem>[] = [
       const formatted = price ? `$${parseFloat(price as string).toFixed(2)}` : '$0.00';
       return formatted;
     },
+    size: 120,
+    minSize: 80,
+    maxSize: 200,
   }
 ];
 
@@ -220,7 +238,7 @@ const InventoryItems = () => {
           onDragEnd={handleDragEnd}
           sensors={sensors}
         >
-          <div className="relative">
+          <div className="relative overflow-auto">
             <Table className="bg-background" style={{ width: table.getCenterTotalSize() }}>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -244,7 +262,11 @@ const InventoryItems = () => {
                         <TableCell 
                           key={cell.id} 
                           className="py-3"
-                          style={{ width: cell.column.getSize() }}
+                          style={{ 
+                            width: cell.column.getSize(),
+                            minWidth: cell.column.getMinSize(),
+                            maxWidth: cell.column.getMaxSize(),
+                          }}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
@@ -325,6 +347,8 @@ const DraggableTableHeader = ({ header }: { header: any }) => {
     transition,
     whiteSpace: "nowrap",
     width: header.column.getSize(),
+    minWidth: header.column.getMinSize(),
+    maxWidth: header.column.getMaxSize(),
     zIndex: isDragging ? 1 : 0,
   };
 
