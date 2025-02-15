@@ -145,7 +145,7 @@ const InventoryItems = () => {
       </Card>
 
       <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
-        <DialogContent className="sm:max-w-[625px] px-0 my-[16px] mx-0">
+        <DialogContent className="sm:max-w-[1025px] px-0 my-[16px] mx-0">
           <DialogHeader>
             <DialogTitle>Select Category</DialogTitle>
           </DialogHeader>
