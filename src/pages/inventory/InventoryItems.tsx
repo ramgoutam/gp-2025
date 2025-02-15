@@ -99,7 +99,7 @@ const InventoryItems = () => {
                 <span className="ml-2">View</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px] bg-slate-50">
+            <DropdownMenuContent align="end" className="w-[200px] bg-slate-200 hover:bg-slate-100 my-0 mx-px px-0 py-0">
               {initialColumns.map(column => <DropdownMenuCheckboxItem key={column} checked={selectedColumns.includes(column)} onCheckedChange={() => handleColumnToggle(column)} className="bg-slate-50 rounded px-[30px] my-[9px] py-[2px] mx-[7px]">
                   {column.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                 </DropdownMenuCheckboxItem>)}
