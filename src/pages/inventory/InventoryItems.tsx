@@ -3,19 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
-import { Package, Search, ListFilter, Eye, Pencil, Trash2, Plus } from "lucide-react";
+import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, Pencil, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
+
+interface LocationQuantity {
+  location_id: string;
+  location_name: string;
+  quantity: number;
+}
 
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,8 +35,23 @@ const InventoryItems = () => {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
-
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
+  const [fromLocation, setFromLocation] = useState("");
+  const [toLocation, setToLocation] = useState("");
+  const [transferQuantity, setTransferQuantity] = useState<number>(0);
   const { toast } = useToast();
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_locations')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const {
     data: items = [],
@@ -36,7 +59,6 @@ const InventoryItems = () => {
   } = useQuery({
     queryKey: ['inventory-items', searchQuery, selectedCategory],
     queryFn: async () => {
-      console.log("Fetching inventory items with filters:", { searchQuery, selectedCategory });
       let query = supabase.from('inventory_items').select('*').order('created_at', { ascending: false });
       
       if (searchQuery) {
@@ -51,6 +73,91 @@ const InventoryItems = () => {
       return data;
     }
   });
+
+  const { data: stockData = [] } = useQuery({
+    queryKey: ['inventory-stock', viewingItem?.id],
+    enabled: !!viewingItem,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_stock')
+        .select(`
+          quantity,
+          inventory_locations (
+            id,
+            name
+          )
+        `)
+        .eq('item_id', viewingItem.id);
+
+      if (error) throw error;
+      return data.map(item => ({
+        location_id: item.inventory_locations.id,
+        location_name: item.inventory_locations.name,
+        quantity: item.quantity
+      })) as LocationQuantity[];
+    }
+  });
+
+  const handleTransfer = async () => {
+    if (!fromLocation || !toLocation || transferQuantity <= 0) {
+      toast({
+        title: "Invalid Transfer",
+        description: "Please select both locations and enter a valid quantity",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const fromLocationStock = stockData.find(s => s.location_id === fromLocation);
+    if (!fromLocationStock || fromLocationStock.quantity < transferQuantity) {
+      toast({
+        title: "Invalid Transfer",
+        description: "Insufficient quantity in source location",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Deduct from source location
+      const { error: fromError } = await supabase
+        .from('inventory_stock')
+        .upsert({
+          item_id: viewingItem.id,
+          location_id: fromLocation,
+          quantity: fromLocationStock.quantity - transferQuantity
+        });
+
+      if (fromError) throw fromError;
+
+      // Add to destination location
+      const toLocationStock = stockData.find(s => s.location_id === toLocation);
+      const { error: toError } = await supabase
+        .from('inventory_stock')
+        .upsert({
+          item_id: viewingItem.id,
+          location_id: toLocation,
+          quantity: (toLocationStock?.quantity || 0) + transferQuantity
+        });
+
+      if (toError) throw toError;
+
+      toast({
+        title: "Success",
+        description: "Stock transferred successfully",
+      });
+
+      setShowTransferDialog(false);
+      refetch();
+    } catch (error) {
+      console.error('Transfer error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to transfer stock",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -284,22 +391,118 @@ const InventoryItems = () => {
       <Dialog open={!!viewingItem} onOpenChange={() => setViewingItem(null)}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>View Item Details</DialogTitle>
+            <DialogTitle>{viewingItem?.product_name}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {viewingItem && Object.entries(viewingItem).map(([key, value]) => (
-              key !== 'id' && key !== 'created_at' && key !== 'updated_at' && (
-                <div key={key} className="grid gap-2">
-                  <Label htmlFor={key} className="capitalize">
-                    {key.split('_').join(' ')}
-                  </Label>
-                  <div className="px-3 py-2 border rounded-md bg-slate-50">
-                    {key === 'price' ? `$${(value as number)?.toFixed(2) || '0.00'}` : String(value || 'N/A')}
-                  </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>SKU</Label>
+                <div className="px-3 py-2 border rounded-md bg-slate-50">
+                  {viewingItem?.sku || 'N/A'}
                 </div>
-              )
-            ))}
+              </div>
+              <div>
+                <Label>Category</Label>
+                <div className="px-3 py-2 border rounded-md bg-slate-50">
+                  {viewingItem?.category || 'N/A'}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Stock by Location</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTransferDialog(true)}
+                >
+                  <ArrowLeftRight className="h-4 w-4 mr-2" />
+                  Transfer Stock
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {stockData.map((stock) => (
+                  <div
+                    key={stock.location_id}
+                    className="flex items-center justify-between p-2 border rounded-md hover:bg-slate-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>{stock.location_name}</span>
+                    </div>
+                    <Badge variant="secondary">
+                      {stock.quantity}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Dialog */}
+      <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Transfer Stock</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>From Location</Label>
+              <Select value={fromLocation} onValueChange={setFromLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map(location => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.name} ({stockData.find(s => s.location_id === location.id)?.quantity || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>To Location</Label>
+              <Select value={toLocation} onValueChange={setToLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select destination location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map(location => (
+                    <SelectItem
+                      key={location.id}
+                      value={location.id}
+                      disabled={location.id === fromLocation}
+                    >
+                      {location.name} ({stockData.find(s => s.location_id === location.id)?.quantity || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Quantity</Label>
+              <Input
+                type="number"
+                min="1"
+                value={transferQuantity}
+                onChange={(e) => setTransferQuantity(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowTransferDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTransfer}>
+              Transfer
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
