@@ -87,7 +87,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
-            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-[30px]">
+            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-[25px]">
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<ProtectedRoute>
