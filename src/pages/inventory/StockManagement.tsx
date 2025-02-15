@@ -397,7 +397,7 @@ const StockManagement = () => {
                     <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end">
-                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-[#000a00]/0 text-slate-800">
+                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 text-slate-800 bg-white">
                           <ArrowLeftRight className="h-4 w-4" />
                           Transfer
                         </Button>
