@@ -87,12 +87,10 @@ const InventoryItems = () => {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between my-0 mx-0 px-0 py-[4px]">
           <div>
-            <CardTitle>Inventory Items</CardTitle>
-            <CardDescription>
-              Manage your inventory items, track stock levels and categories
-            </CardDescription>
+            
+            
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
