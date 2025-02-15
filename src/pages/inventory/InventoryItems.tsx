@@ -3,10 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { BulkUploadButton } from "@/components/inventory/BulkUploadButton";
-import { Package, Search, ListFilter, Eye, Pencil, Trash2, Plus } from "lucide-react";
+import { Package, Search, ListFilter, Eye, ArrowLeftRight, MapPin, AlertTriangle, Info, Pencil, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
 
@@ -49,6 +50,31 @@ const InventoryItems = () => {
       const { data, error } = await query;
       if (error) throw error;
       return data;
+    }
+  });
+
+  const { data: stockData = [] } = useQuery({
+    queryKey: ['inventory-stock', viewingItem?.id],
+    enabled: !!viewingItem,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_stock')
+        .select(`
+          quantity,
+          location_id,
+          inventory_locations (
+            name
+          )
+        `)
+        .eq('item_id', viewingItem.id);
+
+      if (error) throw error;
+      
+      return data.map(stock => ({
+        location_id: stock.location_id,
+        location_name: stock.inventory_locations.name,
+        quantity: stock.quantity
+      }));
     }
   });
 
@@ -280,25 +306,53 @@ const InventoryItems = () => {
         </CardContent>
       </Card>
 
-      {/* View Item Dialog */}
+      {/* View Stock Dialog */}
       <Dialog open={!!viewingItem} onOpenChange={() => setViewingItem(null)}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>View Item Details</DialogTitle>
+        <DialogContent className="sm:max-w-[700px] p-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Stock Levels
+            </DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {viewingItem && Object.entries(viewingItem).map(([key, value]) => (
-              key !== 'id' && key !== 'created_at' && key !== 'updated_at' && (
-                <div key={key} className="grid gap-2">
-                  <Label htmlFor={key} className="capitalize">
-                    {key.split('_').join(' ')}
-                  </Label>
-                  <div className="px-3 py-2 border rounded-md bg-slate-50">
-                    {key === 'price' ? `$${(value as number)?.toFixed(2) || '0.00'}` : String(value || 'N/A')}
+          <div className="p-6 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
+              {stockData.map((stock) => (
+                <div
+                  key={stock.location_id}
+                  className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <h3 className="font-medium text-gray-900">{stock.location_name}</h3>
+                    </div>
                   </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className={cn(
+                      "text-2xl font-semibold",
+                      stock.quantity === 0 ? "text-gray-400" : "text-primary",
+                      stock.quantity < (viewingItem?.min_stock || 0) ? "text-yellow-600" : ""
+                    )}>
+                      {stock.quantity}
+                    </span>
+                    <span className="text-gray-500 text-sm">units</span>
+                  </div>
+                  {stock.quantity < (viewingItem?.min_stock || 0) && stock.quantity > 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-yellow-600 text-sm">
+                      <AlertTriangle className="h-3 w-3" />
+                      Below minimum stock
+                    </div>
+                  )}
+                  {stock.quantity === 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-gray-400 text-sm">
+                      <Info className="h-3 w-3" />
+                      No stock available
+                    </div>
+                  )}
                 </div>
-              )
-            ))}
+              ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
