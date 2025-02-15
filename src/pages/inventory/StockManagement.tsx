@@ -78,7 +78,11 @@ const StockManagement = () => {
         .from('inventory_stock')
         .select(`
           *,
-          inventory_items (product_name, sku, min_stock),
+          inventory_items!inventory_stock_item_id_fkey (
+            product_name,
+            sku,
+            min_stock
+          ),
           inventory_locations (name)
         `)
         .order('created_at', { ascending: false });
