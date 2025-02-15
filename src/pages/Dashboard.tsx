@@ -7,34 +7,38 @@ import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   console.log("Rendering Dashboard component");
 
   // Fetch user details including role and name
-  const { data: userDetails, isLoading: isUserLoading } = useQuery({
+  const {
+    data: userDetails,
+    isLoading: isUserLoading
+  } = useQuery({
     queryKey: ['userDetails'],
     queryFn: async () => {
       console.log('Fetching user details');
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session?.user?.id) return null;
-
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('user_roles').select('*').eq('user_id', session.user.id).single();
       if (error) {
         console.error('Error fetching user details:', error);
         return null;
       }
-
       return data;
-    },
+    }
   });
 
   // Show welcome toast when user details are loaded
@@ -42,90 +46,82 @@ const Dashboard = () => {
     if (userDetails) {
       const prefix = userDetails.role === 'DOCTOR' ? 'Dr.' : '';
       const fullName = `${prefix} ${userDetails.first_name || ''} ${userDetails.last_name || ''}`.trim();
-      
       if (fullName !== '') {
         toast({
           title: `Welcome back, ${fullName}!`,
-          description: "You're now logged into your account.",
+          description: "You're now logged into your account."
         });
       }
     }
   }, [userDetails, toast]);
-
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         navigate("/login");
       }
     };
-
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!session) {
-          navigate("/login");
-        }
+    const {
+      data: {
+        subscription
       }
-    );
-
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
     return () => subscription.unsubscribe();
   }, [navigate]);
 
   // Set up real-time subscription for dashboard updates
   useEffect(() => {
     console.log('Setting up real-time subscription for dashboard');
-    const channel = supabase
-      .channel('dashboard-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'patients'
-        },
-        (payload) => {
-          console.log('Received dashboard update:', payload);
-          queryClient.invalidateQueries({ queryKey: ['patientCount'] });
-          queryClient.invalidateQueries({ queryKey: ['labScriptCount'] });
-          queryClient.invalidateQueries({ queryKey: ['reportCardCount'] });
-          queryClient.invalidateQueries({ queryKey: ['recentLabScripts'] });
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('dashboard-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'patients'
+    }, payload => {
+      console.log('Received dashboard update:', payload);
+      queryClient.invalidateQueries({
+        queryKey: ['patientCount']
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['labScriptCount']
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['reportCardCount']
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['recentLabScripts']
+      });
+    }).subscribe();
     return () => {
       console.log('Cleaning up dashboard subscription');
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
-
   if (isUserLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Skeleton className="h-[72px] w-full bg-gray-200" />
         <Skeleton className="h-[200px] w-full bg-gray-200" />
         <Skeleton className="h-[400px] w-full bg-gray-200" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
-      {userDetails && (
-        <div className="bg-white p-4 rounded-lg shadow-sm">
+  return <div className="space-y-6">
+      {userDetails && <div className="p-4 shadow-sm py-[29px] my-[16px] mx-[5px] bg-indigo-200 hover:bg-indigo-100 rounded-2xl">
           <h1 className="text-2xl font-semibold text-gray-900">
             Welcome{' '}
             {userDetails.role === 'DOCTOR' ? 'Dr.' : ''}{' '}
             {`${userDetails.first_name || ''} ${userDetails.last_name || ''}`}
           </h1>
-        </div>
-      )}
+        </div>}
       <DashboardStats />
       <DashboardCharts />
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
