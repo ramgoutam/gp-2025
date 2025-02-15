@@ -61,7 +61,7 @@ const InventoryItems = () => {
     setSelectedCategory(category);
     setShowCategoryDialog(false);
   };
-  return <div className="h-[calc(100vh-80px)] pb-6 space-y-4">
+  return <div className="h-[calc(100vh-80px)] pb-6 space-y-4 my-px py-0">
       <div className="flex items-center gap-3 flex-wrap md:flex-nowrap bg-white rounded-lg p-4 pt-4 border shadow-sm mb-4 flex-shrink-0 mt-4">
         <div className="flex items-center gap-3 min-w-[200px] py-2 bg-primary/5 rounded-lg transition-all duration-200 hover:bg-primary/10 px-[11px] mx-0">
           <Package className="h-5 w-5 text-primary" />
@@ -86,7 +86,7 @@ const InventoryItems = () => {
         </div>
       </div>
 
-      <Card className="mx-0 h-[calc(100%-120px)]">
+      <Card className="mx-0 h-[calc(100%-120px)] py-0">
         <CardHeader className="flex flex-row items-center justify-between my-0 px-0 mx-[10px] rounded-lg py-0">
           <div></div>
           <DropdownMenu>
@@ -103,7 +103,7 @@ const InventoryItems = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="px-[8px] relative h-[calc(100%-60px)] mx-0 my-[25px]">
+        <CardContent className="px-[8px] relative h-[calc(100%-60px)] mx-0 py-px my-[6px]">
           <div className="relative h-full overflow-hidden border rounded-md">
             <div className="w-full">
               <Table>
