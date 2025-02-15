@@ -1,3 +1,4 @@
+
 import { useState, useId } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,22 +142,6 @@ const InventoryItems = () => {
     enableSortingRemoval: false,
   });
 
-  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
-  const filteredCategories = categories.filter(category => 
-    category.toLowerCase().includes(categorySearchQuery.toLowerCase())
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((columnOrder) => {
-        const oldIndex = columnOrder.indexOf(active.id as string);
-        const newIndex = columnOrder.indexOf(over.id as string);
-        return arrayMove(columnOrder, oldIndex, newIndex);
-      });
-    }
-  }
-
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -171,6 +156,22 @@ const InventoryItems = () => {
     setSelectedCategory(category);
     setShowCategoryDialog(false);
   };
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((columnOrder) => {
+        const oldIndex = columnOrder.indexOf(active.id as string);
+        const newIndex = columnOrder.indexOf(over.id as string);
+        return arrayMove(columnOrder, oldIndex, newIndex);
+      });
+    }
+  }
+
+  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
+  const filteredCategories = categories.filter(category => 
+    category.toLowerCase().includes(categorySearchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-4">
