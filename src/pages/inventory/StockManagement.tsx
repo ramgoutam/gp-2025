@@ -1,26 +1,18 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ArrowUpDown, MapPin, ArrowLeftRight, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { AddLocationDialog } from "@/components/inventory/AddLocationDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Search, Plus, ArrowUpDown, MapPin, ArrowLeftRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { AddLocationDialog } from "@/components/inventory/AddLocationDialog";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { usePagination } from "@/hooks/use-pagination";
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationEllipsis, 
-  PaginationItem
-} from "@/components/ui/pagination";
-
 type StockWithRelations = {
   id: string;
   quantity: number;
@@ -54,13 +46,9 @@ const StockManagement = () => {
   const [transferringItem, setTransferringItem] = useState<StockWithRelations | null>(null);
   const [transferQuantity, setTransferQuantity] = useState<number>(0);
   const [targetLocationId, setTargetLocationId] = useState<string>("");
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const {
     data: stock,
     isLoading,
@@ -124,8 +112,7 @@ const StockManagement = () => {
     }
   };
   const filteredStock = stock?.filter(item => {
-    const matchesSearch = item.inventory_items.product_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.inventory_items.sku?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = item.inventory_items.product_name.toLowerCase().includes(searchQuery.toLowerCase()) || item.inventory_items.sku?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLocation = locationFilter === "all" || item.inventory_locations.name === locationFilter;
     return matchesSearch && matchesLocation;
   }).sort((a, b) => {
@@ -133,20 +120,6 @@ const StockManagement = () => {
     const bValue = b[sortField];
     return sortDirection === "asc" ? aValue > bValue ? 1 : -1 : bValue > aValue ? 1 : -1;
   });
-
-  const paginatedStock = filteredStock?.slice(
-    pagination.pageIndex * pagination.pageSize,
-    (pagination.pageIndex + 1) * pagination.pageSize
-  );
-
-  const totalPages = Math.ceil((filteredStock?.length || 0) / pagination.pageSize);
-
-  const { pages, showLeftEllipsis, showRightEllipsis } = usePagination({
-    currentPage: pagination.pageIndex + 1,
-    totalPages,
-    paginationItemsToDisplay: 5,
-  });
-
   const handleAdjustStock = async (stockId: string, newQuantity: number) => {
     try {
       const {
@@ -305,13 +278,13 @@ const StockManagement = () => {
   const getStockQuantity = (itemId: string, locationId: string) => {
     return stock?.find(s => s.item_id === itemId && s.location_id === locationId)?.quantity || 0;
   };
-  return (
-    <div className="h-[calc(100vh-80px)] pb-6 space-y-4 my-px py-0">
+  return <div className="min-h-screen bg-gray-50/30 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-7xl space-y-8 mx-0 py-0 px-0 my-0">
         {/* Header section */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Stock Management</h1>
+            
           </div>
           <div className="flex gap-4">
             <AddLocationDialog onLocationAdded={refetch} />
@@ -334,11 +307,9 @@ const StockManagement = () => {
                         <SelectValue placeholder="Select an item" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableItems?.map(item => (
-                          <SelectItem key={item.id} value={item.id}>
+                        {availableItems?.map(item => <SelectItem key={item.id} value={item.id}>
                             {item.product_name}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -349,11 +320,9 @@ const StockManagement = () => {
                         <SelectValue placeholder="Select a location" />
                       </SelectTrigger>
                       <SelectContent>
-                        {locations?.map(location => (
-                          <SelectItem key={location.id} value={location.id}>
+                        {locations?.map(location => <SelectItem key={location.id} value={location.id}>
                             {location.name}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -370,263 +339,146 @@ const StockManagement = () => {
           </div>
         </div>
 
+        {/* Location cards */}
+        
+
         {/* Table section */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 space-y-4">
             <div className="flex gap-4">
               <div className="flex-1 relative">
-                <Input 
-                  placeholder="Search items..." 
-                  value={searchQuery} 
-                  onChange={e => setSearchQuery(e.target.value)} 
-                  className="pl-10" 
-                />
+                <Input placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
                 <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
               </div>
               <Select value={locationFilter} onValueChange={setLocationFilter}>
                 <SelectTrigger className="w-[180px] bg-white">
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   <SelectItem value="all">All Locations</SelectItem>
-                  {locations?.map(location => (
-                    <SelectItem key={location.id} value={location.name}>
+                  {locations?.map(location => <SelectItem key={location.id} value={location.name}>
                       {location.name}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="rounded-lg border border-border bg-background overflow-hidden">
-              <Table className="table-fixed">
-                <TableHeader>
-                  <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
-                    <TableHead className="w-[100px]">SKU</TableHead>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead 
-                      className="cursor-pointer" 
-                      onClick={() => handleSort("quantity")}
-                    >
-                      <div className="flex items-center gap-2">
-                        Quantity
-                        <ArrowUpDown className="h-4 w-4" />
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+                  <TableHead className="w-[100px]">SKU</TableHead>
+                  <TableHead>Item Name</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("quantity")}>
+                    <div className="flex items-center gap-2">
+                      Quantity
+                      <ArrowUpDown className="h-4 w-4" />
+                    </div>
+                  </TableHead>
+                  <TableHead>Min. Stock</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStock?.map(item => <TableRow key={item.id} className="group hover:bg-gray-50/50 transition-colors">
+                    <TableCell className="font-mono text-sm">
+                      {item.inventory_items.sku}
+                    </TableCell>
+                    <TableCell>{item.inventory_items.product_name}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {item.inventory_locations.name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={cn(item.quantity < (item.inventory_items.min_stock || 0) ? "text-yellow-600 font-medium" : "")}>
+                      {item.quantity}
+                    </TableCell>
+                    <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-[#000a00]/0 text-slate-800">
+                          <ArrowLeftRight className="h-4 w-4" />
+                          Transfer
+                        </Button>
                       </div>
-                    </TableHead>
-                    <TableHead>Min. Stock</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedStock?.map((item) => (
-                    <TableRow key={item.id} className="group hover:bg-gray-50/50">
-                      <TableCell className="font-mono text-sm">
-                        {item.inventory_items.sku}
-                      </TableCell>
-                      <TableCell>{item.inventory_items.product_name}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {item.inventory_locations.name}
-                        </Badge>
-                      </TableCell>
-                      <TableCell 
-                        className={cn(
-                          item.quantity < (item.inventory_items.min_stock || 0) 
-                            ? "text-yellow-600 font-medium" 
-                            : ""
-                        )}
-                      >
-                        {item.quantity}
-                      </TableCell>
-                      <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleTransferClick(item)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-[#000a00]/0 text-slate-800"
-                          >
-                            <ArrowLeftRight className="h-4 w-4" />
-                            Transfer
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {!paginatedStock?.length && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="h-24 text-center text-gray-500">
-                        No items found
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex items-center justify-between gap-3 max-sm:flex-col">
-              <p className="flex-1 whitespace-nowrap text-sm text-muted-foreground">
-                Page <span className="text-foreground">{pagination.pageIndex + 1}</span> of{" "}
-                <span className="text-foreground">{totalPages}</span>
-              </p>
-
-              <div className="grow">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="disabled:pointer-events-none disabled:opacity-50"
-                        onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
-                        disabled={pagination.pageIndex === 0}
-                      >
-                        <ChevronLeft size={16} strokeWidth={2} />
-                      </Button>
-                    </PaginationItem>
-
-                    {showLeftEllipsis && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-
-                    {pages.map((page) => {
-                      const isActive = page === pagination.pageIndex + 1;
-                      return (
-                        <PaginationItem key={page}>
-                          <Button
-                            size="icon"
-                            variant={isActive ? "outline" : "ghost"}
-                            onClick={() => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
-                          >
-                            {page}
-                          </Button>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    {showRightEllipsis && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-
-                    <PaginationItem>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="disabled:pointer-events-none disabled:opacity-50"
-                        onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
-                        disabled={pagination.pageIndex >= totalPages - 1}
-                      >
-                        <ChevronRight size={16} strokeWidth={2} />
-                      </Button>
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-
-              <div className="flex flex-1 justify-end">
-                <Select
-                  value={pagination.pageSize.toString()}
-                  onValueChange={(value) => setPagination(prev => ({ ...prev, pageSize: Number(value), pageIndex: 0 }))}
-                >
-                  <SelectTrigger className="w-fit whitespace-nowrap">
-                    <SelectValue placeholder="Select number of results" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[5, 10, 25, 50].map((size) => (
-                      <SelectItem key={size} value={size.toString()}>
-                        {size} / page
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                    </TableCell>
+                  </TableRow>)}
+                {!filteredStock?.length && <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center text-gray-500">
+                      No items found
+                    </TableCell>
+                  </TableRow>}
+              </TableBody>
+            </Table>
           </div>
         </div>
-
-        {/* Transfer Dialog */}
-        <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Transfer Stock</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>From Location</Label>
-                <Select value={transferringItem?.location_id || ''} onValueChange={locationId => {
-                  if (transferringItem) {
-                    setTransferringItem({
-                      ...transferringItem,
-                      location_id: locationId,
-                      inventory_locations: {
-                        name: locations?.find(loc => loc.id === locationId)?.name || ''
-                      }
-                    });
-                  }
-                }}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select source location" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {locations?.map(location => (
-                      <SelectItem key={location.id} value={location.id} className="flex justify-between items-center">
-                        <span>{location.name}</span>
-                        {transferringItem && (
-                          <span className="text-sm text-gray-500 ml-4">
-                            Qty: {getStockQuantity(transferringItem.item_id, location.id)}
-                          </span>
-                        )}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>To Location</Label>
-                <Select value={targetLocationId} onValueChange={setTargetLocationId}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select target location" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {locations?.map(location => (
-                      <SelectItem key={location.id} value={location.id} disabled={location.id === transferringItem?.location_id} className="flex justify-between items-center">
-                        <span>{location.name}</span>
-                        {transferringItem && (
-                          <span className="text-sm text-gray-500 ml-4">
-                            Qty: {getStockQuantity(transferringItem.item_id, location.id)}
-                          </span>
-                        )}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Quantity</Label>
-                <Input type="number" min="1" max={transferringItem?.quantity || 0} value={transferQuantity} onChange={e => setTransferQuantity(parseInt(e.target.value) || 0)} />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsTransferDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleTransferStock} disabled={!targetLocationId || transferQuantity <= 0}>
-                Transfer Stock
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
-    </div>
-  );
-};
 
+      {/* Transfer Stock Dialog */}
+      <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Transfer Stock</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>From Location</Label>
+              <Select value={transferringItem?.location_id || ''} onValueChange={locationId => {
+              if (transferringItem) {
+                setTransferringItem({
+                  ...transferringItem,
+                  location_id: locationId,
+                  inventory_locations: {
+                    name: locations?.find(loc => loc.id === locationId)?.name || ''
+                  }
+                });
+              }
+            }}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select source location" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {locations?.map(location => <SelectItem key={location.id} value={location.id} className="flex justify-between items-center">
+                      <span>{location.name}</span>
+                      {transferringItem && <span className="text-sm text-gray-500 ml-4">
+                          Qty: {getStockQuantity(transferringItem.item_id, location.id)}
+                        </span>}
+                    </SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>To Location</Label>
+              <Select value={targetLocationId} onValueChange={setTargetLocationId}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select target location" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {locations?.map(location => <SelectItem key={location.id} value={location.id} disabled={location.id === transferringItem?.location_id} className="flex justify-between items-center">
+                      <span>{location.name}</span>
+                      {transferringItem && <span className="text-sm text-gray-500 ml-4">
+                          Qty: {getStockQuantity(transferringItem.item_id, location.id)}
+                        </span>}
+                    </SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Quantity</Label>
+              <Input type="number" min="1" max={transferringItem?.quantity || 0} value={transferQuantity} onChange={e => setTransferQuantity(parseInt(e.target.value) || 0)} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsTransferDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTransferStock} disabled={!targetLocationId || transferQuantity <= 0}>
+              Transfer Stock
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>;
+};
 export default StockManagement;
