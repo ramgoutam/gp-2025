@@ -386,7 +386,7 @@ const StockManagement = () => {
                     </TableCell>
                     <TableCell>{item.inventory_items.product_name}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="gap-1">
+                      <Badge variant="secondary" className="gap-1 rounded-lg bg-slate-100 px-0 mx-0 my-0 py-0">
                         <MapPin className="h-3 w-3" />
                         {item.inventory_locations.name}
                       </Badge>
