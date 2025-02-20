@@ -89,7 +89,7 @@ const dummyData: PostSurgeryItem[] = [{
   notes: "Regular platform"
 }];
 const PostSurgeryTracking = () => {
-  return <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-0">
+  return <main className="container h-[calc(100vh-4rem)] overflow-hidden mx-0 px-[16px] py-[10px] my-[10px]">
       <Button variant="outline" className="aspect-square max-sm:p-0">
         <Plus className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
         <span className="max-sm:sr-only">Add new</span>
