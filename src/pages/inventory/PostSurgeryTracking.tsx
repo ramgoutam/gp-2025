@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet, Plus } from "lucide-react";
 
 const PostSurgeryTracking = () => {
   return (
@@ -17,6 +17,10 @@ const PostSurgeryTracking = () => {
             <p className="text-sm text-gray-500">Track and manage post-surgery inventory items</p>
           </div>
         </div>
+        <Button variant="outline" className="aspect-square max-sm:p-0">
+          <Plus className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
+          <span className="max-sm:sr-only">Add new</span>
+        </Button>
       </div>
       
       <Card className="p-6">
