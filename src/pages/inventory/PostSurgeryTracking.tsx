@@ -6,8 +6,8 @@ import { FileSpreadsheet, Plus } from "lucide-react";
 
 const PostSurgeryTracking = () => {
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-0">
+      <div className="flex items-center justify-between p-6">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-lg bg-primary/10">
             <FileSpreadsheet className="w-6 h-6 text-primary" />
@@ -26,7 +26,7 @@ const PostSurgeryTracking = () => {
       <Card className="p-6">
         <p>Ready for your guidance on what to add here!</p>
       </Card>
-    </div>
+    </main>
   );
 };
 
