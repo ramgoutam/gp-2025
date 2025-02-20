@@ -1,84 +1,80 @@
-
-import { Route, Routes } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link, useLocation } from "react-router-dom";
-import InventoryItems from "./inventory/InventoryItems";
-import StockManagement from "./inventory/StockManagement";
-import StockMovements from "./inventory/StockMovements";
-import PurchaseOrders from "./inventory/PurchaseOrders";
-import CreatePurchaseOrder from "./inventory/CreatePurchaseOrder";
-import PurchaseOrderDetails from "./inventory/PurchaseOrderDetails";
-import Suppliers from "./inventory/Suppliers";
-import PostSurgeryTracking from "./inventory/PostSurgeryTracking";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package2, Warehouse, ClipboardList, TrendingUp, Users, FileSpreadsheet } from "lucide-react";
 
 const Inventory = () => {
-  const location = useLocation();
+  const navigate = useNavigate();
+
+  const modules = [
+    {
+      title: "Inventory Items",
+      description: "Manage your inventory master list",
+      icon: Package2,
+      path: "/inventory/items"
+    },
+    {
+      title: "Stock Management",
+      description: "Track stock levels across locations",
+      icon: Warehouse,
+      path: "/inventory/stock"
+    },
+    {
+      title: "Purchase Orders",
+      description: "Create and manage purchase orders",
+      icon: ClipboardList,
+      path: "/inventory/purchase-orders"
+    },
+    {
+      title: "Stock Movement",
+      description: "Track inventory movements and history",
+      icon: TrendingUp,
+      path: "/inventory/movements"
+    },
+    {
+      title: "Suppliers",
+      description: "Manage your suppliers",
+      icon: Users,
+      path: "/inventory/suppliers"
+    },
+    {
+      title: "Post-Surgery Inventory Tracking Sheet",
+      description: "Track and manage post-surgery inventory items",
+      icon: FileSpreadsheet,
+      path: "/inventory/post-surgery-tracking"
+    }
+  ];
 
   return (
-    <div className="container mx-auto py-6">
-      <Tabs value={location.pathname} className="w-full">
-        <TabsList className="w-full justify-start mb-4 rounded-lg bg-white border shadow-sm h-auto p-2 gap-2">
-          <Link to="/inventory">
-            <TabsTrigger
-              value="/inventory"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Inventory Items
-            </TabsTrigger>
-          </Link>
-          <Link to="/inventory/stock">
-            <TabsTrigger
-              value="/inventory/stock"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Stock Management
-            </TabsTrigger>
-          </Link>
-          <Link to="/inventory/movements">
-            <TabsTrigger
-              value="/inventory/movements"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Stock Movements
-            </TabsTrigger>
-          </Link>
-          <Link to="/inventory/purchase-orders">
-            <TabsTrigger
-              value="/inventory/purchase-orders"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Purchase Orders
-            </TabsTrigger>
-          </Link>
-          <Link to="/inventory/suppliers">
-            <TabsTrigger
-              value="/inventory/suppliers"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Suppliers
-            </TabsTrigger>
-          </Link>
-          <Link to="/inventory/post-surgery">
-            <TabsTrigger
-              value="/inventory/post-surgery"
-              className="data-[state=active]:bg-primary/5 rounded data-[state=active]:text-primary"
-            >
-              Post Surgery Tracking
-            </TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Inventory Management</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Manage your inventory, track stock levels, and handle purchase orders
+          </p>
+        </div>
 
-      <Routes>
-        <Route path="/" element={<InventoryItems />} />
-        <Route path="/stock" element={<StockManagement />} />
-        <Route path="/movements" element={<StockMovements />} />
-        <Route path="/purchase-orders" element={<PurchaseOrders />} />
-        <Route path="/purchase-orders/create" element={<CreatePurchaseOrder />} />
-        <Route path="/purchase-orders/:id" element={<PurchaseOrderDetails />} />
-        <Route path="/suppliers" element={<Suppliers />} />
-        <Route path="/post-surgery" element={<PostSurgeryTracking />} />
-      </Routes>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {modules.map((module) => (
+            <Card 
+              key={module.path}
+              className="hover:shadow-lg transition-shadow cursor-pointer bg-white"
+              onClick={() => navigate(module.path)}
+            >
+              <CardHeader className="space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium flex items-center gap-2">
+                  <module.icon className="h-5 w-5 text-primary" />
+                  {module.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">{module.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
