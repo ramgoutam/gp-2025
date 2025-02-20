@@ -23,6 +23,7 @@ import StockMovements from "@/pages/inventory/StockMovements";
 import Suppliers from "@/pages/inventory/Suppliers";
 import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
+import PostSurgeryTracking from "@/pages/inventory/PostSurgeryTracking";
 import Admin from "@/pages/Admin";
 const ProtectedRoute = ({
   children,
@@ -87,11 +88,73 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
-            
+            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-0">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>} />
+                <Route path="/marketing" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                      <Marketing />
+                    </ProtectedRoute>} />
+                <Route path="/leads" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                      <Leads />
+                    </ProtectedRoute>} />
+                <Route path="/consultations" element={<ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                      <Consultations />
+                    </ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute>
+                      <Calendar />
+                    </ProtectedRoute>} />
+                <Route path="/patients" element={<ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>} />
+                <Route path="/patient/:id" element={<ProtectedRoute>
+                      <PatientProfile />
+                    </ProtectedRoute>} />
+                <Route path="/scripts" element={<ProtectedRoute>
+                      <Scripts />
+                    </ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute>
+                      <Reports />
+                    </ProtectedRoute>} />
+                <Route path="/manufacturing" element={<ProtectedRoute>
+                      <Manufacturing />
+                    </ProtectedRoute>} />
+                <Route path="/inventory" element={<ProtectedRoute>
+                      <Inventory />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/items" element={<ProtectedRoute>
+                      <InventoryItems />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/stock" element={<ProtectedRoute>
+                      <StockManagement />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/movements" element={<ProtectedRoute>
+                      <StockMovements />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/suppliers" element={<ProtectedRoute>
+                      <Suppliers />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/purchase-orders" element={<ProtectedRoute>
+                      <PurchaseOrders />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/purchase-orders/create" element={<ProtectedRoute>
+                      <CreatePurchaseOrder />
+                    </ProtectedRoute>} />
+                <Route path="/inventory/post-surgery-tracking" element={<ProtectedRoute>
+                      <PostSurgeryTracking />
+                    </ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN">
+                      <Admin />
+                    </ProtectedRoute>} />
+              </Routes>
+            </main>
           </div>
           <Toaster />
         </Router>
       </SessionContextProvider>
     </React.StrictMode>;
 }
+
 export default App;
