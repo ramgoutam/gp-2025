@@ -90,12 +90,11 @@ const dummyData: PostSurgeryItem[] = [{
 }];
 const PostSurgeryTracking = () => {
   return <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
-      <div className="flex justify-end w-full">
-        <Button variant="outline" className="aspect-square max-sm:p-0 py-px my-[18px] text-base px-[19px] mx-[25px]">
-          <Plus className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
-          <span className="max-sm:sr-only">Add new</span>
-        </Button>
-      </div>
+      <Button variant="outline" className="aspect-square max-sm:p-0 text-right py-px my-[18px] text-base px-[19px] mx-[25px]">
+        <Plus className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
+        <span className="max-sm:sr-only">Add new</span>
+      </Button>
+      
       
       <Card className="mx-6">
         <div className="p-6">
