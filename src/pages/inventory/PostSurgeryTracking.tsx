@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
+import { PostSurgeryForm } from "@/components/inventory/PostSurgeryForm";
 
 // Define the type for our data
 type PostSurgeryItem = {
@@ -88,10 +90,18 @@ const dummyData: PostSurgeryItem[] = [{
   status: "pending",
   notes: "Regular platform"
 }];
+
 const PostSurgeryTracking = () => {
-  return <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  return (
+    <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
       <div className="flex justify-end w-full">
-        <Button variant="outline" className="aspect-square max-sm:p-0 py-px my-[18px] text-base px-[19px] mx-[25px]">
+        <Button 
+          variant="outline" 
+          className="aspect-square max-sm:p-0 py-px my-[18px] text-base px-[19px] mx-[25px]"
+          onClick={() => setIsFormOpen(true)}
+        >
           <Plus className="opacity-60 sm:-ms-1 sm:me-2" size={16} strokeWidth={2} aria-hidden="true" />
           <span className="max-sm:sr-only">Add new</span>
         </Button>
@@ -102,6 +112,13 @@ const PostSurgeryTracking = () => {
           <DataTable columns={columns} data={dummyData} />
         </div>
       </Card>
-    </main>;
+
+      <PostSurgeryForm 
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+      />
+    </main>
+  );
 };
+
 export default PostSurgeryTracking;
