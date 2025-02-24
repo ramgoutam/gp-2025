@@ -386,7 +386,7 @@ const StockManagement = () => {
                     </TableCell>
                     <TableCell>{item.inventory_items.product_name}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="gap-1 rounded-lg bg-slate-100 px-0 mx-0 my-0 py-0">
+                      <Badge variant="secondary" className="gap-1">
                         <MapPin className="h-3 w-3" />
                         {item.inventory_locations.name}
                       </Badge>
@@ -397,7 +397,7 @@ const StockManagement = () => {
                     <TableCell>{item.inventory_items.min_stock || "N/A"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end">
-                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 text-slate-800 bg-white">
+                        <Button variant="outline" size="sm" onClick={() => handleTransferClick(item)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 bg-[#000a00]/0 text-slate-800">
                           <ArrowLeftRight className="h-4 w-4" />
                           Transfer
                         </Button>
