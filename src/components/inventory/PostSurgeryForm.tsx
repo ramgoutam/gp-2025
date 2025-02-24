@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BrowserRouter } from "react-router-dom";
 
 interface PostSurgeryFormProps {
   open: boolean;
@@ -88,143 +88,141 @@ export const PostSurgeryForm = ({ open, onClose }: PostSurgeryFormProps) => {
   const selectedPatient = patients.find(p => p.id === formData.patientId);
 
   return (
-    <BrowserRouter>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add Post-Surgery Item</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="patient">Patient</Label>
-                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={openCombobox}
-                        className="w-full justify-between"
-                      >
-                        {selectedPatient
-                          ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
-                          : "Select patient..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search patient..." />
-                        <CommandEmpty>No patient found.</CommandEmpty>
-                        <CommandGroup>
-                          {patients.map((patient) => (
-                            <CommandItem
-                              key={patient.id}
-                              value={`${patient.first_name} ${patient.last_name}`}
-                              onSelect={() => {
-                                handleInputChange("patientId", patient.id);
-                                setOpenCombobox(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.patientId === patient.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {patient.first_name} {patient.last_name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div>
-                  <Label htmlFor="itemName">Item Name</Label>
-                  <Input
-                    id="itemName"
-                    value={formData.itemName}
-                    onChange={(e) => handleInputChange("itemName", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => handleInputChange("category", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Add Post-Surgery Item</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="patient">Patient</Label>
+                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCombobox}
+                      className="w-full justify-between"
+                    >
+                      {selectedPatient
+                        ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
+                        : "Select patient..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search patient..." />
+                      <CommandEmpty>No patient found.</CommandEmpty>
+                      <CommandGroup>
+                        {patients.map((patient) => (
+                          <CommandItem
+                            key={patient.id}
+                            value={`${patient.first_name} ${patient.last_name}`}
+                            onSelect={() => {
+                              handleInputChange("patientId", patient.id);
+                              setOpenCombobox(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                formData.patientId === patient.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {patient.first_name} {patient.last_name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
-            )}
 
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="quantity">Quantity</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(e) => handleInputChange("quantity", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="surgeryDate">Surgery Date</Label>
-                  <Input
-                    id="surgeryDate"
-                    type="date"
-                    value={formData.surgeryDate}
-                    onChange={(e) => handleInputChange("surgeryDate", e.target.value)}
-                    required
-                  />
-                </div>
+              <div>
+                <Label htmlFor="itemName">Item Name</Label>
+                <Input
+                  id="itemName"
+                  value={formData.itemName}
+                  onChange={(e) => handleInputChange("itemName", e.target.value)}
+                  required
+                />
               </div>
-            )}
-
-            <div className="flex justify-between pt-4">
-              {currentStep > 1 && (
-                <Button type="button" variant="outline" onClick={handlePrevious}>
-                  Previous
-                </Button>
-              )}
-              {currentStep < 2 ? (
-                <Button 
-                  type="button" 
-                  onClick={handleNext} 
-                  className="ml-auto"
-                  disabled={!formData.patientId || !formData.itemName || !formData.category}
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => handleInputChange("category", value)}
                 >
-                  Next
-                </Button>
-              ) : (
-                <Button 
-                  type="submit" 
-                  className="ml-auto"
-                  disabled={!formData.quantity || !formData.surgeryDate}
-                >
-                  Submit
-                </Button>
-              )}
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </BrowserRouter>
+          )}
+
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  value={formData.quantity}
+                  onChange={(e) => handleInputChange("quantity", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="surgeryDate">Surgery Date</Label>
+                <Input
+                  id="surgeryDate"
+                  type="date"
+                  value={formData.surgeryDate}
+                  onChange={(e) => handleInputChange("surgeryDate", e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between pt-4">
+            {currentStep > 1 && (
+              <Button type="button" variant="outline" onClick={handlePrevious}>
+                Previous
+              </Button>
+            )}
+            {currentStep < 2 ? (
+              <Button 
+                type="button" 
+                onClick={handleNext} 
+                className="ml-auto"
+                disabled={!formData.patientId || !formData.itemName || !formData.category}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button 
+                type="submit" 
+                className="ml-auto"
+                disabled={!formData.quantity || !formData.surgeryDate}
+              >
+                Submit
+              </Button>
+            )}
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
