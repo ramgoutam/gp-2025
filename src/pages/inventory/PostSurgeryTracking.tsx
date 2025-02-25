@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -149,50 +151,55 @@ const PostSurgeryTracking = () => {
             <span className="max-sm:sr-only">Add new</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle>Add Post Surgery Item</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="patient">Patient</Label>
-              <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a patient" />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading ? (
-                    <SelectItem value="loading" disabled>Loading patients...</SelectItem>
-                  ) : (
-                    patients?.map((patient) => (
-                      <SelectItem key={patient.id} value={patient.id}>
-                        {`${patient.first_name} ${patient.last_name}`}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+          <ScrollArea className="max-h-[calc(90vh-8rem)]">
+            <div className="p-6 space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="patient">Patient</Label>
+                <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a patient" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoading ? (
+                      <SelectItem value="loading" disabled>Loading patients...</SelectItem>
+                    ) : (
+                      patients?.map((patient) => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {`${patient.first_name} ${patient.last_name}`}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="itemName">Item Name</Label>
+                <Input id="itemName" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input id="quantity" type="number" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="surgeryDate">Surgery Date</Label>
+                <Input id="surgeryDate" type="date" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Input id="notes" />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="itemName">Item Name</Label>
-              <Input id="itemName" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
-              <Input id="category" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <Input id="quantity" type="number" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="surgeryDate">Surgery Date</Label>
-              <Input id="surgeryDate" type="date" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Input id="notes" />
-            </div>
+          </ScrollArea>
+          <div className="p-6 pt-4 border-t">
+            <Button className="w-full">Add Item</Button>
           </div>
         </DialogContent>
       </Dialog>
