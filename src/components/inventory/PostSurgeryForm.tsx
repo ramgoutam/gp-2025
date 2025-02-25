@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,7 +51,7 @@ export const PostSurgeryForm = ({ open, onClose }: PostSurgeryFormProps) => {
 
   const [openCombobox, setOpenCombobox] = useState(false);
 
-  const { data: patients = [], isLoading: isLoadingPatients, error: patientsError } = useQuery({
+  const { data: patients = [], isLoading: isLoadingPatients } = useQuery({
     queryKey: ['patients'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,7 +60,7 @@ export const PostSurgeryForm = ({ open, onClose }: PostSurgeryFormProps) => {
         .order('last_name', { ascending: true });
 
       if (error) throw error;
-      return (data as Patient[]) || [];
+      return data as Patient[];
     },
   });
 
@@ -85,7 +85,7 @@ export const PostSurgeryForm = ({ open, onClose }: PostSurgeryFormProps) => {
     onClose();
   };
 
-  const selectedPatient = patients?.find(p => p.id === formData.patientId);
+  const selectedPatient = patients.find(p => p.id === formData.patientId);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -105,53 +105,38 @@ export const PostSurgeryForm = ({ open, onClose }: PostSurgeryFormProps) => {
                       role="combobox"
                       aria-expanded={openCombobox}
                       className="w-full justify-between"
-                      type="button"
-                      disabled={isLoadingPatients}
                     >
-                      {isLoadingPatients ? (
-                        <div className="flex items-center">
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          <span>Loading patients...</span>
-                        </div>
-                      ) : selectedPatient ? (
-                        `${selectedPatient.first_name} ${selectedPatient.last_name}`
-                      ) : (
-                        "Select patient..."
-                      )}
+                      {selectedPatient
+                        ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
+                        : "Select patient..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[400px] p-0">
-                    {patientsError ? (
-                      <div className="p-4 text-sm text-red-500">
-                        Error loading patients. Please try again.
-                      </div>
-                    ) : (
-                      <Command>
-                        <CommandInput placeholder="Search patient..." />
-                        <CommandEmpty>No patient found.</CommandEmpty>
-                        <CommandGroup>
-                          {patients.map((patient) => (
-                            <CommandItem
-                              key={patient.id}
-                              value={`${patient.first_name} ${patient.last_name}`}
-                              onSelect={() => {
-                                handleInputChange("patientId", patient.id);
-                                setOpenCombobox(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.patientId === patient.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {patient.first_name} {patient.last_name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </Command>
-                    )}
+                    <Command>
+                      <CommandInput placeholder="Search patient..." />
+                      <CommandEmpty>No patient found.</CommandEmpty>
+                      <CommandGroup>
+                        {patients.map((patient) => (
+                          <CommandItem
+                            key={patient.id}
+                            value={`${patient.first_name} ${patient.last_name}`}
+                            onSelect={() => {
+                              handleInputChange("patientId", patient.id);
+                              setOpenCombobox(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                formData.patientId === patient.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {patient.first_name} {patient.last_name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
                   </PopoverContent>
                 </Popover>
               </div>
