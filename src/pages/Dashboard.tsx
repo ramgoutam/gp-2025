@@ -113,7 +113,7 @@ const Dashboard = () => {
       </div>;
   }
   return <div className="space-y-6">
-      {userDetails && <div className="p-4 shadow-sm bg-indigo-200 hover:bg-indigo-100 my-[21px] mx-0 px-[17px] py-[12px] rounded-lg">
+      {userDetails && <div className="p-4 shadow-sm my-[21px] py-[12px] bg-white px-[19px] mx-[6px] rounded-xl">
           <h1 className="text-2xl text-gray-900 font-bold px-[6px]">
             Welcome{' '}
             {userDetails.role === 'DOCTOR' ? 'Dr.' : ''}{' '}

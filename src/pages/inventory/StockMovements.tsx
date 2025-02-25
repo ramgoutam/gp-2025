@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,10 @@ const StockMovements = () => {
         .from('inventory_stock')
         .select(`
           *,
-          inventory_items (product_name, sku),
+          inventory_items!inventory_stock_item_id_fkey (
+            product_name,
+            sku
+          ),
           inventory_locations (name)
         `)
         .order('created_at', { ascending: false });

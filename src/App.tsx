@@ -23,6 +23,7 @@ import StockMovements from "@/pages/inventory/StockMovements";
 import Suppliers from "@/pages/inventory/Suppliers";
 import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
+import PostSurgeryTracking from "@/pages/inventory/PostSurgeryTracking";
 import Admin from "@/pages/Admin";
 const ProtectedRoute = ({
   children,
@@ -87,7 +88,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navigation />
-            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-[30px]">
+            <main className="container mx-auto h-[calc(100vh-4rem)] overflow-hidden px-0">
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<ProtectedRoute>
@@ -141,6 +142,9 @@ function App() {
                 <Route path="/inventory/purchase-orders/create" element={<ProtectedRoute>
                       <CreatePurchaseOrder />
                     </ProtectedRoute>} />
+                <Route path="/inventory/post-surgery-tracking" element={<ProtectedRoute>
+                      <PostSurgeryTracking />
+                    </ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN">
                       <Admin />
                     </ProtectedRoute>} />
@@ -152,4 +156,5 @@ function App() {
       </SessionContextProvider>
     </React.StrictMode>;
 }
+
 export default App;
