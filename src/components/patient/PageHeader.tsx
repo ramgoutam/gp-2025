@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -7,15 +8,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { createPatient } from "@/utils/databaseUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 export const PageHeader = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const createPatientMutation = useMutation({
     mutationFn: createPatient,
-    onSuccess: newPatient => {
+    onSuccess: (newPatient) => {
       if (newPatient) {
         queryClient.invalidateQueries({
           queryKey: ['patients']
@@ -28,7 +29,7 @@ export const PageHeader = () => {
         navigate(`/patient/${newPatient.id}`);
       }
     },
-    onError: error => {
+    onError: (error) => {
       console.error('Error creating patient:', error);
       toast({
         title: "Error",
@@ -37,13 +38,16 @@ export const PageHeader = () => {
       });
     }
   });
+
   const handleAddPatient = async () => {
     const closeButton = document.querySelector('[aria-label="Close"]');
     if (closeButton instanceof HTMLButtonElement) {
       closeButton.click();
     }
   };
-  return <div className="flex justify-between items-center bg-gradient-to-r from-white to-primary-50 p-4 rounded-lg shadow-sm border border-primary-100 mb-4 animate-fade-in mx-0 px-[17px]">
+
+  return (
+    <div className="flex justify-between items-center bg-gradient-to-r from-white to-primary-50 p-4 rounded-lg shadow-sm border border-primary-100 mb-4 animate-fade-in mx-0 px-[17px]">
       <div className="space-y-0.5">
         <h1 className="text-2xl font-semibold text-gray-900 animate-slide-in">Patients</h1>
         <p className="text-sm text-gray-500">Manage and view all patient records</p>
@@ -56,18 +60,22 @@ export const PageHeader = () => {
               Add New Patient
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[910px] w-[90vw] h-[90vh] overflow-hidden">
-            <DialogHeader>
+          <DialogContent className="max-w-[910px] w-[90vw] h-[90vh] p-0 overflow-hidden">
+            <DialogHeader className="p-6 pb-0">
               <DialogTitle>New Patient Registration</DialogTitle>
             </DialogHeader>
-            <PatientForm onSubmit={handleAddPatient} onClose={() => {
-            const closeButton = document.querySelector('[aria-label="Close"]');
-            if (closeButton instanceof HTMLButtonElement) {
-              closeButton.click();
-            }
-          }} />
+            <PatientForm
+              onSubmit={handleAddPatient}
+              onClose={() => {
+                const closeButton = document.querySelector('[aria-label="Close"]');
+                if (closeButton instanceof HTMLButtonElement) {
+                  closeButton.click();
+                }
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>
-    </div>;
+    </div>
+  );
 };
