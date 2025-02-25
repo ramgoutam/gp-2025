@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react";
@@ -27,14 +26,16 @@ import CreatePurchaseOrder from "@/pages/inventory/CreatePurchaseOrder";
 import PostSurgeryTracking from "@/pages/inventory/PostSurgeryTracking";
 import Admin from "@/pages/Admin";
 
+type UserRole = "ADMIN" | "MANAGER_CLINICAL" | "DOCTOR" | "CLINICAL_STAFF" | "LAB_MANAGER" | "LAB_STAFF" | "FRONT_DESK";
+
 const ProtectedRoute = ({
   children,
   requiredRole,
   allowedRoles
 }: {
   children: React.ReactNode;
-  requiredRole?: string;
-  allowedRoles?: string[];
+  requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
 }) => {
   const session = useSession();
 
@@ -44,7 +45,7 @@ const ProtectedRoute = ({
   }
 
   // Only fetch the role if we need to check roles
-  const shouldCheckRole = requiredRole || (allowedRoles && allowedRoles.length > 0);
+  const shouldCheckRole = Boolean(requiredRole || (allowedRoles && allowedRoles.length > 0));
 
   const {
     data: userRole,
@@ -63,13 +64,13 @@ const ProtectedRoute = ({
           .maybeSingle();
           
         if (error) throw error;
-        return data?.role;
+        return data?.role as UserRole | null;
       } catch (error) {
         console.error('Error fetching user role:', error);
         return null;
       }
     },
-    enabled: !!session.user.id && shouldCheckRole,
+    enabled: Boolean(session.user.id && shouldCheckRole),
     staleTime: 30000, // Cache the result for 30 seconds
     cacheTime: 60000, // Keep in cache for 1 minute
     retry: 1
