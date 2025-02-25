@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SessionContextProvider, useSession } from "@supabase/auth-helpers-react";
@@ -36,14 +37,23 @@ const ProtectedRoute = ({
   allowedRoles?: string[];
 }) => {
   const session = useSession();
+
+  // First, check if we have a session
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Only fetch the role if we need to check roles
+  const shouldCheckRole = requiredRole || (allowedRoles && allowedRoles.length > 0);
+
   const {
     data: userRole,
     isLoading,
     error
   } = useQuery({
-    queryKey: ['userRole', session?.user?.id],
+    queryKey: ['userRole', session.user.id],
     queryFn: async () => {
-      if (!session?.user?.id) return null;
+      if (!shouldCheckRole) return null;
       
       try {
         const { data, error } = await supabase
@@ -59,30 +69,32 @@ const ProtectedRoute = ({
         return null;
       }
     },
-    enabled: !!session?.user?.id,
-    retry: 1,
-    staleTime: 30000 // Cache the result for 30 seconds
+    enabled: !!session.user.id && shouldCheckRole,
+    staleTime: 30000, // Cache the result for 30 seconds
+    cacheTime: 60000, // Keep in cache for 1 minute
+    retry: 1
   });
 
-  // If we're still loading, show a loading state
+  // If we don't need to check roles, render the children
+  if (!shouldCheckRole) {
+    return <>{children}</>;
+  }
+
+  // If we're loading the role and need to check it, show loading
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  // Only redirect to login if we're sure there's no session
-  if (!session && !isLoading) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Check role requirements only after loading is complete
-  if (!isLoading && requiredRole && userRole !== requiredRole) {
+  // Check role requirements
+  if (requiredRole && userRole !== requiredRole) {
     return <Navigate to="/" replace />;
   }
 
-  if (!isLoading && allowedRoles && !allowedRoles.includes(userRole || '')) {
+  if (allowedRoles && !allowedRoles.includes(userRole || '')) {
     return <Navigate to="/" replace />;
   }
 
+  // If we reach here, the user has the required role
   return <>{children}</>;
 };
 
