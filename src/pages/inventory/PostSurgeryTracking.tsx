@@ -192,7 +192,7 @@ const PostSurgeryTracking = () => {
             </ScrollArea>
           </div>
           <div className="border-t p-6 flex justify-between py-[10px]">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0} className="bg-black text-white hover:bg-black/90 flex flex-row-reverse gap-2">
+            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0} className="text-white flex flex-row-reverse gap-2 bg-blue-800 hover:bg-blue-700">
               <span>Previous</span>
               <ArrowLeft className="h-4 w-4" />
             </Button>
