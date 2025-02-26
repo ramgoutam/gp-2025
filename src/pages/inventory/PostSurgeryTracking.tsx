@@ -198,7 +198,7 @@ const PostSurgeryTracking = () => {
             </Button>
             {currentStep === formSteps.length - 1 ? <Button type="submit" disabled={!canProceed()} className="bg-black text-white hover:bg-black/90">
                 Submit
-              </Button> : <Button onClick={handleNext} disabled={!canProceed()} className="bg-black text-white hover:bg-black/90 flex gap-2">
+              </Button> : <Button onClick={handleNext} disabled={!canProceed()} className="text-white flex gap-2 bg-blue-800 hover:bg-blue-700">
                 <span>Next</span>
                 <ArrowRight className="h-4 w-4" />
               </Button>}
