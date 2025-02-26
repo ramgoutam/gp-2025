@@ -156,9 +156,7 @@ export const PostSurgeryForm = ({
 
   return (
     <ScrollArea className="h-[calc(100%-2rem)]">
-      <div className="space-y-4 py-4">
-        {renderFormStep()}
-      </div>
+      {renderFormStep()}
     </ScrollArea>
   );
 };
