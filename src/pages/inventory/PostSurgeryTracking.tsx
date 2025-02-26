@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Plus, ArrowRight, ArrowLeft } from "lucide-react";
+import { FileSpreadsheet, Plus, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +12,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ProgressBar } from "@/components/patient/ProgressBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+
 type PostSurgeryItem = {
   id: string;
   itemName: string;
@@ -20,12 +23,15 @@ type PostSurgeryItem = {
   surgeryDate: string;
   status: "pending" | "completed" | "cancelled";
   notes: string;
+  treatments?: string[];
 };
+
 type Patient = {
   id: string;
   first_name: string;
   last_name: string;
 };
+
 const columns: ColumnDef<PostSurgeryItem>[] = [{
   accessorKey: "itemName",
   header: "Item Name"
@@ -55,120 +61,222 @@ const columns: ColumnDef<PostSurgeryItem>[] = [{
   accessorKey: "notes",
   header: "Notes"
 }];
-const formSteps = [{
-  title: "Patient Selection",
-  fields: ["patient"]
-}, {
-  title: "Item Details",
-  fields: ["itemName", "category", "quantity"]
-}, {
-  title: "Surgery Information",
-  fields: ["surgeryDate", "notes"]
-}];
 
-// Initial empty data array
+const treatmentOptions = [
+  "Wisdom Teeth Extraction",
+  "Denture (Lower)",
+  "Denture (Upper)",
+  "Implant Supported Denture (Lower)",
+  "Implant Supported Denture (Upper)",
+  "Fixed Implant Zirconia Bridge (Lower)",
+  "Fixed Implant Zirconia Bridge (Upper)",
+  "Single Implant",
+  "Multiple Implants",
+  "Extraction(s)",
+  "Fixed Implant Nano-ceramic Bridge (Upper)",
+  "Fixed Implant Nano-ceramic Bridge (Lower)",
+  "Fixed Implant Nano-ceramic Bridge (Dual Arch)",
+  "Fixed Implant Zirconia Bridge (Dual Arch)",
+  "Implant Supported Denture (Dual Arch)",
+  "Surgical Revision",
+  "Extractions and Implant Placement",
+  "LATERAL WINDOW SINUS LIFT"
+];
+
+const formSteps = [
+  { title: "Patient Selection", fields: ["patient"] },
+  { title: "Treatment Plan", fields: ["treatments"] },
+  { title: "Item Details", fields: ["itemName", "category", "quantity"] },
+  { title: "Surgery Information", fields: ["surgeryDate", "notes"] }
+];
+
 const initialData: PostSurgeryItem[] = [];
+
 const PostSurgeryTracking = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedTreatments, setSelectedTreatments] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     patient: "",
     itemName: "",
     category: "",
     quantity: "",
     surgeryDate: "",
-    notes: ""
+    notes: "",
+    treatments: [] as string[]
   });
-  const {
-    data: patients,
-    isLoading
-  } = useQuery({
+
+  const { data: patients, isLoading } = useQuery({
     queryKey: ['patients'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('patients').select('id, first_name, last_name').order('last_name');
+      const { data, error } = await supabase
+        .from('patients')
+        .select('id, first_name, last_name')
+        .order('last_name');
       if (error) throw error;
       return data as Patient[];
     }
   });
+
   const handleNext = () => {
     if (currentStep < formSteps.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
   };
+
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
   };
-  const handleInputChange = (field: string, value: string) => {
+
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
+  const toggleTreatment = (treatment: string) => {
+    const newSelectedTreatments = selectedTreatments.includes(treatment)
+      ? selectedTreatments.filter(t => t !== treatment)
+      : [...selectedTreatments, treatment];
+    
+    setSelectedTreatments(newSelectedTreatments);
+    handleInputChange('treatments', newSelectedTreatments);
+  };
+
   const canProceed = () => {
     const currentFields = formSteps[currentStep].fields;
-    return currentFields.every(field => formData[field as keyof typeof formData]);
+    return currentFields.every(field => {
+      if (field === 'treatments') {
+        return selectedTreatments.length > 0;
+      }
+      return formData[field as keyof typeof formData];
+    });
   };
+
   const getStepStatus = (index: number) => {
     if (index < currentStep) return "completed" as const;
     if (index === currentStep) return "current" as const;
     return "upcoming" as const;
   };
+
   const progressSteps = formSteps.map((step, index) => ({
     label: step.title,
     status: getStepStatus(index)
   }));
+
   const renderFormStep = () => {
     switch (currentStep) {
       case 0:
-        return <div className="space-y-4 px-0 mx-[10px] my-0">
+        return (
+          <div className="space-y-4 px-0 mx-[10px] my-0">
             <Label htmlFor="patient">Patient Name:</Label>
             <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
               <SelectTrigger className="px-[10px] my-0 mx-0">
                 <SelectValue placeholder="Select a patient" />
               </SelectTrigger>
               <SelectContent>
-                {isLoading ? <SelectItem value="loading" disabled>Loading patients...</SelectItem> : patients?.map(patient => <SelectItem key={patient.id} value={patient.id}>
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>Loading patients...</SelectItem>
+                ) : (
+                  patients?.map(patient => (
+                    <SelectItem key={patient.id} value={patient.id}>
                       {`${patient.first_name} ${patient.last_name}`}
-                    </SelectItem>)}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
-          </div>;
+          </div>
+        );
       case 1:
-        return <div className="space-y-4">
+        return (
+          <div className="space-y-4">
+            <Label>Select Treatments:</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-2">
+              {treatmentOptions.map((treatment) => (
+                <Button
+                  key={treatment}
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "justify-start gap-2 h-auto py-3 px-4",
+                    selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
+                  )}
+                  onClick={() => toggleTreatment(treatment)}
+                >
+                  <div className="flex items-center gap-2">
+                    {selectedTreatments.includes(treatment) && (
+                      <Check className="h-4 w-4 text-primary shrink-0" />
+                    )}
+                    <span className="text-sm">{treatment}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
             <div>
               <Label htmlFor="itemName">Item Name</Label>
-              <Input id="itemName" value={formData.itemName} onChange={e => handleInputChange("itemName", e.target.value)} />
+              <Input 
+                id="itemName" 
+                value={formData.itemName} 
+                onChange={e => handleInputChange("itemName", e.target.value)} 
+              />
             </div>
             <div>
               <Label htmlFor="category">Category</Label>
-              <Input id="category" value={formData.category} onChange={e => handleInputChange("category", e.target.value)} />
+              <Input 
+                id="category" 
+                value={formData.category} 
+                onChange={e => handleInputChange("category", e.target.value)} 
+              />
             </div>
             <div>
               <Label htmlFor="quantity">Quantity</Label>
-              <Input id="quantity" type="number" value={formData.quantity} onChange={e => handleInputChange("quantity", e.target.value)} />
+              <Input 
+                id="quantity" 
+                type="number" 
+                value={formData.quantity} 
+                onChange={e => handleInputChange("quantity", e.target.value)} 
+              />
             </div>
-          </div>;
-      case 2:
-        return <div className="space-y-4">
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
             <div>
               <Label htmlFor="surgeryDate">Surgery Date</Label>
-              <Input id="surgeryDate" type="date" value={formData.surgeryDate} onChange={e => handleInputChange("surgeryDate", e.target.value)} />
+              <Input 
+                id="surgeryDate" 
+                type="date" 
+                value={formData.surgeryDate} 
+                onChange={e => handleInputChange("surgeryDate", e.target.value)} 
+              />
             </div>
             <div>
               <Label htmlFor="notes">Notes</Label>
-              <Input id="notes" value={formData.notes} onChange={e => handleInputChange("notes", e.target.value)} />
+              <Input 
+                id="notes" 
+                value={formData.notes} 
+                onChange={e => handleInputChange("notes", e.target.value)} 
+              />
             </div>
-          </div>;
+          </div>
+        );
       default:
         return null;
     }
   };
-  return <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
+
+  return (
+    <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline" className="aspect-square max-sm:p-0 text-right py-px my-[18px] text-base px-[19px] mx-[25px]">
@@ -192,16 +300,33 @@ const PostSurgeryTracking = () => {
             </ScrollArea>
           </div>
           <div className="border-t p-6 flex justify-between py-[10px]">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0} className="text-white flex flex-row-reverse gap-2 bg-blue-800 hover:bg-blue-700">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="text-white flex flex-row-reverse gap-2 bg-blue-800 hover:bg-blue-700"
+            >
               <span>Previous</span>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {currentStep === formSteps.length - 1 ? <Button type="submit" disabled={!canProceed()} className="bg-black text-white hover:bg-black/90">
+            {currentStep === formSteps.length - 1 ? (
+              <Button
+                type="submit"
+                disabled={!canProceed()}
+                className="bg-black text-white hover:bg-black/90"
+              >
                 Submit
-              </Button> : <Button onClick={handleNext} disabled={!canProceed()} className="text-white flex gap-2 bg-blue-800 hover:bg-blue-700">
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed()}
+                className="text-white flex gap-2 bg-blue-800 hover:bg-blue-700"
+              >
                 <span>Next</span>
                 <ArrowRight className="h-4 w-4" />
-              </Button>}
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -211,6 +336,8 @@ const PostSurgeryTracking = () => {
           <DataTable columns={columns} data={initialData} />
         </div>
       </Card>
-    </main>;
+    </main>
+  );
 };
+
 export default PostSurgeryTracking;
