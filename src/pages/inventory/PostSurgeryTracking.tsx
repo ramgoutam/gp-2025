@@ -24,8 +24,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 
-// Define the type for our data
 type PostSurgeryItem = {
   id: string;
   itemName: string;
@@ -42,7 +42,6 @@ type Patient = {
   last_name: string;
 };
 
-// Define the columns
 const columns: ColumnDef<PostSurgeryItem>[] = [
   {
     accessorKey: "itemName",
@@ -82,53 +81,24 @@ const columns: ColumnDef<PostSurgeryItem>[] = [
   }
 ];
 
-// Dummy data
-const dummyData: PostSurgeryItem[] = [{
-  id: "1",
-  itemName: "Titanium Implant",
-  category: "Implants",
-  quantity: 2,
-  surgeryDate: "2024-03-15",
-  status: "pending",
-  notes: "Standard size required"
-}, {
-  id: "2",
-  itemName: "Surgical Screws",
-  category: "Fasteners",
-  quantity: 4,
-  surgeryDate: "2024-03-16",
-  status: "completed",
-  notes: "Self-tapping screws"
-}, {
-  id: "3",
-  itemName: "Bone Graft Material",
-  category: "Biologics",
-  quantity: 1,
-  surgeryDate: "2024-03-18",
-  status: "pending",
-  notes: "Synthetic substitute"
-}, {
-  id: "4",
-  itemName: "Surgical Guide",
-  category: "Instruments",
-  quantity: 1,
-  surgeryDate: "2024-03-20",
-  status: "cancelled",
-  notes: "Custom-made guide"
-}, {
-  id: "5",
-  itemName: "Healing Abutments",
-  category: "Prosthetics",
-  quantity: 2,
-  surgeryDate: "2024-03-22",
-  status: "pending",
-  notes: "Regular platform"
-}];
+const formSteps = [
+  { title: "Patient Selection", fields: ["patient"] },
+  { title: "Item Details", fields: ["itemName", "category", "quantity"] },
+  { title: "Surgery Information", fields: ["surgeryDate", "notes"] },
+];
 
 const PostSurgeryTracking = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState({
+    patient: "",
+    itemName: "",
+    category: "",
+    quantity: "",
+    surgeryDate: "",
+    notes: "",
+  });
 
-  // Fetch patients from the database
   const { data: patients, isLoading } = useQuery({
     queryKey: ['patients'],
     queryFn: async () => {
@@ -141,6 +111,113 @@ const PostSurgeryTracking = () => {
       return data as Patient[];
     }
   });
+
+  const progress = ((currentStep + 1) / formSteps.length) * 100;
+
+  const handleNext = () => {
+    if (currentStep < formSteps.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const canProceed = () => {
+    const currentFields = formSteps[currentStep].fields;
+    return currentFields.every(field => formData[field as keyof typeof formData]);
+  };
+
+  const renderFormStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-4">
+            <Label htmlFor="patient">Patient</Label>
+            <Select value={formData.patient} onValueChange={(value) => handleInputChange("patient", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a patient" />
+              </SelectTrigger>
+              <SelectContent>
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>Loading patients...</SelectItem>
+                ) : (
+                  patients?.map((patient) => (
+                    <SelectItem key={patient.id} value={patient.id}>
+                      {`${patient.first_name} ${patient.last_name}`}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="itemName">Item Name</Label>
+              <Input 
+                id="itemName"
+                value={formData.itemName}
+                onChange={(e) => handleInputChange("itemName", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Input 
+                id="category"
+                value={formData.category}
+                onChange={(e) => handleInputChange("category", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="quantity">Quantity</Label>
+              <Input 
+                id="quantity"
+                type="number"
+                value={formData.quantity}
+                onChange={(e) => handleInputChange("quantity", e.target.value)}
+              />
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="surgeryDate">Surgery Date</Label>
+              <Input 
+                id="surgeryDate"
+                type="date"
+                value={formData.surgeryDate}
+                onChange={(e) => handleInputChange("surgeryDate", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Input 
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+              />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
@@ -155,51 +232,34 @@ const PostSurgeryTracking = () => {
           <DialogHeader className="p-6 pb-0">
             <DialogTitle>Add Post Surgery Item</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[calc(90vh-8rem)]">
-            <div className="p-6 space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="patient">Patient</Label>
-                <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a patient" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoading ? (
-                      <SelectItem value="loading" disabled>Loading patients...</SelectItem>
-                    ) : (
-                      patients?.map((patient) => (
-                        <SelectItem key={patient.id} value={patient.id}>
-                          {`${patient.first_name} ${patient.last_name}`}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="itemName">Item Name</Label>
-                <Input id="itemName" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="category">Category</Label>
-                <Input id="category" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input id="quantity" type="number" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="surgeryDate">Surgery Date</Label>
-                <Input id="surgeryDate" type="date" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Input id="notes" />
-              </div>
+          <div className="p-6 pt-2">
+            <Progress value={progress} className="mb-6" />
+            <div className="text-sm text-muted-foreground mb-4">
+              Step {currentStep + 1} of {formSteps.length}: {formSteps[currentStep].title}
             </div>
-          </ScrollArea>
-          <div className="p-6 pt-4 border-t">
-            <Button className="w-full">Add Item</Button>
+            <ScrollArea className="max-h-[calc(90vh-16rem)]">
+              <div className="space-y-4 py-4">
+                {renderFormStep()}
+              </div>
+            </ScrollArea>
+          </div>
+          <div className="p-6 pt-0 flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+            >
+              Previous
+            </Button>
+            {currentStep === formSteps.length - 1 ? (
+              <Button type="submit" disabled={!canProceed()}>
+                Submit
+              </Button>
+            ) : (
+              <Button onClick={handleNext} disabled={!canProceed()}>
+                Next
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
