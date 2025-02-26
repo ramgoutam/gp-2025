@@ -87,6 +87,9 @@ const formSteps = [
   { title: "Surgery Information", fields: ["surgeryDate", "notes"] },
 ];
 
+// Initial empty data array
+const initialData: PostSurgeryItem[] = [];
+
 const PostSurgeryTracking = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
@@ -266,7 +269,7 @@ const PostSurgeryTracking = () => {
       
       <Card className="mx-6">
         <div className="p-6">
-          <DataTable columns={columns} data={dummyData} />
+          <DataTable columns={columns} data={initialData} />
         </div>
       </Card>
     </main>
