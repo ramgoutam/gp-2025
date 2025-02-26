@@ -88,7 +88,7 @@ const PostSurgeryTracking = () => {
         <DialogContent className="w-full max-w-[800px] min-h-[600px] h-[80vh] overflow-hidden p-0 flex flex-col">
           <div className="p-6 flex-1 overflow-hidden">
             <DialogHeader className="px-0 pb-6">
-              <DialogTitle>Add Post Surgery Item</DialogTitle>
+              <DialogTitle>Post Surgery Tracking Sheet</DialogTitle>
             </DialogHeader>
             <ProgressBar steps={progressSteps} activeStep={currentStep} />
             <div className="text-sm text-muted-foreground mb-4">
