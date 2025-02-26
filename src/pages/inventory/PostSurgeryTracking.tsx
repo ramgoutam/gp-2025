@@ -242,13 +242,13 @@ const PostSurgeryTracking = () => {
         </DialogTrigger>
         <DialogContent className="w-full max-w-[800px] h-[calc(100vh-2rem)] overflow-hidden p-0">
           <div className="p-6">
+            <DialogHeader className="px-0 pb-6">
+              <DialogTitle>Add Post Surgery Item</DialogTitle>
+            </DialogHeader>
             <ProgressBar steps={progressSteps} activeStep={currentStep} />
             <div className="text-sm text-muted-foreground mb-4">
               Step {currentStep + 1} of {formSteps.length}: {formSteps[currentStep].title}
             </div>
-            <DialogHeader className="px-0 pb-0">
-              <DialogTitle>Add Post Surgery Item</DialogTitle>
-            </DialogHeader>
             <ScrollArea className="max-h-[calc(90vh-16rem)]">
               <div className="space-y-4 py-4">
                 {renderFormStep()}
