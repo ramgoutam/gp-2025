@@ -126,9 +126,9 @@ const PostSurgeryTracking = () => {
     switch (currentStep) {
       case 0:
         return <div className="space-y-4 px-0 mx-[10px] my-0">
-            <Label htmlFor="patient">Patient</Label>
+            <Label htmlFor="patient">Patient Name:</Label>
             <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="px-[10px] my-0 mx-0">
                 <SelectValue placeholder="Select a patient" />
               </SelectTrigger>
               <SelectContent>
