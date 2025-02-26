@@ -80,16 +80,16 @@ export const PostSurgeryForm = ({
                     type="button"
                     variant="outline"
                     className={cn(
-                      "justify-start gap-2 h-auto py-3 px-4",
+                      "justify-start gap-2 h-auto py-2 px-3 text-xs",
                       selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
                     )}
                     onClick={() => toggleTreatment(treatment)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       {selectedTreatments.includes(treatment) && (
-                        <Check className="h-4 w-4 text-primary shrink-0" />
+                        <Check className="h-3 w-3 text-primary shrink-0" />
                       )}
-                      <span className="text-sm">{treatment}</span>
+                      <span>{treatment}</span>
                     </div>
                   </Button>
                 ))}
