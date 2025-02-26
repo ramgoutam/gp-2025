@@ -84,13 +84,10 @@ const treatmentOptions = [
 ];
 
 const formSteps = [
-  { title: "Patient Selection", fields: ["patient"] },
-  { title: "Treatment Plan", fields: ["treatments"] },
+  { title: "Patient & Treatment Selection", fields: ["patient", "treatments"] },
   { title: "Item Details", fields: ["itemName", "category", "quantity"] },
   { title: "Surgery Information", fields: ["surgeryDate", "notes"] }
 ];
-
-const initialData: PostSurgeryItem[] = [];
 
 const PostSurgeryTracking = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>("");
@@ -171,54 +168,54 @@ const PostSurgeryTracking = () => {
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-4 px-0 mx-[10px] my-0">
-            <Label htmlFor="patient">Patient Name:</Label>
-            <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
-              <SelectTrigger className="px-[10px] my-0 mx-0">
-                <SelectValue placeholder="Select a patient" />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoading ? (
-                  <SelectItem value="loading" disabled>Loading patients...</SelectItem>
-                ) : (
-                  patients?.map(patient => (
-                    <SelectItem key={patient.id} value={patient.id}>
-                      {`${patient.first_name} ${patient.last_name}`}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-      case 1:
-        return (
           <div className="space-y-4">
-            <Label>Select Treatments:</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-2">
-              {treatmentOptions.map((treatment) => (
-                <Button
-                  key={treatment}
-                  type="button"
-                  variant="outline"
-                  className={cn(
-                    "justify-start gap-2 h-auto py-3 px-4",
-                    selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
+            <div className="space-y-4 px-0 mx-[10px] my-0">
+              <Label htmlFor="patient">Patient Name:</Label>
+              <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
+                <SelectTrigger className="px-[10px] my-0 mx-0">
+                  <SelectValue placeholder="Select a patient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {isLoading ? (
+                    <SelectItem value="loading" disabled>Loading patients...</SelectItem>
+                  ) : (
+                    patients?.map(patient => (
+                      <SelectItem key={patient.id} value={patient.id}>
+                        {`${patient.first_name} ${patient.last_name}`}
+                      </SelectItem>
+                    ))
                   )}
-                  onClick={() => toggleTreatment(treatment)}
-                >
-                  <div className="flex items-center gap-2">
-                    {selectedTreatments.includes(treatment) && (
-                      <Check className="h-4 w-4 text-primary shrink-0" />
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="mt-6">
+              <Label>Select Treatments:</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-2">
+                {treatmentOptions.map((treatment) => (
+                  <Button
+                    key={treatment}
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "justify-start gap-2 h-auto py-3 px-4",
+                      selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
                     )}
-                    <span className="text-sm">{treatment}</span>
-                  </div>
-                </Button>
-              ))}
+                    onClick={() => toggleTreatment(treatment)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {selectedTreatments.includes(treatment) && (
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                      )}
+                      <span className="text-sm">{treatment}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         );
-      case 2:
+      case 1:
         return (
           <div className="space-y-4">
             <div>
@@ -248,7 +245,7 @@ const PostSurgeryTracking = () => {
             </div>
           </div>
         );
-      case 3:
+      case 2:
         return (
           <div className="space-y-4">
             <div>
