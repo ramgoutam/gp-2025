@@ -68,7 +68,6 @@ const formSteps = [{
 
 // Initial empty data array
 const initialData: PostSurgeryItem[] = [];
-
 const PostSurgeryTracking = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
@@ -126,7 +125,7 @@ const PostSurgeryTracking = () => {
   const renderFormStep = () => {
     switch (currentStep) {
       case 0:
-        return <div className="space-y-4">
+        return <div className="space-y-4 px-0 mx-[10px] my-0">
             <Label htmlFor="patient">Patient</Label>
             <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
               <SelectTrigger>
@@ -193,33 +192,16 @@ const PostSurgeryTracking = () => {
             </ScrollArea>
           </div>
           <div className="border-t p-6 flex justify-between py-[10px]">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="bg-black text-white hover:bg-black/90 flex flex-row-reverse gap-2"
-            >
+            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0} className="bg-black text-white hover:bg-black/90 flex flex-row-reverse gap-2">
               <span>Previous</span>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {currentStep === formSteps.length - 1 ? (
-              <Button
-                type="submit"
-                disabled={!canProceed()}
-                className="bg-black text-white hover:bg-black/90"
-              >
+            {currentStep === formSteps.length - 1 ? <Button type="submit" disabled={!canProceed()} className="bg-black text-white hover:bg-black/90">
                 Submit
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed()}
-                className="bg-black text-white hover:bg-black/90 flex gap-2"
-              >
+              </Button> : <Button onClick={handleNext} disabled={!canProceed()} className="bg-black text-white hover:bg-black/90 flex gap-2">
                 <span>Next</span>
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-            )}
+              </Button>}
           </div>
         </DialogContent>
       </Dialog>
@@ -231,5 +213,4 @@ const PostSurgeryTracking = () => {
       </Card>
     </main>;
 };
-
 export default PostSurgeryTracking;
