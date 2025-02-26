@@ -73,25 +73,27 @@ export const PostSurgeryForm = ({
 
             <div className="mt-6">
               <Label>Select Treatments:</Label>
-              {treatmentOptions.map((treatment) => (
-                <Button
-                  key={treatment}
-                  type="button"
-                  variant="outline"
-                  className={cn(
-                    "justify-start gap-2 h-auto py-3 px-4 w-full mt-2",
-                    selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
-                  )}
-                  onClick={() => toggleTreatment(treatment)}
-                >
-                  <div className="flex items-center gap-2">
-                    {selectedTreatments.includes(treatment) && (
-                      <Check className="h-4 w-4 text-primary shrink-0" />
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {treatmentOptions.map((treatment) => (
+                  <Button
+                    key={treatment}
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "justify-start gap-2 h-auto py-3 px-4",
+                      selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
                     )}
-                    <span className="text-sm">{treatment}</span>
-                  </div>
-                </Button>
-              ))}
+                    onClick={() => toggleTreatment(treatment)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {selectedTreatments.includes(treatment) && (
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                      )}
+                      <span className="text-sm">{treatment}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         );
