@@ -240,8 +240,8 @@ const PostSurgeryTracking = () => {
             <span className="max-sm:sr-only">Add new</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="w-full max-w-[800px] h-[calc(100vh-2rem)] overflow-hidden p-0">
-          <div className="p-6">
+        <DialogContent className="w-full max-w-[800px] h-[calc(100vh-2rem)] overflow-hidden p-0 flex flex-col">
+          <div className="p-6 flex-1 overflow-hidden">
             <DialogHeader className="px-0 pb-6">
               <DialogTitle>Add Post Surgery Item</DialogTitle>
             </DialogHeader>
@@ -249,13 +249,13 @@ const PostSurgeryTracking = () => {
             <div className="text-sm text-muted-foreground mb-4">
               Step {currentStep + 1} of {formSteps.length}: {formSteps[currentStep].title}
             </div>
-            <ScrollArea className="max-h-[calc(90vh-16rem)]">
+            <ScrollArea className="flex-1">
               <div className="space-y-4 py-4">
                 {renderFormStep()}
               </div>
             </ScrollArea>
           </div>
-          <div className="p-6 pt-0 flex justify-between">
+          <div className="border-t p-6 flex justify-between">
             <Button
               variant="outline"
               onClick={handlePrevious}
