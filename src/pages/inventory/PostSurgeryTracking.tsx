@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Progress } from "@/components/ui/progress";
+import { ProgressBar } from "@/components/patient/ProgressBar";
 
 type PostSurgeryItem = {
   id: string;
@@ -115,8 +114,6 @@ const PostSurgeryTracking = () => {
     }
   });
 
-  const progress = ((currentStep + 1) / formSteps.length) * 100;
-
   const handleNext = () => {
     if (currentStep < formSteps.length - 1) {
       setCurrentStep(prev => prev + 1);
@@ -140,6 +137,17 @@ const PostSurgeryTracking = () => {
     const currentFields = formSteps[currentStep].fields;
     return currentFields.every(field => formData[field as keyof typeof formData]);
   };
+
+  const getStepStatus = (index: number) => {
+    if (index < currentStep) return "completed" as const;
+    if (index === currentStep) return "current" as const;
+    return "upcoming" as const;
+  };
+
+  const progressSteps = formSteps.map((step, index) => ({
+    label: step.title,
+    status: getStepStatus(index)
+  }));
 
   const renderFormStep = () => {
     switch (currentStep) {
@@ -236,7 +244,7 @@ const PostSurgeryTracking = () => {
             <DialogTitle>Add Post Surgery Item</DialogTitle>
           </DialogHeader>
           <div className="p-6 pt-2">
-            <Progress value={progress} className="mb-6" />
+            <ProgressBar steps={progressSteps} activeStep={currentStep} />
             <div className="text-sm text-muted-foreground mb-4">
               Step {currentStep + 1} of {formSteps.length}: {formSteps[currentStep].title}
             </div>
