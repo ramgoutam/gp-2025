@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -155,7 +154,7 @@ export const PostSurgeryForm = ({
   };
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="h-[calc(100%-2rem)]">
       <div className="space-y-4 py-4">
         {renderFormStep()}
       </div>

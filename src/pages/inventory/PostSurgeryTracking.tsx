@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
@@ -84,7 +83,7 @@ const PostSurgeryTracking = () => {
             <span className="max-sm:sr-only">Add new</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="w-full max-w-[800px] h-[calc(100vh-2rem)] overflow-hidden p-0 flex flex-col">
+        <DialogContent className="w-full max-w-[800px] min-h-[600px] h-[80vh] overflow-hidden p-0 flex flex-col">
           <div className="p-6 flex-1 overflow-hidden">
             <DialogHeader className="px-0 pb-6">
               <DialogTitle>Add Post Surgery Item</DialogTitle>
