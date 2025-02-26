@@ -73,27 +73,29 @@ export const PostSurgeryForm = ({
 
             <div className="mt-6">
               <Label>Select Treatments:</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {treatmentOptions.map((treatment) => (
-                  <Button
-                    key={treatment}
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      "justify-start gap-2 h-auto py-2 px-3 text-xs",
-                      selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
-                    )}
-                    onClick={() => toggleTreatment(treatment)}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      {selectedTreatments.includes(treatment) && (
-                        <Check className="h-3 w-3 text-primary shrink-0" />
+              <ScrollArea className="h-[400px] w-full">
+                <div className="grid grid-cols-2 gap-2 mt-2 p-1">
+                  {treatmentOptions.map((treatment) => (
+                    <Button
+                      key={treatment}
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "justify-start gap-2 h-auto py-2 px-3 text-xs",
+                        selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
                       )}
-                      <span>{treatment}</span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
+                      onClick={() => toggleTreatment(treatment)}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        {selectedTreatments.includes(treatment) && (
+                          <Check className="h-3 w-3 text-primary shrink-0" />
+                        )}
+                        <span>{treatment}</span>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </ScrollArea>
             </div>
           </div>
         );
@@ -155,7 +157,7 @@ export const PostSurgeryForm = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100%-2rem)] overflow-y-auto">
+    <ScrollArea className="h-[calc(100vh-15rem)] overflow-y-auto">
       <div className="p-4">
         {renderFormStep()}
       </div>
