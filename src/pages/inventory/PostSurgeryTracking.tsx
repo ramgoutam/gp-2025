@@ -1,96 +1,16 @@
+
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Plus, ArrowRight, ArrowLeft, Check } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
+import { Plus, ArrowRight, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { ProgressBar } from "@/components/patient/ProgressBar";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
-
-type PostSurgeryItem = {
-  id: string;
-  itemName: string;
-  category: string;
-  quantity: number;
-  surgeryDate: string;
-  status: "pending" | "completed" | "cancelled";
-  notes: string;
-  treatments?: string[];
-};
-
-type Patient = {
-  id: string;
-  first_name: string;
-  last_name: string;
-};
-
-const columns: ColumnDef<PostSurgeryItem>[] = [{
-  accessorKey: "itemName",
-  header: "Item Name"
-}, {
-  accessorKey: "category",
-  header: "Category"
-}, {
-  accessorKey: "quantity",
-  header: "Quantity"
-}, {
-  accessorKey: "surgeryDate",
-  header: "Surgery Date"
-}, {
-  accessorKey: "status",
-  header: "Status",
-  cell: ({
-    row
-  }) => <div className={`
-          inline-flex px-2 py-1 rounded-full text-xs font-medium
-          ${row.original.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-          ${row.original.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-          ${row.original.status === 'cancelled' ? 'bg-red-100 text-red-800' : ''}
-        `}>
-        {row.original.status}
-      </div>
-}, {
-  accessorKey: "notes",
-  header: "Notes"
-}];
-
-const treatmentOptions = [
-  "Wisdom Teeth Extraction",
-  "Denture (Lower)",
-  "Denture (Upper)",
-  "Implant Supported Denture (Lower)",
-  "Implant Supported Denture (Upper)",
-  "Fixed Implant Zirconia Bridge (Lower)",
-  "Fixed Implant Zirconia Bridge (Upper)",
-  "Single Implant",
-  "Multiple Implants",
-  "Extraction(s)",
-  "Fixed Implant Nano-ceramic Bridge (Upper)",
-  "Fixed Implant Nano-ceramic Bridge (Lower)",
-  "Fixed Implant Nano-ceramic Bridge (Dual Arch)",
-  "Fixed Implant Zirconia Bridge (Dual Arch)",
-  "Implant Supported Denture (Dual Arch)",
-  "Surgical Revision",
-  "Extractions and Implant Placement",
-  "LATERAL WINDOW SINUS LIFT"
-];
-
-const formSteps = [
-  { title: "Patient & Treatment Selection", fields: ["patient", "treatments"] },
-  { title: "Item Details", fields: ["itemName", "category", "quantity"] },
-  { title: "Surgery Information", fields: ["surgeryDate", "notes"] }
-];
+import { PostSurgeryForm } from "@/components/inventory/post-surgery/PostSurgeryForm";
+import { columns } from "@/components/inventory/post-surgery/columns";
+import { formSteps } from "@/types/postSurgeryTracking";
 
 const PostSurgeryTracking = () => {
-  const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTreatments, setSelectedTreatments] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -101,18 +21,6 @@ const PostSurgeryTracking = () => {
     surgeryDate: "",
     notes: "",
     treatments: [] as string[]
-  });
-
-  const { data: patients, isLoading } = useQuery({
-    queryKey: ['patients'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('id, first_name, last_name')
-        .order('last_name');
-      if (error) throw error;
-      return data as Patient[];
-    }
   });
 
   const handleNext = () => {
@@ -164,113 +72,8 @@ const PostSurgeryTracking = () => {
     status: getStepStatus(index)
   }));
 
-  const renderFormStep = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <div className="space-y-4">
-            <div className="space-y-4 px-0 mx-[10px] my-0">
-              <Label htmlFor="patient">Patient Name:</Label>
-              <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
-                <SelectTrigger className="px-[10px] my-0 mx-0">
-                  <SelectValue placeholder="Select a patient" />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading ? (
-                    <SelectItem value="loading" disabled>Loading patients...</SelectItem>
-                  ) : (
-                    patients?.map(patient => (
-                      <SelectItem key={patient.id} value={patient.id}>
-                        {`${patient.first_name} ${patient.last_name}`}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="mt-6">
-              <Label>Select Treatments:</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-2">
-                {treatmentOptions.map((treatment) => (
-                  <Button
-                    key={treatment}
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      "justify-start gap-2 h-auto py-3 px-4",
-                      selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
-                    )}
-                    onClick={() => toggleTreatment(treatment)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {selectedTreatments.includes(treatment) && (
-                        <Check className="h-4 w-4 text-primary shrink-0" />
-                      )}
-                      <span className="text-sm">{treatment}</span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      case 1:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="itemName">Item Name</Label>
-              <Input 
-                id="itemName" 
-                value={formData.itemName} 
-                onChange={e => handleInputChange("itemName", e.target.value)} 
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Input 
-                id="category" 
-                value={formData.category} 
-                onChange={e => handleInputChange("category", e.target.value)} 
-              />
-            </div>
-            <div>
-              <Label htmlFor="quantity">Quantity</Label>
-              <Input 
-                id="quantity" 
-                type="number" 
-                value={formData.quantity} 
-                onChange={e => handleInputChange("quantity", e.target.value)} 
-              />
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="surgeryDate">Surgery Date</Label>
-              <Input 
-                id="surgeryDate" 
-                type="date" 
-                value={formData.surgeryDate} 
-                onChange={e => handleInputChange("surgeryDate", e.target.value)} 
-              />
-            </div>
-            <div>
-              <Label htmlFor="notes">Notes</Label>
-              <Input 
-                id="notes" 
-                value={formData.notes} 
-                onChange={e => handleInputChange("notes", e.target.value)} 
-              />
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  // Temporary empty data array for demo purposes
+  const data: any[] = [];
 
   return (
     <main className="container h-[calc(100vh-4rem)] overflow-hidden py-0 my-0 mx-0 px-[4px]">
@@ -290,11 +93,13 @@ const PostSurgeryTracking = () => {
             <div className="text-sm text-muted-foreground mb-4">
               Step {currentStep + 1} of {formSteps.length}: {formSteps[currentStep].title}
             </div>
-            <ScrollArea className="flex-1">
-              <div className="space-y-4 py-4">
-                {renderFormStep()}
-              </div>
-            </ScrollArea>
+            <PostSurgeryForm
+              currentStep={currentStep}
+              formData={formData}
+              selectedTreatments={selectedTreatments}
+              handleInputChange={handleInputChange}
+              toggleTreatment={toggleTreatment}
+            />
           </div>
           <div className="border-t p-6 flex justify-between py-[10px]">
             <Button
@@ -330,7 +135,7 @@ const PostSurgeryTracking = () => {
       
       <Card className="mx-6">
         <div className="p-6">
-          <DataTable columns={columns} data={initialData} />
+          <DataTable columns={columns} data={data} />
         </div>
       </Card>
     </main>
