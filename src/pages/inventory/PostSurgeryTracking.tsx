@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/patient/table/DataTable";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,10 @@ const PostSurgeryTracking = () => {
   };
 
   const handleInputChange = (field: string, value: string | string[]) => {
+    if (field === 'treatments') {
+      // For treatments, update both the form data and the selected treatments state
+      setSelectedTreatments(value as string[]);
+    }
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -42,19 +47,16 @@ const PostSurgeryTracking = () => {
   };
 
   const toggleTreatment = (treatment: string) => {
-    const newSelectedTreatments = selectedTreatments.includes(treatment)
-      ? selectedTreatments.filter(t => t !== treatment)
-      : [...selectedTreatments, treatment];
-    
-    setSelectedTreatments(newSelectedTreatments);
-    handleInputChange('treatments', newSelectedTreatments);
+    // For single selection, we just set the treatment as the only selected one
+    setSelectedTreatments([treatment]);
+    handleInputChange('treatments', [treatment]);
   };
 
   const canProceed = () => {
     const currentFields = formSteps[currentStep].fields;
     return currentFields.every(field => {
       if (field === 'treatments') {
-        return selectedTreatments.length > 0;
+        return selectedTreatments.length === 1; // Ensure exactly one treatment is selected
       }
       return formData[field as keyof typeof formData];
     });

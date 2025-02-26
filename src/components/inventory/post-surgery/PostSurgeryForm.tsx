@@ -72,7 +72,7 @@ export const PostSurgeryForm = ({
             </div>
 
             <div className="mt-6">
-              <Label>Select Treatments:</Label>
+              <Label>Select Treatment:</Label>
               <ScrollArea className="h-[400px] w-full">
                 <div className="grid grid-cols-2 gap-2 mt-2 p-1">
                   {treatmentOptions.map((treatment) => (
@@ -82,12 +82,15 @@ export const PostSurgeryForm = ({
                       variant="outline"
                       className={cn(
                         "justify-start gap-2 h-auto py-2 px-3 text-xs",
-                        selectedTreatments.includes(treatment) && "bg-primary/10 border-primary"
+                        selectedTreatments[0] === treatment && "bg-primary/10 border-primary"
                       )}
-                      onClick={() => toggleTreatment(treatment)}
+                      onClick={() => {
+                        // For single selection, we pass an array with just the clicked treatment
+                        handleInputChange("treatments", [treatment]);
+                      }}
                     >
                       <div className="flex items-center gap-1.5">
-                        {selectedTreatments.includes(treatment) && (
+                        {selectedTreatments[0] === treatment && (
                           <Check className="h-3 w-3 text-primary shrink-0" />
                         )}
                         <span>{treatment}</span>
