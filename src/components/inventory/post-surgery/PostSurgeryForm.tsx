@@ -50,7 +50,7 @@ export const PostSurgeryForm = ({
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 min-h-[300px]">
             <div className="space-y-4 px-0 mx-[10px] my-0">
               <Label htmlFor="patient">Patient Name:</Label>
               <Select value={formData.patient} onValueChange={value => handleInputChange("patient", value)}>
@@ -155,8 +155,10 @@ export const PostSurgeryForm = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100%-2rem)]">
-      {renderFormStep()}
+    <ScrollArea className="h-[calc(100%-2rem)] overflow-y-auto">
+      <div className="p-4">
+        {renderFormStep()}
+      </div>
     </ScrollArea>
   );
 };
