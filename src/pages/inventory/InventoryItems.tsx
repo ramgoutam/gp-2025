@@ -39,6 +39,7 @@ const InventoryItems = () => {
   const [targetLocationId, setTargetLocationId] = useState("");
   const [transferQuantity, setTransferQuantity] = useState(0);
   const { toast } = useToast();
+  const [categories, setCategories] = useState<string[]>([]);
 
   const uomOptions = ["ML", "Unit", "Gm", "Pr", "Ga"];
 
@@ -563,10 +564,7 @@ const InventoryItems = () => {
       <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Pencil className="h-5 w-5 text-primary" />
-              Edit Product Details
-            </DialogTitle>
+            <DialogTitle className="text-xl">Edit Product Details</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEdit}>
             <ScrollArea className="pr-4">
@@ -759,14 +757,9 @@ const InventoryItems = () => {
                     />
                   </div>
                 </div>
-                <DialogFooter className="mt-6">
-                  <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    Save Changes
-                  </Button>
-                </DialogFooter>
+                <Button type="submit" className="w-full">
+                  Save Changes
+                </Button>
               </div>
             </ScrollArea>
           </form>
@@ -819,5 +812,4 @@ const InventoryItems = () => {
     </div>;
 };
 
-
-
+export default InventoryItems;
