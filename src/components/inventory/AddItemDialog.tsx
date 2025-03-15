@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [customUom, setCustomUom] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [newItem, setNewItem] = useState({
     product_name: "",
     description: "",
@@ -32,6 +34,31 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   });
 
   const uomOptions = ["ML", "Unit", "Gm", "Pr", "Ga"];
+
+  useEffect(() => {
+    // Fetch existing categories from inventory items
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .select('category')
+          .not('category', 'is', null);
+        
+        if (error) throw error;
+        
+        // Extract unique categories
+        const uniqueCategories = Array.from(
+          new Set(data.map(item => item.category).filter(Boolean))
+        ) as string[];
+        
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +111,13 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     }
   };
 
+  const handleAddCustomCategory = () => {
+    if (customCategory.trim()) {
+      setNewItem({ ...newItem, category: customCategory.trim() });
+      setCustomCategory("");
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -119,12 +153,52 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={newItem.category}
-                  onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Select 
+                    value={newItem.category} 
+                    onValueChange={(value) => setNewItem({ ...newItem, category: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                      {newItem.category && !categories.includes(newItem.category) ? (
+                        <SelectItem value={newItem.category}>{newItem.category}</SelectItem>
+                      ) : null}
+                    </SelectContent>
+                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" type="button" className="px-3">+</Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 bg-white p-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="custom-category">Add Custom Category</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="custom-category"
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value)}
+                            placeholder="Enter custom category"
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleAddCustomCategory}
+                            disabled={!customCategory.trim()}
+                            variant="secondary"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="uom">UOM</Label>
