@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +40,7 @@ const InventoryItems = () => {
   const [targetLocationId, setTargetLocationId] = useState("");
   const [transferQuantity, setTransferQuantity] = useState(0);
   const { toast } = useToast();
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
   const uomOptions = ["ML", "Unit", "Gm", "Pr", "Ga"];
 
@@ -57,7 +58,7 @@ const InventoryItems = () => {
           new Set(data.map(item => item.category).filter(Boolean))
         ) as string[];
         
-        setCategories(uniqueCategories);
+        setCategoryOptions(uniqueCategories);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -216,8 +217,10 @@ const InventoryItems = () => {
     }
   };
 
-  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
-  const filteredCategories = categories.filter(category => category.toLowerCase().includes(categorySearchQuery.toLowerCase()));
+  // Use our state for category filtering
+  const filteredCategories = categoryOptions.filter(category => 
+    category.toLowerCase().includes(categorySearchQuery.toLowerCase())
+  );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -599,12 +602,12 @@ const InventoryItems = () => {
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent className="bg-white">
-                          {categories.map((category) => (
+                          {categoryOptions.map((category) => (
                             <SelectItem key={category} value={category}>
                               {category}
                             </SelectItem>
                           ))}
-                          {editingItem?.category && !categories.includes(editingItem.category) ? (
+                          {editingItem?.category && !categoryOptions.includes(editingItem.category) ? (
                             <SelectItem value={editingItem.category}>{editingItem.category}</SelectItem>
                           ) : null}
                         </SelectContent>
