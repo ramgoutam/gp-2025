@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AddItemDialog } from "@/components/inventory/AddItemDialog";
@@ -14,9 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+
 const initialColumns = ["product_name", "sku", "category", "manufacturer", "quantity", "price", "actions"];
+
 const InventoryItems = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRecording, setIsRecording] = useState(false);
@@ -27,15 +30,41 @@ const InventoryItems = () => {
   const [selectedColumns, setSelectedColumns] = useState(initialColumns);
   const [viewingItem, setViewingItem] = useState<any>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [customUom, setCustomUom] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [selectedStockItem, setSelectedStockItem] = useState<any>(null);
   const [targetLocationId, setTargetLocationId] = useState("");
   const [transferQuantity, setTransferQuantity] = useState(0);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
+  const uomOptions = ["ML", "Unit", "Gm", "Pr", "Ga"];
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .select('category')
+          .not('category', 'is', null);
+        
+        if (error) throw error;
+        
+        const uniqueCategories = Array.from(
+          new Set(data.map(item => item.category).filter(Boolean))
+        ) as string[];
+        
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const {
     data: items = [],
     refetch
@@ -63,6 +92,7 @@ const InventoryItems = () => {
       return data;
     }
   });
+
   const {
     data: locations = []
   } = useQuery({
@@ -76,6 +106,7 @@ const InventoryItems = () => {
       return data;
     }
   });
+
   const {
     data: stockData = []
   } = useQuery({
@@ -94,14 +125,12 @@ const InventoryItems = () => {
         `).eq('item_id', viewingItem.id);
       if (error) throw error;
 
-      // Create a map of location_id to stock data
       const stockMap = new Map(data.map(stock => [stock.location_id, {
         location_id: stock.location_id,
         location_name: stock.inventory_locations.name,
         quantity: stock.quantity
       }]));
 
-      // Return stock data for all locations, using 0 for locations without stock
       return locations.map(location => ({
         location_id: location.id,
         location_name: location.name,
@@ -109,26 +138,30 @@ const InventoryItems = () => {
       }));
     }
   });
+
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const {
-        error
-      } = await supabase.from('inventory_items').update({
-        product_name: editingItem.product_name,
-        description: editingItem.description,
-        sku: editingItem.sku,
-        uom: editingItem.uom,
-        min_stock: editingItem.min_stock,
-        product_id: editingItem.product_id,
-        category: editingItem.category,
-        manufacturing_id: editingItem.manufacturing_id,
-        manufacturer: editingItem.manufacturer,
-        order_link: editingItem.order_link,
-        price: editingItem.price,
-        qty_per_uom: editingItem.qty_per_uom
-      }).eq('id', editingItem.id);
+      const { error } = await supabase
+        .from('inventory_items')
+        .update({
+          product_name: editingItem.product_name,
+          description: editingItem.description,
+          sku: editingItem.sku,
+          uom: editingItem.uom,
+          min_stock: editingItem.min_stock,
+          product_id: editingItem.product_id,
+          category: editingItem.category,
+          manufacturing_id: editingItem.manufacturing_id,
+          manufacturer: editingItem.manufacturer,
+          order_link: editingItem.order_link,
+          price: editingItem.price,
+          qty_per_uom: editingItem.qty_per_uom
+        })
+        .eq('id', editingItem.id);
+      
       if (error) throw error;
+
       toast({
         title: "Success",
         description: "Item updated successfully"
@@ -144,6 +177,21 @@ const InventoryItems = () => {
       });
     }
   };
+
+  const handleAddCustomUom = () => {
+    if (customUom.trim()) {
+      setEditingItem({ ...editingItem, uom: customUom.trim() });
+      setCustomUom("");
+    }
+  };
+
+  const handleAddCustomCategory = () => {
+    if (customCategory.trim()) {
+      setEditingItem({ ...editingItem, category: customCategory.trim() });
+      setCustomCategory("");
+    }
+  };
+
   const handleDelete = async () => {
     try {
       const {
@@ -166,28 +214,33 @@ const InventoryItems = () => {
       });
     }
   };
+
   const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
   const filteredCategories = categories.filter(category => category.toLowerCase().includes(categorySearchQuery.toLowerCase()));
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
   const handleColumnToggle = (column: string) => {
     setSelectedColumns(prev => prev.includes(column) ? prev.filter(col => col !== column) : [...prev, column]);
   };
+
   const handleCategorySelect = (category: string | null) => {
     setSelectedCategory(category);
     setShowCategoryDialog(false);
   };
+
   const handleTransferClick = (stock: any) => {
     setSelectedStockItem(stock);
     setTransferQuantity(0);
     setTargetLocationId("");
     setIsTransferDialogOpen(true);
   };
+
   const handleTransferStock = async () => {
     if (!selectedStockItem || !targetLocationId || !viewingItem) return;
     try {
-      // Update source location stock
       const {
         error: sourceError
       } = await supabase.from('inventory_stock').update({
@@ -195,12 +248,10 @@ const InventoryItems = () => {
       }).eq('item_id', viewingItem.id).eq('location_id', selectedStockItem.location_id);
       if (sourceError) throw sourceError;
 
-      // Check if target location already has stock
       const {
         data: existingStock
       } = await supabase.from('inventory_stock').select('quantity').eq('item_id', viewingItem.id).eq('location_id', targetLocationId).single();
       if (existingStock) {
-        // Update existing target location stock
         const {
           error: updateError
         } = await supabase.from('inventory_stock').update({
@@ -208,7 +259,6 @@ const InventoryItems = () => {
         }).eq('item_id', viewingItem.id).eq('location_id', targetLocationId);
         if (updateError) throw updateError;
       } else {
-        // Create new stock record for target location
         const {
           error: insertError
         } = await supabase.from('inventory_stock').insert({
@@ -517,107 +567,208 @@ const InventoryItems = () => {
               <Pencil className="h-5 w-5 text-primary" />
               Edit Product Details
             </DialogTitle>
-            
           </DialogHeader>
           <form onSubmit={handleEdit}>
-            <ScrollArea className="max-h-[600px]">
-              <div className="grid gap-4 py-0 px-0 my-0">
+            <ScrollArea className="pr-4">
+              <div className="space-y-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="product_id">Product ID</Label>
-                    <Input id="product_id" value={editingItem?.product_id || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    product_id: e.target.value
-                  } : null)} required />
+                    <Input
+                      id="product_id"
+                      value={editingItem?.product_id || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, product_id: e.target.value } : null)}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="product_name">Product Name</Label>
-                    <Input id="product_name" value={editingItem?.product_name || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    product_name: e.target.value
-                  } : null)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="sku">SKU</Label>
-                    <Input id="sku" value={editingItem?.sku || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    sku: e.target.value
-                  } : null)} />
+                    <Label htmlFor="product_name">Name</Label>
+                    <Input
+                      id="product_name"
+                      value={editingItem?.product_name || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, product_name: e.target.value } : null)}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">Category</Label>
-                    <Input id="category" value={editingItem?.category || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    category: e.target.value
-                  } : null)} />
+                    <div className="flex gap-2">
+                      <Select 
+                        value={editingItem?.category || ""} 
+                        onValueChange={(value) => setEditingItem(prev => prev ? { ...prev, category: value } : null)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                          {editingItem?.category && !categories.includes(editingItem.category) ? (
+                            <SelectItem value={editingItem.category}>{editingItem.category}</SelectItem>
+                          ) : null}
+                        </SelectContent>
+                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" type="button" className="px-3">+</Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 bg-white p-4 shadow-lg z-[100]">
+                          <div className="space-y-2">
+                            <Label htmlFor="custom-category">Add Custom Category</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                id="custom-category"
+                                value={customCategory}
+                                onChange={(e) => setCustomCategory(e.target.value)}
+                                placeholder="Enter custom category"
+                              />
+                              <Button 
+                                type="button" 
+                                onClick={handleAddCustomCategory}
+                                disabled={!customCategory.trim()}
+                                variant="secondary"
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="uom">Unit of Measure</Label>
-                    <Input id="uom" value={editingItem?.uom || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    uom: e.target.value
-                  } : null)} required />
+                    <Label htmlFor="uom">UOM</Label>
+                    <div className="flex gap-2">
+                      <Select 
+                        value={editingItem?.uom || ""} 
+                        onValueChange={(value) => setEditingItem(prev => prev ? { ...prev, uom: value } : null)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select UOM" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          {uomOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                          {editingItem?.uom && !uomOptions.includes(editingItem.uom) ? (
+                            <SelectItem value={editingItem.uom}>{editingItem.uom}</SelectItem>
+                          ) : null}
+                        </SelectContent>
+                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" type="button" className="px-3">+</Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 bg-white p-4 shadow-lg z-[100]">
+                          <div className="space-y-2">
+                            <Label htmlFor="custom-uom">Add Custom UOM</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                id="custom-uom"
+                                value={customUom}
+                                onChange={(e) => setCustomUom(e.target.value)}
+                                placeholder="Enter custom UOM"
+                              />
+                              <Button 
+                                type="button" 
+                                onClick={handleAddCustomUom}
+                                disabled={!customUom.trim()}
+                                variant="secondary"
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="qty_per_uom">Quantity per UOM</Label>
-                    <Input id="qty_per_uom" type="number" min="1" value={editingItem?.qty_per_uom || 1} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    qty_per_uom: parseInt(e.target.value)
-                  } : null)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="min_stock">Minimum Stock</Label>
-                    <Input id="min_stock" type="number" value={editingItem?.min_stock || 0} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    min_stock: parseInt(e.target.value)
-                  } : null)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price</Label>
-                    <Input id="price" type="number" step="0.01" value={editingItem?.price || 0} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    price: parseFloat(e.target.value)
-                  } : null)} />
+                    <Input
+                      id="qty_per_uom"
+                      type="number"
+                      min="1"
+                      value={editingItem?.qty_per_uom || 1}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, qty_per_uom: parseInt(e.target.value) } : null)}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="manufacturing_id">Manufacturing ID</Label>
-                    <Input id="manufacturing_id" value={editingItem?.manufacturing_id || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    manufacturing_id: e.target.value
-                  } : null)} />
+                    <Input
+                      id="manufacturing_id"
+                      value={editingItem?.manufacturing_id || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, manufacturing_id: e.target.value } : null)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="manufacturer">Manufacturer</Label>
-                    <Input id="manufacturer" value={editingItem?.manufacturer || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    manufacturer: e.target.value
-                  } : null)} />
+                    <Input
+                      id="manufacturer"
+                      value={editingItem?.manufacturer || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, manufacturer: e.target.value } : null)}
+                    />
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
                     <Label htmlFor="order_link">Order Link</Label>
-                    <Input id="order_link" value={editingItem?.order_link || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    order_link: e.target.value
-                  } : null)} />
+                    <Input
+                      id="order_link"
+                      value={editingItem?.order_link || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, order_link: e.target.value } : null)}
+                    />
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="min_stock">Minimum Stock</Label>
+                    <Input
+                      id="min_stock"
+                      type="number"
+                      value={editingItem?.min_stock || 0}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, min_stock: parseInt(e.target.value) } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={editingItem?.price || 0}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: parseFloat(e.target.value) } : null)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sku">SKU</Label>
+                    <Input
+                      id="sku"
+                      value={editingItem?.sku || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, sku: e.target.value } : null)}
+                    />
+                  </div>
+                  <div className="col-span-2 space-y-2">
                     <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" value={editingItem?.description || ""} onChange={e => setEditingItem(prev => prev ? {
-                    ...prev,
-                    description: e.target.value
-                  } : null)} className="min-h-[100px]" />
+                    <Textarea
+                      id="description"
+                      value={editingItem?.description || ""}
+                      onChange={(e) => setEditingItem(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    />
                   </div>
                 </div>
+                <DialogFooter className="mt-6">
+                  <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Save Changes
+                  </Button>
+                </DialogFooter>
               </div>
             </ScrollArea>
-            <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                Save Changes
-              </Button>
-            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
@@ -667,4 +818,6 @@ const InventoryItems = () => {
       </Dialog>
     </div>;
 };
-export default InventoryItems;
+
+
+
