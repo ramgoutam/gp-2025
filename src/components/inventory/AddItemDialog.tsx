@@ -176,7 +176,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
                     <PopoverTrigger asChild>
                       <Button variant="outline" type="button" className="px-3">+</Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 bg-white p-4">
+                    <PopoverContent className="w-80 bg-white p-4 shadow-lg z-[100]">
                       <div className="space-y-2">
                         <Label htmlFor="custom-category">Add Custom Category</Label>
                         <div className="flex gap-2">
@@ -225,7 +225,7 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
                     <PopoverTrigger asChild>
                       <Button variant="outline" type="button" className="px-3">+</Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 bg-white p-4">
+                    <PopoverContent className="w-80 bg-white p-4 shadow-lg z-[100]">
                       <div className="space-y-2">
                         <Label htmlFor="custom-uom">Add Custom UOM</Label>
                         <div className="flex gap-2">
