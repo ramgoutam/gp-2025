@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,10 +9,13 @@ import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [customUom, setCustomUom] = useState("");
   const [newItem, setNewItem] = useState({
     product_name: "",
     description: "",
@@ -26,6 +30,8 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
     price: 0,
     qty_per_uom: 1,
   });
+
+  const uomOptions = ["ML", "Unit", "Gm", "Pr", "Ga"];
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +74,13 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAddCustomUom = () => {
+    if (customUom.trim()) {
+      setNewItem({ ...newItem, uom: customUom.trim() });
+      setCustomUom("");
     }
   };
 
@@ -115,12 +128,52 @@ export const AddItemDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="uom">UOM</Label>
-                <Input
-                  id="uom"
-                  value={newItem.uom}
-                  onChange={(e) => setNewItem({ ...newItem, uom: e.target.value })}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Select 
+                    value={newItem.uom} 
+                    onValueChange={(value) => setNewItem({ ...newItem, uom: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select UOM" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {uomOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                      {newItem.uom && !uomOptions.includes(newItem.uom) ? (
+                        <SelectItem value={newItem.uom}>{newItem.uom}</SelectItem>
+                      ) : null}
+                    </SelectContent>
+                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" type="button" className="px-3">+</Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 bg-white p-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="custom-uom">Add Custom UOM</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="custom-uom"
+                            value={customUom}
+                            onChange={(e) => setCustomUom(e.target.value)}
+                            placeholder="Enter custom UOM"
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleAddCustomUom}
+                            disabled={!customUom.trim()}
+                            variant="secondary"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="qty_per_uom">Quantity per UOM</Label>
